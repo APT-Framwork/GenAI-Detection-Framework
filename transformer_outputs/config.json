@@ -1,0 +1,33 @@
+{
+  "AUTOENCODER_OUTPUT_DIR": "G:\\pfe\\Linux-APT-Dataset-2024\\autoencoder_outputs",
+  "LATENT_VECTORS_PATH": "G:\\pfe\\Linux-APT-Dataset-2024\\autoencoder_outputs\\latent_vectors.npy",
+  "CKC_LABELS_PATH": "G:\\pfe\\Linux-APT-Dataset-2024\\autoencoder_outputs\\labels_ckc.npy",
+  "MALICIOUS_LABELS_PATH": "G:\\pfe\\Linux-APT-Dataset-2024\\autoencoder_outputs\\labels_malicious.npy",
+  "ORIGINAL_DATA_PATH": "../combined_dataset_final.xlsx",
+  "OUTPUT_DIR": "transformer_outputs",
+  "INPUT_DIM": 64,
+  "D_MODEL": 128,
+  "N_HEADS": 8,
+  "N_ENCODER_LAYERS": 4,
+  "DIM_FEEDFORWARD": 512,
+  "DROPOUT": 0.1,
+  "SEQ_LENGTH": 4,
+  "STRIDE": 1,
+  "TASK": "next_step_prediction",
+  "NUM_CKC_CLASSES": 8,
+  "EARLY_WARNING_STAGES": [
+    6,
+    7
+  ],
+  "BATCH_SIZE": 32,
+  "LEARNING_RATE": 0.0001,
+  "WEIGHT_DECAY": 1e-05,
+  "NUM_EPOCHS": 100,
+  "PATIENCE": 15,
+  "TRAIN_RATIO": 0.7,
+  "VAL_RATIO": 0.15,
+  "TEST_RATIO": 0.15,
+  "POSITIONAL_ENCODING": "sinusoidal",
+  "MAX_SEQ_LENGTH": 500,
+  "USE_CLASS_WEIGHTS": true
+}

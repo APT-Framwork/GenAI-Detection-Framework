@@ -1,0 +1,12 @@
+{
+  "task": "next_step_prediction",
+  "accuracy": 0.8669124848764187,
+  "precision": 0.9264067909511629,
+  "recall": 0.8669124848764187,
+  "f1_score": 0.8907443354712462,
+  "num_train": 80994,
+  "num_val": 17355,
+  "num_test": 17357,
+  "epochs_trained": 20,
+  "best_val_loss": 0.6021765178175811
+}

@@ -1,0 +1,7 @@
+task,model,accuracy
+Malicious Detection,Random Forest,0.9873844292750367
+Malicious Detection,XGBoost,0.9876868573403612
+Malicious Detection,LightGBM,0.9877300613496932
+CKC Stage Classification,Random Forest,0.8407331975560082
+CKC Stage Classification,XGBoost,0.9022403258655805
+CKC Stage Classification,LightGBM,0.8429735234215886
