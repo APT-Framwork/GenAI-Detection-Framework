@@ -1,0 +1,18 @@
+======================================================================
+RL-BASED APT DETECTION SYSTEM - EVALUATION REPORT
+======================================================================
+
+SYNTHETIC SEQUENCES
+----------------------------------------------------------------------
+Episodes: 50
+Average Reward: -18.50 ± 11.54
+Early Detection Rate: 0.0%
+Average Steps per Episode: 13.1
+
+REAL SEQUENCES
+----------------------------------------------------------------------
+Episodes: 0
+Average Reward: nan ± nan
+Early Detection Rate: nan%
+Average Steps per Episode: nan
+

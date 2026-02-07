@@ -1,0 +1,88 @@
+Engineered_Feature,Original_Column,Description,Type
+hour_of_day,_source.@timestamp,Hour of the day (0-23) when the alert occurred,Extracted from timestamp
+day_of_week,_source.@timestamp,"Day of the week (0=Monday, 6=Sunday)",Extracted from timestamp
+is_weekend,_source.@timestamp,"1 if alert occurred on Saturday/Sunday, 0 otherwise",Derived binary flag
+is_night,_source.@timestamp,"1 if alert occurred between 22:00-06:00, 0 otherwise",Derived binary flag
+is_business_hours,_source.@timestamp,"1 if alert occurred between 09:00-17:00, 0 otherwise",Derived binary flag
+rule_level,_source.rule.level,Wazuh rule severity level (0-15),Direct numeric value
+is_high_severity,_source.rule.level,"1 if rule_level >= 10, 0 otherwise",Derived binary flag
+is_critical_severity,_source.rule.level,"1 if rule_level >= 12, 0 otherwise",Derived binary flag
+firedtimes,_source.rule.firedtimes,Number of times this rule has been triggered,Direct numeric value
+firedtimes_log,_source.rule.firedtimes,Log-transformed firedtimes: log(1 + firedtimes),Log transformation
+ip_is_private,_source.agent.ip,"1 if agent IP is private (10.x, 192.168.x, etc.), 0 if public, -1 if missing",Derived from IP parsing
+ip_is_missing,_source.agent.ip,"1 if agent IP is missing/null, 0 otherwise",Missing value indicator
+srcip_is_private,_source.data.srcip,"1 if source IP is private, 0 if public, -1 if missing",Derived from IP parsing
+srcip_is_missing,_source.data.srcip,"1 if source IP is missing/null, 0 otherwise",Missing value indicator
+path_depth,_source.syscheck.path,Directory depth (count of / in path),Extracted from path
+path_is_sensitive,_source.syscheck.path,"1 if path contains /etc, /root, /var/log, /bin, etc.",Pattern matching
+path_is_hidden,_source.syscheck.path,1 if path contains hidden file/folder (starts with .),Pattern matching
+path_is_suspicious_ext,_source.syscheck.path,"1 if file has suspicious extension (.sh, .py, .php, .exe, etc.)",Pattern matching
+path_is_temp,_source.syscheck.path,1 if path is in /tmp or /temp directory,Pattern matching
+path_is_missing,_source.syscheck.path,1 if syscheck path is missing/null,Missing value indicator
+cmd_sudo_usage,_source.data.command,"1 if command contains ""sudo""",Regex pattern matching
+cmd_chmod_usage,_source.data.command,"1 if command contains ""chmod""",Regex pattern matching
+cmd_wget_curl,_source.data.command,"1 if command contains ""wget"" or ""curl""",Regex pattern matching
+cmd_nc_netcat,_source.data.command,"1 if command contains ""nc"", ""netcat"", or ""ncat""",Regex pattern matching
+cmd_base64,_source.data.command,"1 if command contains ""base64""",Regex pattern matching
+cmd_eval_exec,_source.data.command,"1 if command contains ""eval"" or ""exec""",Regex pattern matching
+cmd_pipe_redirect,_source.data.command,1 if command contains pipe | or redirect > <,Regex pattern matching
+cmd_ssh_scp,_source.data.command,"1 if command contains ""ssh"", ""scp"", or ""sftp""",Regex pattern matching
+cmd_python_perl,_source.data.command,"1 if command contains ""python"", ""perl"", ""ruby"", or ""php""",Regex pattern matching
+cmd_rm_delete,_source.data.command,"1 if command contains ""rm"" (file deletion)",Regex pattern matching
+cmd_length,_source.data.command,Length of the command string in characters,String length
+cmd_has_args,_source.data.command,"1 if command contains arguments (has "" -"")",Pattern matching
+cmd_is_missing,_source.data.command,1 if command field is missing/null,Missing value indicator
+tactic_reconnaissance,_source.rule.mitre_tactics,"1 if MITRE tactic contains ""reconnaissance""",Pattern matching
+tactic_initial_access,_source.rule.mitre_tactics,"1 if MITRE tactic contains ""initial-access""",Pattern matching
+tactic_execution,_source.rule.mitre_tactics,"1 if MITRE tactic contains ""execution""",Pattern matching
+tactic_persistence,_source.rule.mitre_tactics,"1 if MITRE tactic contains ""persistence""",Pattern matching
+tactic_privilege_escalation,_source.rule.mitre_tactics,"1 if MITRE tactic contains ""privilege-escalation""",Pattern matching
+tactic_defense_evasion,_source.rule.mitre_tactics,"1 if MITRE tactic contains ""defense-evasion""",Pattern matching
+tactic_credential_access,_source.rule.mitre_tactics,"1 if MITRE tactic contains ""credential-access""",Pattern matching
+tactic_discovery,_source.rule.mitre_tactics,"1 if MITRE tactic contains ""discovery""",Pattern matching
+tactic_lateral_movement,_source.rule.mitre_tactics,"1 if MITRE tactic contains ""lateral-movement""",Pattern matching
+tactic_collection,_source.rule.mitre_tactics,"1 if MITRE tactic contains ""collection""",Pattern matching
+tactic_command_and_control,_source.rule.mitre_tactics,"1 if MITRE tactic contains ""command-and-control""",Pattern matching
+tactic_exfiltration,_source.rule.mitre_tactics,"1 if MITRE tactic contains ""exfiltration""",Pattern matching
+tactic_impact,_source.rule.mitre_tactics,"1 if MITRE tactic contains ""impact""",Pattern matching
+technique_count,_source.rule.mitre_techniques,Count of MITRE technique IDs (T#### patterns) in the field,Regex count
+has_mitre_tactic,_source.rule.mitre_tactics,"1 if any MITRE tactic is present, 0 otherwise",Non-null indicator
+has_mitre_technique,_source.rule.mitre_techniques,"1 if any MITRE technique is present, 0 otherwise",Non-null indicator
+has_md5,_source.syscheck.md5_after,1 if MD5 hash is present after file change,Non-null indicator
+has_sha256,_source.syscheck.sha256_after,1 if SHA256 hash is present after file change,Non-null indicator
+syscheck_added,_source.syscheck.event,"1 if syscheck event type is ""added"" (new file)",Category indicator
+syscheck_modified,_source.syscheck.event,"1 if syscheck event type is ""modified"" (file changed)",Category indicator
+syscheck_deleted,_source.syscheck.event,"1 if syscheck event type is ""deleted"" (file removed)",Category indicator
+changed_size,_source.syscheck.changed_attributes,1 if file size changed,Attribute flag
+changed_mtime,_source.syscheck.changed_attributes,1 if modification time changed,Attribute flag
+changed_md5,_source.syscheck.changed_attributes,1 if MD5 hash changed,Attribute flag
+changed_sha1,_source.syscheck.changed_attributes,1 if SHA1 hash changed,Attribute flag
+changed_sha256,_source.syscheck.changed_attributes,1 if SHA256 hash changed,Attribute flag
+changed_permission,_source.syscheck.changed_attributes,1 if file permissions changed,Attribute flag
+changed_uid,_source.syscheck.changed_attributes,1 if user ID (owner) changed,Attribute flag
+changed_gid,_source.syscheck.changed_attributes,1 if group ID changed,Attribute flag
+changed_inode,_source.syscheck.changed_attributes,1 if inode changed,Attribute flag
+srcport,_source.data.srcport,Source port number,Direct numeric value
+is_privileged_port,_source.data.srcport,1 if port < 1024 (privileged/well-known ports),Derived binary flag
+is_high_port,_source.data.srcport,1 if port > 49152 (dynamic/ephemeral ports),Derived binary flag
+decoder_auditd,_source.decoder.name,"1 if decoder is ""auditd"" (Linux audit daemon)",One-hot encoded category
+decoder_pam,_source.decoder.name,"1 if decoder is ""pam"" (Pluggable Authentication Module)",One-hot encoded category
+decoder_sshd,_source.decoder.name,"1 if decoder is ""sshd"" (SSH daemon)",One-hot encoded category
+decoder_sudo,_source.decoder.name,"1 if decoder is ""sudo""",One-hot encoded category
+decoder_sca,_source.decoder.name,"1 if decoder is ""sca"" (Security Configuration Assessment)",One-hot encoded category
+decoder_rootcheck,_source.decoder.name,"1 if decoder is ""rootcheck"" (rootkit detection)",One-hot encoded category
+decoder_ossec,_source.decoder.name,"1 if decoder is ""ossec""",One-hot encoded category
+decoder_web-accesslog,_source.decoder.name,"1 if decoder is ""web-accesslog"" (web server logs)",One-hot encoded category
+decoder_dpkg-decoder,_source.decoder.name,"1 if decoder is ""dpkg-decoder"" (Debian package manager)",One-hot encoded category
+decoder_kernel,_source.decoder.name,"1 if decoder is ""kernel""",One-hot encoded category
+decoder_systemd,_source.decoder.name,"1 if decoder is ""systemd""",One-hot encoded category
+decoder_wazuh,_source.decoder.name,"1 if decoder is ""wazuh""",One-hot encoded category
+decoder_syscheck_deleted,_source.decoder.name,"1 if decoder is ""syscheck_deleted""",One-hot encoded category
+decoder_syscheck_integrity_changed,_source.decoder.name,"1 if decoder is ""syscheck_integrity_changed""",One-hot encoded category
+location__var_log_auth.log,_source.location,1 if log source is /var/log/auth.log (authentication logs),One-hot encoded category
+location__var_log_audit_audit.log,_source.location,1 if log source is /var/log/audit/audit.log (audit logs),One-hot encoded category
+location__var_log_apache2_access.log,_source.location,1 if log source is /var/log/apache2/access.log (web server),One-hot encoded category
+location_syscheck,_source.location,1 if log source is syscheck (file integrity monitoring),One-hot encoded category
+location_wazuh-remoted,_source.location,1 if log source is wazuh-remoted,One-hot encoded category
+location_logcollector,_source.location,1 if log source is logcollector,One-hot encoded category
+location_netstat_listening_ports,_source.location,1 if log source is netstat_listening_ports,One-hot encoded category

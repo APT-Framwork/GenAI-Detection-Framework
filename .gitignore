@@ -205,3 +205,24 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+# Project-specific
+rl_apt_system/venv/
+ReALTabFormer-Model/model.safetensors
+autoencoder_outputs/latent_vectors.csv
+combined_dataset_final.xlsx
+
+platform/*.md
+platform/platform_desg
+SESSION_HANDOFF.md
+SESSION_MOBILE_HANDOFF.md
+STRIX_FRONTEND_SPEC.md
+
+apps/web/node_modules
+apps/mobile/node_modules
+apps/web/.next/
+apps/mobile/.expo/
+
+node_modules/
+**/node_modules/
+pnpm-lock.yaml
