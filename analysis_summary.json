@@ -1,0 +1,11 @@
+{
+  "total_events": 91133,
+  "mitre_events": 348,
+  "unique_agents": 3,
+  "unique_tactics": 13,
+  "unique_techniques": 72,
+  "graph_nodes": 142,
+  "graph_edges": 422,
+  "date_range_start": "2023-10-01 00:49:29.245000",
+  "date_range_end": "2023-10-05 18:28:58.093000"
+}

@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cyber Kill Chain Attack Graphs</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0; padding: 20px;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh; color: #fff;
+        }
+        .container { max-width: 1200px; margin: 0 auto; }
+        h1 {
+            text-align: center; color: #00d4ff;
+            text-shadow: 0 0 10px rgba(0,212,255,0.5);
+            margin-bottom: 20px; font-size: 1.8em;
+        }
+        .machine-section {
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px; padding: 15px;
+            margin-bottom: 25px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .machine-title {
+            font-size: 1.3em; color: #00d4ff;
+            margin-bottom: 15px; padding-bottom: 8px;
+            border-bottom: 2px solid #00d4ff;
+        }
+        .attack-container {
+            background: rgba(0,0,0,0.3);
+            border-radius: 8px; padding: 12px;
+            margin-bottom: 15px;
+        }
+        .attack-title {
+            color: #ff6b6b; font-size: 1.1em;
+            font-weight: bold; margin-bottom: 8px;
+        }
+        .attack-direction {
+            color: #a0a0a0; font-style: italic;
+            margin-bottom: 8px; font-size: 0.85em;
+        }
+        .attack-desc {
+            color: #b0b0b0; font-size: 0.8em;
+            margin-bottom: 12px; padding: 8px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 4px;
+        }
+        .steps-container {
+            display: flex; align-items: center;
+            flex-wrap: wrap; gap: 8px; padding: 10px 0;
+        }
+        .step-node {
+            display: flex; flex-direction: column;
+            align-items: center; min-width: 90px;
+        }
+        .step-circle {
+            width: 50px; height: 50px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-weight: bold; font-size: 1em;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .step-circle:hover {
+            transform: scale(1.15);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+        }
+        .step-name { margin-top: 6px; font-size: 0.7em; color: #ccc; }
+        .step-details {
+            margin-top: 4px; font-size: 0.6em;
+            color: #888; text-align: center; max-width: 100px;
+        }
+        .arrow { font-size: 1.5em; color: #555; margin: 0 3px; }
+        .legend {
+            display: flex; flex-wrap: wrap; gap: 12px;
+            margin: 15px 0; padding: 12px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+        }
+        .legend-item { display: flex; align-items: center; gap: 6px; font-size: 0.85em; }
+        .legend-color { width: 18px; height: 18px; border-radius: 50%; }
+        .S1 { background-color: #3498db; }
+        .S2 { background-color: #9b59b6; }
+        .S3 { background-color: #e74c3c; }
+        .S4 { background-color: #e67e22; }
+        .S5 { background-color: #f39c12; }
+        .S6 { background-color: #1abc9c; }
+        .S7 { background-color: #2c3e50; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔒 Cyber Kill Chain Attack Graphs</h1>
+        <div class="legend">
+            <div class="legend-item"><div class="legend-color S1"></div>S1: Reconnaissance</div>
+            <div class="legend-item"><div class="legend-color S2"></div>S2: Weaponization</div>
+            <div class="legend-item"><div class="legend-color S3"></div>S3: Delivery</div>
+            <div class="legend-item"><div class="legend-color S4"></div>S4: Exploitation</div>
+            <div class="legend-item"><div class="legend-color S5"></div>S5: Installation</div>
+            <div class="legend-item"><div class="legend-color S6"></div>S6: Command & Control</div>
+            <div class="legend-item"><div class="legend-color S7"></div>S7: Actions on Objectives</div>
+        </div>
+
+        <div class="machine-section">
+            <div class="machine-title">🖥️ Machine 0 (Agent: 0)</div>
+    
+            <div class="attack-container">
+                <div class="attack-title">⚔️ Attack #1</div>
+                <div class="attack-direction">🎯 Attacker: Unknown → Victim: Unknown</div>
+                <div class="attack-desc">📝 CIS Ubuntu Linux 22.04 LTS Benchmark v1.0.0: Ensure nosuid option set on /tmp partition. | CIS Ubuntu Linux 22.04 LTS Benchmark v1.0.0: Ensure /tmp is a separate partition.</div>
+                <div class="steps-container">
+        
+                    <div class="step-node">
+                        <div class="step-circle S5">S5</div>
+                        <div class="step-name">Installation</div>
+                        <div class="step-details">T1499,T1499.001<br><i>TA0005</i></div>
+                    </div>
+            <span class="arrow">→</span>
+                    <div class="step-node">
+                        <div class="step-circle S7">S7</div>
+                        <div class="step-name">Actions</div>
+                        <div class="step-details">T1499,T1499.001<br><i>TA0006</i></div>
+                    </div>
+            
+                </div>
+            </div>
+        
+            <div class="attack-container">
+                <div class="attack-title">⚔️ Attack #2</div>
+                <div class="attack-direction">🎯 Attacker: Unknown → Victim: Unknown</div>
+                <div class="attack-desc">📝 CIS Ubuntu Linux 22.04 LTS Benchmark v1.0.0: Ensure noexec option set on /var/log/audit partition. | CIS Ubuntu Linux 22.04 LTS Benchmark v1.0.0: Ensure nodev option set on /var/log/audit partition.</div>
+                <div class="steps-container">
+        
+                    <div class="step-node">
+                        <div class="step-circle S5">S5</div>
+                        <div class="step-name">Installation</div>
+                        <div class="step-details">T1200<br><i>TA0005</i></div>
+                    </div>
+            <span class="arrow">→</span>
+                    <div class="step-node">
+                        <div class="step-circle S4">S4</div>
+                        <div class="step-name">Exploitation</div>
+                        <div class="step-details">T1068,T1203,T1211,T1212<br><i></i></div>
+                    </div>
+            <span class="arrow">→</span>
+                    <div class="step-node">
+                        <div class="step-circle S5">S5</div>
+                        <div class="step-name">Installation</div>
+                        <div class="step-details">T1036,T1036.002,T1036.003,T103<br><i></i></div>
+                    </div>
+            <span class="arrow">→</span>
+                    <div class="step-node">
+                        <div class="step-circle S4">S4</div>
+                        <div class="step-name">Exploitation</div>
+                        <div class="step-details">T1055,T1055.009,T1065,T1065.00<br><i>TA0002</i></div>
+                    </div>
+            <span class="arrow">→</span>
+                    <div class="step-node">
+                        <div class="step-circle S7">S7</div>
+                        <div class="step-name">Actions</div>
+                        <div class="step-details">T1005<br><i>TA0007</i></div>
+                    </div>
+            
+                </div>
+            </div>
+        
+            <div class="attack-container">
+                <div class="attack-title">⚔️ Attack #3</div>
+                <div class="attack-direction">🎯 Attacker: Unknown → Victim: Unknown</div>
+                <div class="attack-desc">📝 CIS Ubuntu Linux 22.04 LTS Benchmark v1.0.0: Ensure all AppArmor Profiles are enforcing. | CIS Ubuntu Linux 22.04 LTS Benchmark v1.0.0: Ensure message of the day is configured properly.</div>
+                <div class="steps-container">
+        
+                    <div class="step-node">
+                        <div class="step-circle S4">S4</div>
+                        <div class="step-name">Exploitation</div>
+                        <div class="step-details">T1068,T1565,T1565.001,T1565.00<br><i>TA0003</i></div>
+                    </div>
+            <span class="arrow">→</span>
+                    <div class="step-node">
+                        <div class="step-circle S5">S5</div>
+                        <div class="step-name">Installation</div>
+                        <div class="step-details"><br><i>TA0005</i></div>
+                    </div>
+            <span class="arrow">→</span>
+                    <div class="step-node">
+                        <div class="step-circle S4">S4</div>
+                        <div class="step-name">Exploitation</div>
+                        <div class="step-details">T1068,T1565,T1565.001,T1565.00<br><i>TA0005</i></div>
+                    </div>
+            <span class="arrow">→</span>
+                    <div class="step-node">
+                        <div class="step-circle S7">S7</div>
+                        <div class="step-name">Actions</div>
+                        <div class="step-details">T1082,T1592,T1592.004<br><i>TA0007</i></div>
+                    </div>
+            
+                </div>
+            </div>
+        
+            <div class="attack-container">
+                <div class="attack-title">⚔️ Attack #4</div>
+                <div class="attack-direction">🎯 Attacker: Unknown → Victim: Unknown</div>
+                <div class="attack-desc">📝 CIS Ubuntu Linux 22.04 LTS Benchmark v1.0.0: Ensure local login warning banner is configured properly.</div>
+                <div class="steps-container">
+        
+                    <div class="step-node">
+                        <div class="step-circle S7">S7</div>
+                        <div class="step-name">Actions</div>
+                        <div class="step-details">T1082,T1592,T1592.004<br><i>TA0007</i></div>
+                    </div>
+            
+                </div>
+            </div>
+        
+            <div class="attack-container">
+                <div class="attack-title">⚔️ Attack #5</div>
+                <div class="attack-direction">🎯 Attacker: Unknown → Victim: Unknown</div>
+                <div class="attack-desc">📝 CIS Ubuntu Linux 22.04 LTS Benchmark v1.0.0: Ensure remote login warning banner is configured properly.</div>
+                <div class="steps-container">
+        
+                    <div class="step-node">
+                        <div class="step-circle S7">S7</div>
+                        <div class="step-name">Actions</div>
+                        <div class="step-details">T1018,T1082,T1592,T1592.004<br><i>TA0007</i></div>
+                    </div>
+            
+                </div>
+            </div>
+        
+            <div class="attack-container">
+                <div class="attack-title">⚔️ Attack #6</div>
+                <div class="attack-direction">🎯 Attacker: Unknown → Victim: Unknown</div>
+                <div class="attack-desc">📝 CIS Ubuntu Linux 22.04 LTS Benchmark v1.0.0: Ensure CUPS is not installed. | CIS Ubuntu Linux 22.04 LTS Benchmark v1.0.0: Ensure XDCMP is not enabled.</div>
+                <div class="steps-container">
+        
+                    <div class="step-node">
+                        <div class="step-circle S5">S5</div>
+                        <div class="step-name">Installation</div>
+                        <div class="step-details">T1222,T1222.002<br><i>TA0005</i></div>
+                    </div>
+            <span class="arrow">→</span>
+                    <div class="step-node">
+                        <div class="step-circle S4">S4</div>
+                        <div class="step-name">Exploitation</div>
+                        <div class="step-details">T1543,T1543.002<br><i>TA0002</i></div>
+                    </div>
+            <span class="arrow">→</span>
+                    <div class="step-node">
+                        <div class="step-circle S5">S5</div>
+                        <div class="step-name">Installation</div>
+                        <div class="step-details">T1203,T1210,T1543,T1543.002<br><i>TA0008</i></div>
+                    </div>
+            <span class="arrow">→</span>
+                    <div class="step-node">
+                        <div class="step-circle S7">S7</div>
+                        <div class="step-name">Actions</div>
+                        <div class="step-details">T1203,T1543,T1543.002<br><i>TA0006,TA0008</i></div>
+                    </div>
+            
+                </div>
+            </div>
+        
+            <div class="attack-container">
+                <div class="attack-title">⚔️ Attack #7</div>
+                <div class="attack-direction">🎯 Attacker: Unknown → Victim: Unknown</div>
+                <div class="attack-desc">📝 CIS Ubuntu Linux 22.04 LTS Benchmark v1.0.0: Ensure telnet client is not installed.</div>
+                <div class="steps-container">
+        
+                    <div class="step-node">
+                        <div class="step-circle S7">S7</div>
+                        <div class="step-name">Actions</div>
+                        <div class="step-details">T1040,T1203,T1543,T1543.002<br><i>TA0006,TA0008</i></div>
+                    </div>
+            
+                </div>
+            </div>
+        
+            <div class="attack-container">
+                <div class="attack-title">⚔️ Attack #8</div>
+                <div class="attack-direction">🎯 Attacker: Unknown → Victim: Unknown</div>
+                <div class="attack-desc">📝 CIS Ubuntu Linux 22.04 LTS Benchmark v1.0.0: Ensure RPC is not installed. | CIS Ubuntu Linux 22.04 LTS Benchmark v1.0.0: Ensure ufw default deny firewall policy.</div>
+                <div class="steps-container">
+        
+                    <div class="step-node">
+                        <div class="step-circle S5">S5</div>
+                        <div class="step-name">Installation</div>
+                        <div class="step-details">T1203,T1543,T1543.002<br><i>TA0008</i></div>
+                    </div>
+            <span class="arrow">→</span>
+                    <div class="step-node">
+                        <div class="step-circle S6">S6</div>
+                        <div class="step-name">C&C</div>
+                        <div class="step-details">T1562,T1562.004<br><i>TA0011</i></div>
+                    </div>
+            <span class="arrow">→</span>
+                    <div class="step-node">
+                        <div class="step-circle S5">S5</div>
+                        <div class="step-name">Installation</div>
+                        <div class="step-details">T1562,T1562.004<br><i>TA0005</i></div>
+                    </div>
+            <span class="arrow">→</span>
+                    <div class="step-node">
+                        <div class="step-circle S6">S6</div>
+                        <div class="step-name">C&C</div>
+                        <div class="step-details">T1562,T1562.004<br><i>TA0011</i></div>
+                    </div>
+            <span class="arrow">→</span>
+                    <div class="step-node">
+                        <div class="step-circle S5">S5</div>
+                        <div class="step-name">Installation</div>
+                        <div class="step-details">T1562,T1562.004<br><i>TA0005</i></div>
+                    </div>
+            <span class="arrow">→</span>
+                    <div class="step-node">
+                        <div class="step-circle S6">S6</div>
+                        <div class="step-name">C&C</div>
+                        <div class="step-details">T1562,T1562.004<br><i>TA0011</i></div>
+                    </div>
+            <span class="arrow">→</span>
+                    <div class="step-node">
+                        <div class="step-circle S5">S5</div>
+                        <div class="step-name">Installation</div>
+                        <div class="step-details">T1562,T1562.001<br><i>TA0005</i></div>
+                    </div>
+            <span class="arrow">→</span>
+                    <div class="step-node">
+                        <div class="step-circle S7">S7</div>
+                        <div class="step-name">Actions</div>
+                        <div class="step-details">T1562,T1562.006<br><i>TA0040</i></div>
+                    </div>
+            
+                </div>
+            </div>
+        
+        </div>
+    
+        <div class="machine-section">
+            <div class="machine-title">🖥️ Machine 1 (Agent: 1)</div>
+    
+            <div class="attack-container">
+                <div class="attack-title">⚔️ Attack #1</div>
+                <div class="attack-direction">🎯 Attacker: 192.168.204.1 → Victim: 192.168.40.130, 192.168.204.130</div>
+                <div class="attack-desc">📝 Wazuh agent stopped. | CIS Ubuntu Linux 22.04 LTS Benchmark v1.0.0: Ensure nosuid option set on /tmp partition.</div>
+                <div class="steps-container">
+        
+                    <div class="step-node">
+                        <div class="step-circle S3">S3</div>
+                        <div class="step-name">Delivery</div>
+                        <div class="step-details"><br><i></i></div>
+                    </div>
+            <span class="arrow">→</span>
+                    <div class="step-node">
+                        <div class="step-circle S5">S5</div>
+                        <div class="step-name">Installation</div>
+                        <div class="step-details"><br><i></i></div>
+                    </div>
+            <span class="arrow">→</span>
+                    <div class="step-node">
+                        <div class="step-circle S1">S1</div>
+                        <div class="step-name">Reconnaissance</div>
+                        <div class="step-details"><br><i></i></div>
+                    </div>
+            <span class="arrow">→</span>
+                    <div class="step-node">
+                        <div class="step-circle S3">S3</div>
+                        <div class="step-name">Delivery</div>
+                        <div class="step-details"><br><i></i></div>
+                    </div>
+            <span class="arrow">→</span>
+                    <div class="step-node">
+                        <div class="step-circle S1">S1</div>
+                        <div class="step-name">Reconnaissance</div>
+                        <div class="step-details"><br><i></i></div>
+                    </div>
+            <span class="arrow">→</span>
+                    <div class="step-node">
+                        <div class="step-circle S4">S4</div>
+                        <div class="step-name">Exploitation</div>
+                        <div class="step-details"><br><i></i></div>
+                    </div>
+            <span class="arrow">→</span>
+                    <div class="step-node">
+                        <div class="step-circle S1">S1</div>
+                        <div class="step-name">Reconnaissance</div>
+                        <div class="step-details"><br><i></i></div>
+                    </div>
+            <span class="arrow">→</span>
+                    <div class="step-node">
+                        <div class="step-circle S3">S3</div>
+                        <div class="step-name">Delivery</div>
+                        <div class="step-details"><br><i></i></div>
+                    </div>
+            <span class="arrow">→</span>
+                    <div class="step-node">
+                        <div class="step-circle S1">S1</div>
+                        <div class="step-name">Reconnaissance</div>
+                        <div class="step-details"><br><i></i></div>
+                    </div>
+            <span class="arrow">→</span>
+                    <div class="step-node">
+                        <div class="step-circle S3">S3</div>
+                        <div class="step-name">Delivery</div>
+                        <div class="step-details"><br><i></i></div>
+                    </div>
+            
+                </div>
+            </div>
+        
+            <div class="attack-container">
+                <div class="attack-title">⚔️ Attack #2</div>
+                <div class="attack-direction">🎯 Attacker: Unknown → Victim: 192.168.204.130</div>
+                <div class="attack-desc">📝 CIS Ubuntu Linux 22.04 LTS Benchmark v1.0.0: Ensure noexec option set on /var/log/audit partition. | CIS Ubuntu Linux 22.04 LTS Benchmark v1.0.0: Ensure nodev option set on /var/log/audit partition.</div>
+                <div class="steps-container">
+        
+                    <div class="step-node">
+                        <div class="step-circle S5">S5</div>
+                        <div class="step-name">Installation</div>
+                        <div class="step-details">T1200<br><i>TA0005</i></div>
+                    </div>
+            <span class="arrow">→</span>
+                    <div class="step-node">
+                        <div class="step-circle S4">S4</div>
+                        <div class="step-name">Exploitation</div>
+                        <div class="step-details">T1068,T1203,T1211,T1212<br><i></i></div>
+                    </div>
+            <span class="arrow">→</span>
+                    <div class="step-node">
+                        <div class="step-circle S5">S5</div>
+                        <div class="step-name">Installation</div>
+                        <div class="step-details">T1036,T1036.002,T1036.003,T103<br><i></i></div>
+                    </div>
+            <span class="arrow">→</span>
+                    <div class="step-node">
+                        <div class="step-circle S4">S4</div>
+                        <div class="step-name">Exploitation</div>
+                        <div class="step-details">T1055,T1055.009,T1065,T1065.00<br><i>TA0002</i></div>
+                    </div>
+            <span class="arrow">→</span>
+                    <div class="step-node">
+                        <div class="step-circle S7">S7</div>
+                        <div class="step-name">Actions</div>
+                        <div class="step-details">T1005<br><i>TA0007</i></div>
+                    </div>
+            
+                </div>
+            </div>
+        
+            <div class="attack-container">
+                <div class="attack-title">⚔️ Attack #3</div>
+                <div class="attack-direction">🎯 Attacker: Unknown → Victim: 192.168.204.130</div>
+                <div class="attack-desc">📝 CIS Ubuntu Linux 22.04 LTS Benchmark v1.0.0: Ensure all AppArmor Profiles are enforcing. | CIS Ubuntu Linux 22.04 LTS Benchmark v1.0.0: Ensure all AppArmor Profiles are in enforce or complain mode.</div>
+                <div class="steps-container">
+        
+                    <div class="step-node">
+                        <div class="step-circle S4">S4</div>
+                        <div class="step-name">Exploitation</div>
+                        <div class="step-details">T1068,T1565,T1565.001,T1565.00<br><i>TA0003</i></div>
+                    </div>
+            <span class="arrow">→</span>
+                    <div class="step-node">
+                        <div class="step-circle S5">S5</div>
+                        <div class="step-name">Installation</div>
+                        <div class="step-details"><br><i>TA0005</i></div>
+                    </div>
+            <span class="arrow">→</span>
+                    <div class="step-node">
+                        <div class="step-circle S4">S4</div>
+                        <div class="step-name">Exploitation</div>
+                        <div class="step-details">T1068,T1565,T1565.001,T1565.00<br><i>TA0005</i></div>
+                    </div>
+            <span class="arrow">→</span>
+                    <div class="step-node">
+                        <div class="step-circle S7">S7</div>
+                        <div class="step-name">Actions</div>
+                        <div class="step-details">T1082,T1592,T1592.004<br><i>TA0007</i></div>
+                    </div>
+            
+                </div>
+            </div>
+        
+            <div class="attack-container">
+                <div class="attack-title">⚔️ Attack #4</div>
+                <div class="attack-direction">🎯 Attacker: Unknown → Victim: 192.168.204.130</div>
+                <div class="attack-desc">📝 CIS Ubuntu Linux 22.04 LTS Benchmark v1.0.0: Ensure local login warning banner is configured properly.</div>
+                <div class="steps-container">
+        
+                    <div class="step-node">
+                        <div class="step-circle S7">S7</div>
+                        <div class="step-name">Actions</div>
+                        <div class="step-details">T1082,T1592,T1592.004<br><i>TA0007</i></div>
+                    </div>
+            
+                </div>
+            </div>
+        
+            <div class="attack-container">
+                <div class="attack-title">⚔️ Attack #5</div>
+                <div class="attack-direction">🎯 Attacker: Unknown → Victim: 192.168.204.130</div>
+                <div class="attack-desc">📝 CIS Ubuntu Linux 22.04 LTS Benchmark v1.0.0: Ensure remote login warning banner is configured properly.</div>
+                <div class="steps-container">
+        
+                    <div class="step-node">
+                        <div class="step-circle S7">S7</div>
+                        <div class="step-name">Actions</div>
+                        <div class="step-details">T1018,T1082,T1592,T1592.004<br><i>TA0007</i></div>
+                    </div>
+            
+                </div>
+            </div>
+        
+            <div class="attack-container">
+                <div class="attack-title">⚔️ Attack #6</div>
+                <div class="attack-direction">🎯 Attacker: Unknown → Victim: 192.168.204.130</div>
+                <div class="attack-desc">📝 CIS Ubuntu Linux 22.04 LTS Benchmark v1.0.0: Ensure CUPS is not installed. | CIS Ubuntu Linux 22.04 LTS Benchmark v1.0.0: Ensure XDCMP is not enabled.</div>
+                <div class="steps-container">
+        
+                    <div class="step-node">
+                        <div class="step-circle S5">S5</div>
+                        <div class="step-name">Installation</div>
+                        <div class="step-details">T1222,T1222.002<br><i>TA0005</i></div>
+                    </div>
+            <span class="arrow">→</span>
+                    <div class="step-node">
+                        <div class="step-circle S4">S4</div>
+                        <div class="step-name">Exploitation</div>
+                        <div class="step-details">T1543,T1543.002<br><i>TA0002</i></div>
+                    </div>
+            <span class="arrow">→</span>
+                    <div class="step-node">
+                        <div class="step-circle S5">S5</div>
+                        <div class="step-name">Installation</div>
+                        <div class="step-details">T1203,T1210,T1543,T1543.002<br><i>TA0008</i></div>
+                    </div>
+            <span class="arrow">→</span>
+                    <div class="step-node">
+                        <div class="step-circle S3">S3</div>
+                        <div class="step-name">Delivery</div>
+                        <div class="step-details">T1105,T1203,T1210,T1543,T1543.<br><i>TA0008</i></div>
+                    </div>
+            <span class="arrow">→</span>
+                    <div class="step-node">
+                        <div class="step-circle S5">S5</div>
+                        <div class="step-name">Installation</div>
+                        <div class="step-details">T1203,T1543,T1543.002<br><i>TA0008</i></div>
+                    </div>
+            <span class="arrow">→</span>
+                    <div class="step-node">
+                        <div class="step-circle S7">S7</div>
+                        <div class="step-name">Actions</div>
+                        <div class="step-details">T1203,T1543,T1543.002<br><i>TA0006,TA0008</i></div>
+                    </div>
+            
+                </div>
+            </div>
+        
+            <div class="attack-container">
+                <div class="attack-title">⚔️ Attack #7</div>
+                <div class="attack-direction">🎯 Attacker: Unknown → Victim: 192.168.204.130</div>
+                <div class="attack-desc">📝 CIS Ubuntu Linux 22.04 LTS Benchmark v1.0.0: Ensure telnet client is not installed.</div>
+                <div class="steps-container">
+        
+                    <div class="step-node">
+                        <div class="step-circle S7">S7</div>
+                        <div class="step-name">Actions</div>
+                        <div class="step-details">T1040,T1203,T1543,T1543.002<br><i>TA0006,TA0008</i></div>
+                    </div>
+            
+                </div>
+            </div>
+        
+            <div class="attack-container">
+                <div class="attack-title">⚔️ Attack #8</div>
+                <div class="attack-direction">🎯 Attacker: Unknown → Victim: 192.168.204.130</div>
+                <div class="attack-desc">📝 CIS Ubuntu Linux 22.04 LTS Benchmark v1.0.0: Ensure RPC is not installed. | CIS Ubuntu Linux 22.04 LTS Benchmark v1.0.0: Ensure ufw default deny firewall policy.</div>
+                <div class="steps-container">
+        
+                    <div class="step-node">
+                        <div class="step-circle S5">S5</div>
+                        <div class="step-name">Installation</div>
+                        <div class="step-details">T1203,T1543,T1543.002<br><i>TA0008</i></div>
+                    </div>
+            <span class="arrow">→</span>
+                    <div class="step-node">
+                        <div class="step-circle S6">S6</div>
+                        <div class="step-name">C&C</div>
+                        <div class="step-details">T1562,T1562.004<br><i>TA0011</i></div>
+                    </div>
+            <span class="arrow">→</span>
+                    <div class="step-node">
+                        <div class="step-circle S5">S5</div>
+                        <div class="step-name">Installation</div>
+                        <div class="step-details">T1562,T1562.004<br><i>TA0005</i></div>
+                    </div>
+            <span class="arrow">→</span>
+                    <div class="step-node">
+                        <div class="step-circle S6">S6</div>
+                        <div class="step-name">C&C</div>
+                        <div class="step-details">T1562,T1562.004<br><i>TA0011</i></div>
+                    </div>
+            <span class="arrow">→</span>
+                    <div class="step-node">
+                        <div class="step-circle S5">S5</div>
+                        <div class="step-name">Installation</div>
+                        <div class="step-details">T1562,T1562.004<br><i>TA0005</i></div>
+                    </div>
+            <span class="arrow">→</span>
+                    <div class="step-node">
+                        <div class="step-circle S6">S6</div>
+                        <div class="step-name">C&C</div>
+                        <div class="step-details">T1562,T1562.004<br><i>TA0011</i></div>
+                    </div>
+            <span class="arrow">→</span>
+                    <div class="step-node">
+                        <div class="step-circle S5">S5</div>
+                        <div class="step-name">Installation</div>
+                        <div class="step-details">T1562,T1562.001<br><i>TA0005</i></div>
+                    </div>
+            <span class="arrow">→</span>
+                    <div class="step-node">
+                        <div class="step-circle S7">S7</div>
+                        <div class="step-name">Actions</div>
+                        <div class="step-details">T1562,T1562.006<br><i>TA0040</i></div>
+                    </div>
+            
+                </div>
+            </div>
+        
+        </div>
+    
+        <div class="machine-section">
+            <div class="machine-title">🖥️ Machine 2 (Agent: 2)</div>
+    
+            <div class="attack-container">
+                <div class="attack-title">⚔️ Attack #1</div>
+                <div class="attack-direction">🎯 Attacker: Unknown → Victim: 192.168.40.131</div>
+                <div class="attack-desc">📝 CIS Ubuntu Linux 22.04 LTS Benchmark v1.0.0: Ensure nosuid option set on /tmp partition. | CIS Ubuntu Linux 22.04 LTS Benchmark v1.0.0: Ensure /tmp is a separate partition.</div>
+                <div class="steps-container">
+        
+                    <div class="step-node">
+                        <div class="step-circle S5">S5</div>
+                        <div class="step-name">Installation</div>
+                        <div class="step-details">T1499,T1499.001<br><i>TA0005</i></div>
+                    </div>
+            <span class="arrow">→</span>
+                    <div class="step-node">
+                        <div class="step-circle S7">S7</div>
+                        <div class="step-name">Actions</div>
+                        <div class="step-details">T1499,T1499.001<br><i>TA0006</i></div>
+                    </div>
+            
+                </div>
+            </div>
+        
+            <div class="attack-container">
+                <div class="attack-title">⚔️ Attack #2</div>
+                <div class="attack-direction">🎯 Attacker: Unknown → Victim: 192.168.40.131</div>
+                <div class="attack-desc">📝 CIS Ubuntu Linux 22.04 LTS Benchmark v1.0.0: Ensure noexec option set on /var/log/audit partition. | CIS Ubuntu Linux 22.04 LTS Benchmark v1.0.0: Ensure nodev option set on /var/log/audit partition.</div>
+                <div class="steps-container">
+        
+                    <div class="step-node">
+                        <div class="step-circle S5">S5</div>
+                        <div class="step-name">Installation</div>
+                        <div class="step-details">T1200<br><i>TA0005</i></div>
+                    </div>
+            <span class="arrow">→</span>
+                    <div class="step-node">
+                        <div class="step-circle S4">S4</div>
+                        <div class="step-name">Exploitation</div>
+                        <div class="step-details">T1068,T1203,T1211,T1212<br><i></i></div>
+                    </div>
+            <span class="arrow">→</span>
+                    <div class="step-node">
+                        <div class="step-circle S5">S5</div>
+                        <div class="step-name">Installation</div>
+                        <div class="step-details">T1036,T1036.002,T1036.003,T103<br><i></i></div>
+                    </div>
+            <span class="arrow">→</span>
+                    <div class="step-node">
+                        <div class="step-circle S4">S4</div>
+                        <div class="step-name">Exploitation</div>
+                        <div class="step-details">T1055,T1055.009,T1065,T1065.00<br><i>TA0002</i></div>
+                    </div>
+            <span class="arrow">→</span>
+                    <div class="step-node">
+                        <div class="step-circle S7">S7</div>
+                        <div class="step-name">Actions</div>
+                        <div class="step-details">T1005<br><i>TA0007</i></div>
+                    </div>
+            
+                </div>
+            </div>
+        
+            <div class="attack-container">
+                <div class="attack-title">⚔️ Attack #3</div>
+                <div class="attack-direction">🎯 Attacker: Unknown → Victim: 192.168.40.131</div>
+                <div class="attack-desc">📝 CIS Ubuntu Linux 22.04 LTS Benchmark v1.0.0: Ensure all AppArmor Profiles are enforcing. | CIS Ubuntu Linux 22.04 LTS Benchmark v1.0.0: Ensure message of the day is configured properly.</div>
+                <div class="steps-container">
+        
+                    <div class="step-node">
+                        <div class="step-circle S4">S4</div>
+                        <div class="step-name">Exploitation</div>
+                        <div class="step-details">T1068,T1565,T1565.001,T1565.00<br><i>TA0003</i></div>
+                    </div>
+            <span class="arrow">→</span>
+                    <div class="step-node">
+                        <div class="step-circle S5">S5</div>
+                        <div class="step-name">Installation</div>
+                        <div class="step-details"><br><i>TA0005</i></div>
+                    </div>
+            <span class="arrow">→</span>
+                    <div class="step-node">
+                        <div class="step-circle S4">S4</div>
+                        <div class="step-name">Exploitation</div>
+                        <div class="step-details">T1068,T1565,T1565.001,T1565.00<br><i>TA0005</i></div>
+                    </div>
+            <span class="arrow">→</span>
+                    <div class="step-node">
+                        <div class="step-circle S7">S7</div>
+                        <div class="step-name">Actions</div>
+                        <div class="step-details">T1082,T1592,T1592.004<br><i>TA0007</i></div>
+                    </div>
+            
+                </div>
+            </div>
+        
+            <div class="attack-container">
+                <div class="attack-title">⚔️ Attack #4</div>
+                <div class="attack-direction">🎯 Attacker: Unknown → Victim: 192.168.40.131</div>
+                <div class="attack-desc">📝 CIS Ubuntu Linux 22.04 LTS Benchmark v1.0.0: Ensure local login warning banner is configured properly.</div>
+                <div class="steps-container">
+        
+                    <div class="step-node">
+                        <div class="step-circle S7">S7</div>
+                        <div class="step-name">Actions</div>
+                        <div class="step-details">T1082,T1592,T1592.004<br><i>TA0007</i></div>
+                    </div>
+            
+                </div>
+            </div>
+        
+            <div class="attack-container">
+                <div class="attack-title">⚔️ Attack #5</div>
+                <div class="attack-direction">🎯 Attacker: Unknown → Victim: 192.168.40.131</div>
+                <div class="attack-desc">📝 CIS Ubuntu Linux 22.04 LTS Benchmark v1.0.0: Ensure remote login warning banner is configured properly.</div>
+                <div class="steps-container">
+        
+                    <div class="step-node">
+                        <div class="step-circle S7">S7</div>
+                        <div class="step-name">Actions</div>
+                        <div class="step-details">T1018,T1082,T1592,T1592.004<br><i>TA0007</i></div>
+                    </div>
+            
+                </div>
+            </div>
+        
+            <div class="attack-container">
+                <div class="attack-title">⚔️ Attack #6</div>
+                <div class="attack-direction">🎯 Attacker: Unknown → Victim: 192.168.40.131</div>
+                <div class="attack-desc">📝 CIS Ubuntu Linux 22.04 LTS Benchmark v1.0.0: Ensure CUPS is not installed. | CIS Ubuntu Linux 22.04 LTS Benchmark v1.0.0: Ensure XDCMP is not enabled.</div>
+                <div class="steps-container">
+        
+                    <div class="step-node">
+                        <div class="step-circle S5">S5</div>
+                        <div class="step-name">Installation</div>
+                        <div class="step-details">T1222,T1222.002<br><i>TA0005</i></div>
+                    </div>
+            <span class="arrow">→</span>
+                    <div class="step-node">
+                        <div class="step-circle S4">S4</div>
+                        <div class="step-name">Exploitation</div>
+                        <div class="step-details">T1543,T1543.002<br><i>TA0002</i></div>
+                    </div>
+            <span class="arrow">→</span>
+                    <div class="step-node">
+                        <div class="step-circle S5">S5</div>
+                        <div class="step-name">Installation</div>
+                        <div class="step-details">T1203,T1210,T1543,T1543.002<br><i>TA0008</i></div>
+                    </div>
+            <span class="arrow">→</span>
+                    <div class="step-node">
+                        <div class="step-circle S3">S3</div>
+                        <div class="step-name">Delivery</div>
+                        <div class="step-details">T1105,T1203,T1210,T1543,T1543.<br><i>TA0008</i></div>
+                    </div>
+            <span class="arrow">→</span>
+                    <div class="step-node">
+                        <div class="step-circle S5">S5</div>
+                        <div class="step-name">Installation</div>
+                        <div class="step-details">T1203,T1543,T1543.002<br><i>TA0008</i></div>
+                    </div>
+            <span class="arrow">→</span>
+                    <div class="step-node">
+                        <div class="step-circle S7">S7</div>
+                        <div class="step-name">Actions</div>
+                        <div class="step-details">T1203,T1543,T1543.002<br><i>TA0006,TA0008</i></div>
+                    </div>
+            
+                </div>
+            </div>
+        
+            <div class="attack-container">
+                <div class="attack-title">⚔️ Attack #7</div>
+                <div class="attack-direction">🎯 Attacker: Unknown → Victim: 192.168.40.131</div>
+                <div class="attack-desc">📝 CIS Ubuntu Linux 22.04 LTS Benchmark v1.0.0: Ensure telnet client is not installed.</div>
+                <div class="steps-container">
+        
+                    <div class="step-node">
+                        <div class="step-circle S7">S7</div>
+                        <div class="step-name">Actions</div>
+                        <div class="step-details">T1040,T1203,T1543,T1543.002<br><i>TA0006,TA0008</i></div>
+                    </div>
+            
+                </div>
+            </div>
+        
+            <div class="attack-container">
+                <div class="attack-title">⚔️ Attack #8</div>
+                <div class="attack-direction">🎯 Attacker: Unknown → Victim: 192.168.40.131</div>
+                <div class="attack-desc">📝 CIS Ubuntu Linux 22.04 LTS Benchmark v1.0.0: Ensure RPC is not installed. | CIS Ubuntu Linux 22.04 LTS Benchmark v1.0.0: Ensure ufw default deny firewall policy.</div>
+                <div class="steps-container">
+        
+                    <div class="step-node">
+                        <div class="step-circle S5">S5</div>
+                        <div class="step-name">Installation</div>
+                        <div class="step-details">T1203,T1543,T1543.002<br><i>TA0008</i></div>
+                    </div>
+            <span class="arrow">→</span>
+                    <div class="step-node">
+                        <div class="step-circle S6">S6</div>
+                        <div class="step-name">C&C</div>
+                        <div class="step-details">T1562,T1562.004<br><i>TA0011</i></div>
+                    </div>
+            <span class="arrow">→</span>
+                    <div class="step-node">
+                        <div class="step-circle S5">S5</div>
+                        <div class="step-name">Installation</div>
+                        <div class="step-details">T1562,T1562.004<br><i>TA0005</i></div>
+                    </div>
+            <span class="arrow">→</span>
+                    <div class="step-node">
+                        <div class="step-circle S6">S6</div>
+                        <div class="step-name">C&C</div>
+                        <div class="step-details">T1562,T1562.004<br><i>TA0011</i></div>
+                    </div>
+            <span class="arrow">→</span>
+                    <div class="step-node">
+                        <div class="step-circle S5">S5</div>
+                        <div class="step-name">Installation</div>
+                        <div class="step-details">T1562,T1562.004<br><i>TA0005</i></div>
+                    </div>
+            <span class="arrow">→</span>
+                    <div class="step-node">
+                        <div class="step-circle S6">S6</div>
+                        <div class="step-name">C&C</div>
+                        <div class="step-details">T1562,T1562.004<br><i>TA0011</i></div>
+                    </div>
+            <span class="arrow">→</span>
+                    <div class="step-node">
+                        <div class="step-circle S5">S5</div>
+                        <div class="step-name">Installation</div>
+                        <div class="step-details">T1562,T1562.001<br><i>TA0005</i></div>
+                    </div>
+            <span class="arrow">→</span>
+                    <div class="step-node">
+                        <div class="step-circle S7">S7</div>
+                        <div class="step-name">Actions</div>
+                        <div class="step-details">T1562,T1562.006<br><i>TA0040</i></div>
+                    </div>
+            
+                </div>
+            </div>
+        
+        </div>
+    
+    </div>
+</body>
+</html>

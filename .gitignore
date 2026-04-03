@@ -1,0 +1,9 @@
+﻿venv/
+.env
+*.xlsx
+*.zip
+*.csv
+*.safetensors
+*.pth
+autoencoder_outputs/
+MLA_PROJET_RL/
