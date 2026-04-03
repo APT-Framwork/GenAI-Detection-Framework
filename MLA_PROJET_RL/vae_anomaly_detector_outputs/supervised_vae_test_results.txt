@@ -1,0 +1,26 @@
+Supervised VAE — Test Results (No Data Leakage)
+============================================================
+Architecture: SupervisedSIEMVAE
+Training: Both benign + malicious (supervised)
+Features: 216 (no-leakage: excludes MITRE, rule.level, rule.description)
+Latent dim: 32
+Loss: MSE + KL + BCE (alpha=1.0, beta=1.0)
+
+Test Metrics:
+  Accuracy:          0.8935
+  Balanced Accuracy: 0.8980
+  Precision:         0.6985
+  Recall:            0.9062
+  F1-Score:          0.7889
+  ROC-AUC:           0.9347
+  Average Precision: 0.7255
+  Specificity:       0.8899
+
+Confusion Matrix:
+  TN=16,073  FP=1,989
+  FN=477  TP=4,607
+
+Data Splits:
+  Train: 78,693 samples
+  Val:   13,887 samples
+  Test:  23,146 samples

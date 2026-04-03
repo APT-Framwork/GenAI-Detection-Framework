@@ -1,0 +1,8 @@
+{
+  "total_synthetic_samples": 120000,
+  "filtered_synthetic_samples": 90000,
+  "filter_threshold": 0.8868514895439148,
+  "real_error_mean": 0.012538266368210316,
+  "real_error_std": 0.437156617641449,
+  "filter_method": "mean + 2*std (or 3*std if too strict)"
+}
