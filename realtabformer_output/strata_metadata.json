@@ -1,0 +1,156 @@
+{
+  "network": {
+    "n_rows": 18920,
+    "columns": [
+      "malicious",
+      "_source.rule.level",
+      "_source.rule.groups",
+      "_source.decoder.name",
+      "_source.rule.mitre.tactic",
+      "_source.rule.mitre.id",
+      "_source.data.protocol",
+      "_source.data.srcip",
+      "_source.data.url"
+    ],
+    "col_types": {
+      "text": [
+        "_source.data.url"
+      ],
+      "categorical": [
+        "malicious",
+        "_source.rule.level",
+        "_source.rule.groups",
+        "_source.decoder.name",
+        "_source.rule.mitre.tactic",
+        "_source.rule.mitre.id",
+        "_source.data.protocol",
+        "_source.data.srcip"
+      ],
+      "numeric": []
+    },
+    "training_time_min": 183.66246458333333
+  },
+  "syscheck": {
+    "n_rows": 2862,
+    "columns": [
+      "malicious",
+      "_source.rule.level",
+      "_source.rule.groups",
+      "_source.decoder.name",
+      "_source.rule.mitre.tactic",
+      "_source.rule.mitre.id",
+      "_source.syscheck.event",
+      "_source.syscheck.path",
+      "_source.syscheck.perm_after",
+      "_source.syscheck.size_after"
+    ],
+    "col_types": {
+      "text": [
+        "_source.syscheck.path",
+        "_source.syscheck.size_after"
+      ],
+      "categorical": [
+        "malicious",
+        "_source.rule.level",
+        "_source.rule.groups",
+        "_source.decoder.name",
+        "_source.rule.mitre.tactic",
+        "_source.rule.mitre.id",
+        "_source.syscheck.event",
+        "_source.syscheck.perm_after"
+      ],
+      "numeric": []
+    },
+    "training_time_min": 21.891873383333333
+  },
+  "sca": {
+    "n_rows": 870,
+    "columns": [
+      "malicious",
+      "_source.rule.level",
+      "_source.rule.groups",
+      "_source.decoder.name",
+      "_source.rule.mitre.tactic",
+      "_source.rule.mitre.id",
+      "_source.data.sca.check.result"
+    ],
+    "col_types": {
+      "text": [],
+      "categorical": [
+        "malicious",
+        "_source.rule.level",
+        "_source.rule.groups",
+        "_source.decoder.name",
+        "_source.rule.mitre.tactic",
+        "_source.rule.mitre.id",
+        "_source.data.sca.check.result"
+      ],
+      "numeric": []
+    },
+    "training_time_min": 6.090562433333333
+  },
+  "audit": {
+    "n_rows": 165,
+    "columns": [
+      "malicious",
+      "_source.rule.level",
+      "_source.rule.groups",
+      "_source.decoder.name",
+      "_source.rule.mitre.tactic",
+      "_source.rule.mitre.id",
+      "_source.data.audit.syscall",
+      "_source.data.audit.exe",
+      "_source.data.audit.command",
+      "_source.data.audit.uid",
+      "_source.data.audit.euid",
+      "_source.data.audit.gid",
+      "_source.data.audit.auid",
+      "_source.data.audit.success"
+    ],
+    "col_types": {
+      "text": [],
+      "categorical": [
+        "malicious",
+        "_source.rule.level",
+        "_source.rule.groups",
+        "_source.decoder.name",
+        "_source.rule.mitre.tactic",
+        "_source.rule.mitre.id",
+        "_source.data.audit.syscall",
+        "_source.data.audit.exe",
+        "_source.data.audit.command",
+        "_source.data.audit.uid",
+        "_source.data.audit.euid",
+        "_source.data.audit.gid",
+        "_source.data.audit.auid",
+        "_source.data.audit.success"
+      ],
+      "numeric": []
+    },
+    "training_time_min": 3.125572333333333
+  },
+  "base": {
+    "n_rows": 2601,
+    "columns": [
+      "malicious",
+      "_source.rule.level",
+      "_source.rule.groups",
+      "_source.decoder.name",
+      "_source.rule.mitre.tactic",
+      "_source.rule.mitre.id"
+    ],
+    "col_types": {
+      "text": [],
+      "categorical": [
+        "malicious",
+        "_source.rule.level",
+        "_source.rule.groups",
+        "_source.decoder.name",
+        "_source.rule.mitre.tactic",
+        "_source.rule.mitre.id"
+      ],
+      "numeric": []
+    },
+    "training_time_min": 8.261285266666667
+  }
+}

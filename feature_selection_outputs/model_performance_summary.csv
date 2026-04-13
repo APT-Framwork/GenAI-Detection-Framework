@@ -1,0 +1,7 @@
+task,model,accuracy,version
+Malicious Detection,Random Forest,0.9939082346841787,V2_NoLeakage_SecBERT
+Malicious Detection,XGBoost,0.9970189233560874,V2_NoLeakage_SecBERT
+Malicious Detection,LightGBM,0.9964572712347706,V2_NoLeakage_SecBERT
+CKC Stage Classification,Random Forest,0.9386965376782077,V2_NoLeakage_SecBERT
+CKC Stage Classification,XGBoost,0.9824847250509166,V2_NoLeakage_SecBERT
+CKC Stage Classification,LightGBM,0.9826883910386965,V2_NoLeakage_SecBERT

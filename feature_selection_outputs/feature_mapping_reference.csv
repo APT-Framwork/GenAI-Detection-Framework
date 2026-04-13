@@ -1,0 +1,38 @@
+Engineered_Feature,Original_Column,Description,Type
+hour_of_day,_source.@timestamp,Hour of the day (0-23) when the alert occurred,Extracted from timestamp
+day_of_week,_source.@timestamp,"Day of the week (0=Monday, 6=Sunday)",Extracted from timestamp
+is_weekend,_source.@timestamp,"1 if alert occurred on Saturday/Sunday, 0 otherwise",Derived binary flag
+is_night,_source.@timestamp,"1 if alert occurred between 22:00-06:00, 0 otherwise",Derived binary flag
+is_business_hours,_source.@timestamp,"1 if alert occurred between 09:00-17:00, 0 otherwise",Derived binary flag
+firedtimes,_source.rule.firedtimes,Number of times this rule has been triggered,Direct numeric value
+firedtimes_log,_source.rule.firedtimes,Log-transformed firedtimes: log(1 + firedtimes),Log transformation
+ip_is_private,_source.agent.ip,"1 if agent IP is private, 0 if public, -1 if missing",Derived from IP parsing
+ip_is_missing,_source.agent.ip,1 if agent IP is missing/null,Missing value indicator
+srcip_is_private,_source.data.srcip,"1 if source IP is private, 0 if public, -1 if missing",Derived from IP parsing
+srcip_is_missing,_source.data.srcip,1 if source IP is missing/null,Missing value indicator
+path_depth,_source.syscheck.path,Directory depth (count of / in path),Extracted from path
+path_is_sensitive,_source.syscheck.path,"1 if path contains /etc, /root, /var/log, etc.",Pattern matching
+path_is_hidden,_source.syscheck.path,1 if path contains hidden file/folder,Pattern matching
+path_is_suspicious_ext,_source.syscheck.path,"1 if file has suspicious extension (.sh, .py, .php, etc.)",Pattern matching
+path_is_temp,_source.syscheck.path,1 if path is in /tmp or /temp directory,Pattern matching
+path_is_missing,_source.syscheck.path,1 if syscheck path is missing/null,Missing value indicator
+cmd_sudo_usage,_source.data.command,"1 if command contains ""sudo""",Regex pattern matching
+cmd_wget_curl,_source.data.command,"1 if command contains ""wget"" or ""curl""",Regex pattern matching
+cmd_nc_netcat,_source.data.command,"1 if command contains ""nc"", ""netcat"", or ""ncat""",Regex pattern matching
+cmd_base64,_source.data.command,"1 if command contains ""base64""",Regex pattern matching
+cmd_length,_source.data.command,Length of the command string in characters,String length
+cmd_is_missing,_source.data.command,1 if command field is missing/null,Missing value indicator
+cmd_secbert_emb_0..15,_source.data.command,SecBERT semantic embedding components (PCA-reduced to 16 dims),SecBERT transformer + PCA
+log_secbert_emb_0..15,_source.full_log,SecBERT semantic embedding components (PCA-reduced to 16 dims),SecBERT transformer + PCA
+has_md5,_source.syscheck.md5_after,1 if MD5 hash is present after file change,Non-null indicator
+has_sha256,_source.syscheck.sha256_after,1 if SHA256 hash is present after file change,Non-null indicator
+syscheck_added,_source.syscheck.event,"1 if syscheck event type is ""added""",Category indicator
+syscheck_modified,_source.syscheck.event,"1 if syscheck event type is ""modified""",Category indicator
+syscheck_deleted,_source.syscheck.event,"1 if syscheck event type is ""deleted""",Category indicator
+changed_size,_source.syscheck.changed_attributes,1 if file size changed,Attribute flag
+changed_permission,_source.syscheck.changed_attributes,1 if file permissions changed,Attribute flag
+srcport,_source.data.srcport,Source port number,Direct numeric value
+is_privileged_port,_source.data.srcport,1 if port < 1024 (privileged/well-known),Derived binary flag
+is_high_port,_source.data.srcport,1 if port > 49152 (dynamic/ephemeral),Derived binary flag
+decoder_*,_source.decoder.name,One-hot encoded top-15 decoder names,One-hot encoded category
+location_*,_source.location,One-hot encoded top-15 log source locations,One-hot encoded category

@@ -1,0 +1,65 @@
+{
+  "timestamp": "2026-03-05T12:18:32.683974",
+  "pipeline": "stratified_realtabformer",
+  "original_data": {
+    "path": "c:\\Users\\KassoussiOussama-PFE\\Downloads\\pfe\\malicious_realtabformer_filtered.xlsx",
+    "total_rows": 25418
+  },
+  "strata": {
+    "network": {
+      "rows": 18920,
+      "cols": 9
+    },
+    "syscheck": {
+      "rows": 2862,
+      "cols": 10
+    },
+    "sca": {
+      "rows": 870,
+      "cols": 7
+    },
+    "audit": {
+      "rows": 165,
+      "cols": 14
+    },
+    "base": {
+      "rows": 2601,
+      "cols": 6
+    }
+  },
+  "synthetic": {
+    "total_rows": 50836,
+    "ratio": 2.0
+  },
+  "training_times_min": {
+    "network": 183.66246458333333,
+    "syscheck": 21.891873383333333,
+    "sca": 6.090562433333333,
+    "audit": 3.125572333333333,
+    "base": 8.261285266666667
+  },
+  "generation_times_min": {
+    "network": 2.2940587166666666,
+    "syscheck": 0.2876144,
+    "sca": 0.05602448333333333,
+    "audit": 0.024257033333333334,
+    "base": 0.14664761666666667
+  },
+  "dropped_columns": [
+    "_source.syscheck.perm_before",
+    "_source.syscheck.size_before",
+    "_source.data.sca.failed",
+    "_source.data.sca.passed",
+    "_source.data.sca.score",
+    "_source.data.srcport"
+  ],
+  "quality_metrics": {
+    "numeric_total": 0,
+    "numeric_good": 0,
+    "categorical_total": 46,
+    "categorical_good": 42,
+    "avg_ks": 0,
+    "avg_l1": 0.15133119831323102,
+    "avg_coverage": 87.42966768607246
+  }
+}
