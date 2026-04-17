@@ -14,8 +14,9 @@ This Master-level project implements a complete Reinforcement Learning system fo
    - ✅ `autoencoder_loader.py` - Loads AE, provides anomaly scores
    - ✅ `vae_loader.py` - Loads VAE, provides malicious probability & uncertainty
    - ✅ `transformer_loader.py` - Loads Transformer, predicts next CKC stage
-   - ✅ All models use **inference only** (no retraining)
-   - ✅ Full feature vector compatibility ensured
+   - ✅ `gnn_loader.py` - Loads GNN (GraphSAGE), detects lateral movement
+   - ✅ All 4 models use **inference only** (no retraining)
+   - ✅ 55-dimensional feature vector compatibility ensured
 
 2. **Synthetic Data Generation** (100% Complete)
    - ✅ `meta_sequence_generator.py` - Generates APT meta-sequences
@@ -24,18 +25,18 @@ This Master-level project implements a complete Reinforcement Learning system fo
    - ✅ Time delta synthesis from distributions
    - ✅ Multiple attack types (progressive, repetitive, advanced)
 
-3. **Conditional Replay** (100% Complete)
-   - ✅ `conditional_replay.py` - Maps meta-sequences to full features
-   - ✅ CKC-conditioned sampling from real data
-   - ✅ Preserves feature dimensionality
-   - ✅ Academic justification documented
-   - ✅ Real sequence extraction for comparison
+3. **Data Loading & Sequences** (100% Complete)
+   - ✅ `data_loader.py` - Loads real and synthetic datasets
+   - ✅ `real_data_loader.py` - Builds variable-length real sequences
+   - ✅ 25-feature selection → 55 columns (SecBERT PCA + binary flags)
+   - ✅ CKC stage mapping and timestamp generation
+   - ✅ Real sequence extraction for evaluation
 
 4. **RL Environment** (100% Complete)
    - ✅ `apt_env.py` - Gym-style environment
-   - ✅ 10-dimensional state space (all detection signals)
+   - ✅ 13-dimensional state space (4 models + temporal + context)
    - ✅ 5 discrete actions (Monitor, Alert, Escalate, Isolate, Block)
-   - ✅ Reward function prioritizing early detection
+   - ✅ Reward function strongly prioritizing early detection (S1-S2: +15)
    - ✅ Episode management and history tracking
 
 5. **DQN Agent** (100% Complete)
@@ -72,34 +73,34 @@ This Master-level project implements a complete Reinforcement Learning system fo
 
 ## 🏗️ Architecture Highlights
 
-### Key Innovation: Conditional Replay
+### Key Innovation: Multi-Model Ensemble for RL
 
-The core innovation is the **conditional replay mechanism** that bridges synthetic meta-sequences with pre-trained models:
+The core innovation is the **multi-model ensemble** that fuses four specialized detection models into a unified RL state:
 
 ```
-Synthetic Meta-Sequence (CKC stages + time)
-                ↓
-    Conditional Replay (CKC-conditioned sampling)
-                ↓
-    Full Feature Vectors (200+ features)
-                ↓
-    Pre-trained Models (AE, VAE, Transformer)
-                ↓
-    Detection Signals (10-dimensional state)
-                ↓
+Wazuh SIEM Alerts (55-dim feature vectors)
+         │
+    ┌────┼────┬─────┬─────┐
+    ▼    ▼    ▼     ▼     │
+   AE   VAE  Trans  GNN   │
+    │    │    │     │     │
+    └────┴────┴─────┴─────┘
+              ↓
+    13-dim State Vector
+              ↓
     DQN Agent (learns optimal actions)
 ```
 
 ### Why This Works
 
-1. **No Retraining**: Models use original features, no adaptation needed
-2. **Realistic Features**: Sampled from real data, not synthetically generated
-3. **Controlled Sequences**: Meta-level generation ensures realistic CKC progression
-4. **Feature Validity**: Conditioning guarantees correct CKC stage → model expectations met
+1. **Complementary Signals**: Each model detects different aspects (anomaly, probability, prediction, propagation)
+2. **No Retraining**: All 4 models are pre-trained and frozen; only the RL agent learns
+3. **55-Feature Pipeline**: SecBERT embeddings + binary flags provide rich alert representations
+4. **Graph-Aware**: GNN captures lateral movement patterns invisible to per-alert models
 
 ---
 
-## 📊 State Space Design (10 Features)
+## 📊 State Space Design (13 Features)
 
 The RL agent observes a carefully designed state vector:
 
@@ -107,14 +108,17 @@ The RL agent observes a carefully designed state vector:
 |---------|--------|---------|
 | `anomaly_score` | Autoencoder | General anomaly detection |
 | `reconstruction_error` | Autoencoder | Raw reconstruction quality |
-| `malicious_probability` | VAE | Malicious event likelihood |
-| `uncertainty` | VAE | Model confidence |
+| `malicious_probability` | Beta-VAE | Malicious event likelihood |
+| `uncertainty` | Beta-VAE | Model confidence |
 | `predicted_next_ckc_stage` | Transformer | Attack progression prediction |
 | `prediction_confidence` | Transformer | Prediction certainty |
-| `current_ckc_stage` | Environment | Current attack phase |
-| `time_since_first_event` | Environment | Attack duration |
-| `time_since_last_event` | Environment | Inter-event timing |
-| `sequence_length_so_far` | Environment | Number of events observed |
+| `current_ckc_stage` | Context | Current attack phase |
+| `time_since_first_event` | Temporal | Attack duration |
+| `time_since_last_event` | Temporal | Inter-event timing |
+| `sequence_length_so_far` | Counter | Number of events observed |
+| `gnn_node_risk` | GNN | Risk on current host |
+| `gnn_neighbor_risk` | GNN | Connected host risk |
+| `gnn_risk_growth` | GNN | Global risk change |
 
 ### State Design Rationale
 
@@ -146,25 +150,29 @@ The RL agent observes a carefully designed state vector:
 
 ## 🏆 Reward Function Design
 
-Carefully crafted to prioritize **early detection**:
+Carefully crafted to strongly prioritize **early detection**:
 
 ```python
 def calculate_reward(action, ckc_stage, is_malicious):
-    if is_intervention(action):
+    if is_intervention(action):              # Escalate / Isolate / Block
         if is_malicious:
-            if ckc_stage <= 3:
-                return +5   # Early detection: HIGH reward
-            elif ckc_stage <= 5:
-                return +2   # Mid detection: MEDIUM reward
+            if ckc_stage <= 2:
+                return +15  # S1-S2: Excellent early catch
+            elif ckc_stage <= 3:
+                return +10  # S3: Good, caught delivery
+            elif ckc_stage == 4:
+                return +7   # S4: Caught exploitation
+            elif ckc_stage == 5:
+                return +3   # S5: Borderline
+            elif ckc_stage == 6:
+                return 0    # S6: Too late (C2 established)
             else:
-                return 0    # Late detection: NO reward (too late)
+                return -2   # S7: Damage done
         else:
-            return -1       # False positive: PENALTY
-    else:
-        if is_malicious and ckc_stage >= 6:
-            return -10      # Missed attack: LARGE penalty
-        else:
-            return 0        # Monitoring acceptable
+            return -2 to -3 # False positive penalty
+    elif is_malicious and ckc_stage >= 6:
+        return -8           # Monitoring at S6+: critical failure
+    # Missed attack at end-of-episode: -15
 ```
 
 ### Reward Design Rationale
@@ -284,19 +292,14 @@ __init__.py                    (4 files)   - Package initialization
 
 ## 🎓 Academic Contributions
 
-### 1. Conditional Replay Mechanism
+### 1. Multi-Model Ensemble for RL State
 
-**Novel Contribution**: A method to use synthetic high-level sequences with pre-trained models requiring full features.
+**Novel Contribution**: Fusing outputs from four heterogeneous deep learning models (AE, VAE, Transformer, GNN) into a unified 13-dim state vector for RL decision-making.
 
 **Academic Value**:
-- Bridges generative models (ReALTabFormer) with discriminative models (AE, VAE)
-- Preserves model correctness without retraining
-- Generalizable to other domains with hierarchical data
-
-**Alternative Names**:
-- Conditional Data Augmentation
-- Stage-Conditioned Feature Sampling
-- Guided Synthetic-to-Real Mapping
+- Combines anomaly detection, probabilistic classification, sequential prediction, and graph-based propagation analysis
+- Each model captures a different aspect of APT behavior
+- The RL agent learns to optimally weigh these complementary signals
 
 ### 2. CKC-Aware Reward Function
 
@@ -389,7 +392,7 @@ This project delivers a **complete, Master-level implementation** of an RL-based
 
 ✅ Integrates pre-trained models without retraining
 ✅ Generates realistic synthetic attack sequences
-✅ Implements novel conditional replay mechanism
+✅ Integrates 4 detection models into multi-model ensemble
 ✅ Trains DQN agent with early detection prioritization
 ✅ Provides comprehensive evaluation framework
 ✅ Documents all design choices academically
@@ -412,9 +415,10 @@ This project delivers a **complete, Master-level implementation** of an RL-based
 - Python 3.8+
 
 **Models Used**:
-- Autoencoder (Dimensionality Reduction & Anomaly Detection)
-- VAE (Malicious Probability Estimation)
-- Transformer (Sequence Prediction)
+- Autoencoder (Anomaly Detection via Reconstruction Error)
+- Beta-VAE (Malicious Probability Estimation)
+- Transformer (Next CKC Stage Prediction)
+- GNN / GraphSAGE (Lateral Movement / Propagation Detection)
 
 ---
 

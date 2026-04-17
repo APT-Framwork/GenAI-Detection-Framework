@@ -32,22 +32,16 @@ This system detects **Advanced Persistent Threats (APTs)** in real-time by combi
 │   25 selected features → 55 columns (SecBERT PCA + binary flags)   │
 └──────────────────────────────┬──────────────────────────────────────┘
                                │
-              ┌────────────────┼────────────────┐
-              │                │                │
-              ▼                ▼                ▼
-    ┌─────────────┐  ┌──────────────┐  ┌───────────────┐
-    │ Autoencoder  │  │  Beta-VAE     │  │  GNN          │
-    │ (Anomaly)    │  │  (Malicious   │  │  (Propagation │
-    │              │  │   Probability)│  │   Risk)       │
-    └──────┬──────┘  └──────┬───────┘  └──────┬────────┘
-           │                │                  │
-           │         ┌──────┴───────┐          │
-           │         │  Transformer  │          │
-           │         │  (Next Stage  │          │
-           │         │   Prediction) │          │
-           │         └──────┬───────┘          │
-           │                │                  │
-           ▼                ▼                  ▼
+         ┌──────────┬──────────┼──────────┬──────────┐
+         │          │          │          │          │
+         ▼          ▼          ▼          ▼          │
+    ┌──────────┐ ┌──────────┐ ┌───────────┐ ┌──────────┐
+    │Autoencoder│ │ Beta-VAE │ │Transformer│ │   GNN    │
+    │ (Anomaly │ │(Malicious│ │(Next Stage│ │(Lateral  │
+    │Detection)│ │  Prob.)  │ │Prediction)│ │Movement) │
+    └────┬─────┘ └────┬─────┘ └─────┬─────┘ └────┬─────┘
+         │            │             │             │
+         ▼            ▼             ▼             ▼
     ┌─────────────────────────────────────────────────┐
     │            RL ENVIRONMENT (13-dim State)         │
     │  [anomaly_score, recon_error, mal_prob,          │
