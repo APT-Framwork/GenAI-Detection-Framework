@@ -1,0 +1,159 @@
+<!--
+  STRIX custom rules — layered on top of Wazuh 4.9 default MITRE ruleset.
+  Goal: raise alerts for Caldera-emulated APT abilities that the defaults
+  miss or under-score. Rule IDs in 100000-109999 (reserved for user rules).
+
+  Techniques targeted here mirror the top tactics in Karim et al. 2024 and
+  the APT profiles from Syed et al. 2025: Defense Evasion, Discovery,
+  Privilege Escalation, Persistence, Credential Access, C2.
+-->
+<group name="strix,caldera,">
+
+  <!-- ================= Discovery (TA0007) ================= -->
+  <rule id="100100" level="6">
+    <if_sid>80700</if_sid>
+    <field name="audit.key">proc_exec</field>
+    <field name="audit.exe" type="pcre2">(whoami|id|uname|hostname|uptime|w|last)$</field>
+    <description>Caldera/APT: system information discovery command</description>
+    <mitre>
+      <id>T1082</id>
+      <id>T1033</id>
+    </mitre>
+  </rule>
+
+  <rule id="100101" level="6">
+    <if_sid>80700</if_sid>
+    <field name="audit.key">proc_exec</field>
+    <field name="audit.exe" type="pcre2">(ps|top|pgrep|pidof)$</field>
+    <description>Caldera/APT: process discovery</description>
+    <mitre><id>T1057</id></mitre>
+  </rule>
+
+  <rule id="100102" level="6">
+    <if_sid>80700</if_sid>
+    <field name="audit.key">proc_exec</field>
+    <field name="audit.exe" type="pcre2">(netstat|ss|ip|arp|route)$</field>
+    <description>Caldera/APT: network configuration / connection discovery</description>
+    <mitre>
+      <id>T1016</id>
+      <id>T1049</id>
+    </mitre>
+  </rule>
+
+  <rule id="100103" level="6">
+    <if_sid>80700</if_sid>
+    <field name="audit.key">proc_exec</field>
+    <field name="audit.exe" type="pcre2">(find|locate)$</field>
+    <description>Caldera/APT: file &amp; directory discovery</description>
+    <mitre><id>T1083</id></mitre>
+  </rule>
+
+  <!-- ================= Credential Access (TA0006) ================= -->
+  <rule id="100200" level="10">
+    <if_sid>80700</if_sid>
+    <field name="audit.key">identity</field>
+    <description>Caldera/APT: read/write on /etc/shadow or /etc/passwd</description>
+    <mitre>
+      <id>T1003.008</id>
+      <id>T1552.001</id>
+    </mitre>
+  </rule>
+
+  <rule id="100201" level="8">
+    <if_sid>80700</if_sid>
+    <field name="audit.key">ssh_keys</field>
+    <description>Caldera/APT: access to SSH private key material</description>
+    <mitre><id>T1552.004</id></mitre>
+  </rule>
+
+  <!-- ================= Persistence (TA0003) ================= -->
+  <rule id="100300" level="9">
+    <if_sid>80700</if_sid>
+    <field name="audit.key">cron</field>
+    <description>Caldera/APT: cron modification (persistence)</description>
+    <mitre><id>T1053.003</id></mitre>
+  </rule>
+
+  <rule id="100301" level="9">
+    <if_sid>80700</if_sid>
+    <field name="audit.key">systemd_unit</field>
+    <description>Caldera/APT: systemd unit modification (persistence)</description>
+    <mitre><id>T1543.002</id></mitre>
+  </rule>
+
+  <rule id="100302" level="8">
+    <if_sid>80700</if_sid>
+    <field name="audit.key">shell_rc</field>
+    <description>Caldera/APT: shell rc file modified (persistence)</description>
+    <mitre><id>T1546.004</id></mitre>
+  </rule>
+
+  <!-- ================= Privilege Escalation (TA0004) ================= -->
+  <rule id="100400" level="9">
+    <if_sid>80700</if_sid>
+    <field name="audit.key">sudoers</field>
+    <description>Caldera/APT: sudoers file modified</description>
+    <mitre><id>T1548.003</id></mitre>
+  </rule>
+
+  <rule id="100401" level="8">
+    <if_sid>80700</if_sid>
+    <field name="audit.key">priv_change</field>
+    <description>Caldera/APT: setuid/setgid syscall invoked</description>
+    <mitre><id>T1068</id></mitre>
+  </rule>
+
+  <!-- ================= Defense Evasion (TA0005) ================= -->
+  <rule id="100500" level="10">
+    <if_sid>80700</if_sid>
+    <field name="audit.key">log_tamper</field>
+    <description>Caldera/APT: tampering with system log files</description>
+    <mitre>
+      <id>T1070.002</id>
+      <id>T1070.003</id>
+    </mitre>
+  </rule>
+
+  <rule id="100501" level="7">
+    <if_sid>80700</if_sid>
+    <field name="audit.key">proc_exec</field>
+    <field name="audit.exe" type="pcre2">(base64|xxd|openssl)$</field>
+    <description>Caldera/APT: encoding/decoding utility — possible obfuscation</description>
+    <mitre><id>T1027</id></mitre>
+  </rule>
+
+  <!-- ================= Command & Control (TA0011) / Ingress Tool Transfer ================= -->
+  <rule id="100600" level="7">
+    <if_sid>80700</if_sid>
+    <field name="audit.key">tool_exec</field>
+    <field name="audit.exe" type="pcre2">(wget|curl)$</field>
+    <description>Caldera/APT: download utility executed — possible ingress tool transfer</description>
+    <mitre>
+      <id>T1105</id>
+      <id>T1071.001</id>
+    </mitre>
+  </rule>
+
+  <rule id="100601" level="8">
+    <if_sid>80700</if_sid>
+    <field name="audit.key">tool_exec</field>
+    <field name="audit.exe" type="pcre2">(nc|ncat)$</field>
+    <description>Caldera/APT: netcat executed — possible reverse shell / C2</description>
+    <mitre>
+      <id>T1059.004</id>
+      <id>T1095</id>
+    </mitre>
+  </rule>
+
+  <!-- ================= Payload drop zones ================= -->
+  <rule id="100700" level="8">
+    <if_sid>550,554</if_sid>
+    <field name="file" type="pcre2">^/(tmp|dev/shm|var/tmp)/</field>
+    <description>Caldera/APT: new executable/file dropped in common payload directory</description>
+    <mitre>
+      <id>T1036</id>
+      <id>T1105</id>
+    </mitre>
+  </rule>
+
+</group>
