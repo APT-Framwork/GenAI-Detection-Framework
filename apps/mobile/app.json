@@ -1,0 +1,42 @@
+{
+  "expo": {
+    "name": "STRIX",
+    "slug": "strix-mobile",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "scheme": "strix",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#e7faff"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.strix.mobile"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#e7faff"
+      },
+      "edgeToEdgeEnabled": true,
+      "package": "com.strix.mobile"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#e7faff"
+        }
+      ]
+    ]
+  }
+}

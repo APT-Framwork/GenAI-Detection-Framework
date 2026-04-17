@@ -1,0 +1,102 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
+@layer base {
+  :root {
+    --strix-primary: #006B94;
+    --strix-secondary: #00D0FC;
+    --strix-tertiary: #0B71D1;
+    --strix-neutral: #4B7F8B;
+    --strix-bg: #F0F9FC;
+    --strix-bg-card: #FFFFFF;
+    --strix-bg-surface: #E8F4F8;
+    --strix-text: #0F172A;
+    --strix-text-muted: #64748B;
+    --strix-border: #CBD5E1;
+    --strix-accent: #006B94;
+  }
+
+  .dark {
+    --strix-primary: #00F2FF;
+    --strix-secondary: #00D0FC;
+    --strix-tertiary: #8A2BE2;
+    --strix-neutral: #4B7F8B;
+    --strix-bg: #0B0E14;
+    --strix-bg-card: #111827;
+    --strix-bg-surface: #161B26;
+    --strix-text: #E2E8F0;
+    --strix-text-muted: #94A3B8;
+    --strix-border: #1E293B;
+    --strix-accent: #00F2FF;
+  }
+
+  * {
+    border-color: var(--strix-border);
+  }
+
+  body {
+    @apply bg-[var(--strix-bg)] text-[var(--strix-text)] font-sans antialiased;
+  }
+}
+
+@layer utilities {
+  .text-gradient-strix {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-strix-primary to-strix-secondary;
+  }
+
+  .border-strix {
+    @apply border-[var(--strix-border)];
+  }
+
+  .bg-strix-card {
+    @apply bg-[var(--strix-bg-card)];
+  }
+
+  .bg-strix-surface {
+    @apply bg-[var(--strix-bg-surface)];
+  }
+
+  .glow-cyan {
+    box-shadow: 0 0 20px rgba(0, 242, 255, 0.15), 0 0 40px rgba(0, 242, 255, 0.05);
+  }
+
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: var(--strix-neutral) transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background-color: var(--strix-neutral);
+    border-radius: 3px;
+  }
+}
+
+/* Custom animations */
+@keyframes pulse-cyan {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(0, 242, 255, 0.4); }
+  50% { box-shadow: 0 0 0 8px rgba(0, 242, 255, 0); }
+}
+
+.animate-pulse-cyan {
+  animation: pulse-cyan 2s infinite;
+}
+
+@keyframes slide-in {
+  from { transform: translateX(-100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+.animate-slide-in {
+  animation: slide-in 0.3s ease-out;
+}
