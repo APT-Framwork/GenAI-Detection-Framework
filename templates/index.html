@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RL-Based APT Detection System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-gradient">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-shield-alt"></i> RL-APT Detection System
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#dashboard" data-tab="dashboard">
+                            <i class="fas fa-chart-line"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#training" data-tab="training">
+                            <i class="fas fa-brain"></i> Training
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#evaluation" data-tab="evaluation">
+                            <i class="fas fa-chart-bar"></i> Evaluation
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#inference" data-tab="inference">
+                            <i class="fas fa-crosshairs"></i> Detection
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#insights" data-tab="insights">
+                            <i class="fas fa-lightbulb"></i> Model Insights
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#reports" data-tab="reports">
+                            <i class="fas fa-file-pdf"></i> Reports
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="container-fluid mt-4">
+        
+        <!-- Dashboard Tab -->
+        <div id="dashboard-tab" class="tab-content active">
+            <h2 class="section-title">
+                <i class="fas fa-chart-line"></i> System Dashboard
+            </h2>
+            
+            <div class="row">
+                <!-- Status Cards -->
+                <div class="col-md-2 mb-4">
+                    <div class="card status-card">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="text-muted mb-1">Autoencoder</h6>
+                                    <h3 id="ae-status">
+                                        <span class="badge bg-secondary">Loading...</span>
+                                    </h3>
+                                </div>
+                                <i class="fas fa-network-wired fa-2x text-primary"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-2 mb-4">
+                    <div class="card status-card">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="text-muted mb-1">Beta-VAE</h6>
+                                    <h3 id="vae-status">
+                                        <span class="badge bg-secondary">Loading...</span>
+                                    </h3>
+                                </div>
+                                <i class="fas fa-brain fa-2x text-success"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-2 mb-4">
+                    <div class="card status-card">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="text-muted mb-1">Transformer</h6>
+                                    <h3 id="transformer-status">
+                                        <span class="badge bg-secondary">Loading...</span>
+                                    </h3>
+                                </div>
+                                <i class="fas fa-rocket fa-2x text-info"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-2 mb-4">
+                    <div class="card status-card">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="text-muted mb-1">GNN</h6>
+                                    <h3 id="gnn-status">
+                                        <span class="badge bg-secondary">Loading...</span>
+                                    </h3>
+                                </div>
+                                <i class="fas fa-project-diagram fa-2x text-danger"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-2 mb-4">
+                    <div class="card status-card">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="text-muted mb-1">RL Agent</h6>
+                                    <h3 id="agent-status">
+                                        <span class="badge bg-secondary">Loading...</span>
+                                    </h3>
+                                </div>
+                                <i class="fas fa-robot fa-2x text-warning"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Quick Actions -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0"><i class="fas fa-bolt"></i> Quick Actions</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-3 mb-3">
+                                    <button class="btn btn-lg btn-primary w-100" onclick="switchTab('training')">
+                                        <i class="fas fa-play"></i> Start Training
+                                    </button>
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <button class="btn btn-lg btn-success w-100" onclick="switchTab('evaluation')">
+                                        <i class="fas fa-chart-bar"></i> Evaluate Agent
+                                    </button>
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <button class="btn btn-lg btn-info w-100" onclick="switchTab('inference')">
+                                        <i class="fas fa-search"></i> Detect Threats
+                                    </button>
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <button class="btn btn-lg btn-warning w-100" onclick="switchTab('reports')">
+                                        <i class="fas fa-file-pdf"></i> Generate Report
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- System Info -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header bg-dark text-white">
+                            <h5 class="mb-0"><i class="fas fa-info-circle"></i> System Information</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6>Models (25 Features → 55 Columns)</h6>
+                                    <ul class="list-unstyled">
+                                        <li><i class="fas fa-cog text-primary"></i> <code>reg_ae_top25_features.pth</code> (AE, latent=64)</li>
+                                        <li><i class="fas fa-cog text-primary"></i> <code>reg_ae_top25_features_32dim.pth</code> (AE, latent=32)</li>
+                                        <li><i class="fas fa-cog text-success"></i> <code>beta_vae_top25_features.pth</code> (Beta-VAE)</li>
+                                        <li><i class="fas fa-cog text-success"></i> <code>beta_vae_malicious_only_32dim.pth</code></li>
+                                        <li><i class="fas fa-cog text-info"></i> <code>transformer_next_step_prediction_top25.pth</code></li>
+                                        <li><i class="fas fa-cog text-danger"></i> <code>gnn_propagation_best_no_rule.pth</code> (GraphSAGE)</li>
+                                    </ul>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6>About the System</h6>
+                                    <p class="text-muted">
+                                        This system uses Reinforcement Learning combined with 4 deep learning models
+                                        (Regularized AE, Beta-VAE, Transformer, GNN) to detect Advanced Persistent Threats (APTs)
+                                        across the Cyber Kill Chain stages. Uses 25 selected features (55 columns).
+                                    </p>
+                                    <p class="text-muted small">
+                                        <strong>State Space:</strong> 13 dimensions (10 base + 3 GNN features)<br>
+                                        <strong>Action Space:</strong> 5 actions (Monitor, Alert, Escalate, Isolate, Block)
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Training Tab -->
+        <div id="training-tab" class="tab-content">
+            <h2 class="section-title">
+                <i class="fas fa-brain"></i> Agent Training
+            </h2>
+            
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <div class="card">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0"><i class="fas fa-sliders-h"></i> Training Parameters</h5>
+                        </div>
+                        <div class="card-body">
+                            <form id="training-form">
+                                <div class="mb-3">
+                                    <label class="form-label">Number of Episodes</label>
+                                    <input type="number" class="form-control" id="num-episodes" value="100" min="10" max="1000">
+                                    <small class="text-muted">Recommended: 100-500</small>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Learning Rate</label>
+                                    <input type="number" class="form-control" id="learning-rate" value="0.001" step="0.0001" min="0.0001" max="0.1">
+                                    <small class="text-muted">Default: 0.001</small>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Discount Factor (γ)</label>
+                                    <input type="number" class="form-control" id="gamma" value="0.99" step="0.01" min="0.9" max="0.99">
+                                    <small class="text-muted">Default: 0.99</small>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Epsilon Start</label>
+                                    <input type="number" class="form-control" id="epsilon-start" value="1.0" step="0.1" min="0.5" max="1.0">
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Epsilon End</label>
+                                    <input type="number" class="form-control" id="epsilon-end" value="0.01" step="0.01" min="0.01" max="0.1">
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Epsilon Decay</label>
+                                    <input type="number" class="form-control" id="epsilon-decay" value="0.995" step="0.001" min="0.9" max="0.999">
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Batch Size</label>
+                                    <input type="number" class="form-control" id="batch-size" value="64" min="16" max="256" step="16">
+                                </div>
+
+                                <hr>
+                                <h6 class="text-primary"><i class="fas fa-cogs"></i> Model Selection</h6>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Autoencoder Model</label>
+                                    <select class="form-select" id="ae-variant">
+                                        <option value="reg_ae_64">Regularized AE (latent=64)</option>
+                                        <option value="reg_ae_32">Regularized AE (latent=32)</option>
+                                    </select>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">VAE Model</label>
+                                    <select class="form-select" id="vae-variant">
+                                        <option value="beta_vae" selected>Beta-VAE (all data)</option>
+                                        <option value="beta_vae_32">Beta-VAE 32dim</option>
+                                        <option value="beta_vae_malicious">Beta-VAE (malicious only)</option>
+                                    </select>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Data Source</label>
+                                    <select class="form-select" id="data-source">
+                                        <option value="synthetic">Synthetic (ReALTabFormer)</option>
+                                        <option value="both" selected>Both (Synthetic + Real)</option>
+                                        <option value="real">Real only</option>
+                                    </select>
+                                </div>
+                                
+                                <button type="submit" class="btn btn-primary w-100" id="start-training-btn">
+                                    <i class="fas fa-play"></i> Start Training
+                                </button>
+                                
+                                <button type="button" class="btn btn-secondary w-100 mt-2" onclick="resetTrainingParams()">
+                                    <i class="fas fa-undo"></i> Reset to Defaults
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-8 mb-4">
+                    <div class="card">
+                        <div class="card-header bg-success text-white">
+                            <h5 class="mb-0"><i class="fas fa-chart-line"></i> Training Progress</h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="training-status" class="alert alert-info">
+                                <i class="fas fa-info-circle"></i> Configure parameters and click "Start Training"
+                            </div>
+                            
+                            <div id="training-progress-container" style="display: none;">
+                                <div class="mb-3">
+                                    <label class="form-label">Overall Progress</label>
+                                    <div class="progress" style="height: 30px;">
+                                        <div id="training-progress-bar" class="progress-bar progress-bar-striped progress-bar-animated" 
+                                             role="progressbar" style="width: 0%">0%</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row mt-4">
+                                    <div class="col-md-4">
+                                        <div class="stat-card">
+                                            <h6 class="text-muted">Episode</h6>
+                                            <h3 id="current-episode">0</h3>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="stat-card">
+                                            <h6 class="text-muted">Avg Reward</h6>
+                                            <h3 id="avg-reward">0.00</h3>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="stat-card">
+                                            <h6 class="text-muted">Status</h6>
+                                            <h3 id="training-state">
+                                                <span class="badge bg-primary">Training</span>
+                                            </h3>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="mt-4">
+                                    <h6>Training Logs</h6>
+                                    <div id="training-logs" class="logs-container">
+                                        <!-- Logs will be inserted here -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Evaluation Tab -->
+        <div id="evaluation-tab" class="tab-content">
+            <h2 class="section-title">
+                <i class="fas fa-chart-bar"></i> Agent Evaluation
+            </h2>
+            
+            <div class="row">
+                <div class="col-12 mb-4">
+                    <div class="card">
+                        <div class="card-header bg-success text-white">
+                            <h5 class="mb-0"><i class="fas fa-play"></i> Run Evaluation</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row align-items-center mb-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">Agent Checkpoint</label>
+                                    <input type="text" class="form-control" id="agent-path" value="./outputs/agent_final.pth">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">Test Episodes</label>
+                                    <input type="number" class="form-control" id="eval-episodes" value="50" min="10" max="200">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">&nbsp;</label>
+                                    <button class="btn btn-success w-100" onclick="startEvaluation()">
+                                        <i class="fas fa-play"></i> Start Evaluation
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- Evaluation Progress -->
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>Progress:</span>
+                                    <span id="current-eval-episode">0 / 0</span>
+                                </div>
+                                <div class="progress">
+                                    <div id="evaluation-progress-bar" class="progress-bar progress-bar-striped progress-bar-animated" 
+                                         role="progressbar" style="width: 0%">0%</div>
+                                </div>
+                            </div>
+                            
+                            <!-- Evaluation Logs -->
+                            <div class="logs-container" id="evaluation-logs">
+                                <div class="text-muted">Evaluation logs will appear here...</div>
+                            </div>
+                            
+                            <div id="evaluation-status" class="alert alert-info mt-3">
+                                <i class="fas fa-info-circle"></i> Click "Start Evaluation" to test the trained agent
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-12" id="evaluation-results-container" style="display: none;">
+                    <div class="card">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0"><i class="fas fa-chart-pie"></i> Evaluation Results</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6 mb-4">
+                                    <h5>Synthetic Sequences</h5>
+                                    <div class="result-card">
+                                        <div class="result-metric">
+                                            <span class="metric-label">Average Reward:</span>
+                                            <span class="metric-value" id="synthetic-reward">-</span>
+                                        </div>
+                                        <div class="result-metric">
+                                            <span class="metric-label">Early Detection Rate:</span>
+                                            <span class="metric-value" id="synthetic-detection">-</span>
+                                        </div>
+                                        <div class="result-metric">
+                                            <span class="metric-label">Average Steps:</span>
+                                            <span class="metric-value" id="synthetic-steps">-</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-6 mb-4">
+                                    <h5>Real Sequences</h5>
+                                    <div class="result-card">
+                                        <div class="result-metric">
+                                            <span class="metric-label">Average Reward:</span>
+                                            <span class="metric-value" id="real-reward">-</span>
+                                        </div>
+                                        <div class="result-metric">
+                                            <span class="metric-label">Early Detection Rate:</span>
+                                            <span class="metric-value" id="real-detection">-</span>
+                                        </div>
+                                        <div class="result-metric">
+                                            <span class="metric-label">Average Steps:</span>
+                                            <span class="metric-value" id="real-steps">-</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-4">
+                                <h5>Visualization</h5>
+                                <img id="evaluation-plot" src="" alt="Evaluation Results" class="img-fluid rounded">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Inference/Detection Tab -->
+        <div id="inference-tab" class="tab-content">
+            <h2 class="section-title">
+                <i class="fas fa-crosshairs"></i> Threat Detection
+            </h2>
+            
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <div class="card">
+                        <div class="card-header bg-danger text-white">
+                            <h5 class="mb-0"><i class="fas fa-upload"></i> Input Event Data</h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="text-muted">
+                                Paste your event features as a JSON array (55 features expected):
+                            </p>
+                            <textarea class="form-control" id="event-features" rows="10" 
+                                      placeholder='[0.123, 0.456, ..., 0.789]'></textarea>
+                            
+                            <button class="btn btn-danger w-100 mt-3" onclick="runInference()">
+                                <i class="fas fa-search"></i> Analyze Event
+                            </button>
+                            
+                            <button class="btn btn-secondary w-100 mt-2" onclick="loadSampleEvent()">
+                                <i class="fas fa-file-import"></i> Load Sample Event
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 mb-4">
+                    <div class="card">
+                        <div class="card-header bg-warning text-dark">
+                            <h5 class="mb-0"><i class="fas fa-exclamation-triangle"></i> Detection Results</h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="inference-results" class="text-center text-muted py-5">
+                                <i class="fas fa-arrow-left fa-3x mb-3"></i>
+                                <p>Input event features and click "Analyze Event"</p>
+                            </div>
+                            
+                            <div id="inference-output" style="display: none;">
+                                <!-- Autoencoder Results -->
+                                <div class="detection-card mb-3">
+                                    <h6><i class="fas fa-network-wired text-primary"></i> Autoencoder</h6>
+                                    <div class="detection-metric">
+                                        <span>Anomaly Score:</span>
+                                        <span id="ae-anomaly-score" class="badge bg-primary">-</span>
+                                    </div>
+                                    <div class="detection-metric">
+                                        <span>Reconstruction Error:</span>
+                                        <span id="ae-recon-error" class="badge bg-primary">-</span>
+                                    </div>
+                                    <p class="text-muted small mt-2" id="ae-explanation"></p>
+                                </div>
+                                
+                                <!-- VAE Results -->
+                                <div class="detection-card mb-3">
+                                    <h6><i class="fas fa-brain text-success"></i> VAE</h6>
+                                    <div class="detection-metric">
+                                        <span>Malicious Probability:</span>
+                                        <span id="vae-mal-prob" class="badge bg-success">-</span>
+                                    </div>
+                                    <div class="detection-metric">
+                                        <span>Uncertainty:</span>
+                                        <span id="vae-uncertainty" class="badge bg-success">-</span>
+                                    </div>
+                                    <p class="text-muted small mt-2" id="vae-explanation"></p>
+                                </div>
+                                
+                                <!-- RL Agent Results -->
+                                <div class="detection-card agent-action">
+                                    <h6><i class="fas fa-robot text-danger"></i> RL Agent Recommendation</h6>
+                                    <div class="action-recommendation" id="agent-action">
+                                        <i class="fas fa-shield-alt fa-3x mb-2"></i>
+                                        <h4 id="agent-action-name">-</h4>
+                                        <p class="text-muted" id="agent-explanation"></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Model Insights Tab -->
+        <div id="insights-tab" class="tab-content">
+            <h2 class="section-title">
+                <i class="fas fa-lightbulb"></i> Model Insights
+            </h2>
+            
+            <div class="row">
+                <div class="col-12 mb-4">
+                    <div class="card">
+                        <div class="card-header bg-info text-white">
+                            <h5 class="mb-0"><i class="fas fa-info-circle"></i> Understanding the Models</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-3 mb-3">
+                                    <div class="model-info-card">
+                                        <h5><i class="fas fa-network-wired text-primary"></i> Regularized AE</h5>
+                                        <p class="text-muted">
+                                            Compresses 55 features to detect anomalies via reconstruction error + center distance.
+                                        </p>
+                                        <ul class="list-unstyled">
+                                            <li><strong>Input:</strong> 55 features</li>
+                                            <li><strong>Latent:</strong> 64 or 32 dims</li>
+                                            <li><strong>Purpose:</strong> Anomaly detection</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-3 mb-3">
+                                    <div class="model-info-card">
+                                        <h5><i class="fas fa-brain text-success"></i> Beta-VAE</h5>
+                                        <p class="text-muted">
+                                            Beta-VAE with learned center for malicious probability estimation with uncertainty.
+                                        </p>
+                                        <ul class="list-unstyled">
+                                            <li><strong>Input:</strong> 55 features</li>
+                                            <li><strong>Latent:</strong> 32 dimensions</li>
+                                            <li><strong>Purpose:</strong> Malicious probability</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-3 mb-3">
+                                    <div class="model-info-card">
+                                        <h5><i class="fas fa-rocket text-info"></i> Transformer</h5>
+                                        <p class="text-muted">
+                                            Predicts next CKC stage from AE latent sequences using multi-head attention.
+                                        </p>
+                                        <ul class="list-unstyled">
+                                            <li><strong>Input:</strong> 64-dim sequences</li>
+                                            <li><strong>Model:</strong> 128-dim, 8 heads</li>
+                                            <li><strong>Purpose:</strong> Stage prediction</li>
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-3 mb-3">
+                                    <div class="model-info-card">
+                                        <h5><i class="fas fa-project-diagram text-danger"></i> GNN (GraphSAGE)</h5>
+                                        <p class="text-muted">
+                                            3-layer GraphSAGE detecting lateral movement propagation across network machines.
+                                        </p>
+                                        <ul class="list-unstyled">
+                                            <li><strong>Input:</strong> 55 features</li>
+                                            <li><strong>Hidden:</strong> 128 dims, 3 layers</li>
+                                            <li><strong>Purpose:</strong> Propagation detection</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header bg-dark text-white">
+                            <h5 class="mb-0">
+                                <i class="fas fa-chart-area"></i> CKC Stage Analysis
+                                <button class="btn btn-sm btn-light float-end" onclick="loadModelInsights()">
+                                    <i class="fas fa-sync"></i> Refresh
+                                </button>
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="insights-loading" class="text-center py-5">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                                <p class="mt-2">Loading model insights...</p>
+                            </div>
+                            
+                            <div id="insights-container" style="display: none;">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>CKC Stage</th>
+                                            <th>Stage Name</th>
+                                            <th>Anomaly Score</th>
+                                            <th>Malicious Probability</th>
+                                            <th>Sample Index</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="insights-table-body">
+                                        <!-- Will be populated dynamically -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reports Tab -->
+        <div id="reports-tab" class="tab-content">
+            <h2 class="section-title">
+                <i class="fas fa-file-pdf"></i> Report Generation
+            </h2>
+            
+            <div class="row">
+                <div class="col-12 mb-4">
+                    <div class="card">
+                        <div class="card-header bg-danger text-white">
+                            <h5 class="mb-0"><i class="fas fa-file-pdf"></i> Generate PDF Reports</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <div class="report-option">
+                                        <h5><i class="fas fa-chart-bar text-success"></i> Evaluation Report</h5>
+                                        <p class="text-muted">
+                                            Generate a comprehensive PDF report of the agent's evaluation results
+                                            including synthetic and real sequence performance.
+                                        </p>
+                                        <button class="btn btn-success" onclick="generateReport('evaluation')">
+                                            <i class="fas fa-download"></i> Generate Evaluation Report
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    <div class="report-option">
+                                        <h5><i class="fas fa-brain text-primary"></i> Training Report</h5>
+                                        <p class="text-muted">
+                                            Generate a PDF summary of the training process including parameters,
+                                            learning curves, and final metrics.
+                                        </p>
+                                        <button class="btn btn-primary" onclick="generateReport('training')" disabled>
+                                            <i class="fas fa-download"></i> Generate Training Report
+                                        </button>
+                                        <small class="text-muted d-block mt-2">Coming soon...</small>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div id="report-status" class="alert alert-info mt-3" style="display: none;">
+                                <!-- Status messages -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header bg-dark text-white">
+                            <h5 class="mb-0"><i class="fas fa-history"></i> Generated Reports</h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="text-muted">
+                                Generated reports are saved in the <code>reports/</code> directory.
+                            </p>
+                            <div id="reports-list">
+                                <p class="text-center text-muted">No reports generated yet.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.3.0/dist/chart.umd.min.js"></script>
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>

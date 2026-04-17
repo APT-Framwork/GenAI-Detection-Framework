@@ -1,0 +1,46 @@
+{
+  "synthetic": {
+    "early_detections": 2,
+    "false_positives": 3,
+    "false_negatives": 97,
+    "true_positives": 321,
+    "true_negatives": 79,
+    "action_distribution": {
+      "Monitor": 1473,
+      "Low Alert": 1589,
+      "Escalate to SOC": 5,
+      "Isolate Host": 45,
+      "Block User/IP": 274
+    },
+    "avg_reward": 9.042,
+    "avg_steps": 6.772,
+    "early_detection_rate": 0.004784688995215311,
+    "precision": 0.9907407407407407,
+    "recall": 0.7679425837320574,
+    "f1": 0.8652291105121295,
+    "accuracy": 0.8,
+    "false_positive_rate": 0.036585365853658534
+  },
+  "real": {
+    "early_detections": 295,
+    "false_positives": 82,
+    "false_negatives": 3,
+    "true_positives": 415,
+    "true_negatives": 0,
+    "action_distribution": {
+      "Monitor": 3,
+      "Low Alert": 904,
+      "Escalate to SOC": 0,
+      "Isolate Host": 383,
+      "Block User/IP": 114
+    },
+    "avg_reward": 1.48,
+    "avg_steps": 2.808,
+    "early_detection_rate": 0.7057416267942583,
+    "precision": 0.8350100603621731,
+    "recall": 0.992822966507177,
+    "f1": 0.907103825136612,
+    "accuracy": 0.83,
+    "false_positive_rate": 1.0
+  }
+}
