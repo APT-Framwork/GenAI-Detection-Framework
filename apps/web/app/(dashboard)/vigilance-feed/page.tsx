@@ -254,7 +254,7 @@ export default function VigilanceFeedPage() {
         <div className="col-span-12 lg:col-span-9 space-y-[20px]">
           {alerts.map((alert) => {
             const badge = badgeConfig[alert.severity] ?? badgeConfig.info
-            const isResolved = alert.status === "acknowledged" || alert.severity === "low"
+            const isResolved = alert.severity === "low"
 
             return (
               <div
@@ -292,10 +292,10 @@ export default function VigilanceFeedPage() {
                   {alert.description}
                 </p>
 
-                {/* IP if present */}
-                {alert.ip && (
+                {/* Source label (IP or hostname) */}
+                {alert.source && (
                   <p className="text-[14px] font-mono text-[#2b636f] dark:text-[var(--strix-text-muted)] mt-[4px] mb-[8px]">
-                    {alert.ip}
+                    {alert.source}
                   </p>
                 )}
 

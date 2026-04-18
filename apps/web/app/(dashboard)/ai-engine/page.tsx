@@ -316,7 +316,7 @@ export default function AiEnginePage() {
           {/* X-axis labels */}
           <div className="flex justify-between mt-2">
             {modelConfidenceData.map((d, i) => (
-              <span key={i} className="text-[9px] text-[var(--strix-text-muted)] font-mono">{d.name}</span>
+              <span key={i} className="text-[9px] text-[var(--strix-text-muted)] font-mono">{d.time}</span>
             ))}
           </div>
         </div>

@@ -319,6 +319,31 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/auth/register": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Register
+         * @description Open self-registration. New users land in `analyst`.
+         *
+         *     Issues a session pair on success so the SPA can land directly on the
+         *     dashboard without a second round-trip to /login. Duplicate emails
+         *     return 409 to avoid leaking existence — but we accept that this is
+         *     still observable via the existing /login flow.
+         */
+        post: operations["register_api_v1_auth_register_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/dashboard/attack-vector": {
         parameters: {
             query?: never;
@@ -614,6 +639,23 @@ export interface paths {
          * @description Enqueue an Arq job. Result is pushed to SSE channel `strix:sse:job:{job_id}`.
          */
         post: operations["virustotal_scan_api_v1_threat_intel_virustotal_scan_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/topology": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Topology */
+        get: operations["get_topology_api_v1_topology_get"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -1109,6 +1151,8 @@ export interface components {
         };
         /** MeResponse */
         MeResponse: {
+            /** Designation */
+            designation?: string | null;
             /** Email */
             email: string;
             /** Isactive */
@@ -1195,6 +1239,23 @@ export interface components {
             /** Refreshtoken */
             refreshToken?: string | null;
         };
+        /**
+         * RegisterRequest
+         * @description Open self-registration. New users land in the `analyst` role; only
+         *     an existing admin can promote them. The `designation` is a free-form
+         *     label the SOC uses to track callsigns / shift identifiers.
+         */
+        RegisterRequest: {
+            /** Designation */
+            designation?: string | null;
+            /**
+             * Email
+             * Format: email
+             */
+            email: string;
+            /** Password */
+            password: string;
+        };
         /** RetrainResponse */
         RetrainResponse: {
             /** Accepted */
@@ -1261,6 +1322,59 @@ export interface components {
              * @constant
              */
             tokenType: "Bearer";
+        };
+        /** TopologyEdge */
+        TopologyEdge: {
+            /** Chaincount */
+            chainCount: number;
+            /** Id */
+            id: string;
+            /** Source */
+            source: string;
+            /** Target */
+            target: string;
+            /**
+             * Type
+             * @enum {string}
+             */
+            type: "normal" | "malicious";
+        };
+        /** TopologyNode */
+        TopologyNode: {
+            /** Id */
+            id: string;
+            /** Ip */
+            ip: string | null;
+            /** Label */
+            label: string;
+            /** Maxckcstage */
+            maxCkcStage: number;
+            /** Openchains */
+            openChains: number;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "healthy" | "warning" | "compromised";
+            /**
+             * Type
+             * @enum {string}
+             */
+            type: "server" | "endpoint" | "firewall" | "database" | "manager";
+        };
+        /** TopologyResponse */
+        TopologyResponse: {
+            /** Edges */
+            edges: components["schemas"]["TopologyEdge"][];
+            /** Generatedat */
+            generatedAt: string;
+            /** Nodes */
+            nodes: components["schemas"]["TopologyNode"][];
+            /**
+             * Window
+             * @enum {string}
+             */
+            window: "15m" | "1h" | "24h" | "7d" | "all";
         };
         /** TrendPoint */
         TrendPoint: {
@@ -2002,6 +2116,39 @@ export interface operations {
             };
         };
     };
+    register_api_v1_auth_register_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RegisterRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TokenResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     attack_vector_api_v1_dashboard_attack_vector_get: {
         parameters: {
             query?: {
@@ -2470,6 +2617,37 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["JobAcceptedResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_topology_api_v1_topology_get: {
+        parameters: {
+            query?: {
+                window?: "15m" | "1h" | "24h" | "7d" | "all";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TopologyResponse"];
                 };
             };
             /** @description Validation Error */

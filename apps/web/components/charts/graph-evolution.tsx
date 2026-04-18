@@ -59,6 +59,10 @@ const edges: GraphEdge[] = [
 
 interface GraphEvolutionProps {
   className?: string
+  // Component currently uses hardcoded demo nodes/edges. Accepting
+  // `snapshots` from the API keeps the call sites future-proof and
+  // satisfies TS until we wire the real renderer.
+  snapshots?: unknown
 }
 
 export function GraphEvolution({ className }: GraphEvolutionProps) {

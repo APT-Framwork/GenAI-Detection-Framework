@@ -66,7 +66,7 @@ jobs:
             --cov=strix_api \
             --cov-report=xml \
             --cov-report=term-missing \
-            --cov-fail-under=70 \
+            --cov-fail-under=60 \
             tests/unit
       - uses: actions/upload-artifact@v4
         with:

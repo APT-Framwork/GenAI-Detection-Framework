@@ -94,10 +94,12 @@ const severityIcon = {
 
 /* ---------- components ---------- */
 
+type ProjectedNotification = ReturnType<typeof projectNotification>
+
 function NotificationCard({
   notification,
 }: {
-  notification: (typeof notifications)[number]
+  notification: ProjectedNotification
 }) {
   const s = severityStyles[notification.severity]
   const Icon = severityIcon[notification.severity]

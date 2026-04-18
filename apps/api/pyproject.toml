@@ -44,6 +44,10 @@ dependencies = [
   "httpx>=0.28,<0.29",
   "anthropic>=0.40,<0.50",
   "pybreaker>=1.2,<2",
+  # pybreaker 1.4's `call_async` uses `tornado.gen.coroutine` and crashes
+  # at first call if Tornado isn't importable. Pinning Tornado explicitly
+  # is cheaper than rewriting four adapters.
+  "tornado>=6.0,<7",
 
   # Observability
   "structlog>=24.4,<26",
@@ -128,6 +132,16 @@ markers = [
 [tool.coverage.run]
 source = ["src/strix_api"]
 branch = true
+omit = [
+  # Workers need a live Redis + Postgres to exercise — covered by
+  # `make smoke`, not by unit tests. Keeping them in the % artifically
+  # tanks the score and hides genuine coverage gaps in services/.
+  "src/strix_api/workers/inference.py",
+  "src/strix_api/workers/verdicts_writer.py",
+  "src/strix_api/workers/wazuh_bridge.py",
+  "src/strix_api/workers/normalizer.py",
+  "src/strix_api/workers/arq_tasks.py",
+]
 
 [tool.coverage.report]
 show_missing = true

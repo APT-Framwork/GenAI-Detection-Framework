@@ -1332,6 +1332,17 @@
       },
       "MeResponse": {
         "properties": {
+          "designation": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Designation"
+          },
           "email": {
             "title": "Email",
             "type": "string"
@@ -1598,6 +1609,40 @@
         "title": "RefreshRequest",
         "type": "object"
       },
+      "RegisterRequest": {
+        "description": "Open self-registration. New users land in the `analyst` role; only\nan existing admin can promote them. The `designation` is a free-form\nlabel the SOC uses to track callsigns / shift identifiers.",
+        "properties": {
+          "designation": {
+            "anyOf": [
+              {
+                "maxLength": 128,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Designation"
+          },
+          "email": {
+            "format": "email",
+            "title": "Email",
+            "type": "string"
+          },
+          "password": {
+            "maxLength": 256,
+            "minLength": 8,
+            "title": "Password",
+            "type": "string"
+          }
+        },
+        "required": [
+          "email",
+          "password"
+        ],
+        "title": "RegisterRequest",
+        "type": "object"
+      },
       "RetrainResponse": {
         "properties": {
           "accepted": {
@@ -1759,6 +1804,146 @@
           "expiresIn"
         ],
         "title": "TokenResponse",
+        "type": "object"
+      },
+      "TopologyEdge": {
+        "properties": {
+          "chainCount": {
+            "title": "Chaincount",
+            "type": "integer"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "source": {
+            "title": "Source",
+            "type": "string"
+          },
+          "target": {
+            "title": "Target",
+            "type": "string"
+          },
+          "type": {
+            "enum": [
+              "normal",
+              "malicious"
+            ],
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "source",
+          "target",
+          "chainCount",
+          "type"
+        ],
+        "title": "TopologyEdge",
+        "type": "object"
+      },
+      "TopologyNode": {
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "ip": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ip"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "maxCkcStage": {
+            "title": "Maxckcstage",
+            "type": "integer"
+          },
+          "openChains": {
+            "title": "Openchains",
+            "type": "integer"
+          },
+          "status": {
+            "enum": [
+              "healthy",
+              "warning",
+              "compromised"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "type": {
+            "enum": [
+              "server",
+              "endpoint",
+              "firewall",
+              "database",
+              "manager"
+            ],
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "label",
+          "type",
+          "status",
+          "ip",
+          "openChains",
+          "maxCkcStage"
+        ],
+        "title": "TopologyNode",
+        "type": "object"
+      },
+      "TopologyResponse": {
+        "properties": {
+          "edges": {
+            "items": {
+              "$ref": "#/components/schemas/TopologyEdge"
+            },
+            "title": "Edges",
+            "type": "array"
+          },
+          "generatedAt": {
+            "title": "Generatedat",
+            "type": "string"
+          },
+          "nodes": {
+            "items": {
+              "$ref": "#/components/schemas/TopologyNode"
+            },
+            "title": "Nodes",
+            "type": "array"
+          },
+          "window": {
+            "enum": [
+              "15m",
+              "1h",
+              "24h",
+              "7d",
+              "all"
+            ],
+            "title": "Window",
+            "type": "string"
+          }
+        },
+        "required": [
+          "window",
+          "generatedAt",
+          "nodes",
+          "edges"
+        ],
+        "title": "TopologyResponse",
         "type": "object"
       },
       "TrendPoint": {
@@ -3182,6 +3367,48 @@
         ]
       }
     },
+    "/api/v1/auth/register": {
+      "post": {
+        "description": "Open self-registration. New users land in `analyst`.\n\nIssues a session pair on success so the SPA can land directly on the\ndashboard without a second round-trip to /login. Duplicate emails\nreturn 409 to avoid leaking existence \u2014 but we accept that this is\nstill observable via the existing /login flow.",
+        "operationId": "register_api_v1_auth_register_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TokenResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Register",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
     "/api/v1/dashboard/attack-vector": {
       "get": {
         "operationId": "attack_vector_api_v1_dashboard_attack_vector_get",
@@ -3892,6 +4119,56 @@
         "summary": "Virustotal Scan",
         "tags": [
           "threat-intel"
+        ]
+      }
+    },
+    "/api/v1/topology": {
+      "get": {
+        "operationId": "get_topology_api_v1_topology_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "window",
+            "required": false,
+            "schema": {
+              "default": "24h",
+              "enum": [
+                "15m",
+                "1h",
+                "24h",
+                "7d",
+                "all"
+              ],
+              "title": "Window",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TopologyResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Topology",
+        "tags": [
+          "topology"
         ]
       }
     },
