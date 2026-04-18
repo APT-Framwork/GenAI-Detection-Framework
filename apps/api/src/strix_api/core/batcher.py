@@ -141,7 +141,7 @@ class MicroBatcher(Generic[T_in, T_out]):
             return
         try:
             await asyncio.wait_for(self._batch_event.wait(), timeout=1.0)
-        except asyncio.TimeoutError:
+        except TimeoutError:
             return  # let the outer loop check stop flag
         # event got set — clear so we re-wait next loop iteration if drained
         if not self._queue:
@@ -164,7 +164,7 @@ class MicroBatcher(Generic[T_in, T_out]):
                 await asyncio.wait_for(
                     self._batch_event.wait(), timeout=max(deadline - now, 0.001)
                 )
-            except asyncio.TimeoutError:
+            except TimeoutError:
                 return
             # Clear and loop — `submit` will re-set if it filled the batch.
             self._batch_event.clear()

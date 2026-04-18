@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 from uuid import UUID, uuid4
 
@@ -38,7 +38,7 @@ class FileScanRepo:
             sha256=sha256.lower(),
             filename=filename,
             size_bytes=size_bytes,
-            uploaded_at=datetime.now(timezone.utc),
+            uploaded_at=datetime.now(UTC),
             uploaded_by=uploaded_by,
             status="queued",
         )
@@ -53,7 +53,7 @@ class FileScanRepo:
         if row is None:
             return
         row.vt_result = vt_result
-        row.vt_scanned_at = datetime.now(timezone.utc)
+        row.vt_scanned_at = datetime.now(UTC)
         row.status = status
         await self._s.flush()
 

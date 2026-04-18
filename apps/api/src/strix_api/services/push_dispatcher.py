@@ -14,8 +14,8 @@ the Expo circuit breaker is open (5 fails / 60 s), this silently drops.
 from __future__ import annotations
 
 import asyncio
+from collections.abc import Iterable
 from dataclasses import dataclass
-from typing import Any, Iterable
 from uuid import UUID
 
 import structlog

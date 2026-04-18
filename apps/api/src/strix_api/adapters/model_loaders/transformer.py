@@ -63,7 +63,7 @@ class TransformerLoader:
         expected_input_dim: int = AE_LATENT_DIM,
         device: str = "cpu",
         version: str = "v1",
-    ) -> "TransformerLoader":
+    ) -> TransformerLoader:
         if not path.exists():
             raise ModelRegistryError(f"Transformer checkpoint missing: {path}")
 

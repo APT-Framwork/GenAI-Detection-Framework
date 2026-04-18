@@ -59,7 +59,7 @@ class VaeLoader:
         expected_input_dim: int = FEATURE_VECTOR_DIM,
         device: str = "cpu",
         version: str = "v1",
-    ) -> "VaeLoader":
+    ) -> VaeLoader:
         if not path.exists():
             raise ModelRegistryError(f"VAE checkpoint missing: {path}")
         if calibrator is None:

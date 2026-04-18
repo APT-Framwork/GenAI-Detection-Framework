@@ -27,9 +27,9 @@ Window/edge parameters mirror Section 3 of the GNN notebook:
 
 from __future__ import annotations
 
+from collections.abc import Iterable
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta, timezone
-from typing import Iterable
+from datetime import UTC, datetime, timedelta
 
 import numpy as np
 
@@ -150,7 +150,7 @@ def filter_window(
 ) -> list[NodeFact]:
     """Keep alerts within the last `window_minutes` of `now`."""
     if now is None:
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
     horizon = now - timedelta(minutes=window_minutes)
     kept = [n for n in nodes if n.occurred_at >= horizon]
     kept.sort(key=lambda n: n.occurred_at)  # stable temporal order

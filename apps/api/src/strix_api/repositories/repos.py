@@ -26,7 +26,6 @@ from strix_api.repositories.models import (
     Host,
 )
 
-
 # ---------------------------------------------------------------- Hosts
 
 
@@ -257,10 +256,8 @@ class AttackChainRepo:
         chain: AttackChain | None = await self._s.get(AttackChain, chain_id)
         if chain is None:
             return
-        if ckc_stage > chain.max_ckc_stage:
-            chain.max_ckc_stage = ckc_stage
-        if vae_prob > chain.max_vae_prob:
-            chain.max_vae_prob = vae_prob
+        chain.max_ckc_stage = max(chain.max_ckc_stage, ckc_stage)
+        chain.max_vae_prob = max(chain.max_vae_prob, vae_prob)
         chain.step_count = last_step + 1
         await self._s.flush()
 

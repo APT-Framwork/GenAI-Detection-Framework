@@ -14,9 +14,8 @@ The infection rule (§6.3) is implemented in `infection()`:
 from __future__ import annotations
 
 import base64
-from collections.abc import Sequence
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 from uuid import UUID
 
@@ -56,7 +55,7 @@ def _stage_name(s: int | None) -> str | None:
 def _iso(dt: Any) -> str:
     if isinstance(dt, datetime):
         if dt.tzinfo is None:
-            dt = dt.replace(tzinfo=timezone.utc)
+            dt = dt.replace(tzinfo=UTC)
         return dt.isoformat(timespec="microseconds")
     return str(dt)
 
@@ -76,14 +75,14 @@ class _LogCursor:
         return base64.urlsafe_b64encode(raw).rstrip(b"=").decode()
 
     @classmethod
-    def decode(cls, encoded: str) -> "_LogCursor":
+    def decode(cls, encoded: str) -> _LogCursor:
         try:
             padded = encoded + "=" * (-len(encoded) % 4)
             raw = base64.urlsafe_b64decode(padded.encode()).decode()
             ts_str, alert_id = raw.split("|", 1)
             ts = datetime.fromisoformat(ts_str)
             if ts.tzinfo is None:
-                ts = ts.replace(tzinfo=timezone.utc)
+                ts = ts.replace(tzinfo=UTC)
             return cls(occurred_at=ts, alert_id=alert_id)
         except (ValueError, UnicodeDecodeError) as exc:
             raise ValueError(f"invalid cursor: {encoded!r}") from exc
@@ -417,7 +416,7 @@ class AnalysisService:
 
     async def infection(self, chain_id: UUID) -> InfectionResponse:
         chain = await self._get_chain_or_404(chain_id)
-        upper = chain.closed_at or datetime.now(timezone.utc)
+        upper = chain.closed_at or datetime.now(UTC)
 
         # All hosts in the chain
         all_hosts = await self._s.execute(
@@ -505,14 +504,14 @@ class AnalysisService:
 
     async def dwell_time(self, chain_id: UUID) -> DwellTimeResponse:
         chain = await self._get_chain_or_404(chain_id)
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         end = chain.closed_at or now
         # Use first_malicious_at as the start (§4.2 — intrusion-start)
         start = chain.first_malicious_at
         if start.tzinfo is None:
-            start = start.replace(tzinfo=timezone.utc)
+            start = start.replace(tzinfo=UTC)
         if end.tzinfo is None:
-            end = end.replace(tzinfo=timezone.utc)
+            end = end.replace(tzinfo=UTC)
         duration = max(0.0, (end - start).total_seconds())
         return DwellTimeResponse(
             chain_id=chain_id,

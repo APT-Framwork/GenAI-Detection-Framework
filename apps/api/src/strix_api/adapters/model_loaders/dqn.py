@@ -64,7 +64,7 @@ class DqnLoader:
         expected_action_dim: int = DQN_ACTION_SPACE,
         device: str = "cpu",
         version: str = "v1",
-    ) -> "DqnLoader":
+    ) -> DqnLoader:
         if not path.exists():
             raise ModelRegistryError(f"DQN checkpoint missing: {path}")
 

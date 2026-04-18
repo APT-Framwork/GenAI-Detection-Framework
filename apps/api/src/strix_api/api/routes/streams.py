@@ -96,7 +96,7 @@ async def _pubsub_iterator(
                 break
             try:
                 msg = await asyncio.wait_for(queue.get(), timeout=_HEARTBEAT_SECONDS)
-            except asyncio.TimeoutError:
+            except TimeoutError:
                 yield {"event": "ping", "data": ""}
                 continue
             yield msg

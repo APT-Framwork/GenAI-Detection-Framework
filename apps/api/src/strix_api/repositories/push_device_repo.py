@@ -10,7 +10,7 @@ and bumps last_seen_at.
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Literal
 from uuid import UUID, uuid4
 
@@ -19,7 +19,6 @@ from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from strix_api.repositories.models import PushDevice
-
 
 Platform = Literal["ios", "android", "web"]
 
@@ -36,7 +35,7 @@ class PushDeviceRepo:
         platform: Platform,
         app_version: str | None = None,
     ) -> PushDevice:
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         stmt = (
             pg_insert(PushDevice)
             .values(
@@ -98,6 +97,6 @@ class PushDeviceRepo:
         stmt = (
             update(PushDevice)
             .where(PushDevice.device_id == device_id)
-            .values(last_seen_at=datetime.now(timezone.utc))
+            .values(last_seen_at=datetime.now(UTC))
         )
         await self._s.execute(stmt)

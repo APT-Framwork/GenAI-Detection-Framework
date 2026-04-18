@@ -16,12 +16,11 @@ empty-shape fallbacks when no DB is initialised.
 
 from __future__ import annotations
 
-from fastapi.testclient import TestClient
 import pytest
+from fastapi.testclient import TestClient
 
 from strix_api.main import create_app
 from strix_api.services.alerts_service import severity_from_vae_prob
-
 
 # ---- severity mapping -------------------------------------------------
 

@@ -14,7 +14,7 @@ from __future__ import annotations
 
 import hashlib
 from typing import Annotated
-from uuid import UUID, uuid4
+from uuid import uuid4
 
 from fastapi import APIRouter, Depends, File, Query, UploadFile
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -171,6 +171,7 @@ async def virustotal_scan(
     job_id = uuid4()
     try:
         from arq import create_pool
+
         from strix_api.workers.arq_tasks import _redis_settings_from
 
         pool = await create_pool(_redis_settings_from(settings))
@@ -239,6 +240,7 @@ async def file_scan_upload(
 
     try:
         from arq import create_pool
+
         from strix_api.workers.arq_tasks import _redis_settings_from
 
         pool = await create_pool(_redis_settings_from(settings))

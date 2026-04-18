@@ -10,7 +10,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from typing import Any
 
 from sqlalchemy import func, select, text
@@ -45,7 +45,7 @@ class IocRepo:
         payload: dict[str, Any],
         ttl: timedelta,
     ) -> None:
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         expires = now + ttl
         stmt = (
             pg_insert(IocLookupCache)

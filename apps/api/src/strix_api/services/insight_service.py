@@ -24,15 +24,14 @@ from __future__ import annotations
 
 import hashlib
 import json
-from dataclasses import dataclass, field
-from datetime import datetime, timedelta, timezone
+from dataclasses import dataclass
+from datetime import UTC, datetime, timedelta
 from typing import Any
 
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from strix_api.adapters.llm_adapter import LlmAdapter, LlmError
-from strix_api.api.errors import StrixError
 from strix_api.core.constants import (
     GLOBAL_RISK_WINDOW_MINUTES,
     LLM_SENTINEL_RESULT_TTL_SECONDS,
@@ -176,7 +175,7 @@ class InsightService:
         payload_hash = self.hash_snapshot(snapshot)
 
         cached = await self._repo.get(payload_hash)
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
 
         # Fresh cache hit (only when not forcing a refresh)
         if cached is not None and not force_refresh and cached.expires_at > now:

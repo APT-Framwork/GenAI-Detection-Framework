@@ -6,7 +6,7 @@ for the confidence trend + DriftService for the KL gauge.
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, Query
@@ -35,7 +35,7 @@ log = get_logger("strix_api.api.routes.monitoring")
 
 
 def _now_iso() -> str:
-    return datetime.now(timezone.utc).isoformat(timespec="microseconds")
+    return datetime.now(UTC).isoformat(timespec="microseconds")
 
 
 def _registry_models(settings: Any) -> list[ModelHealth]:

@@ -13,7 +13,7 @@ Status rules per node:
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from typing import Literal
 
 from sqlalchemy import text
@@ -130,7 +130,7 @@ class TopologyService:
 
         return TopologyResponse(
             window=window,
-            generated_at=datetime.now(timezone.utc).isoformat(),
+            generated_at=datetime.now(UTC).isoformat(),
             nodes=nodes,
             edges=edges,
         )

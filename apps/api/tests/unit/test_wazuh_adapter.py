@@ -3,14 +3,14 @@
 from __future__ import annotations
 
 import pytest
-
-from strix_api.adapters.wazuh_adapter import WazuhAlertAdapter
-from strix_api.api.errors import ValidationFailedError
 from tests.fixtures.sample_alerts import (
     SAMPLE_AUDITD_ALERT,
     SAMPLE_EMPTY_ALERT,
     SAMPLE_SYSCHECK_ALERT,
 )
+
+from strix_api.adapters.wazuh_adapter import WazuhAlertAdapter
+from strix_api.api.errors import ValidationFailedError
 
 
 @pytest.fixture

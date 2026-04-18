@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from typing import Any
 
 from strix_api.adapters.hibp_adapter import HibpAdapter, HibpError
@@ -77,7 +77,7 @@ class ThreatIntelService:
         cached = await self._iocs.get(
             indicator=normalized, indicator_type=sniffed, source=source,
         )
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         if cached and cached.expires_at > now:
             return _result_from_cache(cached)
 

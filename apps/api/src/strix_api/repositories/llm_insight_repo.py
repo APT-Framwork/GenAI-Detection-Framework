@@ -2,10 +2,8 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
-from typing import Any
+from datetime import UTC, datetime, timedelta
 
-from sqlalchemy import select
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -28,7 +26,7 @@ class LlmInsightCacheRepo:
         recommended_actions: list[dict[str, str]],
         ttl: timedelta,
     ) -> None:
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         expires = now + ttl
         stmt = (
             pg_insert(LlmInsightCache)

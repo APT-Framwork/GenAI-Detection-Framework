@@ -12,8 +12,8 @@ Workers are separate entry points (see `strix_api.workers.*`).
 
 from __future__ import annotations
 
+from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
-from typing import AsyncIterator
 
 from fastapi import FastAPI
 
@@ -49,7 +49,7 @@ async def _lifespan(_app: FastAPI) -> AsyncIterator[None]:
     log = get_logger("strix_api.main")
     log.info("startup", env=settings.env, version=__version__)
 
-    from strix_api.repositories.database import init_engine, dispose_engine
+    from strix_api.repositories.database import dispose_engine, init_engine
     init_engine(settings)
     try:
         yield

@@ -31,7 +31,6 @@ from strix_api.repositories.database import init_engine, session_scope
 from strix_api.repositories.file_scan_repo import FileScanRepo
 from strix_api.repositories.ioc_repo import IocRepo
 from strix_api.services.threat_intel_service import (
-    ThreatIntelService,
     detect_indicator_type,
 )
 from strix_api.settings import Settings, get_settings
@@ -275,7 +274,9 @@ def __getattr__(name: str):  # noqa: D401 — module-level lazy attr
     raise AttributeError(name)
 
 
-__all__ = [
+# `WorkerSettings` is defined dynamically via __getattr__ above so ruff's
+# static check (F822) doesn't see it — silence per-line.
+__all__ = [  # noqa: F822
     "WorkerSettings",
     "file_scan",
     "generate_sentinel_insight",

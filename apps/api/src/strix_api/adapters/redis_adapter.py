@@ -8,8 +8,9 @@ Every stream name is built from `settings.wazuh` / hard-coded patterns in
 from __future__ import annotations
 
 import socket
+from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
-from typing import Any, AsyncIterator
+from typing import Any
 
 import msgpack
 from redis.asyncio import Redis

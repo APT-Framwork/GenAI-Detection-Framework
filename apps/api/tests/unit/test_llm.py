@@ -8,12 +8,12 @@ import pytest
 from fastapi.testclient import TestClient
 
 from strix_api.adapters.llm_adapter import (
+    _MISSING,
     LlmAdapter,
     LlmError,
     LlmInsight,
     _format_sentinel_user_message,
     _make_summary_cache,
-    _MISSING,
     _parse_sentinel_response,
     _summary_cache_key,
 )

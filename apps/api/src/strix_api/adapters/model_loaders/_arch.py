@@ -18,7 +18,7 @@ Workers never instantiate these directly — they go through the loaders in
 from __future__ import annotations
 
 import torch
-import torch.nn as nn
+from torch import nn
 
 
 class RegularizedAutoencoder(nn.Module):

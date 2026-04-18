@@ -23,7 +23,7 @@ that could be read by the feature engineer.
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 from strix_api.api.errors import ValidationFailedError
@@ -64,7 +64,7 @@ def _extract_source(doc: dict[str, Any]) -> dict[str, Any]:
 
 def _parse_timestamp(ts: Any) -> datetime:
     if isinstance(ts, datetime):
-        return ts if ts.tzinfo else ts.replace(tzinfo=timezone.utc)
+        return ts if ts.tzinfo else ts.replace(tzinfo=UTC)
     if isinstance(ts, str):
         # Wazuh sends ISO-8601, sometimes with Z suffix
         try:

@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import timedelta
+from datetime import UTC, timedelta
 from uuid import uuid4
 
 import jwt
@@ -133,13 +133,13 @@ def test_csrf_missing_either_side_raises() -> None:
 
 
 def _principal(role: str) -> Principal:
-    from datetime import datetime, timezone
+    from datetime import datetime
 
     return Principal(
         user_id=uuid4(),
         role=role,
         jti=uuid4(),
-        expires_at=datetime.now(timezone.utc) + timedelta(minutes=10),
+        expires_at=datetime.now(UTC) + timedelta(minutes=10),
         token_type="access",
     )
 

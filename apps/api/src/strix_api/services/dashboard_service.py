@@ -15,7 +15,11 @@ here — keeps the service unit-testable against a fake session.
 from __future__ import annotations
 
 from collections.abc import Mapping
-from datetime import datetime, timezone
+
+# Window → timedelta. asyncpg requires a real timedelta when binding to an
+# INTERVAL parameter; passing a string ('15 minutes') triggers
+# 'str' object has no attribute 'days' deep in the codec.
+from datetime import UTC, datetime, timedelta
 from typing import Any
 
 from sqlalchemy import text
@@ -39,11 +43,6 @@ from strix_api.core.constants import (
     GLOBAL_RISK_COEF_VAE_MEAN,
 )
 from strix_api.core.enums import CkcStage
-
-# Window → timedelta. asyncpg requires a real timedelta when binding to an
-# INTERVAL parameter; passing a string ('15 minutes') triggers
-# 'str' object has no attribute 'days' deep in the codec.
-from datetime import timedelta
 
 _WINDOW_TO_INTERVAL: Mapping[str, timedelta] = {
     "15m": timedelta(minutes=15),
@@ -250,7 +249,7 @@ class DashboardService:
 def _iso(dt: Any) -> str:
     if isinstance(dt, datetime):
         if dt.tzinfo is None:
-            dt = dt.replace(tzinfo=timezone.utc)
+            dt = dt.replace(tzinfo=UTC)
         return dt.isoformat(timespec="microseconds")
     return str(dt)
 

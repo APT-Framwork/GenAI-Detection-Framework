@@ -16,9 +16,10 @@ http://localhost. In staging/prod the middleware adds Secure.
 
 from __future__ import annotations
 
+from datetime import UTC
 from typing import Annotated
 
-from fastapi import APIRouter, Cookie, Depends, Header, Request, Response
+from fastapi import APIRouter, Cookie, Depends, Request, Response
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from strix_api.api.deps import (
@@ -45,9 +46,9 @@ from strix_api.services.auth import (
     Principal,
     TokenPair,
     decode_token,
+    hash_password,
     issue_token_pair,
     needs_rehash,
-    hash_password,
     verify_password,
 )
 from strix_api.settings import Settings
@@ -253,9 +254,9 @@ async def register_device(
     """
     if session is None:
         # Sandbox fallback — echo back a synthetic record.
-        from datetime import datetime, timezone
+        from datetime import datetime
         from uuid import uuid4
-        now = datetime.now(timezone.utc).isoformat()
+        now = datetime.now(UTC).isoformat()
         return DeviceResponse(
             device_id=uuid4(),
             expo_push_token=body.expo_push_token,

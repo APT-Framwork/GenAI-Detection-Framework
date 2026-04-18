@@ -8,7 +8,7 @@ format without importing `redis` or `fastapi` to read a type.
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any, Literal
 from uuid import UUID
 
@@ -24,7 +24,7 @@ from strix_api.core.constants import (
 
 
 def _utcnow_iso() -> str:
-    return datetime.now(timezone.utc).isoformat(timespec="microseconds")
+    return datetime.now(UTC).isoformat(timespec="microseconds")
 
 
 class _StreamBase(BaseModel):

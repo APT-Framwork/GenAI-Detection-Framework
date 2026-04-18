@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+from datetime import UTC
 from uuid import uuid4
 
 import pytest
@@ -65,9 +66,9 @@ def test_logs_paginate_shape(client: TestClient) -> None:
 
 
 def test_log_cursor_roundtrip() -> None:
-    from datetime import datetime, timezone
+    from datetime import datetime
     cursor = _LogCursor(
-        occurred_at=datetime(2026, 4, 18, 12, 34, 56, 123456, tzinfo=timezone.utc),
+        occurred_at=datetime(2026, 4, 18, 12, 34, 56, 123456, tzinfo=UTC),
         alert_id="abc-XYZ-123",
     )
     decoded = _LogCursor.decode(cursor.encode())

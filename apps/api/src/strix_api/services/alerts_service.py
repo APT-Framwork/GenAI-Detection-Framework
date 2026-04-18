@@ -9,7 +9,7 @@ thresholds are recalibrated (P2-9).
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any, Literal
 from uuid import UUID
 
@@ -20,7 +20,6 @@ from strix_api.api.schemas.alerts import (
 )
 from strix_api.api.schemas.common import Page
 from strix_api.repositories.repos import AlertRepo
-
 
 SeverityStr = Literal["critical", "high", "medium", "low", "info"]
 
@@ -133,7 +132,7 @@ class AlertsService:
         except ValueError:
             return None
 
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         applied = await self._repo.acknowledge(
             alert_id=alert_id,
             occurred_at=ts,

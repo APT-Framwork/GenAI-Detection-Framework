@@ -23,11 +23,12 @@ every worker holds the same singleton via `get_mitre_mapper()`.
 from __future__ import annotations
 
 import json
+from collections.abc import Iterable
 from functools import lru_cache
 from pathlib import Path
-from typing import Iterable
 
 from strix_api.core.enums import CkcStage
+
 
 def _resolve_default_mitre_path() -> Path:
     """Find docs/mitre_to_ckc.json across dev tree + container layouts.

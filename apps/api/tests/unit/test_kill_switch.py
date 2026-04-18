@@ -3,13 +3,12 @@
 from __future__ import annotations
 
 import os
-from datetime import datetime, timezone
+from datetime import datetime
 
 import pytest
 from fastapi.testclient import TestClient
 
 from strix_api.services.kill_switch import KillSwitchService
-
 
 # ---- service-level (in-memory fake redis) ----------------------------
 
@@ -33,7 +32,7 @@ class _FakePipeline:
         self._parent = parent
         self._queue: list[tuple[str, ...]] = []
 
-    async def __aenter__(self) -> "_FakePipeline":
+    async def __aenter__(self) -> _FakePipeline:
         return self
 
     async def __aexit__(self, *a) -> None:

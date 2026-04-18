@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from uuid import UUID, uuid4
 
 from sqlalchemy import select
@@ -49,7 +49,7 @@ class UserRepo:
         if u is None:
             return
         u.password_hash = password_hash
-        u.updated_at = datetime.now(timezone.utc)
+        u.updated_at = datetime.now(UTC)
         await self._s.flush()
 
     async def list_active(self) -> list[User]:

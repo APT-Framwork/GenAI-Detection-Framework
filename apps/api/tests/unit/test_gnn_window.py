@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 import numpy as np
 
@@ -29,7 +29,7 @@ def _node(
 
 
 def test_filter_window_drops_old_alerts() -> None:
-    now = datetime(2026, 4, 17, 12, 0, 0, tzinfo=timezone.utc)
+    now = datetime(2026, 4, 17, 12, 0, 0, tzinfo=UTC)
     fresh = _node(alert_id="a", agent_id="1", ts=now - timedelta(minutes=5))
     stale = _node(alert_id="b", agent_id="1", ts=now - timedelta(hours=2))
     kept = filter_window([fresh, stale], now=now, window_minutes=60)
@@ -37,7 +37,7 @@ def test_filter_window_drops_old_alerts() -> None:
 
 
 def test_filter_window_orders_by_time() -> None:
-    now = datetime(2026, 4, 17, 12, 0, 0, tzinfo=timezone.utc)
+    now = datetime(2026, 4, 17, 12, 0, 0, tzinfo=UTC)
     nodes = [
         _node(alert_id="late", agent_id="1", ts=now - timedelta(minutes=1)),
         _node(alert_id="mid",  agent_id="1", ts=now - timedelta(minutes=10)),
@@ -48,7 +48,7 @@ def test_filter_window_orders_by_time() -> None:
 
 
 def test_self_loops_always_added() -> None:
-    now = datetime(2026, 4, 17, 12, 0, 0, tzinfo=timezone.utc)
+    now = datetime(2026, 4, 17, 12, 0, 0, tzinfo=UTC)
     nodes = [_node(alert_id=f"a{i}", agent_id="1", ts=now - timedelta(seconds=i)) for i in range(3)]
     snap = build_snapshot(filter_window(nodes, now=now))
     # Every node has a self-loop
@@ -61,7 +61,7 @@ def test_self_loops_always_added() -> None:
 
 
 def test_intra_machine_edges_within_window() -> None:
-    now = datetime(2026, 4, 17, 12, 0, 0, tzinfo=timezone.utc)
+    now = datetime(2026, 4, 17, 12, 0, 0, tzinfo=UTC)
     nodes = [
         _node(alert_id="a", agent_id="m1", ts=now - timedelta(seconds=10)),
         _node(alert_id="b", agent_id="m1", ts=now - timedelta(seconds=5)),
@@ -73,7 +73,7 @@ def test_intra_machine_edges_within_window() -> None:
 
 
 def test_intra_capped_by_max_intra() -> None:
-    now = datetime(2026, 4, 17, 12, 0, 0, tzinfo=timezone.utc)
+    now = datetime(2026, 4, 17, 12, 0, 0, tzinfo=UTC)
     # 10 alerts on the same machine, all within window → MAX_INTRA=3 limit applies per source
     nodes = [
         _node(alert_id=f"a{i}", agent_id="m1", ts=now - timedelta(seconds=i))
@@ -85,7 +85,7 @@ def test_intra_capped_by_max_intra() -> None:
 
 
 def test_cross_user_edges_only_when_multi_machine() -> None:
-    now = datetime(2026, 4, 17, 12, 0, 0, tzinfo=timezone.utc)
+    now = datetime(2026, 4, 17, 12, 0, 0, tzinfo=UTC)
     nodes = [
         _node(alert_id="a", agent_id="m1", ts=now - timedelta(seconds=10), srcuser="alice"),
         _node(alert_id="b", agent_id="m2", ts=now - timedelta(seconds=5),  srcuser="alice"),
@@ -98,7 +98,7 @@ def test_cross_user_edges_only_when_multi_machine() -> None:
 
 
 def test_missing_user_ip_does_not_create_cross_edges() -> None:
-    now = datetime(2026, 4, 17, 12, 0, 0, tzinfo=timezone.utc)
+    now = datetime(2026, 4, 17, 12, 0, 0, tzinfo=UTC)
     nodes = [
         _node(alert_id="a", agent_id="m1", ts=now, srcuser="none", srcip=""),
         _node(alert_id="b", agent_id="m2", ts=now, srcuser=None, srcip=None),
@@ -115,7 +115,7 @@ def test_empty_input_returns_empty_snapshot() -> None:
 
 
 def test_features_assembled_in_node_order() -> None:
-    now = datetime(2026, 4, 17, 12, 0, 0, tzinfo=timezone.utc)
+    now = datetime(2026, 4, 17, 12, 0, 0, tzinfo=UTC)
     nodes = []
     for i, name in enumerate(("first", "second", "third")):
         v = np.full((55,), float(i), dtype=np.float32)

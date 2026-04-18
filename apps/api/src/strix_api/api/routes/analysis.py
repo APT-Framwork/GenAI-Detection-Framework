@@ -7,7 +7,8 @@ graceful-degradation pattern from Phase 4).
 
 from __future__ import annotations
 
-from typing import Annotated, Awaitable, Callable, TypeVar
+from collections.abc import Awaitable, Callable
+from typing import Annotated, TypeVar
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, Query

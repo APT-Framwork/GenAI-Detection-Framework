@@ -21,7 +21,7 @@ from __future__ import annotations
 
 import asyncio
 import signal
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 from uuid import UUID, uuid4
 
@@ -29,7 +29,6 @@ import structlog
 
 from strix_api.adapters.redis_adapter import streams_client, unpack
 from strix_api.api.errors import ValidationFailedError
-from strix_api.core.constants import CHAIN_MAX_STEPS
 from strix_api.core.enums import DqnAction
 from strix_api.observability import (
     attack_chain_closed_total,
@@ -356,7 +355,7 @@ def _parse_iso(s: str) -> datetime:
         s = s[:-1] + "+00:00"
     dt = datetime.fromisoformat(s)
     if dt.tzinfo is None:
-        dt = dt.replace(tzinfo=timezone.utc)
+        dt = dt.replace(tzinfo=UTC)
     return dt
 
 

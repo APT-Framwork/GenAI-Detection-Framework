@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, Query
@@ -21,7 +21,7 @@ log = get_logger("strix_api.api.routes.topology")
 def _empty(window: WindowLiteral) -> TopologyResponse:
     return TopologyResponse(
         window=window,
-        generated_at=datetime.now(timezone.utc).isoformat(),
+        generated_at=datetime.now(UTC).isoformat(),
         nodes=[], edges=[],
     )
 

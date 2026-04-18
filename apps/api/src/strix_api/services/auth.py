@@ -22,7 +22,7 @@ from __future__ import annotations
 
 import secrets
 from dataclasses import dataclass
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from typing import Any, Literal
 from uuid import UUID, uuid4
 
@@ -133,7 +133,7 @@ _ALG = "HS256"
 
 
 def _now_utc() -> datetime:
-    return datetime.now(timezone.utc)
+    return datetime.now(UTC)
 
 
 def _encode(
@@ -214,7 +214,7 @@ def decode_token(
         user_id=user_id,
         role=str(payload["role"]),
         jti=jti,
-        expires_at=datetime.fromtimestamp(int(payload["exp"]), tz=timezone.utc),
+        expires_at=datetime.fromtimestamp(int(payload["exp"]), tz=UTC),
         token_type=typ,
     )
 

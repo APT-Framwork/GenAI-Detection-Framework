@@ -52,7 +52,7 @@ from __future__ import annotations
 
 import asyncio
 import signal
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 from uuid import uuid4
 
@@ -67,12 +67,11 @@ from strix_api.adapters.model_loaders.vae import VaeBatchOutput, VaeLoader
 from strix_api.adapters.preprocessing_pipeline import PreprocessingPipeline, build_pipeline
 from strix_api.adapters.redis_adapter import RedisStreamsClient, streams_client, unpack
 from strix_api.adapters.session_store import SessionState, SessionStore
-from strix_api.api.errors import StrixError, ValidationFailedError
+from strix_api.api.errors import ValidationFailedError
 from strix_api.core.batcher import MicroBatcher
 from strix_api.core.constants import (
     GNN_SNAPSHOT_INTERVAL_SECONDS,
 )
-from strix_api.core.enums import CkcStage, DqnAction
 from strix_api.core.gnn_window import (
     GraphSnapshot,
     NodeFact,
@@ -82,7 +81,6 @@ from strix_api.core.gnn_window import (
 from strix_api.core.messages import FeatureMessage
 from strix_api.core.sequence import (
     ChainAction,
-    ChainDecision,
     decide_chain_action,
     decide_close_reason,
 )
@@ -611,9 +609,10 @@ class InferenceWorker:
     async def _persist_snapshot(self, snap: Any, risks: Any) -> None:
         """Insert one row into gnn_graph_snapshots. Best-effort — failures
         are logged but don't stop the inference loop."""
-        from uuid import uuid4
-        from datetime import datetime, timezone
+        from datetime import datetime
+
         from sqlalchemy import text
+
         from strix_api.repositories.database import session_scope
 
         # Edges as {"source": s, "target": t} dicts to match the API schema.
@@ -647,7 +646,7 @@ class InferenceWorker:
                 {
                     "sid": uuid4(),
                     "shard": int(self._settings.inference.shard_id or 0),
-                    "ts": datetime.now(timezone.utc),
+                    "ts": datetime.now(UTC),
                     "nc": snap.num_nodes,
                     "ec": snap.num_edges,
                     "nodes": __import__("json").dumps(nodes_payload),
@@ -666,7 +665,7 @@ def _parse_iso(s: str) -> datetime:
         s = s[:-1] + "+00:00"
     dt = datetime.fromisoformat(s)
     if dt.tzinfo is None:
-        dt = dt.replace(tzinfo=timezone.utc)
+        dt = dt.replace(tzinfo=UTC)
     return dt
 
 

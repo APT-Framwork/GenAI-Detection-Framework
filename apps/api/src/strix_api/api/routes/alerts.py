@@ -11,9 +11,8 @@ same pattern as the dashboard and analysis routes.
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Annotated, Literal
-from uuid import UUID
 
 from fastapi import APIRouter, Depends, Path, Query
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -29,7 +28,6 @@ from strix_api.api.schemas.common import Page
 from strix_api.repositories.repos import AlertRepo
 from strix_api.services.alerts_service import AlertsService
 from strix_api.services.auth import Principal
-
 
 router = APIRouter(prefix="/alerts", tags=["alerts"])
 
@@ -77,7 +75,7 @@ async def acknowledge_alert(
 ) -> AlertAcknowledgeResponse:
     if session is None:
         # Sandbox fallback: no DB, return a synthetic idempotent ack.
-        now = datetime.now(timezone.utc).isoformat()
+        now = datetime.now(UTC).isoformat()
         return AlertAcknowledgeResponse(
             alert_id=alert_id,
             occurred_at=body.occurred_at,

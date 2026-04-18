@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import os
 from typing import Any
-from unittest.mock import AsyncMock
 
 import httpx
 import pytest
@@ -17,7 +16,6 @@ from strix_api.adapters.virustotal_adapter import (
 )
 from strix_api.services.threat_intel_service import detect_indicator_type
 from strix_api.settings import ThreatIntelSettings
-
 
 # ---- indicator detection ---------------------------------------------
 

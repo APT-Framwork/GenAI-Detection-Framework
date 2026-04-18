@@ -14,7 +14,6 @@ from strix_api.api.schemas.common import (
     StrixBase,
 )
 
-
 # ---- graph evolution ------------------------------------------------
 
 

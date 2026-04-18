@@ -15,6 +15,7 @@ Key:    `strix:auto_response:kill_switch`   string ("on" | "off")
 from __future__ import annotations
 
 from dataclasses import dataclass
+from datetime import UTC
 from typing import Any
 
 _KEY = "strix:auto_response:kill_switch"
@@ -54,19 +55,19 @@ class KillSwitchService:
         )
 
     async def engage(self, *, by: str) -> None:
-        from datetime import datetime, timezone
+        from datetime import datetime
         async with self._r.pipeline(transaction=False) as pipe:
             await pipe.set(_KEY, "on")
             await pipe.set(_KEY + ":set_by", by)
-            await pipe.set(_KEY + ":set_at", datetime.now(timezone.utc).isoformat())
+            await pipe.set(_KEY + ":set_at", datetime.now(UTC).isoformat())
             await pipe.execute()
 
     async def disengage(self, *, by: str) -> None:
-        from datetime import datetime, timezone
+        from datetime import datetime
         async with self._r.pipeline(transaction=False) as pipe:
             await pipe.set(_KEY, "off")
             await pipe.set(_KEY + ":set_by", by)
-            await pipe.set(_KEY + ":set_at", datetime.now(timezone.utc).isoformat())
+            await pipe.set(_KEY + ":set_at", datetime.now(UTC).isoformat())
             await pipe.execute()
 
 

@@ -20,7 +20,6 @@ from __future__ import annotations
 
 import hashlib
 from dataclasses import dataclass
-from functools import lru_cache
 from typing import Any
 
 import pybreaker
@@ -116,7 +115,7 @@ class LlmAdapter:
     # ---- factory --------------------------------------------------
 
     @classmethod
-    def from_settings(cls, settings: LlmSettings) -> "LlmAdapter":
+    def from_settings(cls, settings: LlmSettings) -> LlmAdapter:
         if settings.anthropic_api_key is None:
             log.warning("llm_adapter_no_key", note="every call will raise LlmError")
             return cls(settings, client=None)

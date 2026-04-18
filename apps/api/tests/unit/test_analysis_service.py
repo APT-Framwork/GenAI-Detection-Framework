@@ -9,7 +9,7 @@ changes the action ordering).
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import pytest
 
@@ -39,11 +39,11 @@ def test_log_cursor_lex_orderable() -> None:
     """Cursors are used as keyset boundaries; equal-time alerts must order
     deterministically by alert_id so pagination doesn't loop."""
     a = _LogCursor(
-        occurred_at=datetime(2026, 4, 18, 12, 0, 0, tzinfo=timezone.utc),
+        occurred_at=datetime(2026, 4, 18, 12, 0, 0, tzinfo=UTC),
         alert_id="aaa",
     )
     b = _LogCursor(
-        occurred_at=datetime(2026, 4, 18, 12, 0, 0, tzinfo=timezone.utc),
+        occurred_at=datetime(2026, 4, 18, 12, 0, 0, tzinfo=UTC),
         alert_id="bbb",
     )
     # The encoded strings differ, and the timestamp+id key is well-defined.

@@ -8,7 +8,6 @@ import pytest
 
 from strix_api.core.batcher import MicroBatcher
 
-
 pytestmark = pytest.mark.asyncio
 
 

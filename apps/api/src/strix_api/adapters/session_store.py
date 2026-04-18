@@ -21,7 +21,7 @@ documented as expected per §5.3.
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import TYPE_CHECKING
 from uuid import UUID
 
@@ -56,7 +56,7 @@ class SessionStore:
     Stateless apart from the Redis connection. Workers hold one instance.
     """
 
-    def __init__(self, redis: "Redis", *, ttl_seconds: int = _TTL_SECONDS) -> None:
+    def __init__(self, redis: Redis, *, ttl_seconds: int = _TTL_SECONDS) -> None:
         self._r = redis
         self._ttl = ttl_seconds
 
@@ -208,7 +208,7 @@ def _parse_iso(s: str) -> datetime:
         s = s[:-1] + "+00:00"
     dt = datetime.fromisoformat(s)
     if dt.tzinfo is None:
-        dt = dt.replace(tzinfo=timezone.utc)
+        dt = dt.replace(tzinfo=UTC)
     return dt
 
 

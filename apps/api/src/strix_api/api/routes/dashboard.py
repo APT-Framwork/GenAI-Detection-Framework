@@ -7,7 +7,7 @@ remains stable.
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Annotated
 from uuid import uuid4
 
@@ -140,7 +140,7 @@ async def victim_graph(
 
 def _placeholder_insight(detail: str) -> SentinelInsightResponse:
     return SentinelInsightResponse(
-        generated_at=datetime.now(timezone.utc).isoformat(timespec="microseconds"),
+        generated_at=datetime.now(UTC).isoformat(timespec="microseconds"),
         model_version="placeholder",
         insight=detail,
         recommended_actions=[],
@@ -205,6 +205,7 @@ async def refresh_sentinel_insight(
     job_id = uuid4()
     try:
         from arq import create_pool
+
         from strix_api.workers.arq_tasks import _redis_settings_from
 
         pool = await create_pool(_redis_settings_from(settings))

@@ -11,8 +11,8 @@ lives in the integration suite.
 
 from __future__ import annotations
 
-from fastapi.testclient import TestClient
 import pytest
+from fastapi.testclient import TestClient
 
 from strix_api.main import create_app
 

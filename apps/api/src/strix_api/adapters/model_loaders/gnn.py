@@ -65,7 +65,7 @@ class GnnLoader:
         expected_input_dim: int = FEATURE_VECTOR_DIM,
         device: str = "cpu",
         version: str = "v1",
-    ) -> "GnnLoader":
+    ) -> GnnLoader:
         if not path.exists():
             raise ModelRegistryError(f"GNN checkpoint missing: {path}")
 

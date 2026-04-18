@@ -6,14 +6,14 @@ import math
 
 import numpy as np
 import pytest
-
-from strix_api.adapters.wazuh_adapter import WazuhAlertAdapter
-from strix_api.core.feature_engineer import FeatureEngineerNoLeakage
 from tests.fixtures.sample_alerts import (
     SAMPLE_AUDITD_ALERT,
     SAMPLE_EMPTY_ALERT,
     SAMPLE_SYSCHECK_ALERT,
 )
+
+from strix_api.adapters.wazuh_adapter import WazuhAlertAdapter
+from strix_api.core.feature_engineer import FeatureEngineerNoLeakage
 
 
 @pytest.fixture

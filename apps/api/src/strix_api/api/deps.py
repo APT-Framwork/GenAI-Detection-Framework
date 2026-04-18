@@ -5,8 +5,9 @@ Every request-scoped dep lives here. Tests can override via `app.dependency_over
 
 from __future__ import annotations
 
-from collections.abc import AsyncIterator
-from typing import Annotated, Awaitable, Callable
+from collections.abc import AsyncIterator, Callable
+from datetime import UTC
+from typing import Annotated
 
 from fastapi import Cookie, Depends, Header, Request
 
@@ -75,14 +76,14 @@ async def get_current_principal_optional(
     need a real login flow. Production refuses to honor the flag.
     """
     if settings.auth.dev_skip_auth and settings.env == "dev":
-        from datetime import datetime, timedelta, timezone
+        from datetime import datetime, timedelta
         from uuid import UUID
 
         return Principal(
             user_id=UUID("00000000-0000-0000-0000-00000000beef"),
             role="admin",
             jti=UUID("00000000-0000-0000-0000-00000000feed"),
-            expires_at=datetime.now(timezone.utc) + timedelta(hours=1),
+            expires_at=datetime.now(UTC) + timedelta(hours=1),
             token_type="access",
         )
 

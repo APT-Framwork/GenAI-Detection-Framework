@@ -2,10 +2,9 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from uuid import uuid4
 
-from strix_api.core.session import SessionState
 from strix_api.core.constants import (
     CHAIN_IDLE_TIMEOUT_MINUTES,
     CHAIN_MAX_STEPS,
@@ -19,9 +18,9 @@ from strix_api.core.sequence import (
     decide_chain_action,
     decide_close_reason,
 )
+from strix_api.core.session import SessionState
 
-
-_NOW = datetime(2026, 4, 18, 12, 0, 0, tzinfo=timezone.utc)
+_NOW = datetime(2026, 4, 18, 12, 0, 0, tzinfo=UTC)
 
 
 def _session(

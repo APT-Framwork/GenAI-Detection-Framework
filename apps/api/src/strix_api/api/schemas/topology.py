@@ -9,7 +9,6 @@ the value is showing which hosts the *attacks* tied together.
 from __future__ import annotations
 
 from typing import Literal
-from uuid import UUID
 
 from strix_api.api.schemas.common import StrixBase, WindowLiteral
 

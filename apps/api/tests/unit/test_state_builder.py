@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime
 
 import numpy as np
 
@@ -25,9 +25,9 @@ def _outputs(**overrides: float) -> ModelOutputs:
 def test_state_has_13_dimensions() -> None:
     s = build_state(
         outputs=_outputs(),
-        occurred_at=datetime(2026, 4, 18, 12, 0, 0, tzinfo=timezone.utc),
-        episode_start_at=datetime(2026, 4, 18, 11, 30, 0, tzinfo=timezone.utc),
-        last_event_at=datetime(2026, 4, 18, 11, 50, 0, tzinfo=timezone.utc),
+        occurred_at=datetime(2026, 4, 18, 12, 0, 0, tzinfo=UTC),
+        episode_start_at=datetime(2026, 4, 18, 11, 30, 0, tzinfo=UTC),
+        last_event_at=datetime(2026, 4, 18, 11, 50, 0, tzinfo=UTC),
         sequence_length_so_far=4,
     )
     assert s.shape == (STATE_VECTOR_DIM,)
@@ -44,9 +44,9 @@ def test_state_ordering_matches_features_table() -> None:
             current_ckc_stage=2, gnn_node_risk=0.5,
             gnn_neighbor_risk=0.25, gnn_risk_growth=0.1,
         ),
-        occurred_at=datetime(2026, 4, 18, 12, 0, 0, tzinfo=timezone.utc),
-        episode_start_at=datetime(2026, 4, 18, 11, 0, 0, tzinfo=timezone.utc),
-        last_event_at=datetime(2026, 4, 18, 11, 55, 0, tzinfo=timezone.utc),
+        occurred_at=datetime(2026, 4, 18, 12, 0, 0, tzinfo=UTC),
+        episode_start_at=datetime(2026, 4, 18, 11, 0, 0, tzinfo=UTC),
+        last_event_at=datetime(2026, 4, 18, 11, 55, 0, tzinfo=UTC),
         sequence_length_so_far=7,
     )
     assert s[0] == 1.5
@@ -80,9 +80,9 @@ def test_clipping_to_observation_bounds() -> None:
             gnn_neighbor_risk=-0.5,        # clipped to 0
             gnn_risk_growth=2.5,           # clipped to 1
         ),
-        occurred_at=datetime(2026, 4, 18, 23, 59, 59, tzinfo=timezone.utc),
-        episode_start_at=datetime(2026, 4, 18, 0, 0, 0, tzinfo=timezone.utc),
-        last_event_at=datetime(2026, 4, 18, 12, 0, 0, tzinfo=timezone.utc),
+        occurred_at=datetime(2026, 4, 18, 23, 59, 59, tzinfo=UTC),
+        episode_start_at=datetime(2026, 4, 18, 0, 0, 0, tzinfo=UTC),
+        last_event_at=datetime(2026, 4, 18, 12, 0, 0, tzinfo=UTC),
         sequence_length_so_far=200,        # clipped to CHAIN_MAX_STEPS=50
     )
     assert s[0] == 10.0
@@ -103,8 +103,8 @@ def test_clipping_to_observation_bounds() -> None:
 def test_first_step_has_no_last_event() -> None:
     s = build_state(
         outputs=_outputs(),
-        occurred_at=datetime(2026, 4, 18, 12, 0, 0, tzinfo=timezone.utc),
-        episode_start_at=datetime(2026, 4, 18, 12, 0, 0, tzinfo=timezone.utc),
+        occurred_at=datetime(2026, 4, 18, 12, 0, 0, tzinfo=UTC),
+        episode_start_at=datetime(2026, 4, 18, 12, 0, 0, tzinfo=UTC),
         last_event_at=None,
         sequence_length_so_far=0,
     )

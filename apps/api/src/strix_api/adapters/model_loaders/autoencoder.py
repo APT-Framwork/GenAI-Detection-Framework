@@ -52,7 +52,7 @@ class AutoencoderLoader:
         expected_input_dim: int = FEATURE_VECTOR_DIM,
         device: str = "cpu",
         version: str = "v1",
-    ) -> "AutoencoderLoader":
+    ) -> AutoencoderLoader:
         if not path.exists():
             raise ModelRegistryError(f"AE checkpoint missing: {path}")
 

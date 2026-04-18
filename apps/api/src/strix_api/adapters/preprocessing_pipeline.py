@@ -25,7 +25,7 @@ import json
 import pickle
 import time
 from dataclasses import dataclass
-from functools import lru_cache
+from datetime import UTC
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
@@ -43,10 +43,7 @@ from strix_api.observability import (
 )
 
 if TYPE_CHECKING:  # keep heavy imports out of the import-time cost
-    import torch
-    from sklearn.decomposition import PCA
-    from sklearn.preprocessing import StandardScaler
-    from transformers import AutoModel, AutoTokenizer
+    pass
 
 log = get_logger("strix_api.adapters.preprocessing_pipeline")
 
@@ -274,19 +271,21 @@ class PreprocessingPipeline:
         Triggers any lazy JIT compilation and BatchNorm stats so the first
         real alert doesn't eat the cost.
         """
-        from datetime import datetime, timezone
+        from datetime import datetime
 
         from strix_api.core.raw_alert import (
             AgentInfo,
             DataInfo,
-            RawAlert as _RawAlert,
             RuleInfo,
             SyscheckInfo,
+        )
+        from strix_api.core.raw_alert import (
+            RawAlert as _RawAlert,
         )
 
         dummy = _RawAlert(
             alert_id="warmup-0",
-            occurred_at=datetime.now(timezone.utc),
+            occurred_at=datetime.now(UTC),
             decoder_name="auditd",
             location="/var/log/audit/audit.log",
             full_log="warmup alert for pipeline",
@@ -319,7 +318,6 @@ def build_pipeline(
 
     Raises `ModelRegistryError` on any missing / corrupt / mismatched file.
     """
-    import torch
     from transformers import AutoModel, AutoTokenizer  # noqa: F401 — lazy
 
     required = {
