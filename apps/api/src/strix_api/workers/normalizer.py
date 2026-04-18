@@ -104,9 +104,7 @@ class NormalizerWorker:
 
         while not self._stop.is_set():
             try:
-                batch = await self._redis.read(
-                    stream_in, group, count=32, block_ms=5_000
-                )
+                batch = await self._redis.read(stream_in, group, count=32, block_ms=5_000)
             except Exception as exc:  # redis connection blip etc.
                 self._log.error("redis_read_failed", exc_info=exc)
                 await asyncio.sleep(1)
@@ -178,11 +176,14 @@ class NormalizerWorker:
         # Resolve current CKC stage from MITRE annotations on the alert.
         # Lazy-import to keep core ↔ adapters decoupled at import time.
         from strix_api.core.mitre import get_mitre_mapper
+
         mitre = get_mitre_mapper()
-        current_ckc = int(mitre.resolve(
-            tactics=alert.rule.mitre_tactics,
-            techniques=alert.rule.mitre_techniques,
-        ))
+        current_ckc = int(
+            mitre.resolve(
+                tactics=alert.rule.mitre_tactics,
+                techniques=alert.rule.mitre_techniques,
+            )
+        )
 
         msg = FeatureMessage(
             alert_id=alert.alert_id,

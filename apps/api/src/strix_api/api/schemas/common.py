@@ -20,9 +20,7 @@ WindowLiteral = Literal["15m", "1h", "24h", "7d", "all"]
 
 Severity = Literal["critical", "high", "medium", "low", "info"]
 
-DqnActionName = Literal[
-    "MONITOR", "LOW_ALERT", "ESCALATE", "ISOLATE_HOST", "BLOCK_USER_IP"
-]
+DqnActionName = Literal["MONITOR", "LOW_ALERT", "ESCALATE", "ISOLATE_HOST", "BLOCK_USER_IP"]
 
 # CKC names come from mitre_to_ckc.json. Kept as a display-only alias.
 # Ordering matches `CkcStage` (0=BENIGN, 1..7 attack stages).

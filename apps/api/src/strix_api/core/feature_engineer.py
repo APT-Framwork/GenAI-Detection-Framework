@@ -26,8 +26,15 @@ from strix_api.core.raw_alert import RawAlert
 
 #: Paths considered sensitive (matches the notebook's `sensitive_dirs`).
 _SENSITIVE_DIRS: Final[tuple[str, ...]] = (
-    "/etc", "/var/log", "/home", "/root",
-    "/bin", "/sbin", "/usr/bin", "/tmp", "/var/www",
+    "/etc",
+    "/var/log",
+    "/home",
+    "/root",
+    "/bin",
+    "/sbin",
+    "/usr/bin",
+    "/tmp",
+    "/var/www",
 )
 
 #: Paths considered temp-like (matches `/tmp` and `/temp` heuristic).
@@ -168,8 +175,8 @@ class FeatureEngineerNoLeakage:
         srcip_is_private = _is_private_ip(alert.data.srcip)
 
         # Path
-        path_is_missing, path_depth, path_is_sensitive, path_is_temp, _ = (
-            _path_features(alert.syscheck.path)
+        path_is_missing, path_depth, path_is_sensitive, path_is_temp, _ = _path_features(
+            alert.syscheck.path
         )
 
         # Command
@@ -180,21 +187,18 @@ class FeatureEngineerNoLeakage:
         has_sha256 = _has_hash(alert.syscheck.sha256_after)
 
         # Syscheck event substring flags
-        syscheck_added, syscheck_modified, syscheck_deleted = (
-            _syscheck_event_flags(alert.syscheck.event)
+        syscheck_added, syscheck_modified, syscheck_deleted = _syscheck_event_flags(
+            alert.syscheck.event
         )
 
         # Decoder one-hots (top-5 decoder values from training vocabulary)
         decoder = alert.decoder_name or ""
-        decoder_flags = {
-            f"decoder_{v}": float(decoder == v) for v in _DECODER_VALUES
-        }
+        decoder_flags = {f"decoder_{v}": float(decoder == v) for v in _DECODER_VALUES}
 
         # Location one-hots (top-4 location values from training vocabulary)
         location = alert.location or ""
         location_flags = {
-            col_name: float(location == raw)
-            for col_name, raw in _LOCATION_VALUES.items()
+            col_name: float(location == raw) for col_name, raw in _LOCATION_VALUES.items()
         }
 
         features: dict[str, float] = {
@@ -241,6 +245,7 @@ class FeatureEngineerNoLeakage:
         long strings truncated to 2000 chars (tokenizer further truncates
         to 128 tokens).
         """
+
         def _clean(s: str | None) -> str:
             if not s or not s.strip():
                 return "[EMPTY]"

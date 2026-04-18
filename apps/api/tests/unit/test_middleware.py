@@ -20,8 +20,10 @@ def _build_app(*, env: str = "dev", dev_skip: bool = True):
     os.environ.setdefault("AUTH_JWT_SECRET", "test-secret")
     os.environ.setdefault("DB_PASSWORD", "test")
     from strix_api.settings import get_settings
+
     get_settings.cache_clear()
     from strix_api.main import create_app
+
     # `raise_server_exceptions=False` so route-handler crashes return 500
     # responses rather than bubbling out of the TestClient — useful when
     # we exercise routes that need a DB the test sandbox doesn't provide.
@@ -62,8 +64,11 @@ def test_bearer_token_authenticates() -> None:
     client = _build_app(env="prod", dev_skip=False)
     from strix_api.services.auth import issue_token_pair
     from strix_api.settings import get_settings
+
     pair = issue_token_pair(
-        settings=get_settings().auth, user_id=uuid4(), role="admin",
+        settings=get_settings().auth,
+        user_id=uuid4(),
+        role="admin",
     )
     resp = client.get(
         "/api/v1/dashboard/attack-vector",
@@ -83,8 +88,11 @@ def test_csrf_required_on_mutating_in_prod() -> None:
     client = _build_app(env="prod", dev_skip=False)
     from strix_api.services.auth import issue_token_pair
     from strix_api.settings import get_settings
+
     pair = issue_token_pair(
-        settings=get_settings().auth, user_id=uuid4(), role="admin",
+        settings=get_settings().auth,
+        user_id=uuid4(),
+        role="admin",
     )
     # POST without CSRF header → 403
     resp = client.post(
@@ -118,4 +126,5 @@ def _reset_env_after():
     os.environ["ENV"] = "dev"
     os.environ["AUTH_DEV_SKIP_AUTH"] = "true"
     from strix_api.settings import get_settings
+
     get_settings.cache_clear()

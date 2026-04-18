@@ -38,10 +38,10 @@ def test_unknown_value_returns_none() -> None:
 def test_resolve_picks_earliest_stage() -> None:
     m = get_mitre_mapper()
     stage = m.resolve(
-        tactics=["TA0007", "TA0043"],   # Discovery (S7) + Reconnaissance (S1)
+        tactics=["TA0007", "TA0043"],  # Discovery (S7) + Reconnaissance (S1)
         techniques=[],
     )
-    assert stage == CkcStage.RECONNAISSANCE   # earliest wins
+    assert stage == CkcStage.RECONNAISSANCE  # earliest wins
 
 
 def test_resolve_returns_benign_when_empty() -> None:

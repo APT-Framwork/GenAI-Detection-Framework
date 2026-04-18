@@ -15,8 +15,12 @@ from strix_api.core.gnn_window import (
 
 
 def _node(
-    *, alert_id: str, agent_id: str, ts: datetime,
-    srcuser: str | None = None, srcip: str | None = None,
+    *,
+    alert_id: str,
+    agent_id: str,
+    ts: datetime,
+    srcuser: str | None = None,
+    srcip: str | None = None,
 ) -> NodeFact:
     return NodeFact(
         alert_id=alert_id,
@@ -40,8 +44,8 @@ def test_filter_window_orders_by_time() -> None:
     now = datetime(2026, 4, 17, 12, 0, 0, tzinfo=UTC)
     nodes = [
         _node(alert_id="late", agent_id="1", ts=now - timedelta(minutes=1)),
-        _node(alert_id="mid",  agent_id="1", ts=now - timedelta(minutes=10)),
-        _node(alert_id="early",agent_id="1", ts=now - timedelta(minutes=30)),
+        _node(alert_id="mid", agent_id="1", ts=now - timedelta(minutes=10)),
+        _node(alert_id="early", agent_id="1", ts=now - timedelta(minutes=30)),
     ]
     kept = filter_window(nodes, now=now)
     assert [n.alert_id for n in kept] == ["early", "mid", "late"]
@@ -54,8 +58,10 @@ def test_self_loops_always_added() -> None:
     # Every node has a self-loop
     assert snap.edge_counts["self"] == 3
     # Self-loops should appear in edge_index
-    self_pairs = {(int(snap.edge_index[0, k]), int(snap.edge_index[1, k]))
-                  for k in range(snap.edge_index.shape[1])}
+    self_pairs = {
+        (int(snap.edge_index[0, k]), int(snap.edge_index[1, k]))
+        for k in range(snap.edge_index.shape[1])
+    }
     for i in range(3):
         assert (i, i) in self_pairs
 
@@ -76,8 +82,7 @@ def test_intra_capped_by_max_intra() -> None:
     now = datetime(2026, 4, 17, 12, 0, 0, tzinfo=UTC)
     # 10 alerts on the same machine, all within window → MAX_INTRA=3 limit applies per source
     nodes = [
-        _node(alert_id=f"a{i}", agent_id="m1", ts=now - timedelta(seconds=i))
-        for i in range(10)
+        _node(alert_id=f"a{i}", agent_id="m1", ts=now - timedelta(seconds=i)) for i in range(10)
     ]
     snap = build_snapshot(filter_window(nodes, now=now))
     # Each source connects to up to 3 successors → max ~ 3 * N pairs * 2 directed
@@ -88,8 +93,8 @@ def test_cross_user_edges_only_when_multi_machine() -> None:
     now = datetime(2026, 4, 17, 12, 0, 0, tzinfo=UTC)
     nodes = [
         _node(alert_id="a", agent_id="m1", ts=now - timedelta(seconds=10), srcuser="alice"),
-        _node(alert_id="b", agent_id="m2", ts=now - timedelta(seconds=5),  srcuser="alice"),
-        _node(alert_id="c", agent_id="m1", ts=now - timedelta(seconds=1),  srcuser="bob"),
+        _node(alert_id="b", agent_id="m2", ts=now - timedelta(seconds=5), srcuser="alice"),
+        _node(alert_id="c", agent_id="m1", ts=now - timedelta(seconds=1), srcuser="bob"),
     ]
     snap = build_snapshot(filter_window(nodes, now=now))
     # `alice` appears on m1 and m2 → 1 cross pair (a, b) → 2 directed edges
@@ -119,10 +124,16 @@ def test_features_assembled_in_node_order() -> None:
     nodes = []
     for i, name in enumerate(("first", "second", "third")):
         v = np.full((55,), float(i), dtype=np.float32)
-        nodes.append(NodeFact(
-            alert_id=name, agent_id="m1", occurred_at=now - timedelta(seconds=10 - i),
-            srcuser=None, srcip=None, features_gnn_order=v,
-        ))
+        nodes.append(
+            NodeFact(
+                alert_id=name,
+                agent_id="m1",
+                occurred_at=now - timedelta(seconds=10 - i),
+                srcuser=None,
+                srcip=None,
+                features_gnn_order=v,
+            )
+        )
     snap = build_snapshot(filter_window(nodes, now=now))
     # filter_window sorts by time → first/second/third order
     assert snap.alert_ids == ("first", "second", "third")

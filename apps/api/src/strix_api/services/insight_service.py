@@ -64,7 +64,9 @@ class InsightService:
     # ---- snapshot builder ----------------------------------------
 
     async def build_snapshot(
-        self, *, window_minutes: int = GLOBAL_RISK_WINDOW_MINUTES,
+        self,
+        *,
+        window_minutes: int = GLOBAL_RISK_WINDOW_MINUTES,
     ) -> dict[str, Any]:
         """Pull the deterministic snapshot the LLM sees.
 
@@ -147,7 +149,8 @@ class InsightService:
                     "ckcStage": int(r.ckc_stage_at_decision),
                     "action": r.action_name,
                     "decidedAt": r.decided_at.isoformat()
-                    if isinstance(r.decided_at, datetime) else str(r.decided_at),
+                    if isinstance(r.decided_at, datetime)
+                    else str(r.decided_at),
                 }
                 for r in intervention_rows
             ],
@@ -169,7 +172,9 @@ class InsightService:
     # ---- cache-aware generation ---------------------------------
 
     async def get_or_generate(
-        self, *, force_refresh: bool = False,
+        self,
+        *,
+        force_refresh: bool = False,
     ) -> SentinelResult:
         snapshot = await self.build_snapshot()
         payload_hash = self.hash_snapshot(snapshot)
@@ -183,7 +188,7 @@ class InsightService:
             return SentinelResult(
                 insight=cached.insight,
                 recommended_actions=list(actions),
-                confidence=1.0,    # we don't store confidence — assume 1 for cache hit
+                confidence=1.0,  # we don't store confidence — assume 1 for cache hit
                 model_version=cached.model_version,
                 generated_at=cached.generated_at,
                 payload_hash=payload_hash,
@@ -199,7 +204,7 @@ class InsightService:
                 return SentinelResult(
                     insight=cached.insight,
                     recommended_actions=list(actions),
-                    confidence=0.0,    # be honest — we couldn't refresh
+                    confidence=0.0,  # be honest — we couldn't refresh
                     model_version=cached.model_version,
                     generated_at=cached.generated_at,
                     payload_hash=payload_hash,

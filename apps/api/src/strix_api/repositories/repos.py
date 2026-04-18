@@ -66,9 +66,7 @@ class HostRepo:
         await self._s.execute(stmt)
 
     async def get_by_agent_id(self, agent_id: str) -> Host | None:
-        result = await self._s.execute(
-            select(Host).where(Host.agent_id == agent_id)
-        )
+        result = await self._s.execute(select(Host).where(Host.agent_id == agent_id))
         return result.scalar_one_or_none()
 
 
@@ -162,7 +160,10 @@ class AlertRepo:
         return (result.rowcount or 0) > 0
 
     async def get(
-        self, *, alert_id: str, occurred_at: datetime,
+        self,
+        *,
+        alert_id: str,
+        occurred_at: datetime,
     ) -> Alert | None:
         stmt = (
             select(Alert)
@@ -174,9 +175,7 @@ class AlertRepo:
         return result.scalar_one_or_none()
 
     async def count_unacknowledged(self, *, since: datetime | None = None) -> int:
-        stmt = select(func.count()).select_from(Alert).where(
-            Alert.acknowledged_at.is_(None)
-        )
+        stmt = select(func.count()).select_from(Alert).where(Alert.acknowledged_at.is_(None))
         if since is not None:
             stmt = stmt.where(Alert.occurred_at >= since)
         result = await self._s.execute(stmt)
@@ -223,14 +222,15 @@ class AttackChainRepo:
         from sqlalchemy import func as _func
 
         result = await self._s.execute(
-            select(_func.count())
-            .select_from(AttackChain)
-            .where(AttackChain.status == "open")
+            select(_func.count()).select_from(AttackChain).where(AttackChain.status == "open")
         )
         return int(result.scalar_one())
 
     async def list_recent(
-        self, *, limit: int = 50, only_open: bool = False,
+        self,
+        *,
+        limit: int = 50,
+        only_open: bool = False,
     ) -> list[AttackChain]:
         stmt = select(AttackChain)
         if only_open:

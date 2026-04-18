@@ -25,9 +25,9 @@ log = get_logger("strix_api.adapters.model_loaders.autoencoder")
 class AeBatchOutput:
     """One row per item in the input batch (shape preserved)."""
 
-    latents: np.ndarray          # (B, 64) — `mu` (deterministic in eval mode)
-    recon_error: np.ndarray      # (B,)   — per-sample MSE between input/output
-    anomaly_score: np.ndarray    # (B,)   — recon_error + 0.1 * ||mu - center||²
+    latents: np.ndarray  # (B, 64) — `mu` (deterministic in eval mode)
+    recon_error: np.ndarray  # (B,)   — per-sample MSE between input/output
+    anomaly_score: np.ndarray  # (B,)   — recon_error + 0.1 * ||mu - center||²
 
     @property
     def batch_size(self) -> int:
@@ -37,7 +37,9 @@ class AeBatchOutput:
 class AutoencoderLoader:
     """Wraps the RegularizedAutoencoder. Stateless except for model weights."""
 
-    def __init__(self, model: RegularizedAutoencoder, *, device: torch.device, version: str) -> None:
+    def __init__(
+        self, model: RegularizedAutoencoder, *, device: torch.device, version: str
+    ) -> None:
         self._model = model
         self._device = device
         self.version = version
@@ -74,9 +76,7 @@ class AutoencoderLoader:
             )
         actual_in = first_w.shape[1]
         if actual_in != expected_input_dim:
-            raise ModelRegistryError(
-                f"AE input_dim={actual_in}, expected {expected_input_dim}"
-            )
+            raise ModelRegistryError(f"AE input_dim={actual_in}, expected {expected_input_dim}")
 
         # Latent dim from fc_mu's output shape
         fc_mu_w = sd.get("fc_mu.weight")
@@ -87,9 +87,7 @@ class AutoencoderLoader:
                 "(Transformer consumes 64-d AE latent — see C1)"
             )
 
-        model = RegularizedAutoencoder(
-            input_dim=actual_in, latent_dim=latent, dropout_rate=0.2
-        )
+        model = RegularizedAutoencoder(input_dim=actual_in, latent_dim=latent, dropout_rate=0.2)
         model.load_state_dict(sd, strict=True)
         model.to(dev).eval()
 
@@ -111,9 +109,7 @@ class AutoencoderLoader:
     def batch_forward(self, batch: np.ndarray) -> AeBatchOutput:
         """`batch` shape (B, 55) float32 (already scaled by the preprocessor)."""
         if batch.ndim != 2 or batch.shape[1] != FEATURE_VECTOR_DIM:
-            raise ValueError(
-                f"AE expects shape (B, {FEATURE_VECTOR_DIM}), got {batch.shape}"
-            )
+            raise ValueError(f"AE expects shape (B, {FEATURE_VECTOR_DIM}), got {batch.shape}")
         x = torch.from_numpy(batch.astype(np.float32, copy=False)).to(self._device)
         recon, z, mu, _logvar = self._model(x)
 

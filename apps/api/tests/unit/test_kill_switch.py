@@ -101,6 +101,7 @@ async def test_explicit_off_string_is_disengaged() -> None:
 def client() -> TestClient:
     os.environ.setdefault("DB_PASSWORD", "test")
     from strix_api.main import create_app
+
     return TestClient(create_app(), raise_server_exceptions=False)
 
 

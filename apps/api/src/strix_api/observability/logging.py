@@ -30,18 +30,14 @@ def _inject_static_fields(
 
 
 def _inject_service_name(service_name: str) -> Processor:
-    def _processor(
-        _logger: logging.Logger, _method: str, event_dict: EventDict
-    ) -> EventDict:
+    def _processor(_logger: logging.Logger, _method: str, event_dict: EventDict) -> EventDict:
         event_dict.setdefault("service", service_name)
         return event_dict
 
     return _processor
 
 
-def configure_logging(
-    *, service_name: str, level: str = "INFO", json_output: bool = True
-) -> None:
+def configure_logging(*, service_name: str, level: str = "INFO", json_output: bool = True) -> None:
     """Call once at process startup (API + every worker).
 
     Safe to call repeatedly — later calls overwrite the config.

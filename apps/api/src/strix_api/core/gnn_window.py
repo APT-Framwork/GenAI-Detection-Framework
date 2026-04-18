@@ -61,9 +61,9 @@ class NodeFact:
 class GraphSnapshot:
     """Output of `build_snapshot`. Worker feeds this directly to GnnLoader."""
 
-    alert_ids: tuple[str, ...]                # length N — node order
-    x: np.ndarray                              # (N, 55) float32
-    edge_index: np.ndarray                     # (2, E) int64
+    alert_ids: tuple[str, ...]  # length N — node order
+    x: np.ndarray  # (N, 55) float32
+    edge_index: np.ndarray  # (2, E) int64
     edge_counts: dict[str, int] = field(default_factory=dict)
 
     @property
@@ -145,7 +145,9 @@ def _cross_machine_edges(
 
 
 def filter_window(
-    nodes: Iterable[NodeFact], *, now: datetime | None = None,
+    nodes: Iterable[NodeFact],
+    *,
+    now: datetime | None = None,
     window_minutes: int = GNN_WINDOW_MINUTES,
 ) -> list[NodeFact]:
     """Keep alerts within the last `window_minutes` of `now`."""

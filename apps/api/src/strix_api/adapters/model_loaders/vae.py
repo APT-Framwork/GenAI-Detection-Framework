@@ -26,10 +26,10 @@ _LATENT_DIM_DEFAULT = 32  # matches the apps/models/vae_model.pth checkpoint
 
 @dataclass(frozen=True)
 class VaeBatchOutput:
-    malicious_prob: np.ndarray   # (B,) — calibrated [0,1]; from probability_calibrators.pkl
-    uncertainty: np.ndarray      # (B,) — mean of latent log_var (proxy for confidence)
-    recon_loss: np.ndarray       # (B,) — per-sample MSE
-    z_mean: np.ndarray           # (B, latent_dim)
+    malicious_prob: np.ndarray  # (B,) — calibrated [0,1]; from probability_calibrators.pkl
+    uncertainty: np.ndarray  # (B,) — mean of latent log_var (proxy for confidence)
+    recon_loss: np.ndarray  # (B,) — per-sample MSE
+    z_mean: np.ndarray  # (B, latent_dim)
 
 
 class VaeLoader:
@@ -82,16 +82,13 @@ class VaeLoader:
             )
         actual_in = first_w.shape[1]
         if actual_in != expected_input_dim:
-            raise ModelRegistryError(
-                f"VAE input_dim={actual_in}, expected {expected_input_dim}"
-            )
+            raise ModelRegistryError(f"VAE input_dim={actual_in}, expected {expected_input_dim}")
 
         fc_z = sd.get("fc_z_mean.weight")
         latent = fc_z.shape[0] if fc_z is not None else _LATENT_DIM_DEFAULT
         if "center" not in sd:
             raise ModelRegistryError(
-                "VAE state_dict has no `center` parameter — expected BetaVAE, "
-                "not plain SIEMVAE"
+                "VAE state_dict has no `center` parameter — expected BetaVAE, not plain SIEMVAE"
             )
 
         model = BetaVAE(input_dim=actual_in, latent_dim=latent, dropout_rate=0.3)
@@ -115,13 +112,11 @@ class VaeLoader:
     @torch.inference_mode()
     def batch_forward(self, batch: np.ndarray) -> VaeBatchOutput:
         if batch.ndim != 2 or batch.shape[1] != FEATURE_VECTOR_DIM:
-            raise ValueError(
-                f"VAE expects shape (B, {FEATURE_VECTOR_DIM}), got {batch.shape}"
-            )
+            raise ValueError(f"VAE expects shape (B, {FEATURE_VECTOR_DIM}), got {batch.shape}")
         x = torch.from_numpy(batch.astype(np.float32, copy=False)).to(self._device)
         recon, z_mean, z_log_var = self._model(x)
 
-        recon_loss = (recon - x).pow(2).mean(dim=1)             # (B,)
+        recon_loss = (recon - x).pow(2).mean(dim=1)  # (B,)
         # Uncertainty proxy: mean over latent dims of log_var; higher → less confident
         uncertainty = z_log_var.mean(dim=1)
 

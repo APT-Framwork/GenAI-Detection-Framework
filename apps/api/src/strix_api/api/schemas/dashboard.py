@@ -47,7 +47,7 @@ class GlobalRiskResponse(StrixBase):
 class VictimNode(StrixBase):
     host_id: str
     host_name: str
-    severity: str            # uses the Severity literal — but kept str for OpenAPI compactness
+    severity: str  # uses the Severity literal — but kept str for OpenAPI compactness
     infected: bool
     risk_score: float
 

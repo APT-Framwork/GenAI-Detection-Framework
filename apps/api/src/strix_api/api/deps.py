@@ -92,7 +92,9 @@ async def get_current_principal_optional(
         return None
     try:
         return decode_token(
-            settings=settings.auth, token=token, expected_typ="access",
+            settings=settings.auth,
+            token=token,
+            expected_typ="access",
         )
     except StrixError:
         return None

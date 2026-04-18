@@ -55,7 +55,9 @@ async def kill_switch_state(settings: SettingsDep) -> KillSwitchStateResponse:
     finally:
         await redis.aclose()
     return KillSwitchStateResponse(
-        engaged=state.engaged, set_by=state.set_by, set_at=state.set_at,
+        engaged=state.engaged,
+        set_by=state.set_by,
+        set_at=state.set_at,
     )
 
 
@@ -76,5 +78,7 @@ async def kill_switch_update(
     finally:
         await redis.aclose()
     return KillSwitchStateResponse(
-        engaged=state.engaged, set_by=state.set_by, set_at=state.set_at,
+        engaged=state.engaged,
+        set_by=state.set_by,
+        set_at=state.set_at,
     )

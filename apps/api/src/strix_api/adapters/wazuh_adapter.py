@@ -195,10 +195,18 @@ class WazuhAlertAdapter:
         extra = {
             k: v
             for k, v in src.items()
-            if k not in {
-                "id", "@timestamp", "timestamp",
-                "agent", "rule", "data", "syscheck",
-                "decoder", "location", "full_log",
+            if k
+            not in {
+                "id",
+                "@timestamp",
+                "timestamp",
+                "agent",
+                "rule",
+                "data",
+                "syscheck",
+                "decoder",
+                "location",
+                "full_log",
             }
         }
         if isinstance(src.get("rule"), dict):

@@ -26,9 +26,7 @@ class RedisStreamsClient:
 
     def __init__(self, url: str, *, max_connections: int = 20) -> None:
         self._url = url
-        self._client = Redis.from_url(
-            url, max_connections=max_connections, decode_responses=False
-        )
+        self._client = Redis.from_url(url, max_connections=max_connections, decode_responses=False)
         # Human-readable consumer name so XPENDING / XINFO CONSUMERS is useful.
         self._consumer_name = f"{socket.gethostname()}:{id(self):x}"
 

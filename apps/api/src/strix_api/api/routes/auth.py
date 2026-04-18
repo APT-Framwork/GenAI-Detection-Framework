@@ -75,27 +75,39 @@ def _is_mobile_client(request: Request) -> bool:
 
 
 def _set_token_cookies(
-    response: Response, *, pair: TokenPair, settings: Settings,
+    response: Response,
+    *,
+    pair: TokenPair,
+    settings: Settings,
 ) -> None:
     secure = settings.env != "dev"
     response.set_cookie(
-        _ACCESS_COOKIE, pair.access_token,
+        _ACCESS_COOKIE,
+        pair.access_token,
         max_age=settings.auth.jwt_access_ttl_minutes * 60,
-        httponly=True, secure=secure, samesite="lax",
+        httponly=True,
+        secure=secure,
+        samesite="lax",
         path="/",
     )
     response.set_cookie(
-        _REFRESH_COOKIE, pair.refresh_token,
+        _REFRESH_COOKIE,
+        pair.refresh_token,
         max_age=settings.auth.jwt_refresh_ttl_days * 86400,
-        httponly=True, secure=secure, samesite="lax",
+        httponly=True,
+        secure=secure,
+        samesite="lax",
         path=_REFRESH_PATH,
     )
     # CSRF cookie deliberately NOT httponly — the SPA reads it and echoes
     # the value back as the X-CSRF-Token header.
     response.set_cookie(
-        _CSRF_COOKIE, pair.csrf_token,
+        _CSRF_COOKIE,
+        pair.csrf_token,
         max_age=settings.auth.jwt_refresh_ttl_days * 86400,
-        httponly=False, secure=secure, samesite="lax",
+        httponly=False,
+        secure=secure,
+        samesite="lax",
         path="/",
     )
 
@@ -139,7 +151,9 @@ async def register(
     )
     await session.commit()
     pair = issue_token_pair(
-        settings=settings.auth, user_id=user.user_id, role=user.role,
+        settings=settings.auth,
+        user_id=user.user_id,
+        role=user.role,
     )
     _set_token_cookies(response, pair=pair, settings=settings)
     return TokenResponse(
@@ -166,7 +180,9 @@ async def login(
         await repo.update_password(user.user_id, hash_password(body.password))
 
     pair = issue_token_pair(
-        settings=settings.auth, user_id=user.user_id, role=user.role,
+        settings=settings.auth,
+        user_id=user.user_id,
+        role=user.role,
     )
     _set_token_cookies(response, pair=pair, settings=settings)
     return TokenResponse(
@@ -191,7 +207,9 @@ async def refresh(
         raise InvalidTokenError("refresh token missing")
     try:
         principal: Principal = decode_token(
-            settings=settings.auth, token=token, expected_typ="refresh",
+            settings=settings.auth,
+            token=token,
+            expected_typ="refresh",
         )
     except StrixError:
         raise
@@ -202,7 +220,9 @@ async def refresh(
         raise InvalidTokenError("user no longer active")
 
     pair = issue_token_pair(
-        settings=settings.auth, user_id=user.user_id, role=user.role,
+        settings=settings.auth,
+        user_id=user.user_id,
+        role=user.role,
     )
     _set_token_cookies(response, pair=pair, settings=settings)
     return TokenResponse(
@@ -256,6 +276,7 @@ async def register_device(
         # Sandbox fallback — echo back a synthetic record.
         from datetime import datetime
         from uuid import uuid4
+
         now = datetime.now(UTC).isoformat()
         return DeviceResponse(
             device_id=uuid4(),

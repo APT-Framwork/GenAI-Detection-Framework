@@ -83,9 +83,9 @@ class VaeCalibrators:
 class GnnMetadata:
     """Typed wrapper around gnn_metadata.pkl."""
 
-    features: list[str]       # 55 col names in GNN's alphabetical SecBERT order
-    scaler_55: Any            # StandardScaler with n_features_in_=55 (sliced)
-    threshold: float          # Part-1 threshold; unused on the plan's 13-dim state path
+    features: list[str]  # 55 col names in GNN's alphabetical SecBERT order
+    scaler_55: Any  # StandardScaler with n_features_in_=55 (sliced)
+    threshold: float  # Part-1 threshold; unused on the plan's 13-dim state path
     rule_level_included: bool
     metrics: dict[str, float]
     raw_metadata: dict[str, Any]
@@ -218,26 +218,20 @@ class PreprocessingPipeline:
         # 23 individuals
         t0 = time.perf_counter()
         individuals = self._engineer.to_array(alert)
-        normalizer_duration_seconds.labels(stage="individuals").observe(
-            time.perf_counter() - t0
-        )
+        normalizer_duration_seconds.labels(stage="individuals").observe(time.perf_counter() - t0)
 
         # SecBERT(cmd) + SecBERT(log)
         cmd_text, log_text = self._engineer.text_inputs(alert)
         t1 = time.perf_counter()
         cmd_768 = self._secbert.embed_one(cmd_text)
         log_768 = self._secbert.embed_one(log_text)
-        normalizer_duration_seconds.labels(stage="secbert").observe(
-            time.perf_counter() - t1
-        )
+        normalizer_duration_seconds.labels(stage="secbert").observe(time.perf_counter() - t1)
 
         # PCA
         t2 = time.perf_counter()
         cmd_16 = self._cmd_pca.transform(cmd_768.reshape(1, -1)).astype(np.float32)[0]
         log_16 = self._log_pca.transform(log_768.reshape(1, -1)).astype(np.float32)[0]
-        normalizer_duration_seconds.labels(stage="pca").observe(
-            time.perf_counter() - t2
-        )
+        normalizer_duration_seconds.labels(stage="pca").observe(time.perf_counter() - t2)
 
         # Assemble — canonical order is 23 individuals + 16 log + 16 cmd
         vec = np.concatenate([individuals, log_16, cmd_16]).astype(np.float32)
@@ -247,9 +241,7 @@ class PreprocessingPipeline:
         # Scale
         t3 = time.perf_counter()
         scaled = self._scaler.transform(vec.reshape(1, -1)).astype(np.float32)[0]
-        normalizer_duration_seconds.labels(stage="scale").observe(
-            time.perf_counter() - t3
-        )
+        normalizer_duration_seconds.labels(stage="scale").observe(time.perf_counter() - t3)
 
         return scaled
 
@@ -324,9 +316,9 @@ def build_pipeline(
         "secbert_log_pca": "secbert_log_pca.pkl",
         "secbert_cmd_pca": "secbert_cmd_pca.pkl",
         "standard_scaler": "standard_scaler.pkl",
-        "calibrators":     "probability_calibrators.pkl",
-        "gnn_metadata":    "gnn_metadata.pkl",
-        "canonical_json":  "selected_features_top25.json",
+        "calibrators": "probability_calibrators.pkl",
+        "gnn_metadata": "gnn_metadata.pkl",
+        "canonical_json": "selected_features_top25.json",
     }
     for key, fname in required.items():
         p = models_dir / fname
@@ -405,9 +397,7 @@ def _check_pca(pca: Any, label: str) -> None:
     if not isinstance(pca, _PCA):
         raise ModelRegistryError(f"{label} pca is {type(pca).__name__}, expected sklearn PCA")
     if pca.n_components_ != 16:
-        raise ModelRegistryError(
-            f"{label} pca has n_components_={pca.n_components_}, expected 16"
-        )
+        raise ModelRegistryError(f"{label} pca has n_components_={pca.n_components_}, expected 16")
     if pca.n_features_in_ != SECBERT_HIDDEN_SIZE:
         raise ModelRegistryError(
             f"{label} pca has n_features_in_={pca.n_features_in_}, "
@@ -424,8 +414,7 @@ def _check_scaler(scaler: Any, *, expected_dim: int) -> None:
         )
     if scaler.n_features_in_ != expected_dim:
         raise ModelRegistryError(
-            f"standard_scaler.pkl fit on {scaler.n_features_in_} features, "
-            f"expected {expected_dim}"
+            f"standard_scaler.pkl fit on {scaler.n_features_in_} features, expected {expected_dim}"
         )
 
 
@@ -457,8 +446,7 @@ def _build_gnn_meta(raw: dict[str, Any]) -> GnnMetadata:
         sliced.var_ = src_scaler.var_.astype(np.float64)
     else:
         raise ModelRegistryError(
-            f"gnn_metadata scaler has n_features_in_={src_scaler.n_features_in_}, "
-            f"expected 55 or 56"
+            f"gnn_metadata scaler has n_features_in_={src_scaler.n_features_in_}, expected 55 or 56"
         )
     sliced.n_features_in_ = 55
     sliced.feature_names_in_ = np.array(features, dtype=object)

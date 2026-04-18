@@ -61,7 +61,10 @@ class PushDeviceRepo:
         return result.scalar_one()
 
     async def delete_by_token(
-        self, *, user_id: UUID, expo_push_token: str,
+        self,
+        *,
+        user_id: UUID,
+        expo_push_token: str,
     ) -> int:
         stmt = (
             delete(PushDevice)
@@ -81,14 +84,14 @@ class PushDeviceRepo:
         return list(result.scalars().all())
 
     async def list_tokens_for_users(
-        self, user_ids: list[UUID],
+        self,
+        user_ids: list[UUID],
     ) -> list[tuple[UUID, str]]:
         """Return (user_id, expo_push_token) pairs for bulk dispatch."""
         if not user_ids:
             return []
-        stmt = (
-            select(PushDevice.user_id, PushDevice.expo_push_token)
-            .where(PushDevice.user_id.in_(user_ids))
+        stmt = select(PushDevice.user_id, PushDevice.expo_push_token).where(
+            PushDevice.user_id.in_(user_ids)
         )
         result = await self._s.execute(stmt)
         return [(uid, tok) for uid, tok in result.all()]

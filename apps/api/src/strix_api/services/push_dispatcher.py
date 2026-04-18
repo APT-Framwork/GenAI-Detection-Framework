@@ -48,7 +48,10 @@ class PushDispatcher:
     _USER_CACHE_TTL_SECONDS = 300
 
     def __init__(
-        self, *, enabled: bool, expo_access_token: str | None = None,
+        self,
+        *,
+        enabled: bool,
+        expo_access_token: str | None = None,
     ) -> None:
         self._enabled = enabled
         self._adapter: ExpoPushAdapter | None = (
@@ -72,11 +75,7 @@ class PushDispatcher:
             try:
                 async with session_scope() as session:
                     users = await UserRepo(session).list_active()
-                    self._user_cache = [
-                        u.user_id
-                        for u in users
-                        if u.role in ("admin", "analyst")
-                    ]
+                    self._user_cache = [u.user_id for u in users if u.role in ("admin", "analyst")]
                     self._user_cache_ts = now
             except Exception as exc:  # pragma: no cover — best-effort only
                 _log.warning("push_user_lookup_failed", error=str(exc))
@@ -84,7 +83,8 @@ class PushDispatcher:
         return self._user_cache
 
     async def dispatch_interventions(
-        self, events: Iterable[InterventionEvent],
+        self,
+        events: Iterable[InterventionEvent],
     ) -> None:
         if not self._enabled or self._adapter is None:
             return
@@ -140,7 +140,8 @@ class PushDispatcher:
             _log.warning("push_dispatch_failed", error=str(exc))
 
     async def _prune_invalid_tokens(
-        self, pairs: list[tuple[UUID, str]],
+        self,
+        pairs: list[tuple[UUID, str]],
     ) -> None:
         if not pairs:
             return
@@ -149,7 +150,8 @@ class PushDispatcher:
                 repo = PushDeviceRepo(session)
                 for user_id, token in pairs:
                     await repo.delete_by_token(
-                        user_id=user_id, expo_push_token=token,
+                        user_id=user_id,
+                        expo_push_token=token,
                     )
                 await session.commit()
         except Exception as exc:  # pragma: no cover
@@ -165,9 +167,5 @@ def _title_for(ev: InterventionEvent) -> str:
 
 
 def _body_for(ev: InterventionEvent) -> str:
-    prob_txt = (
-        f" (p={ev.vae_prob:.2f})"
-        if ev.vae_prob is not None
-        else ""
-    )
+    prob_txt = f" (p={ev.vae_prob:.2f})" if ev.vae_prob is not None else ""
     return f"CKC stage {ev.ckc_stage} — {ev.action_name.replace('_', ' ').title()}{prob_txt}"

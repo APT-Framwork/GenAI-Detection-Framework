@@ -22,7 +22,8 @@ def _empty(window: WindowLiteral) -> TopologyResponse:
     return TopologyResponse(
         window=window,
         generated_at=datetime.now(UTC).isoformat(),
-        nodes=[], edges=[],
+        nodes=[],
+        edges=[],
     )
 
 

@@ -43,20 +43,28 @@ def test_sentinel_user_message_is_canonical_json() -> None:
 
 def test_summary_cache_key_is_order_insensitive_for_techniques() -> None:
     a = _summary_cache_key(
-        mitre_techniques=["T1059", "T1566"], decoder="auditd", rule_id="80710",
+        mitre_techniques=["T1059", "T1566"],
+        decoder="auditd",
+        rule_id="80710",
     )
     b = _summary_cache_key(
-        mitre_techniques=["T1566", "T1059"], decoder="auditd", rule_id="80710",
+        mitre_techniques=["T1566", "T1059"],
+        decoder="auditd",
+        rule_id="80710",
     )
     assert a == b
 
 
 def test_summary_cache_key_changes_with_decoder() -> None:
     a = _summary_cache_key(
-        mitre_techniques=["T1059"], decoder="auditd", rule_id="x",
+        mitre_techniques=["T1059"],
+        decoder="auditd",
+        rule_id="x",
     )
     b = _summary_cache_key(
-        mitre_techniques=["T1059"], decoder="syscheck", rule_id="x",
+        mitre_techniques=["T1059"],
+        decoder="syscheck",
+        rule_id="x",
     )
     assert a != b
 
@@ -69,6 +77,7 @@ def test_make_summary_cache_get_set_and_eviction() -> None:
     assert cache("missing-key") is _MISSING
 
     from strix_api.adapters.llm_adapter import LlmSummary
+
     s1 = LlmSummary(summary="a", model_version="m")
     s2 = LlmSummary(summary="b", model_version="m")
     cache("k1", _set=s1)
@@ -79,8 +88,8 @@ def test_make_summary_cache_get_set_and_eviction() -> None:
     # Fill to capacity → triggers eviction next set
     cache("k3", _set=s1)
     cache("k4", _set=s2)
-    cache("k5", _set=s1)   # at this point one of the oldest is dropped
-    assert cache.size() <= 4   # type: ignore[attr-defined]
+    cache("k5", _set=s1)  # at this point one of the oldest is dropped
+    assert cache.size() <= 4  # type: ignore[attr-defined]
 
 
 # ---- response parser --------------------------------------------------
@@ -143,7 +152,9 @@ async def test_live_feed_summary_no_key_is_permanent_error() -> None:
     adapter = LlmAdapter.from_settings(_llm_settings(key=None))
     with pytest.raises(LlmError) as exc_info:
         await adapter.live_feed_summary(
-            mitre_techniques=["T1059"], decoder="auditd", rule_id="x",
+            mitre_techniques=["T1059"],
+            decoder="auditd",
+            rule_id="x",
         )
     assert exc_info.value.transient is False
 
@@ -173,6 +184,7 @@ def test_insight_service_hash_changes_when_data_changes() -> None:
 def client() -> TestClient:
     os.environ.setdefault("DB_PASSWORD", "test")
     from strix_api.main import create_app
+
     return TestClient(create_app(), raise_server_exceptions=False)
 
 

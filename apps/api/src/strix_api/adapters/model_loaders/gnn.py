@@ -36,8 +36,8 @@ class GnnScoreOutput:
     features (`node_risk`, `neighbor_risk`, `risk_growth`) of the 13-d state.
     """
 
-    risks: np.ndarray             # (N,) sigmoid in [0,1] — one per alert/node
-    threshold: float              # decision threshold from the metadata pickle
+    risks: np.ndarray  # (N,) sigmoid in [0,1] — one per alert/node
+    threshold: float  # decision threshold from the metadata pickle
 
 
 class GnnLoader:
@@ -90,14 +90,14 @@ class GnnLoader:
                 "(expected APTPropagationGNN with SAGEConv)"
             )
         if in_ch != expected_input_dim:
-            raise ModelRegistryError(
-                f"GNN in_ch={in_ch}, expected {expected_input_dim}"
-            )
+            raise ModelRegistryError(f"GNN in_ch={in_ch}, expected {expected_input_dim}")
 
         # Number of conv layers: count keys like convs.{i}.lin_l.weight
         layer_count = sum(1 for k in sd if k.startswith("convs.") and k.endswith(".lin_l.weight"))
         if layer_count == 0:
-            layer_count = sum(1 for k in sd if k.startswith("convs.") and k.endswith(".lin_r.weight"))
+            layer_count = sum(
+                1 for k in sd if k.startswith("convs.") and k.endswith(".lin_r.weight")
+            )
         if layer_count == 0:
             raise ModelRegistryError("could not infer GNN layer count from state_dict")
 
@@ -120,9 +120,7 @@ class GnnLoader:
         return loader
 
     @torch.inference_mode()
-    def score_graph(
-        self, x: np.ndarray, edge_index: np.ndarray
-    ) -> GnnScoreOutput:
+    def score_graph(self, x: np.ndarray, edge_index: np.ndarray) -> GnnScoreOutput:
         """Run the GNN on a graph snapshot.
 
         Args:
@@ -132,18 +130,14 @@ class GnnLoader:
                self-loops if you want them)
         """
         if x.ndim != 2 or x.shape[1] != FEATURE_VECTOR_DIM:
-            raise ValueError(
-                f"GNN expects x shape (N, {FEATURE_VECTOR_DIM}), got {x.shape}"
-            )
+            raise ValueError(f"GNN expects x shape (N, {FEATURE_VECTOR_DIM}), got {x.shape}")
         if edge_index.ndim != 2 or edge_index.shape[0] != 2:
-            raise ValueError(
-                f"GNN expects edge_index shape (2, E), got {edge_index.shape}"
-            )
+            raise ValueError(f"GNN expects edge_index shape (2, E), got {edge_index.shape}")
 
         x_t = torch.from_numpy(x.astype(np.float32, copy=False)).to(self._device)
         ei_t = torch.from_numpy(edge_index.astype(np.int64, copy=False)).to(self._device)
 
-        logits = self._model(x_t, ei_t)           # (N,)
+        logits = self._model(x_t, ei_t)  # (N,)
         risks = torch.sigmoid(logits).cpu().numpy().astype(np.float32, copy=False)
         return GnnScoreOutput(risks=risks, threshold=self.metadata.threshold)
 

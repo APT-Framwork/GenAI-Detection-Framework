@@ -12,6 +12,7 @@ from fastapi.testclient import TestClient
 def client() -> TestClient:
     os.environ.setdefault("DB_PASSWORD", "test")
     from strix_api.main import create_app
+
     return TestClient(create_app())
 
 
@@ -24,8 +25,14 @@ def test_attack_vector_returns_8_stages(client: TestClient) -> None:
     assert len(body["stages"]) == 8
     # Stages are ordered 0..7 and named per CkcStage (0=BENIGN, 1..7=attack)
     expected_names = (
-        "BENIGN", "RECONNAISSANCE", "WEAPONIZATION", "DELIVERY",
-        "EXPLOITATION", "INSTALLATION", "COMMAND_AND_CONTROL", "ACTIONS_ON_OBJECTIVES",
+        "BENIGN",
+        "RECONNAISSANCE",
+        "WEAPONIZATION",
+        "DELIVERY",
+        "EXPLOITATION",
+        "INSTALLATION",
+        "COMMAND_AND_CONTROL",
+        "ACTIONS_ON_OBJECTIVES",
     )
     for i, stage in enumerate(body["stages"]):
         assert stage["ckcStage"] == i

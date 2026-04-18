@@ -98,7 +98,9 @@ class AnalysisService:
     # ---- notifications (recent interventions) -------------------
 
     async def list_interventions(
-        self, *, limit: int = 50,
+        self,
+        *,
+        limit: int = 50,
     ) -> list[dict[str, Any]]:
         """Fuels the Notifications tab. Two distinct sources:
 
@@ -153,7 +155,10 @@ class AnalysisService:
     # ---- chain list (sidebar) ------------------------------------
 
     async def list_chains(
-        self, *, limit: int = 50, only_open: bool = False,
+        self,
+        *,
+        limit: int = 50,
+        only_open: bool = False,
     ) -> ChainListResponse:
         repo = AttackChainRepo(self._s)
         chains = await repo.list_recent(limit=limit, only_open=only_open)
@@ -307,7 +312,9 @@ class AnalysisService:
                 confidence=0.0,
                 probabilities=[
                     StageProbability(
-                        ckc_stage=s, ckc_stage_name=_stage_name(s) or "BENIGN", prob=0.0,
+                        ckc_stage=s,
+                        ckc_stage_name=_stage_name(s) or "BENIGN",
+                        prob=0.0,
                     )
                     for s in sorted(_CKC_NAMES)
                 ],
@@ -324,10 +331,13 @@ class AnalysisService:
         probs = []
         for s in sorted(_CKC_NAMES):
             p = confidence if s == next_stage else spread
-            probs.append(StageProbability(
-                ckc_stage=s, ckc_stage_name=_stage_name(s) or "BENIGN",
-                prob=round(p, 6),
-            ))
+            probs.append(
+                StageProbability(
+                    ckc_stage=s,
+                    ckc_stage_name=_stage_name(s) or "BENIGN",
+                    prob=round(p, 6),
+                )
+            )
 
         return PredictionsResponse(
             chain_id=chain_id,
@@ -342,7 +352,11 @@ class AnalysisService:
     # ---- forensic logs -----------------------------------------
 
     async def logs_page(
-        self, chain_id: UUID, *, cursor: str | None, limit: int = 50,
+        self,
+        chain_id: UUID,
+        *,
+        cursor: str | None,
+        limit: int = 50,
     ) -> ForensicLogsPage:
         await self._get_chain_or_404(chain_id)
         limit = max(1, min(int(limit), 200))
@@ -389,7 +403,8 @@ class AnalysisService:
         if has_more:
             last = kept[-1]
             next_cursor = _LogCursor(
-                occurred_at=last.occurred_at, alert_id=last.alert_id,
+                occurred_at=last.occurred_at,
+                alert_id=last.alert_id,
             ).encode()
 
         items = [
@@ -436,8 +451,11 @@ class AnalysisService:
 
         if total_count == 0:
             return InfectionResponse(
-                chain_id=chain_id, infected_count=0, total_count=0,
-                percent=0.0, infected_hosts=[],
+                chain_id=chain_id,
+                infected_count=0,
+                total_count=0,
+                percent=0.0,
+                infected_hosts=[],
             )
 
         # Hosts that crossed the infection threshold (§6.3)

@@ -14,7 +14,7 @@ CHAIN_OPEN_VAE_THRESHOLD: Final[float] = 0.5
 CHAIN_OPEN_AE_THRESHOLD: Final[float] = 1.0
 
 CHAIN_IDLE_TIMEOUT_MINUTES: Final[int] = 120  # §12 Q5 (was 30, revised)
-CHAIN_MAX_STEPS: Final[int] = 50              # mirrors APTEnvironment.max_steps
+CHAIN_MAX_STEPS: Final[int] = 50  # mirrors APTEnvironment.max_steps
 
 # ---- Infection + risk (§6.3) ----------------------------------------
 INFECTION_VAE_PROB_THRESHOLD: Final[float] = 0.7

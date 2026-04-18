@@ -36,7 +36,8 @@ from strix_api.core.constants import CHAIN_MAX_STEPS, STATE_VECTOR_DIM
 
 # Per-element clip bounds — mirrors APTEnvironment.observation_space.
 _LOW: Final[np.ndarray] = np.array(
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.0, 0.0, -1.0], dtype=np.float32,
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.0, 0.0, -1.0],
+    dtype=np.float32,
 )
 _HIGH: Final[np.ndarray] = np.array(
     [10, 10, 1, 10, 7, 1, 7, 10, 10, float(CHAIN_MAX_STEPS), 1.0, 1.0, 1.0],
@@ -91,15 +92,11 @@ def build_state(
     sequence_length_so_far: int,
 ) -> np.ndarray:
     """Assemble the 13-dim state vector. Result is clipped to bounds."""
-    time_since_first_hours = max(
-        0.0, (occurred_at - episode_start_at).total_seconds() / 3600.0
-    )
+    time_since_first_hours = max(0.0, (occurred_at - episode_start_at).total_seconds() / 3600.0)
     if last_event_at is None:
         time_since_last_min = 0.0
     else:
-        time_since_last_min = max(
-            0.0, (occurred_at - last_event_at).total_seconds() / 60.0
-        )
+        time_since_last_min = max(0.0, (occurred_at - last_event_at).total_seconds() / 60.0)
 
     raw = np.array(
         [

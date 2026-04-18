@@ -152,9 +152,7 @@ def test_mobile_client_detection() -> None:
     def _req(headers: dict[str, str]) -> Request:
         scope = {
             "type": "http",
-            "headers": [
-                (k.lower().encode(), v.encode()) for k, v in headers.items()
-            ],
+            "headers": [(k.lower().encode(), v.encode()) for k, v in headers.items()],
         }
         return Request(scope)  # type: ignore[arg-type]
 

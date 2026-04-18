@@ -123,9 +123,7 @@ class SessionStore:
     ) -> int:
         """Append a step's state. Returns the new `step_count`."""
         if latent.shape != (AE_LATENT_DIM,):
-            raise ValueError(
-                f"latent shape {latent.shape}, expected ({AE_LATENT_DIM},)"
-            )
+            raise ValueError(f"latent shape {latent.shape}, expected ({AE_LATENT_DIM},)")
         sess_key = _session_key(agent_id)
         lat_key = _latents_key(agent_id)
         encoded = msgpack.packb(latent.astype(np.float32, copy=False).tolist())

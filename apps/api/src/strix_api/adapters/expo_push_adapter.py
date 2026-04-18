@@ -35,12 +35,12 @@ expo_push_breaker = pybreaker.CircuitBreaker(
 
 @dataclass(slots=True, frozen=True)
 class PushMessage:
-    to: str                    # Expo push token
+    to: str  # Expo push token
     title: str
     body: str
     data: dict[str, Any] | None = None
     sound: str | None = "default"
-    priority: str = "high"     # 'default' | 'normal' | 'high'
+    priority: str = "high"  # 'default' | 'normal' | 'high'
 
 
 @dataclass(slots=True, frozen=True)
@@ -68,7 +68,8 @@ class ExpoPushAdapter:
             # Enhanced security — only required if the project opts in.
             headers["Authorization"] = f"Bearer {access_token}"
         self._client = httpx.AsyncClient(
-            headers=headers, timeout=timeout_seconds,
+            headers=headers,
+            timeout=timeout_seconds,
         )
 
     async def close(self) -> None:
@@ -103,7 +104,8 @@ class ExpoPushAdapter:
             ]
             try:
                 resp = await expo_push_breaker.call_async(
-                    self._post_batch, payload,
+                    self._post_batch,
+                    payload,
                 )
             except pybreaker.CircuitBreakerError:
                 _log.warning("expo_push_breaker_open", batch_size=len(batch))

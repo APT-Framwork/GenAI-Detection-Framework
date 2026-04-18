@@ -62,7 +62,9 @@ class RegularizedAutoencoder(nn.Module):
         # At inference (eval mode) we use mu directly — no reparam noise.
         return mu, mu, logvar
 
-    def forward(self, x: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
+    def forward(
+        self, x: torch.Tensor
+    ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
         z, mu, logvar = self.encode(x)
         return self.decoder(z), z, mu, logvar
 
@@ -177,9 +179,7 @@ class _PositionalEncoding(nn.Module):
         self.dropout = nn.Dropout(p=dropout)
         pe = torch.zeros(max_len, d_model)
         position = torch.arange(0, max_len, dtype=torch.float).unsqueeze(1)
-        div_term = torch.exp(
-            torch.arange(0, d_model, 2).float() * (-math.log(10000.0) / d_model)
-        )
+        div_term = torch.exp(torch.arange(0, d_model, 2).float() * (-math.log(10000.0) / d_model))
         pe[:, 0::2] = torch.sin(position * div_term)
         pe[:, 1::2] = torch.cos(position * div_term)
         pe = pe.unsqueeze(0)  # (1, max_len, d_model)
@@ -229,9 +229,9 @@ class TransformerCKCPredictor(nn.Module):
         # weights; ReLU and Dropout are non-parametric).
         self.input_projection = nn.Sequential(
             nn.Linear(input_dim, d_model),  # idx 0
-            nn.LayerNorm(d_model),          # idx 1
-            nn.ReLU(),                       # idx 2 (no params)
-            nn.Dropout(dropout),             # idx 3 (no params)
+            nn.LayerNorm(d_model),  # idx 1
+            nn.ReLU(),  # idx 2 (no params)
+            nn.Dropout(dropout),  # idx 3 (no params)
         )
 
         self.pos_encoder = _PositionalEncoding(d_model, max_len=max_len, dropout=dropout)
@@ -241,13 +241,15 @@ class TransformerCKCPredictor(nn.Module):
             nhead=n_heads,
             dim_feedforward=d_ff,
             dropout=dropout,
-            activation="gelu",       # §5.10 fix
+            activation="gelu",  # §5.10 fix
             batch_first=True,
-            norm_first=True,         # §5.10 fix
+            norm_first=True,  # §5.10 fix
         )
         # `norm` argument matches the saved `transformer_encoder.norm` weights.
         self.transformer_encoder = nn.TransformerEncoder(
-            encoder_layer, num_layers=n_layers, norm=nn.LayerNorm(d_model),
+            encoder_layer,
+            num_layers=n_layers,
+            norm=nn.LayerNorm(d_model),
         )
 
         self.output_head = nn.Sequential(
@@ -266,9 +268,7 @@ class TransformerCKCPredictor(nn.Module):
         """`x` shape (B, T, input_dim) → logits shape (B, num_classes)."""
         x = self.input_projection(x)
         x = self.pos_encoder(x)
-        encoded = self.transformer_encoder(
-            x, src_key_padding_mask=src_key_padding_mask
-        )
+        encoded = self.transformer_encoder(x, src_key_padding_mask=src_key_padding_mask)
         # Use the last (most-recent) sequence position for the prediction.
         last = encoded[:, -1, :]
         return self.output_head(last)
@@ -276,13 +276,13 @@ class TransformerCKCPredictor(nn.Module):
 
 class QNetwork(nn.Module):
     """DQN Q-network. Matches the saved checkpoint:
-      network.0  Linear(state_dim, 128)
-      network.1  ReLU      (no params)
-      network.2  Dropout   (no params)
-      network.3  Linear(128, 64)
-      network.4  ReLU
-      network.5  Dropout
-      network.6  Linear(64, action_dim)
+    network.0  Linear(state_dim, 128)
+    network.1  ReLU      (no params)
+    network.2  Dropout   (no params)
+    network.3  Linear(128, 64)
+    network.4  ReLU
+    network.5  Dropout
+    network.6  Linear(64, action_dim)
     """
 
     def __init__(self, state_dim: int, action_dim: int, *, dropout: float = 0.1) -> None:

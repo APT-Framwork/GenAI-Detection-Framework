@@ -92,9 +92,7 @@ class AlertsService:
         *,
         cursor: str | None = None,
         limit: int = 50,
-        severity: Literal[
-            "all", "critical", "high", "medium", "low", "info"
-        ] = "all",
+        severity: Literal["all", "critical", "high", "medium", "low", "info"] = "all",
         only_unacknowledged: bool = False,
     ) -> AlertListResponse:
         before: datetime | None = None
@@ -116,16 +114,18 @@ class AlertsService:
         rows = rows[:limit]
 
         items = [_row_to_item(r) for r in rows]
-        next_cursor = (
-            rows[-1]["occurred_at"].isoformat() if rows and has_more else None
-        )
+        next_cursor = rows[-1]["occurred_at"].isoformat() if rows and has_more else None
         return AlertListResponse(
             items=items,
             page=Page(cursor=next_cursor, has_more=has_more),
         )
 
     async def acknowledge(
-        self, *, alert_id: str, occurred_at: str, user_id: UUID,
+        self,
+        *,
+        alert_id: str,
+        occurred_at: str,
+        user_id: UUID,
     ) -> AlertAcknowledgeResponse | None:
         try:
             ts = datetime.fromisoformat(occurred_at)

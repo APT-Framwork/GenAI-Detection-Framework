@@ -16,6 +16,7 @@ from strix_api.services.analysis_service import _LogCursor
 def client() -> TestClient:
     os.environ.setdefault("DB_PASSWORD", "test")
     from strix_api.main import create_app
+
     return TestClient(create_app(), raise_server_exceptions=False)
 
 
@@ -67,6 +68,7 @@ def test_logs_paginate_shape(client: TestClient) -> None:
 
 def test_log_cursor_roundtrip() -> None:
     from datetime import datetime
+
     cursor = _LogCursor(
         occurred_at=datetime(2026, 4, 18, 12, 34, 56, 123456, tzinfo=UTC),
         alert_id="abc-XYZ-123",

@@ -50,6 +50,7 @@ async def _lifespan(_app: FastAPI) -> AsyncIterator[None]:
     log.info("startup", env=settings.env, version=__version__)
 
     from strix_api.repositories.database import dispose_engine, init_engine
+
     init_engine(settings)
     try:
         yield
@@ -63,8 +64,7 @@ def create_app() -> FastAPI:
         title="STRIX API",
         version=__version__,
         description=(
-            "Cyber threat detection platform. "
-            "See docs/IMPLEMENTATION_PLAN.md for scope & phasing."
+            "Cyber threat detection platform. See docs/IMPLEMENTATION_PLAN.md for scope & phasing."
         ),
         openapi_url=f"{_API_PREFIX}/openapi.json",
         docs_url=f"{_API_PREFIX}/docs",
@@ -77,9 +77,11 @@ def create_app() -> FastAPI:
 
     # OpenTelemetry — enabled when OBS_TRACING_ENABLED=true + OTLP endpoint set.
     from strix_api.observability.tracing import configure_tracing, instrument_fastapi
+
     settings = get_settings()
     configure_tracing(
-        settings=settings.observability, service_name=settings.service_name,
+        settings=settings.observability,
+        service_name=settings.service_name,
     )
     instrument_fastapi(app)
 

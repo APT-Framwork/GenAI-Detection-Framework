@@ -17,9 +17,7 @@ class FileScanRepo:
         self._s = session
 
     async def get_by_sha256(self, sha256: str) -> FileScan | None:
-        result = await self._s.execute(
-            select(FileScan).where(FileScan.sha256 == sha256.lower())
-        )
+        result = await self._s.execute(select(FileScan).where(FileScan.sha256 == sha256.lower()))
         return result.scalar_one_or_none()
 
     async def get(self, scan_id: UUID) -> FileScan | None:
@@ -47,7 +45,11 @@ class FileScanRepo:
         return row
 
     async def mark_complete(
-        self, scan_id: UUID, *, vt_result: dict[str, Any], status: str = "complete",
+        self,
+        scan_id: UUID,
+        *,
+        vt_result: dict[str, Any],
+        status: str = "complete",
     ) -> None:
         row = await self._s.get(FileScan, scan_id)
         if row is None:

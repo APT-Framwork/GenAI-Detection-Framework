@@ -25,7 +25,11 @@ class IocRepo:
         self._s = session
 
     async def get(
-        self, *, indicator: str, indicator_type: str, source: str,
+        self,
+        *,
+        indicator: str,
+        indicator_type: str,
+        source: str,
     ) -> IocLookupCache | None:
         result = await self._s.execute(
             select(IocLookupCache)
@@ -75,8 +79,12 @@ class IocRepo:
         await self._s.execute(stmt)
 
     async def search(
-        self, *, query: str | None, indicator_type: str | None,
-        limit: int = 50, offset: int = 0,
+        self,
+        *,
+        query: str | None,
+        indicator_type: str | None,
+        limit: int = 50,
+        offset: int = 0,
     ) -> tuple[list[IocLookupCache], int]:
         stmt = select(IocLookupCache)
         count_stmt = select(func.count()).select_from(IocLookupCache)

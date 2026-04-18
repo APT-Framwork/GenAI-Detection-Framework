@@ -19,9 +19,7 @@ class UserRepo:
         return await self._s.get(User, user_id)
 
     async def get_by_email(self, email: str) -> User | None:
-        result = await self._s.execute(
-            select(User).where(User.email == email.lower().strip())
-        )
+        result = await self._s.execute(select(User).where(User.email == email.lower().strip()))
         return result.scalar_one_or_none()
 
     async def create(
@@ -53,9 +51,7 @@ class UserRepo:
         await self._s.flush()
 
     async def list_active(self) -> list[User]:
-        result = await self._s.execute(
-            select(User).where(User.is_active.is_(True))
-        )
+        result = await self._s.execute(select(User).where(User.is_active.is_(True)))
         return list(result.scalars().all())
 
 

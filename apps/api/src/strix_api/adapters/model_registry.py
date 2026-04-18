@@ -59,16 +59,13 @@ def load_registry(
     for key, meta in data.get("models", {}).items():
         artifact = models_dir / meta["file"]
         if not artifact.exists():
-            raise ModelRegistryError(
-                f"model artifact missing: {artifact} (registry key={key})"
-            )
+            raise ModelRegistryError(f"model artifact missing: {artifact} (registry key={key})")
         if verify_checksums:
             actual = _sha256_of(artifact)
             expected = meta["weightsSha256"]
             if actual != expected:
                 raise ModelRegistryError(
-                    f"checksum mismatch for {artifact}: expected {expected}, "
-                    f"got {actual}"
+                    f"checksum mismatch for {artifact}: expected {expected}, got {actual}"
                 )
         models[key] = ModelEntry(
             key=key,
@@ -81,8 +78,7 @@ def load_registry(
     missing = [
         f"{key} ({spec.get('file', '?')})"
         for key, spec in data.get("preprocessingArtifacts", {}).items()
-        if spec.get("status") == "MISSING"
-        or not (models_dir / spec.get("file", "")).exists()
+        if spec.get("status") == "MISSING" or not (models_dir / spec.get("file", "")).exists()
     ]
 
     if missing:

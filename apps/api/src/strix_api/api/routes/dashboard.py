@@ -83,7 +83,9 @@ async def attack_vector(
         session,
         lambda svc: svc.attack_vector(window),
         lambda: AttackVectorResponse(
-            window=window, total_alerts=0, stages=_EMPTY_STAGES,
+            window=window,
+            total_alerts=0,
+            stages=_EMPTY_STAGES,
         ),
     )
 
@@ -107,8 +109,10 @@ async def global_risk(
             window=window,
             global_risk=0.0,
             components=GlobalRiskComponents(
-                vae_mean_prob=0.0, gnn_max_node_risk=0.0,
-                anomaly_rate=0.0, risk_growth=0.0,
+                vae_mean_prob=0.0,
+                gnn_max_node_risk=0.0,
+                anomaly_rate=0.0,
+                risk_growth=0.0,
             ),
             delta_1h=0.0,
             trend=[],
@@ -211,7 +215,8 @@ async def refresh_sentinel_insight(
         pool = await create_pool(_redis_settings_from(settings))
         try:
             await pool.enqueue_job(
-                "generate_sentinel_insight", job_id=str(job_id),
+                "generate_sentinel_insight",
+                job_id=str(job_id),
             )
         finally:
             await pool.close()

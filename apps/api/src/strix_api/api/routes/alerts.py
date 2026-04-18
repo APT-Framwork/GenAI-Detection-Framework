@@ -42,7 +42,9 @@ class AlertNotFoundError(StrixError):
 async def list_alerts(
     _: Annotated[Principal, Depends(get_current_principal)],
     session: Annotated[AsyncSession | None, Depends(get_db_session)],
-    cursor: Annotated[str | None, Query(description="ISO-8601 `occurred_at`; rows strictly older are returned")] = None,
+    cursor: Annotated[
+        str | None, Query(description="ISO-8601 `occurred_at`; rows strictly older are returned")
+    ] = None,
     limit: Annotated[int, Query(ge=1, le=200)] = 50,
     severity: Annotated[
         Literal["all", "critical", "high", "medium", "low", "info"],
@@ -52,7 +54,8 @@ async def list_alerts(
 ) -> AlertListResponse:
     if session is None:
         return AlertListResponse(
-            items=[], page=Page(cursor=None, has_more=False),
+            items=[],
+            page=Page(cursor=None, has_more=False),
         )
     service = AlertsService(AlertRepo(session))
     return await service.list_alerts(
@@ -91,9 +94,7 @@ async def acknowledge_alert(
         user_id=principal.user_id,
     )
     if result is None:
-        raise AlertNotFoundError(
-            f"no alert with id {alert_id} at {body.occurred_at}"
-        )
+        raise AlertNotFoundError(f"no alert with id {alert_id} at {body.occurred_at}")
     await session.commit()
     return result
 

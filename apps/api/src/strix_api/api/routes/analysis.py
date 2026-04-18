@@ -116,9 +116,12 @@ async def predictions(
         lambda svc: svc.predictions(chain_id),
         lambda: PredictionsResponse(
             chain_id=chain_id,
-            current_stage=None, current_stage_name=None,
-            predicted_next_stage=None, predicted_next_stage_name=None,
-            confidence=0.0, probabilities=[],
+            current_stage=None,
+            current_stage_name=None,
+            predicted_next_stage=None,
+            predicted_next_stage_name=None,
+            confidence=0.0,
+            probabilities=[],
         ),
     )
 
@@ -139,7 +142,9 @@ async def chain_logs(
         session,
         lambda svc: svc.logs_page(chain_id, cursor=cursor, limit=limit),
         lambda: ForensicLogsPage(
-            chain_id=chain_id, items=[], page=Page(cursor=None, has_more=False),
+            chain_id=chain_id,
+            items=[],
+            page=Page(cursor=None, has_more=False),
         ),
     )
 
@@ -156,8 +161,11 @@ async def infection(
         session,
         lambda svc: svc.infection(chain_id),
         lambda: InfectionResponse(
-            chain_id=chain_id, infected_count=0, total_count=0,
-            percent=0.0, infected_hosts=[],
+            chain_id=chain_id,
+            infected_count=0,
+            total_count=0,
+            percent=0.0,
+            infected_hosts=[],
         ),
     )
 
@@ -174,8 +182,12 @@ async def dwell_time(
         session,
         lambda svc: svc.dwell_time(chain_id),
         lambda: DwellTimeResponse(
-            chain_id=chain_id, started_at="", closed_at=None,
-            duration_seconds=0.0, status="open", close_reason=None,
+            chain_id=chain_id,
+            started_at="",
+            closed_at=None,
+            duration_seconds=0.0,
+            status="open",
+            close_reason=None,
         ),
     )
 

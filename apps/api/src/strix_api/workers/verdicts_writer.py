@@ -102,7 +102,10 @@ class VerdictsWriter:
 
             try:
                 batch = await self._redis.read(
-                    _VERDICTS_STREAM, _GROUP, count=64, block_ms=block_ms,
+                    _VERDICTS_STREAM,
+                    _GROUP,
+                    count=64,
+                    block_ms=block_ms,
                 )
             except Exception as exc:
                 self._log.error("redis_read_failed", exc_info=exc)
@@ -124,9 +127,7 @@ class VerdictsWriter:
                     pending.append((entry_id, payload))
 
             now = asyncio.get_event_loop().time()
-            if pending and (
-                len(pending) >= _FLUSH_MAX_ROWS or (now - last_flush) >= flush_window
-            ):
+            if pending and (len(pending) >= _FLUSH_MAX_ROWS or (now - last_flush) >= flush_window):
                 await self._flush(pending)
                 pending = []
                 last_flush = now
@@ -189,85 +190,91 @@ class VerdictsWriter:
                     # Open new chain row if applicable.
                     if chain_id is not None and p.get("isFirstInChain"):
                         opened_at = _parse_iso(p.get("openedAt") or p["occurredAt"])
-                        await chain_repo.insert(AttackChain(
-                            chain_id=chain_id,
-                            host_id=host_id,
-                            opened_at=opened_at,
-                            closed_at=None,
-                            close_reason=None,
-                            first_malicious_at=opened_at,
-                            max_ckc_stage=int(p.get("currentCkcStage", 0)),
-                            max_vae_prob=float(p.get("vaeMaliciousProb") or 0.0),
-                            intervention_action_id=None,
-                            step_count=0,
-                            status="open",
-                        ))
+                        await chain_repo.insert(
+                            AttackChain(
+                                chain_id=chain_id,
+                                host_id=host_id,
+                                opened_at=opened_at,
+                                closed_at=None,
+                                close_reason=None,
+                                first_malicious_at=opened_at,
+                                max_ckc_stage=int(p.get("currentCkcStage", 0)),
+                                max_vae_prob=float(p.get("vaeMaliciousProb") or 0.0),
+                                intervention_action_id=None,
+                                step_count=0,
+                                status="open",
+                            )
+                        )
                         attack_chain_opened_total.inc()
 
-                    alert_rows.append({
-                        "alert_id": alert_id,
-                        "host_id": host_id,
-                        "chain_id": chain_id,
-                        "occurred_at": occurred_at,
-                        "decoder_name": None,
-                        "location": None,
-                        "full_log": None,
-                        "rule_id": None,
-                        "rule_firedtimes": None,
-                        "mitre_tactics": [],
-                        "mitre_techniques": [],
-                        "ckc_stage": _i(p.get("currentCkcStage")),
-                        "raw_jsonb": {},
-                    })
+                    alert_rows.append(
+                        {
+                            "alert_id": alert_id,
+                            "host_id": host_id,
+                            "chain_id": chain_id,
+                            "occurred_at": occurred_at,
+                            "decoder_name": None,
+                            "location": None,
+                            "full_log": None,
+                            "rule_id": None,
+                            "rule_firedtimes": None,
+                            "mitre_tactics": [],
+                            "mitre_techniques": [],
+                            "ckc_stage": _i(p.get("currentCkcStage")),
+                            "raw_jsonb": {},
+                        }
+                    )
 
                     # Detection rows always get inserted; chain_id is required by
                     # the schema, so SKIP_BENIGN verdicts use host_id as a
                     # placeholder (no FK on chain_id to attack_chains for
                     # detections — see migration 0001).
-                    detection_rows.append({
-                        "alert_id": alert_id,
-                        "occurred_at": occurred_at,
-                        "host_id": host_id,
-                        "chain_id": chain_id if chain_id is not None else host_id,
-                        "step_in_chain": _i(p.get("stepInChain")) or 0,
-                        "ae_anomaly_score": _f(p.get("aeAnomalyScore")),
-                        "ae_recon_error": _f(p.get("aeReconError")),
-                        "vae_malicious_prob": _f(p.get("vaeMaliciousProb")),
-                        "vae_uncertainty": _f(p.get("vaeUncertainty")),
-                        "transformer_pred_ckc": _i(p.get("transformerPredCkc")),
-                        "transformer_confidence": _f(p.get("transformerConfidence")),
-                        "gnn_node_risk": _f(p.get("gnnNodeRisk")),
-                        "gnn_neighbor_risk": _f(p.get("gnnNeighborRisk")),
-                        "gnn_risk_growth": _f(p.get("gnnRiskGrowth")),
-                        "state_vector": p.get("stateVector"),
-                        "model_versions": p.get("modelVersions") or {},
-                    })
+                    detection_rows.append(
+                        {
+                            "alert_id": alert_id,
+                            "occurred_at": occurred_at,
+                            "host_id": host_id,
+                            "chain_id": chain_id if chain_id is not None else host_id,
+                            "step_in_chain": _i(p.get("stepInChain")) or 0,
+                            "ae_anomaly_score": _f(p.get("aeAnomalyScore")),
+                            "ae_recon_error": _f(p.get("aeReconError")),
+                            "vae_malicious_prob": _f(p.get("vaeMaliciousProb")),
+                            "vae_uncertainty": _f(p.get("vaeUncertainty")),
+                            "transformer_pred_ckc": _i(p.get("transformerPredCkc")),
+                            "transformer_confidence": _f(p.get("transformerConfidence")),
+                            "gnn_node_risk": _f(p.get("gnnNodeRisk")),
+                            "gnn_neighbor_risk": _f(p.get("gnnNeighborRisk")),
+                            "gnn_risk_growth": _f(p.get("gnnRiskGrowth")),
+                            "state_vector": p.get("stateVector"),
+                            "model_versions": p.get("modelVersions") or {},
+                        }
+                    )
 
                     # DQN action rows only for non-skipped verdicts that ran the DQN.
                     if chain_id is not None and p.get("dqnAction") is not None:
                         action_int = int(p["dqnAction"])
                         action = DqnAction(action_int)
-                        requires_approval = (
-                            action.requires_approval and not self._auto_response
-                        )
+                        requires_approval = action.requires_approval and not self._auto_response
                         applied = not requires_approval
-                        action_rows.append({
-                            "action_id": uuid4(),
-                            "alert_id": alert_id,
-                            "chain_id": chain_id,
-                            "host_id": host_id,
-                            "decided_at": occurred_at,
-                            "action": action_int,
-                            "action_name": action.name,
-                            "q_values": list(p.get("qValues") or []),
-                            "ckc_stage_at_decision": int(p.get("currentCkcStage", 0)),
-                            "requires_approval": requires_approval,
-                            "applied": applied,
-                            "applied_at": occurred_at if applied else None,
-                            "applied_by": None,    # auto-applied; analyst overrides come later
-                            "rejected_at": None,
-                            "rejected_by": None,
-                        })
+                        action_rows.append(
+                            {
+                                "action_id": uuid4(),
+                                "alert_id": alert_id,
+                                "chain_id": chain_id,
+                                "host_id": host_id,
+                                "decided_at": occurred_at,
+                                "action": action_int,
+                                "action_name": action.name,
+                                "q_values": list(p.get("qValues") or []),
+                                "ckc_stage_at_decision": int(p.get("currentCkcStage", 0)),
+                                "requires_approval": requires_approval,
+                                "applied": applied,
+                                "applied_at": occurred_at if applied else None,
+                                "applied_by": None,  # auto-applied; analyst overrides come later
+                                "rejected_at": None,
+                                "rejected_by": None,
+                            }
+                        )
                         dqn_action_total.labels(action_name=action.name).inc()
 
                 # Bulk inserts
@@ -277,9 +284,7 @@ class VerdictsWriter:
 
                 # Update / close chains. Doing this AFTER actions so we have the
                 # action_id to record as `intervention_action_id` if needed.
-                action_id_by_alert = {
-                    row["alert_id"]: row["action_id"] for row in action_rows
-                }
+                action_id_by_alert = {row["alert_id"]: row["action_id"] for row in action_rows}
                 for p in payloads:
                     chain_id_str = p.get("chainId")
                     if not chain_id_str:
@@ -334,9 +339,7 @@ class VerdictsWriter:
                     )
                 )
         if interventions:
-            asyncio.create_task(
-                self._push.dispatch_interventions(interventions)
-            )
+            asyncio.create_task(self._push.dispatch_interventions(interventions))
 
         self._log.info(
             "verdicts_flushed",
@@ -382,7 +385,8 @@ async def _amain() -> None:
     init_engine(settings)
 
     async with streams_client(
-        settings.redis.url, max_connections=settings.redis.max_connections,
+        settings.redis.url,
+        max_connections=settings.redis.max_connections,
     ) as redis:
         worker = VerdictsWriter(settings=settings, redis=redis)
         loop = asyncio.get_running_loop()

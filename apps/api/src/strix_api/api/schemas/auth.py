@@ -19,6 +19,7 @@ class RegisterRequest(StrixBase):
     """Open self-registration. New users land in the `analyst` role; only
     an existing admin can promote them. The `designation` is a free-form
     label the SOC uses to track callsigns / shift identifiers."""
+
     email: EmailStr
     password: str = Field(min_length=8, max_length=256)
     designation: str | None = Field(default=None, max_length=128)
@@ -26,7 +27,7 @@ class RegisterRequest(StrixBase):
 
 class TokenResponse(StrixBase):
     access_token: str
-    expires_in: int                   # seconds until access expires
+    expires_in: int  # seconds until access expires
     token_type: Literal["Bearer"] = "Bearer"
     # Only populated for mobile clients (X-Client-Type: mobile). Web
     # clients never receive this field — they rely exclusively on the

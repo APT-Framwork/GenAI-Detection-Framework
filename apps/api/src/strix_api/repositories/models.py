@@ -47,12 +47,8 @@ class Host(Base):
     agent_name: Mapped[str] = mapped_column(Text, nullable=False)
     ip_address: Mapped[str | None] = mapped_column(INET, nullable=True)
     is_manager: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
-    first_seen_at: Mapped[datetime] = mapped_column(
-        TIMESTAMP(timezone=True), nullable=False
-    )
-    last_seen_at: Mapped[datetime] = mapped_column(
-        TIMESTAMP(timezone=True), nullable=False
-    )
+    first_seen_at: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True), nullable=False)
+    last_seen_at: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True), nullable=False)
     created_at: Mapped[datetime] = mapped_column(
         TIMESTAMP(timezone=True), nullable=False, server_default=func.now()
     )
@@ -97,19 +93,11 @@ class AttackChain(Base):
 
     chain_id: Mapped[UUID] = mapped_column(PG_UUID(as_uuid=True), primary_key=True)
     host_id: Mapped[UUID] = mapped_column(PG_UUID(as_uuid=True), nullable=False)
-    opened_at: Mapped[datetime] = mapped_column(
-        TIMESTAMP(timezone=True), nullable=False
-    )
-    closed_at: Mapped[datetime | None] = mapped_column(
-        TIMESTAMP(timezone=True), nullable=True
-    )
+    opened_at: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True), nullable=False)
+    closed_at: Mapped[datetime | None] = mapped_column(TIMESTAMP(timezone=True), nullable=True)
     close_reason: Mapped[str | None] = mapped_column(Text, nullable=True)
-    first_malicious_at: Mapped[datetime] = mapped_column(
-        TIMESTAMP(timezone=True), nullable=False
-    )
-    max_ckc_stage: Mapped[int] = mapped_column(
-        SmallInteger, nullable=False, default=0
-    )
+    first_malicious_at: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True), nullable=False)
+    max_ckc_stage: Mapped[int] = mapped_column(SmallInteger, nullable=False, default=0)
     max_vae_prob: Mapped[float] = mapped_column(REAL, nullable=False, default=0.0)
     intervention_action_id: Mapped[UUID | None] = mapped_column(
         PG_UUID(as_uuid=True), nullable=True
@@ -158,9 +146,7 @@ class Alert(Base):
     acknowledged_at: Mapped[datetime | None] = mapped_column(
         TIMESTAMP(timezone=True), nullable=True
     )
-    acknowledged_by: Mapped[UUID | None] = mapped_column(
-        PG_UUID(as_uuid=True), nullable=True
-    )
+    acknowledged_by: Mapped[UUID | None] = mapped_column(PG_UUID(as_uuid=True), nullable=True)
 
 
 # ---------------------------------------------------------------- detections (hypertable)
@@ -169,9 +155,7 @@ class Alert(Base):
 class Detection(Base):
     __tablename__ = "detections"
 
-    alert_id: Mapped[str] = mapped_column(
-        Text, ForeignKey("alerts.alert_id"), primary_key=True
-    )
+    alert_id: Mapped[str] = mapped_column(Text, ForeignKey("alerts.alert_id"), primary_key=True)
     occurred_at: Mapped[datetime] = mapped_column(
         TIMESTAMP(timezone=True), primary_key=True, nullable=False
     )
@@ -182,16 +166,12 @@ class Detection(Base):
     ae_recon_error: Mapped[float | None] = mapped_column(REAL, nullable=True)
     vae_malicious_prob: Mapped[float | None] = mapped_column(REAL, nullable=True)
     vae_uncertainty: Mapped[float | None] = mapped_column(REAL, nullable=True)
-    transformer_pred_ckc: Mapped[int | None] = mapped_column(
-        SmallInteger, nullable=True
-    )
+    transformer_pred_ckc: Mapped[int | None] = mapped_column(SmallInteger, nullable=True)
     transformer_confidence: Mapped[float | None] = mapped_column(REAL, nullable=True)
     gnn_node_risk: Mapped[float | None] = mapped_column(REAL, nullable=True)
     gnn_neighbor_risk: Mapped[float | None] = mapped_column(REAL, nullable=True)
     gnn_risk_growth: Mapped[float | None] = mapped_column(REAL, nullable=True)
-    state_vector: Mapped[list[float] | None] = mapped_column(
-        ARRAY(REAL), nullable=True
-    )
+    state_vector: Mapped[list[float] | None] = mapped_column(ARRAY(REAL), nullable=True)
     model_versions: Mapped[dict[str, Any] | None] = mapped_column(JSONB, nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         TIMESTAMP(timezone=True), nullable=False, server_default=func.now()
@@ -205,29 +185,21 @@ class DqnActionRow(Base):
     __tablename__ = "dqn_actions"
 
     action_id: Mapped[UUID] = mapped_column(PG_UUID(as_uuid=True), primary_key=True)
-    alert_id: Mapped[str] = mapped_column(
-        Text, ForeignKey("alerts.alert_id"), nullable=False
-    )
+    alert_id: Mapped[str] = mapped_column(Text, ForeignKey("alerts.alert_id"), nullable=False)
     chain_id: Mapped[UUID] = mapped_column(PG_UUID(as_uuid=True), nullable=False)
     host_id: Mapped[UUID] = mapped_column(PG_UUID(as_uuid=True), nullable=False)
-    decided_at: Mapped[datetime] = mapped_column(
-        TIMESTAMP(timezone=True), nullable=False
-    )
+    decided_at: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True), nullable=False)
     action: Mapped[int] = mapped_column(SmallInteger, nullable=False)
     action_name: Mapped[str] = mapped_column(Text, nullable=False)
     q_values: Mapped[list[float]] = mapped_column(ARRAY(REAL), nullable=False)
     ckc_stage_at_decision: Mapped[int] = mapped_column(SmallInteger, nullable=False)
     requires_approval: Mapped[bool] = mapped_column(Boolean, nullable=False)
     applied: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
-    applied_at: Mapped[datetime | None] = mapped_column(
-        TIMESTAMP(timezone=True), nullable=True
-    )
+    applied_at: Mapped[datetime | None] = mapped_column(TIMESTAMP(timezone=True), nullable=True)
     applied_by: Mapped[UUID | None] = mapped_column(
         PG_UUID(as_uuid=True), ForeignKey("users.user_id"), nullable=True
     )
-    rejected_at: Mapped[datetime | None] = mapped_column(
-        TIMESTAMP(timezone=True), nullable=True
-    )
+    rejected_at: Mapped[datetime | None] = mapped_column(TIMESTAMP(timezone=True), nullable=True)
     rejected_by: Mapped[UUID | None] = mapped_column(
         PG_UUID(as_uuid=True), ForeignKey("users.user_id"), nullable=True
     )
@@ -239,9 +211,7 @@ class DqnActionRow(Base):
 class GnnGraphSnapshot(Base):
     __tablename__ = "gnn_graph_snapshots"
 
-    snapshot_id: Mapped[UUID] = mapped_column(
-        PG_UUID(as_uuid=True), primary_key=True
-    )
+    snapshot_id: Mapped[UUID] = mapped_column(PG_UUID(as_uuid=True), primary_key=True)
     shard_id: Mapped[int] = mapped_column(Integer, nullable=False)
     taken_at: Mapped[datetime] = mapped_column(
         TIMESTAMP(timezone=True), primary_key=True, nullable=False
@@ -263,12 +233,8 @@ class IocLookupCache(Base):
     source: Mapped[str] = mapped_column(Text, primary_key=True)
     reputation: Mapped[str] = mapped_column(Text, nullable=False)
     payload: Mapped[dict[str, Any]] = mapped_column(JSONB, nullable=False)
-    checked_at: Mapped[datetime] = mapped_column(
-        TIMESTAMP(timezone=True), nullable=False
-    )
-    expires_at: Mapped[datetime] = mapped_column(
-        TIMESTAMP(timezone=True), nullable=False
-    )
+    checked_at: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True), nullable=False)
+    expires_at: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True), nullable=False)
 
 
 # ---------------------------------------------------------------- LLM insight cache
@@ -278,15 +244,11 @@ class LlmInsightCache(Base):
     __tablename__ = "llm_insight_cache"
 
     payload_hash: Mapped[str] = mapped_column(Text, primary_key=True)
-    generated_at: Mapped[datetime] = mapped_column(
-        TIMESTAMP(timezone=True), nullable=False
-    )
+    generated_at: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True), nullable=False)
     model_version: Mapped[str] = mapped_column(Text, nullable=False)
     insight: Mapped[str] = mapped_column(Text, nullable=False)
     recommended_actions: Mapped[dict[str, Any]] = mapped_column(JSONB, nullable=False)
-    expires_at: Mapped[datetime] = mapped_column(
-        TIMESTAMP(timezone=True), nullable=False
-    )
+    expires_at: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True), nullable=False)
 
 
 # ---------------------------------------------------------------- file scans
@@ -296,21 +258,13 @@ class FileScan(Base):
     __tablename__ = "file_scans"
 
     scan_id: Mapped[UUID] = mapped_column(PG_UUID(as_uuid=True), primary_key=True)
-    sha256: Mapped[str] = mapped_column(
-        String(length=64), unique=True, nullable=False
-    )
+    sha256: Mapped[str] = mapped_column(String(length=64), unique=True, nullable=False)
     filename: Mapped[str] = mapped_column(Text, nullable=False)
     size_bytes: Mapped[int] = mapped_column(BigInteger, nullable=False)
-    uploaded_at: Mapped[datetime] = mapped_column(
-        TIMESTAMP(timezone=True), nullable=False
-    )
-    uploaded_by: Mapped[UUID | None] = mapped_column(
-        PG_UUID(as_uuid=True), nullable=True
-    )
+    uploaded_at: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True), nullable=False)
+    uploaded_by: Mapped[UUID | None] = mapped_column(PG_UUID(as_uuid=True), nullable=True)
     vt_result: Mapped[dict[str, Any] | None] = mapped_column(JSONB, nullable=True)
-    vt_scanned_at: Mapped[datetime | None] = mapped_column(
-        TIMESTAMP(timezone=True), nullable=True
-    )
+    vt_scanned_at: Mapped[datetime | None] = mapped_column(TIMESTAMP(timezone=True), nullable=True)
     status: Mapped[str] = mapped_column(Text, nullable=False)
 
 
@@ -322,7 +276,8 @@ class PushDevice(Base):
 
     device_id: Mapped[UUID] = mapped_column(PG_UUID(as_uuid=True), primary_key=True)
     user_id: Mapped[UUID] = mapped_column(
-        PG_UUID(as_uuid=True), ForeignKey("users.user_id", ondelete="CASCADE"),
+        PG_UUID(as_uuid=True),
+        ForeignKey("users.user_id", ondelete="CASCADE"),
         nullable=False,
     )
     expo_push_token: Mapped[str] = mapped_column(Text, nullable=False)

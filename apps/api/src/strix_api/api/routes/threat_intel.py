@@ -44,7 +44,7 @@ from strix_api.services.threat_intel_service import (
 router = APIRouter(prefix="/threat-intel", tags=["threat-intel"])
 log = get_logger("strix_api.api.routes.threat_intel")
 
-_MAX_UPLOAD_BYTES = 10 * 1024 * 1024   # 10 MB cap per §5.12
+_MAX_UPLOAD_BYTES = 10 * 1024 * 1024  # 10 MB cap per §5.12
 
 
 class _BadRequestError(StrixError):
@@ -89,7 +89,9 @@ async def search_iocs(
     hibp = HibpAdapter(settings.threat_intel)
     vt = VirusTotalAdapter(settings.threat_intel)
     service = ThreatIntelService(
-        ioc_repo=ioc_repo, hibp=hibp, virustotal=vt,
+        ioc_repo=ioc_repo,
+        hibp=hibp,
+        virustotal=vt,
         compromised=CompromisedAssetsRepo(session),
     )
 
@@ -100,7 +102,10 @@ async def search_iocs(
         try:
             result = await service.lookup(q, indicator_type=type)
             return IocSearchResponse(
-                items=[_ioc_to_schema(result)], total=1, page=1, limit=1,
+                items=[_ioc_to_schema(result)],
+                total=1,
+                page=1,
+                limit=1,
             )
         except StrixError:
             # Adapter explicitly raised — fall through to a cache-only search.
@@ -114,7 +119,9 @@ async def search_iocs(
     await vt.aclose()
     return IocSearchResponse(
         items=[_ioc_to_schema(r) for r in rows],
-        total=total, page=page, limit=limit,
+        total=total,
+        page=page,
+        limit=limit,
     )
 
 
@@ -138,7 +145,9 @@ async def compromised_assets(
             agent_name=r.get("agent_name"),
             ip_address=str(r["ip_address"]) if r.get("ip_address") else None,
             last_seen_at=r["last_seen_at"].isoformat() if r.get("last_seen_at") else None,
-            last_detection_at=r["last_detection_at"].isoformat() if r.get("last_detection_at") else None,
+            last_detection_at=r["last_detection_at"].isoformat()
+            if r.get("last_detection_at")
+            else None,
             detection_count=int(r.get("detection_count", 0)),
             max_vae_prob=r.get("max_vae_prob"),
             max_gnn_risk=r.get("max_gnn_risk"),
@@ -212,29 +221,33 @@ async def file_scan_upload(
     if not contents:
         raise _BadRequestError("uploaded file is empty")
     if len(contents) > _MAX_UPLOAD_BYTES:
-        raise _BadRequestError(
-            f"upload too large ({len(contents)} bytes > {_MAX_UPLOAD_BYTES})"
-        )
+        raise _BadRequestError(f"upload too large ({len(contents)} bytes > {_MAX_UPLOAD_BYTES})")
     sha256 = hashlib.sha256(contents).hexdigest()
 
     if session is None:
         # Unit-test path — return a synthetic accepted response.
         return FileScanResponse(
-            scan_id=uuid4(), sha256=sha256, size_bytes=len(contents),
-            status="queued", filename=file.filename or "upload",
+            scan_id=uuid4(),
+            sha256=sha256,
+            size_bytes=len(contents),
+            status="queued",
+            filename=file.filename or "upload",
         )
 
     repo = FileScanRepo(session)
     existing = await repo.get_by_sha256(sha256)
     if existing is not None and existing.status in ("complete", "scanning"):
         return FileScanResponse(
-            scan_id=existing.scan_id, sha256=sha256,
-            size_bytes=existing.size_bytes, status=existing.status,
+            scan_id=existing.scan_id,
+            sha256=sha256,
+            size_bytes=existing.size_bytes,
+            status=existing.status,
             filename=existing.filename,
         )
 
     row = await repo.create(
-        sha256=sha256, filename=file.filename or "upload",
+        sha256=sha256,
+        filename=file.filename or "upload",
         size_bytes=len(contents),
     )
 
@@ -257,6 +270,9 @@ async def file_scan_upload(
         log.warning("file_scan_enqueue_failed", exc_info=exc)
 
     return FileScanResponse(
-        scan_id=row.scan_id, sha256=sha256, size_bytes=len(contents),
-        status="queued", filename=row.filename,
+        scan_id=row.scan_id,
+        sha256=sha256,
+        size_bytes=len(contents),
+        status="queued",
+        filename=row.filename,
     )

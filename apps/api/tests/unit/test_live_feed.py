@@ -35,8 +35,11 @@ def test_envelope_has_required_fields() -> None:
 
 def test_envelope_handles_unknown_stage_gracefully() -> None:
     verdict = {
-        "alertId": "x", "agentId": "1", "occurredAt": "2026-04-18T09:00:00Z",
-        "currentCkcStage": 999, "mitreTechniques": [],
+        "alertId": "x",
+        "agentId": "1",
+        "occurredAt": "2026-04-18T09:00:00Z",
+        "currentCkcStage": 999,
+        "mitreTechniques": [],
     }
     event = build_live_feed_event(verdict)
     assert event["ckcStage"] == 999
@@ -45,7 +48,9 @@ def test_envelope_handles_unknown_stage_gracefully() -> None:
 
 def test_envelope_tolerates_missing_optional_fields() -> None:
     verdict = {
-        "alertId": "x", "agentId": "1", "occurredAt": "2026-04-18T09:00:00Z",
+        "alertId": "x",
+        "agentId": "1",
+        "occurredAt": "2026-04-18T09:00:00Z",
         "currentCkcStage": 0,
     }
     event = build_live_feed_event(verdict)

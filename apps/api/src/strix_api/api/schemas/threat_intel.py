@@ -12,9 +12,9 @@ from strix_api.api.schemas.common import StrixBase
 
 class IocItem(StrixBase):
     indicator: str
-    type: str                       # 'email' | 'ip' | 'domain' | 'hash'
-    reputation: str                 # 'malicious' | 'suspicious' | 'clean' | 'unknown'
-    source: str                     # 'hibp' | 'virustotal' | 'cache'
+    type: str  # 'email' | 'ip' | 'domain' | 'hash'
+    reputation: str  # 'malicious' | 'suspicious' | 'clean' | 'unknown'
+    source: str  # 'hibp' | 'virustotal' | 'cache'
     last_checked: str
     breach_count: int | None = None
     stale: bool = False
@@ -46,7 +46,7 @@ class CompromisedAssetsResponse(StrixBase):
 
 class VtScanRequest(StrixBase):
     indicator: str
-    type: str | None = None         # auto-detect if absent
+    type: str | None = None  # auto-detect if absent
 
 
 class JobAcceptedResponse(StrixBase):
@@ -58,7 +58,7 @@ class FileScanResponse(StrixBase):
     scan_id: UUID
     sha256: str
     size_bytes: int
-    status: str                     # 'queued' | 'scanning' | 'complete' | 'error'
+    status: str  # 'queued' | 'scanning' | 'complete' | 'error'
     filename: str
 
 

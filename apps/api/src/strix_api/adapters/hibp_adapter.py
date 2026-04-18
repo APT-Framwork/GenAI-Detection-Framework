@@ -50,8 +50,8 @@ class HibpError(StrixError):
 class HibpLookup:
     """Adapter result. `breaches` is the raw HIBP payload list (or empty)."""
 
-    indicator: str           # the email we queried (lowercased)
-    reputation: str          # 'malicious' | 'clean'
+    indicator: str  # the email we queried (lowercased)
+    reputation: str  # 'malicious' | 'clean'
     breach_count: int
     breaches: list[dict[str, Any]]
 
@@ -114,8 +114,10 @@ class HibpAdapter:
         if resp.status_code == 404:
             # No breach — clean.
             return HibpLookup(
-                indicator=indicator, reputation="clean",
-                breach_count=0, breaches=[],
+                indicator=indicator,
+                reputation="clean",
+                breach_count=0,
+                breaches=[],
             )
         if resp.status_code == 200:
             try:
@@ -127,8 +129,10 @@ class HibpAdapter:
                 external_api_errors_total.labels(api="hibp", error_kind="invalid_shape").inc()
                 raise HibpError("HIBP response is not a list")
             return HibpLookup(
-                indicator=indicator, reputation="malicious",
-                breach_count=len(breaches), breaches=breaches,
+                indicator=indicator,
+                reputation="malicious",
+                breach_count=len(breaches),
+                breaches=breaches,
             )
         if resp.status_code == 429:
             external_api_errors_total.labels(api="hibp", error_kind="rate_limited").inc()
@@ -136,10 +140,12 @@ class HibpAdapter:
         if resp.status_code in (401, 403):
             external_api_errors_total.labels(api="hibp", error_kind="unauthorized").inc()
             raise HibpError(
-                f"HIBP rejected the API key ({resp.status_code})", transient=False,
+                f"HIBP rejected the API key ({resp.status_code})",
+                transient=False,
             )
         external_api_errors_total.labels(
-            api="hibp", error_kind=f"http_{resp.status_code}",
+            api="hibp",
+            error_kind=f"http_{resp.status_code}",
         ).inc()
         raise HibpError(f"HIBP returned HTTP {resp.status_code}", transient=True)
 

@@ -36,9 +36,9 @@ _D_FF = 512
 
 @dataclass(frozen=True)
 class TransformerOutput:
-    pred_ckc: int                 # argmax (0..7)
-    confidence: float             # softmax max prob
-    probabilities: np.ndarray     # (8,) — full distribution
+    pred_ckc: int  # argmax (0..7)
+    confidence: float  # softmax max prob
+    probabilities: np.ndarray  # (8,) — full distribution
 
 
 class TransformerLoader:
@@ -103,13 +103,17 @@ class TransformerLoader:
         num_classes = head_w.shape[0] if head_w is not None else _NUM_CKC
 
         # Detect layer count
-        layer_count = max(
-            (
-                int(k.split(".")[2]) for k in sd
-                if k.startswith("transformer_encoder.layers.") and k.endswith(".norm1.weight")
-            ),
-            default=-1,
-        ) + 1
+        layer_count = (
+            max(
+                (
+                    int(k.split(".")[2])
+                    for k in sd
+                    if k.startswith("transformer_encoder.layers.") and k.endswith(".norm1.weight")
+                ),
+                default=-1,
+            )
+            + 1
+        )
         if layer_count <= 0:
             raise ModelRegistryError("could not infer transformer layer count from state_dict")
 
@@ -148,16 +152,14 @@ class TransformerLoader:
         Returns the predicted next CKC stage + confidence over 8 classes.
         """
         if latents.ndim != 2 or latents.shape[1] != AE_LATENT_DIM:
-            raise ValueError(
-                f"Transformer expects (T, {AE_LATENT_DIM}); got {latents.shape}"
-            )
+            raise ValueError(f"Transformer expects (T, {AE_LATENT_DIM}); got {latents.shape}")
         if latents.shape[0] == 0:
             raise ValueError("Transformer needs at least 1 latent in the sequence")
 
         x = torch.from_numpy(latents.astype(np.float32, copy=False)).to(self._device)
         x = x.unsqueeze(0)  # (1, T, 64)
-        logits = self._model(x)                       # (1, num_classes)
-        probs = torch.softmax(logits, dim=-1)[0]      # (num_classes,)
+        logits = self._model(x)  # (1, num_classes)
+        probs = torch.softmax(logits, dim=-1)[0]  # (num_classes,)
         pred = int(torch.argmax(probs).item())
         conf = float(probs[pred].item())
         return TransformerOutput(
@@ -167,9 +169,7 @@ class TransformerLoader:
         )
 
     @torch.inference_mode()
-    def predict_batch(
-        self, sequences: list[np.ndarray]
-    ) -> list[TransformerOutput]:
+    def predict_batch(self, sequences: list[np.ndarray]) -> list[TransformerOutput]:
         """Batched sequence inference. Right-pads variable-length sequences.
 
         Returns one TransformerOutput per input sequence.
@@ -197,11 +197,13 @@ class TransformerLoader:
         outputs: list[TransformerOutput] = []
         for i in range(b):
             p = int(preds[i].item())
-            outputs.append(TransformerOutput(
-                pred_ckc=p,
-                confidence=float(probs[i, p].item()),
-                probabilities=probs[i].cpu().numpy().astype(np.float32, copy=False),
-            ))
+            outputs.append(
+                TransformerOutput(
+                    pred_ckc=p,
+                    confidence=float(probs[i, p].item()),
+                    probabilities=probs[i].cpu().numpy().astype(np.float32, copy=False),
+                )
+            )
         return outputs
 
     def _warmup(self) -> None:

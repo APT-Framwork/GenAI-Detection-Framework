@@ -73,6 +73,7 @@ def test_log_cursor_decode_invalid_base64() -> None:
 def test_log_cursor_decode_invalid_payload() -> None:
     """A correctly base64'd but non-`<iso>|<id>` payload must error."""
     import base64
+
     bad = base64.urlsafe_b64encode(b"no-pipe-separator").rstrip(b"=").decode()
     with pytest.raises(ValueError):
         _LogCursor.decode(bad)

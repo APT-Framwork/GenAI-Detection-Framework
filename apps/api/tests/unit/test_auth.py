@@ -85,7 +85,8 @@ def test_decode_rejects_expired() -> None:
         "role": "admin",
         "jti": str(uuid4()),
         "typ": "access",
-        "iat": 0, "exp": 1,  # 1970
+        "iat": 0,
+        "exp": 1,  # 1970
     }
     expired = jwt.encode(expired_payload, "test-secret", algorithm="HS256")
     with pytest.raises(TokenExpiredError):

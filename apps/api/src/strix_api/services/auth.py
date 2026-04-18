@@ -83,7 +83,7 @@ class Principal:
     """Whoever the JWT says is making the request."""
 
     user_id: UUID
-    role: str               # 'admin' | 'analyst'
+    role: str  # 'admin' | 'analyst'
     jti: UUID
     expires_at: datetime
     token_type: TokenType
@@ -159,7 +159,10 @@ def _encode(
 
 
 def issue_token_pair(
-    *, settings: AuthSettings, user_id: UUID, role: str,
+    *,
+    settings: AuthSettings,
+    user_id: UUID,
+    role: str,
 ) -> TokenPair:
     now = _now_utc()
     access_exp = now + timedelta(minutes=settings.jwt_access_ttl_minutes)
@@ -170,12 +173,20 @@ def issue_token_pair(
 
     return TokenPair(
         access_token=_encode(
-            settings=settings, user_id=user_id, role=role,
-            jti=access_jti, typ="access", expires_at=access_exp,
+            settings=settings,
+            user_id=user_id,
+            role=role,
+            jti=access_jti,
+            typ="access",
+            expires_at=access_exp,
         ),
         refresh_token=_encode(
-            settings=settings, user_id=user_id, role=role,
-            jti=refresh_jti, typ="refresh", expires_at=refresh_exp,
+            settings=settings,
+            user_id=user_id,
+            role=role,
+            jti=refresh_jti,
+            typ="refresh",
+            expires_at=refresh_exp,
         ),
         csrf_token=secrets.token_urlsafe(32),
         access_expires_at=access_exp,
@@ -184,7 +195,10 @@ def issue_token_pair(
 
 
 def decode_token(
-    *, settings: AuthSettings, token: str, expected_typ: TokenType,
+    *,
+    settings: AuthSettings,
+    token: str,
+    expected_typ: TokenType,
 ) -> Principal:
     if settings.jwt_secret is None:
         raise StrixError("JWT secret not configured (AUTH_JWT_SECRET)")
@@ -234,8 +248,7 @@ def require_role(principal: Principal, *allowed: str) -> None:
             raise ValueError(f"unknown role in allow-list: {role!r}")
     if principal.role not in allowed:
         raise ForbiddenError(
-            f"role {principal.role!r} not permitted "
-            f"(requires one of: {sorted(allowed)})"
+            f"role {principal.role!r} not permitted (requires one of: {sorted(allowed)})"
         )
 
 

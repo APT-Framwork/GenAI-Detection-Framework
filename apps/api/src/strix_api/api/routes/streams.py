@@ -72,9 +72,7 @@ async def _pubsub_iterator(
                     break
                 payload = message.get("data") or b"{}"
                 try:
-                    data = (
-                        payload.decode("utf-8") if isinstance(payload, bytes) else str(payload)
-                    )
+                    data = payload.decode("utf-8") if isinstance(payload, bytes) else str(payload)
                 except Exception:
                     continue
                 try:
@@ -118,13 +116,15 @@ async def _pubsub_iterator(
 
 @router.get("/live-feed", summary="Live alert SSE stream (all chains)")
 async def live_feed(request: Request) -> EventSourceResponse:
-    return EventSourceResponse(_pubsub_iterator(
-        request,
-        channel=LIVE_FEED_CHANNEL,
-        metric_label="live-feed",
-        event_name="alert.new",
-        hello_payload={"channel": LIVE_FEED_CHANNEL},
-    ))
+    return EventSourceResponse(
+        _pubsub_iterator(
+            request,
+            channel=LIVE_FEED_CHANNEL,
+            metric_label="live-feed",
+            event_name="alert.new",
+            hello_payload={"channel": LIVE_FEED_CHANNEL},
+        )
+    )
 
 
 @router.get(
@@ -133,13 +133,15 @@ async def live_feed(request: Request) -> EventSourceResponse:
 )
 async def chain_logs(chain_id: UUID, request: Request) -> EventSourceResponse:
     channel = chain_log_channel(str(chain_id))
-    return EventSourceResponse(_pubsub_iterator(
-        request,
-        channel=channel,
-        metric_label="chain-logs",
-        event_name="chain.alert.new",
-        hello_payload={"chainId": str(chain_id), "channel": channel},
-    ))
+    return EventSourceResponse(
+        _pubsub_iterator(
+            request,
+            channel=channel,
+            metric_label="chain-logs",
+            event_name="chain.alert.new",
+            hello_payload={"chainId": str(chain_id), "channel": channel},
+        )
+    )
 
 
 @router.get(
@@ -154,10 +156,12 @@ async def job_result(job_id: UUID, request: Request) -> EventSourceResponse:
     from strix_api.workers.arq_tasks import job_channel
 
     channel = job_channel(str(job_id))
-    return EventSourceResponse(_pubsub_iterator(
-        request,
-        channel=channel,
-        metric_label="jobs",
-        event_name="job.complete",
-        hello_payload={"jobId": str(job_id), "channel": channel},
-    ))
+    return EventSourceResponse(
+        _pubsub_iterator(
+            request,
+            channel=channel,
+            metric_label="jobs",
+            event_name="job.complete",
+            hello_payload={"jobId": str(job_id), "channel": channel},
+        )
+    )

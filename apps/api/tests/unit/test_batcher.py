@@ -40,7 +40,10 @@ async def test_flush_on_time() -> None:
 
     # Big size cap; small wait → flush is time-driven.
     batcher: MicroBatcher[int, int] = MicroBatcher(
-        name="t", processor=proc, max_size=64, max_wait_ms=30,
+        name="t",
+        processor=proc,
+        max_size=64,
+        max_wait_ms=30,
     )
     await batcher.start()
     try:
@@ -60,7 +63,10 @@ async def test_processor_error_propagates_to_each_future() -> None:
         raise Boom("nope")
 
     batcher: MicroBatcher[int, int] = MicroBatcher(
-        name="t", processor=proc, max_size=2, max_wait_ms=10,
+        name="t",
+        processor=proc,
+        max_size=2,
+        max_wait_ms=10,
     )
     await batcher.start()
     try:
@@ -81,7 +87,10 @@ async def test_recovers_from_processor_error_on_next_batch() -> None:
         return [x * 10 for x in items]
 
     batcher: MicroBatcher[int, int] = MicroBatcher(
-        name="t", processor=proc, max_size=1, max_wait_ms=5,
+        name="t",
+        processor=proc,
+        max_size=1,
+        max_wait_ms=5,
     )
     await batcher.start()
     try:
@@ -109,7 +118,10 @@ async def test_submit_before_start_errors() -> None:
         return items
 
     batcher: MicroBatcher[int, int] = MicroBatcher(
-        name="x", processor=proc, max_size=1, max_wait_ms=10,
+        name="x",
+        processor=proc,
+        max_size=1,
+        max_wait_ms=10,
     )
     with pytest.raises(RuntimeError):
         await batcher.submit(1)

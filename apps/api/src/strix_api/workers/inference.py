@@ -283,8 +283,10 @@ class InferenceWorker:
         while not self._stop.is_set():
             try:
                 batch = await self._redis.read(
-                    self.features_stream, self.consumer_group,
-                    count=64, block_ms=5_000,
+                    self.features_stream,
+                    self.consumer_group,
+                    count=64,
+                    block_ms=5_000,
                 )
             except Exception as exc:
                 self._log.error("redis_read_failed", exc_info=exc)
@@ -300,9 +302,7 @@ class InferenceWorker:
             for _stream, entries in batch:
                 for entry_id, fields in entries:
                     ids.append(entry_id)
-                    tasks.append(asyncio.create_task(
-                        self._handle_one(entry_id, fields)
-                    ))
+                    tasks.append(asyncio.create_task(self._handle_one(entry_id, fields)))
 
             await asyncio.gather(*tasks, return_exceptions=True)
 
@@ -326,18 +326,21 @@ class InferenceWorker:
         vae_task = asyncio.create_task(self._vae_batcher.submit(vec))
 
         gnn_perm_vec = self._pipeline.transform_for_gnn(vec)
-        await self._gnn_cache.append(NodeFact(
-            alert_id=msg.alert_id,
-            agent_id=msg.agent_id,
-            occurred_at=occurred_at,
-            srcuser=msg.srcuser,
-            srcip=msg.srcip,
-            features_gnn_order=gnn_perm_vec,
-        ))
+        await self._gnn_cache.append(
+            NodeFact(
+                alert_id=msg.alert_id,
+                agent_id=msg.agent_id,
+                occurred_at=occurred_at,
+                srcuser=msg.srcuser,
+                srcip=msg.srcip,
+                features_gnn_order=gnn_perm_vec,
+            )
+        )
 
         try:
             (anomaly, recon_err, latent), (mal_prob, uncertainty) = await asyncio.gather(
-                ae_task, vae_task,
+                ae_task,
+                vae_task,
             )
         except Exception as exc:
             self._log.error("ae_or_vae_failed", alert_id=msg.alert_id, exc_info=exc)
@@ -354,20 +357,24 @@ class InferenceWorker:
 
         if decision.action is ChainAction.SKIP_BENIGN:
             await self._emit_skip_verdict(
-                msg=msg, anomaly=anomaly, recon_err=recon_err, latent=latent,
-                mal_prob=mal_prob, uncertainty=uncertainty,
+                msg=msg,
+                anomaly=anomaly,
+                recon_err=recon_err,
+                latent=latent,
+                mal_prob=mal_prob,
+                uncertainty=uncertainty,
             )
             return
 
         if decision.action is ChainAction.OPEN_NEW:
             await self._sessions.open_session(
                 agent_id=msg.agent_id,
-                chain_id=decision.chain_id,        # type: ignore[arg-type]
+                chain_id=decision.chain_id,  # type: ignore[arg-type]
                 opened_at=occurred_at,
                 first_malicious_at=occurred_at,
             )
             session = SessionState(
-                chain_id=decision.chain_id,         # type: ignore[arg-type]
+                chain_id=decision.chain_id,  # type: ignore[arg-type]
                 episode_start_at=occurred_at,
                 opened_at=occurred_at,
                 last_seen_at=occurred_at,
@@ -388,13 +395,15 @@ class InferenceWorker:
         sequence_arr = np.stack(sequence, axis=0).astype(np.float32)
 
         transformer_out: TransformerOutput = await asyncio.to_thread(
-            self._transformer.predict_sequence, sequence_arr,
+            self._transformer.predict_sequence,
+            sequence_arr,
         )
 
         # GNN risk: lookup latest cache for THIS alert (will be 0 for first ~60s).
         gnn_node_risk = await self._gnn_cache.lookup(msg.alert_id)
         gnn_neighbor_risk, gnn_risk_growth = await self._gnn_cache.neighbor_risk(
-            msg.alert_id, msg.agent_id,
+            msg.alert_id,
+            msg.agent_id,
         )
 
         # Build 13-d state vector + DQN.
@@ -476,7 +485,9 @@ class InferenceWorker:
             },
         }
         await self._redis.publish(
-            _VERDICTS_STREAM, verdict, maxlen=_VERDICTS_STREAM_MAXLEN,
+            _VERDICTS_STREAM,
+            verdict,
+            maxlen=_VERDICTS_STREAM_MAXLEN,
         )
         # Fan out to SSE subscribers. Never let a pubsub failure block ingestion.
         try:
@@ -533,7 +544,9 @@ class InferenceWorker:
             },
         }
         await self._redis.publish(
-            _VERDICTS_STREAM, verdict, maxlen=_VERDICTS_STREAM_MAXLEN,
+            _VERDICTS_STREAM,
+            verdict,
+            maxlen=_VERDICTS_STREAM_MAXLEN,
         )
         # Skipped (benign-only) alerts still appear in the live feed —
         # they're useful for the SOC to see baseline activity.
@@ -545,9 +558,7 @@ class InferenceWorker:
 
     # ---- batched processors ------------------------------------------
 
-    async def _run_ae_batch(
-        self, items: list[np.ndarray]
-    ) -> list[tuple[float, float, np.ndarray]]:
+    async def _run_ae_batch(self, items: list[np.ndarray]) -> list[tuple[float, float, np.ndarray]]:
         x = np.stack(items, axis=0)
         out: AeBatchOutput = await asyncio.to_thread(self._ae.batch_forward, x)
         return [
@@ -555,14 +566,11 @@ class InferenceWorker:
             for i in range(out.batch_size)
         ]
 
-    async def _run_vae_batch(
-        self, items: list[np.ndarray]
-    ) -> list[tuple[float, float]]:
+    async def _run_vae_batch(self, items: list[np.ndarray]) -> list[tuple[float, float]]:
         x = np.stack(items, axis=0)
         out: VaeBatchOutput = await asyncio.to_thread(self._vae.batch_forward, x)
         return [
-            (float(out.malicious_prob[i]), float(out.uncertainty[i]))
-            for i in range(len(items))
+            (float(out.malicious_prob[i]), float(out.uncertainty[i])) for i in range(len(items))
         ]
 
     async def _run_dqn_batch(self, items: list[np.ndarray]) -> list[DqnDecision]:
@@ -582,7 +590,9 @@ class InferenceWorker:
                 snap = build_snapshot(facts)
                 t0 = asyncio.get_running_loop().time()
                 out = await asyncio.to_thread(
-                    self._gnn.score_graph, snap.x, snap.edge_index,
+                    self._gnn.score_graph,
+                    snap.x,
+                    snap.edge_index,
                 )
                 inference_duration_seconds.labels(model="gnn").observe(
                     asyncio.get_running_loop().time() - t0
@@ -620,10 +630,12 @@ class InferenceWorker:
         try:
             ei = snap.edge_index
             for k in range(ei.shape[1]):
-                edge_pairs.append({
-                    "source": int(ei[0, k]),
-                    "target": int(ei[1, k]),
-                })
+                edge_pairs.append(
+                    {
+                        "source": int(ei[0, k]),
+                        "target": int(ei[1, k]),
+                    }
+                )
         except Exception:
             pass
 
@@ -683,6 +695,7 @@ async def _amain() -> None:
 
     # Init the DB pool so _persist_snapshot has session_scope available.
     from strix_api.repositories.database import init_engine
+
     init_engine(settings)
 
     pipeline = build_pipeline(settings.models.path, warmup=True)
@@ -701,24 +714,34 @@ async def _amain() -> None:
         version=state.models["vae"].version,
     )
     gnn = GnnLoader.load(
-        state.models["gnn"].file, metadata=pipeline.gnn,
+        state.models["gnn"].file,
+        metadata=pipeline.gnn,
         version=state.models["gnn"].version,
     )
     transformer = TransformerLoader.load(
-        state.models["transformer"].file, version=state.models["transformer"].version,
+        state.models["transformer"].file,
+        version=state.models["transformer"].version,
     )
     dqn = DqnLoader.load(
-        state.models["dqn"].file, version=state.models["dqn"].version,
+        state.models["dqn"].file,
+        version=state.models["dqn"].version,
     )
 
     async with streams_client(
-        settings.redis.url, max_connections=settings.redis.max_connections,
+        settings.redis.url,
+        max_connections=settings.redis.max_connections,
     ) as redis:
         sessions = SessionStore(redis.client)
         worker = InferenceWorker(
-            settings=settings, redis=redis, session_store=sessions,
-            pipeline=pipeline, ae=ae, vae=vae, gnn=gnn,
-            transformer=transformer, dqn=dqn,
+            settings=settings,
+            redis=redis,
+            session_store=sessions,
+            pipeline=pipeline,
+            ae=ae,
+            vae=vae,
+            gnn=gnn,
+            transformer=transformer,
+            dqn=dqn,
         )
         loop = asyncio.get_running_loop()
         for sig_name in ("SIGTERM", "SIGINT"):

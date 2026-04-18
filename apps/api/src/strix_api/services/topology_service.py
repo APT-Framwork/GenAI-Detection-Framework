@@ -78,15 +78,17 @@ class TopologyService:
             else:
                 status = "healthy"
             kind = "manager" if r.is_manager else "endpoint"
-            nodes.append(TopologyNode(
-                id=r.id,
-                label=r.label,
-                type=kind,
-                status=status,
-                ip=r.ip,
-                open_chains=open_n,
-                max_ckc_stage=max_ckc,
-            ))
+            nodes.append(
+                TopologyNode(
+                    id=r.id,
+                    label=r.label,
+                    type=kind,
+                    status=status,
+                    ip=r.ip,
+                    open_chains=open_n,
+                    max_ckc_stage=max_ckc,
+                )
+            )
 
         # Edges: hosts whose chains overlapped in time within the window.
         # A real attack-graph store would be better, but co-occurrence is the
@@ -120,13 +122,15 @@ class TopologyService:
         )
         edges: list[TopologyEdge] = []
         for r in edge_rows.all():
-            edges.append(TopologyEdge(
-                id=f"{r.source}::{r.target}",
-                source=r.source,
-                target=r.target,
-                chain_count=int(r.chain_count),
-                type="malicious" if int(r.max_ckc or 0) >= 4 else "normal",
-            ))
+            edges.append(
+                TopologyEdge(
+                    id=f"{r.source}::{r.target}",
+                    source=r.source,
+                    target=r.target,
+                    chain_count=int(r.chain_count),
+                    type="malicious" if int(r.max_ckc or 0) >= 4 else "normal",
+                )
+            )
 
         return TopologyResponse(
             window=window,

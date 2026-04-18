@@ -44,7 +44,7 @@ class ChainAction(StrEnum):
 
     OPEN_NEW = "OPEN_NEW"
     CONTINUE = "CONTINUE"
-    SKIP_BENIGN = "SKIP_BENIGN"   # AE+VAE only, no Transformer/DQN, no session
+    SKIP_BENIGN = "SKIP_BENIGN"  # AE+VAE only, no Transformer/DQN, no session
 
 
 class ChainCloseReason(StrEnum):
@@ -58,9 +58,9 @@ class ChainCloseReason(StrEnum):
 @dataclass(frozen=True)
 class ChainDecision:
     action: ChainAction
-    chain_id: UUID | None       # None when SKIP_BENIGN
-    step_in_chain: int          # 0 for OPEN_NEW, otherwise prior step_count
-    is_first_in_chain: bool     # convenience: action == OPEN_NEW
+    chain_id: UUID | None  # None when SKIP_BENIGN
+    step_in_chain: int  # 0 for OPEN_NEW, otherwise prior step_count
+    is_first_in_chain: bool  # convenience: action == OPEN_NEW
 
     @property
     def runs_full_pipeline(self) -> bool:
@@ -135,7 +135,9 @@ def decide_close_reason(
 
 
 def find_idle_chains_to_close(
-    *, sessions: dict[str, SessionState], now: datetime,
+    *,
+    sessions: dict[str, SessionState],
+    now: datetime,
 ) -> list[tuple[str, SessionState]]:
     """Sweep helper for the idle-timeout closer (Phase 3 / verdicts writer
     background task). Returns (agent_id, session) pairs whose
@@ -152,10 +154,7 @@ def find_idle_chains_to_close(
 
 
 def _meets_open_threshold(ae_anomaly: float, vae_prob: float) -> bool:
-    return (
-        vae_prob >= CHAIN_OPEN_VAE_THRESHOLD
-        or ae_anomaly >= CHAIN_OPEN_AE_THRESHOLD
-    )
+    return vae_prob >= CHAIN_OPEN_VAE_THRESHOLD or ae_anomaly >= CHAIN_OPEN_AE_THRESHOLD
 
 
 def _is_idle(last_seen_at: datetime, now: datetime) -> bool:

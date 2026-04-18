@@ -6,10 +6,10 @@ from strix_api.api.schemas.common import StrixBase
 
 
 class ModelHealth(StrixBase):
-    name: str                     # 'AE' | 'VAE' | 'TRANSFORMER' | 'GNN' | 'DQN'
+    name: str  # 'AE' | 'VAE' | 'TRANSFORMER' | 'GNN' | 'DQN'
     version: str
     weights_sha256: str
-    status: str                   # 'active' | 'degraded'
+    status: str  # 'active' | 'degraded'
     accuracy: float | None = None
     f1: float | None = None
     p50_latency_ms: float | None = None

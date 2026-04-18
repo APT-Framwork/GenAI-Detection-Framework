@@ -93,15 +93,19 @@ class DashboardService:
         for stage_int in sorted(_CKC_NAMES):
             count = counts.get(stage_int, 0)
             percent = (count / total * 100.0) if total else 0.0
-            stages.append(StageBucket(
-                ckc_stage=stage_int,
-                ckc_name=_CKC_NAMES[stage_int],
-                count=count,
-                percent=round(percent, 2),
-            ))
+            stages.append(
+                StageBucket(
+                    ckc_stage=stage_int,
+                    ckc_name=_CKC_NAMES[stage_int],
+                    count=count,
+                    percent=round(percent, 2),
+                )
+            )
 
         return AttackVectorResponse(
-            window=window, total_alerts=total, stages=stages,
+            window=window,
+            total_alerts=total,
+            stages=stages,
         )
 
     # ---- global-risk -------------------------------------------------
@@ -160,10 +164,10 @@ class DashboardService:
             risk_growth=round(growth, 6),
         )
         global_risk = (
-            GLOBAL_RISK_COEF_VAE_MEAN     * vae_mean
-            + GLOBAL_RISK_COEF_GNN_MAX    * gnn_max
+            GLOBAL_RISK_COEF_VAE_MEAN * vae_mean
+            + GLOBAL_RISK_COEF_GNN_MAX * gnn_max
             + GLOBAL_RISK_COEF_ANOMALY_RATE * anomaly_rate
-            + GLOBAL_RISK_COEF_RISK_GROWTH  * growth
+            + GLOBAL_RISK_COEF_RISK_GROWTH * growth
         )
 
         # Trend: down-sample to ≤ 60 points across the window.
@@ -183,7 +187,8 @@ class DashboardService:
         trend_rows = trend_result.all()
         trend = [
             GlobalRiskTrendPoint(
-                ts=_iso(r.ts), value=round(float(r.value or 0.0), 6),
+                ts=_iso(r.ts),
+                value=round(float(r.value or 0.0), 6),
             )
             for r in trend_rows[-60:]
         ]

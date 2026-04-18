@@ -104,12 +104,8 @@ external_api_errors_total = Counter(
 )
 
 # ---------------------------------------------------------------- cache
-cache_hits_total = Counter(
-    "strix_cache_hits_total", "Cache hits.", ["cache"]
-)
-cache_misses_total = Counter(
-    "strix_cache_misses_total", "Cache misses.", ["cache"]
-)
+cache_hits_total = Counter("strix_cache_hits_total", "Cache hits.", ["cache"])
+cache_misses_total = Counter("strix_cache_misses_total", "Cache misses.", ["cache"])
 
 # ---------------------------------------------------------------- SSE
 sse_clients_active = Gauge(

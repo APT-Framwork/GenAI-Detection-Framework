@@ -26,13 +26,13 @@ _DOMAIN_RE = re.compile(r"^[a-zA-Z0-9][a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$")
 @dataclass(frozen=True)
 class IocResult:
     indicator: str
-    indicator_type: str           # 'email' | 'ip' | 'domain' | 'hash'
-    reputation: str               # 'malicious' | 'suspicious' | 'clean' | 'unknown'
-    source: str                   # 'hibp' | 'virustotal' | 'cache'
+    indicator_type: str  # 'email' | 'ip' | 'domain' | 'hash'
+    reputation: str  # 'malicious' | 'suspicious' | 'clean' | 'unknown'
+    source: str  # 'hibp' | 'virustotal' | 'cache'
     last_checked: datetime
     breach_count: int | None = None
     payload: dict[str, Any] | None = None
-    stale: bool = False           # True when breaker is open and we returned a cached row
+    stale: bool = False  # True when breaker is open and we returned a cached row
 
 
 def detect_indicator_type(value: str) -> str | None:
@@ -75,7 +75,9 @@ class ThreatIntelService:
         source = "hibp" if sniffed == "email" else "virustotal"
 
         cached = await self._iocs.get(
-            indicator=normalized, indicator_type=sniffed, source=source,
+            indicator=normalized,
+            indicator_type=sniffed,
+            source=source,
         )
         now = datetime.now(UTC)
         if cached and cached.expires_at > now:
@@ -86,14 +88,18 @@ class ThreatIntelService:
                 hit = await self._hibp.lookup_email(normalized)
                 ttl = _HIBP_POSITIVE_TTL if hit.reputation == "malicious" else _HIBP_NEGATIVE_TTL
                 await self._iocs.upsert(
-                    indicator=normalized, indicator_type="email", source="hibp",
+                    indicator=normalized,
+                    indicator_type="email",
+                    source="hibp",
                     reputation=hit.reputation,
                     payload={"breachCount": hit.breach_count, "breaches": hit.breaches},
                     ttl=ttl,
                 )
                 return IocResult(
-                    indicator=normalized, indicator_type="email",
-                    reputation=hit.reputation, source="hibp",
+                    indicator=normalized,
+                    indicator_type="email",
+                    reputation=hit.reputation,
+                    source="hibp",
                     last_checked=now,
                     breach_count=hit.breach_count,
                     payload={"breaches": hit.breaches},
@@ -110,7 +116,9 @@ class ThreatIntelService:
                 raise ValueError(f"unsupported indicator_type: {sniffed!r}")
 
             await self._iocs.upsert(
-                indicator=normalized, indicator_type=sniffed, source="virustotal",
+                indicator=normalized,
+                indicator_type=sniffed,
+                source="virustotal",
                 reputation=vt.reputation,
                 payload={
                     "counts": {
@@ -125,8 +133,10 @@ class ThreatIntelService:
                 ttl=_VT_TTL,
             )
             return IocResult(
-                indicator=normalized, indicator_type=sniffed,
-                reputation=vt.reputation, source="virustotal",
+                indicator=normalized,
+                indicator_type=sniffed,
+                reputation=vt.reputation,
+                source="virustotal",
                 last_checked=now,
                 payload={"counts": vt.counts.__dict__, "engines": vt.engines},
             )
@@ -139,13 +149,19 @@ class ThreatIntelService:
             raise
 
     async def search(
-        self, *, query: str | None, indicator_type: str | None,
-        page: int = 1, limit: int = 50,
+        self,
+        *,
+        query: str | None,
+        indicator_type: str | None,
+        page: int = 1,
+        limit: int = 50,
     ) -> tuple[list[IocResult], int]:
         offset = max(0, (page - 1) * limit)
         rows, total = await self._iocs.search(
-            query=query, indicator_type=indicator_type,
-            limit=limit, offset=offset,
+            query=query,
+            indicator_type=indicator_type,
+            limit=limit,
+            offset=offset,
         )
         return [_result_from_cache(r) for r in rows], total
 

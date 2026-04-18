@@ -139,7 +139,9 @@ def test_empty_alert_produces_defensible_zeros(
             assert f[name] == 0.0
 
 
-def test_path_depth_is_clipped(engineer: FeatureEngineerNoLeakage, adapter: WazuhAlertAdapter) -> None:
+def test_path_depth_is_clipped(
+    engineer: FeatureEngineerNoLeakage, adapter: WazuhAlertAdapter
+) -> None:
     doc = dict(SAMPLE_SYSCHECK_ALERT)
     src = dict(doc["_source"])
     syscheck = dict(src["syscheck"])
@@ -160,12 +162,14 @@ def test_to_array_respects_canonical_order(
 
     # selected_features_top25.json positions 0, 1, 2 = decoder_auditd,
     # firedtimes, location__var_log_audit_audit.log
-    assert arr[0] == 1.0        # decoder_auditd
-    assert arr[1] == 3.0        # firedtimes
-    assert arr[2] == 1.0        # location__var_log_audit_audit.log
+    assert arr[0] == 1.0  # decoder_auditd
+    assert arr[1] == 3.0  # firedtimes
+    assert arr[2] == 1.0  # location__var_log_audit_audit.log
 
 
-def test_text_inputs_cleaning(engineer: FeatureEngineerNoLeakage, adapter: WazuhAlertAdapter) -> None:
+def test_text_inputs_cleaning(
+    engineer: FeatureEngineerNoLeakage, adapter: WazuhAlertAdapter
+) -> None:
     alert = adapter.parse(SAMPLE_EMPTY_ALERT)
     cmd, log = engineer.text_inputs(alert)
     assert cmd == "[EMPTY]"

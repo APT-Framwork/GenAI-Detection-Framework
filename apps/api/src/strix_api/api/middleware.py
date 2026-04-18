@@ -41,7 +41,7 @@ _AUTH_EXEMPT_PREFIXES: tuple[str, ...] = (
     "/api/v1/openapi.json",
     "/api/v1/docs",
     "/api/v1/redoc",
-    "/docs",            # FastAPI's default docs alias
+    "/docs",  # FastAPI's default docs alias
     "/redoc",
     "/api/v1/auth/login",
     "/api/v1/auth/register",
@@ -61,7 +61,11 @@ _CSRF_HEADER = "X-CSRF-Token"
 
 
 def _problem_response(
-    request: Request, status_code: int, title: str, code: str, detail: str | None = None,
+    request: Request,
+    status_code: int,
+    title: str,
+    code: str,
+    detail: str | None = None,
 ) -> JSONResponse:
     body = Problem(
         type="about:blank",
@@ -90,7 +94,9 @@ class AuthMiddleware(BaseHTTPMiddleware):
         self._settings = settings or get_settings()
 
     async def dispatch(
-        self, request: Request, call_next: RequestResponseEndpoint,
+        self,
+        request: Request,
+        call_next: RequestResponseEndpoint,
     ) -> JSONResponse:
         if request.method == "OPTIONS":
             return await call_next(request)
@@ -113,18 +119,26 @@ class AuthMiddleware(BaseHTTPMiddleware):
 
         if not token:
             return _problem_response(
-                request, status.HTTP_401_UNAUTHORIZED,
-                "Unauthorized", "MISSING_TOKEN",
+                request,
+                status.HTTP_401_UNAUTHORIZED,
+                "Unauthorized",
+                "MISSING_TOKEN",
                 "no access token in Authorization header or strix_access cookie",
             )
 
         try:
             principal = decode_token(
-                settings=self._settings.auth, token=token, expected_typ="access",
+                settings=self._settings.auth,
+                token=token,
+                expected_typ="access",
             )
         except InvalidTokenError as exc:
             return _problem_response(
-                request, status.HTTP_401_UNAUTHORIZED, "Unauthorized", exc.code, exc.detail,
+                request,
+                status.HTTP_401_UNAUTHORIZED,
+                "Unauthorized",
+                exc.code,
+                exc.detail,
             )
 
         # Stash on the request scope so route handlers / deps can read it
@@ -141,7 +155,9 @@ class CsrfMiddleware(BaseHTTPMiddleware):
         self._settings = settings or get_settings()
 
     async def dispatch(
-        self, request: Request, call_next: RequestResponseEndpoint,
+        self,
+        request: Request,
+        call_next: RequestResponseEndpoint,
     ) -> JSONResponse:
         method = request.method.upper()
         if method not in _CSRF_METHODS:
@@ -161,8 +177,11 @@ class CsrfMiddleware(BaseHTTPMiddleware):
             )
         except CsrfMismatchError as exc:
             return _problem_response(
-                request, status.HTTP_403_FORBIDDEN, "CSRF Mismatch",
-                exc.code, exc.detail,
+                request,
+                status.HTTP_403_FORBIDDEN,
+                "CSRF Mismatch",
+                exc.code,
+                exc.detail,
             )
 
         return await call_next(request)

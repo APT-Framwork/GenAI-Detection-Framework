@@ -58,8 +58,8 @@ class EngineCounts:
 @dataclass(frozen=True)
 class VtLookup:
     indicator: str
-    indicator_type: str          # 'ip' | 'domain' | 'hash'
-    reputation: str              # 'malicious' | 'suspicious' | 'clean' | 'unknown'
+    indicator_type: str  # 'ip' | 'domain' | 'hash'
+    reputation: str  # 'malicious' | 'suspicious' | 'clean' | 'unknown'
     counts: EngineCounts
     engines: dict[str, str] = field(default_factory=dict)
     raw: dict[str, Any] = field(default_factory=dict)
@@ -140,7 +140,10 @@ class VirusTotalAdapter:
             raise VirusTotalError("VirusTotal circuit breaker open", transient=True) from exc
 
     def _handle_response(
-        self, indicator: str, indicator_type: str, resp: httpx.Response,
+        self,
+        indicator: str,
+        indicator_type: str,
+        resp: httpx.Response,
     ) -> VtLookup:
         if resp.status_code == 200:
             try:
@@ -172,8 +175,12 @@ class VirusTotalAdapter:
         if resp.status_code == 404:
             # Not in VT's database → unknown reputation, not an error.
             return VtLookup(
-                indicator=indicator, indicator_type=indicator_type,
-                reputation="unknown", counts=EngineCounts(), engines={}, raw={},
+                indicator=indicator,
+                indicator_type=indicator_type,
+                reputation="unknown",
+                counts=EngineCounts(),
+                engines={},
+                raw={},
             )
         if resp.status_code == 429:
             external_api_errors_total.labels(api="virustotal", error_kind="rate_limited").inc()
@@ -181,10 +188,12 @@ class VirusTotalAdapter:
         if resp.status_code in (401, 403):
             external_api_errors_total.labels(api="virustotal", error_kind="unauthorized").inc()
             raise VirusTotalError(
-                f"VT rejected the API key ({resp.status_code})", transient=False,
+                f"VT rejected the API key ({resp.status_code})",
+                transient=False,
             )
         external_api_errors_total.labels(
-            api="virustotal", error_kind=f"http_{resp.status_code}",
+            api="virustotal",
+            error_kind=f"http_{resp.status_code}",
         ).inc()
         raise VirusTotalError(f"VT returned HTTP {resp.status_code}", transient=True)
 

@@ -20,20 +20,23 @@ from strix_api.settings import ThreatIntelSettings
 # ---- indicator detection ---------------------------------------------
 
 
-@pytest.mark.parametrize("value, expected", [
-    ("alice@example.com", "email"),
-    ("bob+test@sub.example.co.uk", "email"),
-    ("8.8.8.8", "ip"),
-    ("192.168.1.1", "ip"),
-    ("2001:0db8:85a3:0000:0000:8a2e:0370:7334", "ip"),
-    ("example.com", "domain"),
-    ("phish.bad-actor.io", "domain"),
-    ("a" * 64, "hash"),
-    ("0123456789abcdef" * 4, "hash"),
-    ("not an indicator", None),
-    ("", None),
-    ("   ", None),
-])
+@pytest.mark.parametrize(
+    "value, expected",
+    [
+        ("alice@example.com", "email"),
+        ("bob+test@sub.example.co.uk", "email"),
+        ("8.8.8.8", "ip"),
+        ("192.168.1.1", "ip"),
+        ("2001:0db8:85a3:0000:0000:8a2e:0370:7334", "ip"),
+        ("example.com", "domain"),
+        ("phish.bad-actor.io", "domain"),
+        ("a" * 64, "hash"),
+        ("0123456789abcdef" * 4, "hash"),
+        ("not an indicator", None),
+        ("", None),
+        ("   ", None),
+    ],
+)
 def test_detect_indicator_type(value: str, expected: str | None) -> None:
     assert detect_indicator_type(value) == expected
 
@@ -46,7 +49,9 @@ def test_detect_distinguishes_hash_from_hex_email_lookalike() -> None:
 # ---- HIBP adapter ----------------------------------------------------
 
 
-def _ti_settings(*, hibp_key: str | None = "key", vt_key: str | None = "key") -> ThreatIntelSettings:
+def _ti_settings(
+    *, hibp_key: str | None = "key", vt_key: str | None = "key"
+) -> ThreatIntelSettings:
     return ThreatIntelSettings(
         hibp_api_key=hibp_key,
         hibp_user_agent="strix-test/1.0",
@@ -139,13 +144,18 @@ async def test_hibp_no_api_key_is_permanent_error() -> None:
 # ---- VirusTotal adapter ---------------------------------------------
 
 
-def _vt_response_body(*, malicious: int = 0, suspicious: int = 0, harmless: int = 0) -> dict[str, Any]:
+def _vt_response_body(
+    *, malicious: int = 0, suspicious: int = 0, harmless: int = 0
+) -> dict[str, Any]:
     return {
         "data": {
             "attributes": {
                 "last_analysis_stats": {
-                    "malicious": malicious, "suspicious": suspicious,
-                    "harmless": harmless, "undetected": 1, "timeout": 0,
+                    "malicious": malicious,
+                    "suspicious": suspicious,
+                    "harmless": harmless,
+                    "undetected": 1,
+                    "timeout": 0,
                 },
                 "last_analysis_results": {
                     "Engine_A": {"category": "malicious" if malicious else "harmless"},
@@ -157,7 +167,9 @@ def _vt_response_body(*, malicious: int = 0, suspicious: int = 0, harmless: int 
 
 @pytest.mark.asyncio
 async def test_vt_classifies_malicious() -> None:
-    transport = httpx.MockTransport(lambda req: httpx.Response(200, json=_vt_response_body(malicious=5)))
+    transport = httpx.MockTransport(
+        lambda req: httpx.Response(200, json=_vt_response_body(malicious=5))
+    )
     client = httpx.AsyncClient(transport=transport)
     try:
         adapter = VirusTotalAdapter(_ti_settings(), client=client)
@@ -216,6 +228,7 @@ async def test_vt_breaker_opens_on_repeated_500() -> None:
 def client() -> TestClient:
     os.environ.setdefault("DB_PASSWORD", "test")
     from strix_api.main import create_app
+
     return TestClient(create_app(), raise_server_exceptions=False)
 
 
@@ -229,7 +242,7 @@ def test_file_upload_rejects_empty(client: TestClient) -> None:
 
 
 def test_file_upload_rejects_oversized(client: TestClient) -> None:
-    huge = b"\x00" * (10 * 1024 * 1024 + 1)   # 10MB + 1 byte
+    huge = b"\x00" * (10 * 1024 * 1024 + 1)  # 10MB + 1 byte
     resp = client.post(
         "/api/v1/threat-intel/files/scan",
         files={"file": ("huge.bin", huge, "application/octet-stream")},
@@ -248,6 +261,7 @@ def test_file_upload_returns_synthetic_jobid_without_db(client: TestClient) -> N
     assert resp.status_code == 202
     body = resp.json()
     import hashlib
+
     assert body["sha256"] == hashlib.sha256(payload).hexdigest()
     assert body["sizeBytes"] == len(payload)
     assert body["status"] == "queued"

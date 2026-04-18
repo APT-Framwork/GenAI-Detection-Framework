@@ -126,10 +126,12 @@ async def generate_sentinel_insight(
                 result = await service.get_or_generate(force_refresh=True)
             except LlmError as exc:
                 external_api_errors_total.labels(
-                    api="llm", error_kind="insight_failed",
+                    api="llm",
+                    error_kind="insight_failed",
                 ).inc()
                 payload = {
-                    "jobId": job_id, "status": "error",
+                    "jobId": job_id,
+                    "status": "error",
                     "error": exc.detail or "llm_failed",
                 }
                 await redis.publish(job_channel(job_id), json.dumps(payload).encode("utf-8"))
@@ -170,6 +172,7 @@ async def file_scan(
         result = await vt.lookup_hash(sha256)
         async with session_scope() as session:
             from uuid import UUID
+
             await FileScanRepo(session).mark_complete(
                 UUID(scan_id),
                 vt_result={
@@ -204,11 +207,18 @@ async def file_scan(
         external_api_errors_total.labels(api="virustotal", error_kind="file_scan_failed").inc()
         async with session_scope() as session:
             from uuid import UUID
+
             await FileScanRepo(session).mark_complete(
-                UUID(scan_id), vt_result={"error": str(exc.detail)}, status="error",
+                UUID(scan_id),
+                vt_result={"error": str(exc.detail)},
+                status="error",
             )
-        payload = {"jobId": job_id, "scanId": scan_id, "status": "error",
-                   "error": exc.detail or "vt_failed"}
+        payload = {
+            "jobId": job_id,
+            "scanId": scan_id,
+            "status": "error",
+            "error": exc.detail or "vt_failed",
+        }
         await redis.publish(job_channel(job_id), json.dumps(payload).encode("utf-8"))
         log.error("file_scan_failed", exc_info=exc)
         return payload

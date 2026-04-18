@@ -40,6 +40,7 @@ def _resolve_default_mitre_path() -> Path:
       - $STRIX_MITRE_PATH env var override (operator escape hatch)
     """
     import os
+
     if env := os.environ.get("STRIX_MITRE_PATH"):
         return Path(env)
     here = Path(__file__).resolve()
@@ -144,7 +145,9 @@ def get_mitre_mapper(path: str | None = None) -> MitreMapper:
         tactic_id_to_ckc={k: _ckc_int(v) for k, v in raw.get("tactic_id_to_ckc", {}).items()},
         tactic_name_to_ckc={k: _ckc_int(v) for k, v in raw.get("tactic_name_to_ckc", {}).items()},
         technique_id_to_ckc={k: _ckc_int(v) for k, v in raw.get("technique_id_to_ckc", {}).items()},
-        technique_name_to_ckc={k: _ckc_int(v) for k, v in raw.get("technique_name_to_ckc", {}).items()},
+        technique_name_to_ckc={
+            k: _ckc_int(v) for k, v in raw.get("technique_name_to_ckc", {}).items()
+        },
     )
 
 

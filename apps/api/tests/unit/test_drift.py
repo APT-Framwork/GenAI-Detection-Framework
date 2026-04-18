@@ -95,11 +95,14 @@ def client() -> TestClient:
     # routes find registry.json in the test sandbox (default = /app/models
     # is the Docker container path).
     from pathlib import Path
+
     repo_root = Path(__file__).resolve().parents[4]
     os.environ["MODELS_PATH"] = str(repo_root / "apps" / "models")
     from strix_api.settings import get_settings
+
     get_settings.cache_clear()
     from strix_api.main import create_app
+
     return TestClient(create_app(), raise_server_exceptions=False)
 
 

@@ -84,8 +84,12 @@ class RateLimitedError(StrixError):
 
 
 def _problem_response(
-    request: Request, status_code: int, title: str, code: str,
-    detail: str | None = None, extra: dict[str, Any] | None = None,
+    request: Request,
+    status_code: int,
+    title: str,
+    code: str,
+    detail: str | None = None,
+    extra: dict[str, Any] | None = None,
     type_uri: str = "about:blank",
 ) -> JSONResponse:
     body = Problem(
@@ -106,8 +110,13 @@ def _problem_response(
 
 async def _strix_exception_handler(request: Request, exc: StrixError) -> JSONResponse:
     return _problem_response(
-        request, exc.status_code, exc.title, exc.code,
-        detail=exc.detail, extra=exc.extra, type_uri=exc.type_uri,
+        request,
+        exc.status_code,
+        exc.title,
+        exc.code,
+        detail=exc.detail,
+        extra=exc.extra,
+        type_uri=exc.type_uri,
     )
 
 
@@ -124,9 +133,7 @@ async def _validation_exception_handler(
     )
 
 
-async def _unhandled_exception_handler(
-    request: Request, exc: Exception
-) -> JSONResponse:
+async def _unhandled_exception_handler(request: Request, exc: Exception) -> JSONResponse:
     # Never leak stack traces to clients; logging already captured them.
     return _problem_response(
         request,

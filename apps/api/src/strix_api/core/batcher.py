@@ -81,9 +81,7 @@ class MicroBatcher(Generic[T_in, T_out]):
     async def start(self) -> None:
         if self._runner_task is not None:
             return
-        self._runner_task = asyncio.create_task(
-            self._run(), name=f"batcher.{self.name}"
-        )
+        self._runner_task = asyncio.create_task(self._run(), name=f"batcher.{self.name}")
 
     async def aclose(self) -> None:
         self._stop.set()
@@ -161,9 +159,7 @@ class MicroBatcher(Generic[T_in, T_out]):
             if self._stop.is_set():
                 return
             try:
-                await asyncio.wait_for(
-                    self._batch_event.wait(), timeout=max(deadline - now, 0.001)
-                )
+                await asyncio.wait_for(self._batch_event.wait(), timeout=max(deadline - now, 0.001))
             except TimeoutError:
                 return
             # Clear and loop — `submit` will re-set if it filled the batch.

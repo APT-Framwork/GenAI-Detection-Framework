@@ -111,9 +111,7 @@ class VerdictMessage(_StreamBase):
     # AE
     ae_anomaly_score: float
     ae_recon_error: float
-    ae_latent: list[float] = Field(
-        min_length=AE_LATENT_DIM, max_length=AE_LATENT_DIM
-    )
+    ae_latent: list[float] = Field(min_length=AE_LATENT_DIM, max_length=AE_LATENT_DIM)
 
     # VAE
     vae_malicious_prob: float
@@ -129,14 +127,10 @@ class VerdictMessage(_StreamBase):
     gnn_risk_growth: float
 
     # Assembled state + DQN decision
-    state_vector: list[float] = Field(
-        min_length=STATE_VECTOR_DIM, max_length=STATE_VECTOR_DIM
-    )
+    state_vector: list[float] = Field(min_length=STATE_VECTOR_DIM, max_length=STATE_VECTOR_DIM)
     dqn_action: int = Field(ge=0, lt=DQN_ACTION_SPACE)
     dqn_action_name: str
-    q_values: list[float] = Field(
-        min_length=DQN_ACTION_SPACE, max_length=DQN_ACTION_SPACE
-    )
+    q_values: list[float] = Field(min_length=DQN_ACTION_SPACE, max_length=DQN_ACTION_SPACE)
 
     model_versions: dict[str, str]
 

@@ -17,20 +17,20 @@ NodeType = Literal["server", "endpoint", "firewall", "database", "manager"]
 
 
 class TopologyNode(StrixBase):
-    id: str               # host_id (uuid string)
-    label: str            # agent_name
+    id: str  # host_id (uuid string)
+    label: str  # agent_name
     type: NodeType
     status: NodeStatus
     ip: str | None
     open_chains: int
-    max_ckc_stage: int    # 0..7; 0 = nothing seen
+    max_ckc_stage: int  # 0..7; 0 = nothing seen
 
 
 class TopologyEdge(StrixBase):
-    id: str               # `${source}::${target}`
+    id: str  # `${source}::${target}`
     source: str
     target: str
-    chain_count: int      # how many chains tied these two hosts together
+    chain_count: int  # how many chains tied these two hosts together
     type: Literal["normal", "malicious"]
 
 

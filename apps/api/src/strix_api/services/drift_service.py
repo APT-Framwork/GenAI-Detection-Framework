@@ -39,9 +39,9 @@ from strix_api.settings import Settings
 log = get_logger("strix_api.services.drift_service")
 
 # Histogram bins on [0, 1] — 10 buckets of width 0.1
-_BIN_EDGES: list[float] = [i / 10.0 for i in range(11)]   # 0.0, 0.1, …, 1.0
+_BIN_EDGES: list[float] = [i / 10.0 for i in range(11)]  # 0.0, 0.1, …, 1.0
 _BIN_COUNT = len(_BIN_EDGES) - 1
-_EPSILON = 1e-9    # smoothing to avoid log(0) / divide-by-0
+_EPSILON = 1e-9  # smoothing to avoid log(0) / divide-by-0
 
 
 @dataclass(frozen=True)
@@ -97,7 +97,11 @@ def load_baseline(models_path: Path) -> dict[str, list[float]]:
         if isinstance(hist, list) and len(hist) == _BIN_COUNT:
             out[model] = [float(x) for x in hist]
         else:
-            log.warning("drift_baseline_wrong_shape", model=model, len=len(hist) if hasattr(hist,'__len__') else None)
+            log.warning(
+                "drift_baseline_wrong_shape",
+                model=model,
+                len=len(hist) if hasattr(hist, "__len__") else None,
+            )
     return out
 
 
@@ -108,10 +112,12 @@ class DriftService:
         self._s = session
         self._settings = settings
         self._baseline = load_baseline(settings.models.path)
-        self._threshold = 0.2   # rough — tune against P8-5 baseline alert
+        self._threshold = 0.2  # rough — tune against P8-5 baseline alert
 
     async def compute_for_window(
-        self, *, window_minutes: int = 60,
+        self,
+        *,
+        window_minutes: int = 60,
     ) -> list[DriftReport]:
         """Pull recent score columns, histogram them, compute KL vs baseline,
         update the Prometheus gauge per model. Returns a report per model."""
@@ -151,12 +157,14 @@ class DriftService:
                 live_hist = histogram(present)
                 kl = kl_divergence(live_hist, self._baseline[model])
             score_distribution_kl_divergence.labels(model=model).set(kl)
-            reports.append(DriftReport(
-                model=model,
-                samples=len(present),
-                kl_divergence=kl,
-                above_threshold=kl > self._threshold,
-            ))
+            reports.append(
+                DriftReport(
+                    model=model,
+                    samples=len(present),
+                    kl_divergence=kl,
+                    above_threshold=kl > self._threshold,
+                )
+            )
         return reports
 
 

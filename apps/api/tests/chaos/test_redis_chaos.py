@@ -39,8 +39,10 @@ def _toxic(name: str, attrs: dict[str, int]) -> dict:
 def latency_500ms_then_clear():
     """Inject 500ms latency into the redis-proxy, then remove on teardown."""
     with httpx.Client(timeout=5.0) as c:
-        c.post(f"{TOXIPROXY}/proxies/redis-proxy/toxics",
-               json=_toxic("latency", {"latency": 500, "jitter": 100}))
+        c.post(
+            f"{TOXIPROXY}/proxies/redis-proxy/toxics",
+            json=_toxic("latency", {"latency": 500, "jitter": 100}),
+        )
         try:
             yield
         finally:
@@ -59,9 +61,10 @@ def test_dashboard_still_responds_under_redis_latency(latency_500ms_then_clear):
 def test_dashboard_falls_back_when_redis_down():
     """Drop the redis-proxy entirely; routes return empty shapes, not 500s."""
     with httpx.Client(timeout=5.0) as admin:
-        admin.post(f"{TOXIPROXY}/proxies/redis-proxy",
-                   json={"enabled": False, "listen": "0.0.0.0:26379",
-                         "upstream": "redis:6379"})
+        admin.post(
+            f"{TOXIPROXY}/proxies/redis-proxy",
+            json={"enabled": False, "listen": "0.0.0.0:26379", "upstream": "redis:6379"},
+        )
     try:
         with httpx.Client(base_url=API_BASE, timeout=5.0) as c:
             r = c.get("/api/v1/dashboard/attack-vector")
@@ -70,6 +73,7 @@ def test_dashboard_falls_back_when_redis_down():
             assert body["totalAlerts"] == 0
     finally:
         with httpx.Client(timeout=5.0) as admin:
-            admin.post(f"{TOXIPROXY}/proxies/redis-proxy",
-                       json={"enabled": True, "listen": "0.0.0.0:26379",
-                             "upstream": "redis:6379"})
+            admin.post(
+                f"{TOXIPROXY}/proxies/redis-proxy",
+                json={"enabled": True, "listen": "0.0.0.0:26379", "upstream": "redis:6379"},
+            )

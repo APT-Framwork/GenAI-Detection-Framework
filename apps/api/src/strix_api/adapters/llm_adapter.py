@@ -99,7 +99,7 @@ class LlmAdapter:
         client: Any | None = None,
     ) -> None:
         self._settings = settings
-        self._client = client            # `None` when no key — every call raises
+        self._client = client  # `None` when no key — every call raises
         self._breaker = pybreaker.CircuitBreaker(
             fail_max=5,
             reset_timeout=30,
@@ -202,15 +202,19 @@ class LlmAdapter:
                         {
                             "role": "user",
                             "content": _format_livefeed_user_message(
-                                mitre_techniques, decoder, rule_id,
+                                mitre_techniques,
+                                decoder,
+                                rule_id,
                             ),
                         }
                     ],
                 )
             text = _extract_first_text(resp)
             return LlmSummary(
-                summary=text.strip()[:140] or _fallback_summary(
-                    mitre_techniques=mitre_techniques, decoder=decoder,
+                summary=text.strip()[:140]
+                or _fallback_summary(
+                    mitre_techniques=mitre_techniques,
+                    decoder=decoder,
                 ),
                 model_version=self._settings.livefeed_model,
             )
@@ -234,6 +238,7 @@ class LlmAdapter:
 
 def _format_sentinel_user_message(payload: dict[str, Any]) -> str:
     import json
+
     return (
         "Here is the latest STRIX activity snapshot. Respond with JSON ONLY.\n\n"
         f"{json.dumps(payload, indent=2, default=str, sort_keys=True)}"
@@ -241,7 +246,9 @@ def _format_sentinel_user_message(payload: dict[str, Any]) -> str:
 
 
 def _format_livefeed_user_message(
-    mitre_techniques: list[str], decoder: str | None, rule_id: str | None,
+    mitre_techniques: list[str],
+    decoder: str | None,
+    rule_id: str | None,
 ) -> str:
     parts = []
     if mitre_techniques:
@@ -250,18 +257,22 @@ def _format_livefeed_user_message(
         parts.append(f"Wazuh decoder: {decoder}")
     if rule_id:
         parts.append(f"Rule id: {rule_id}")
-    return ("Summarise this single alert in one short sentence:\n"
-            + "\n".join(parts))
+    return "Summarise this single alert in one short sentence:\n" + "\n".join(parts)
 
 
 def _summary_cache_key(
-    *, mitre_techniques: list[str], decoder: str | None, rule_id: str | None,
+    *,
+    mitre_techniques: list[str],
+    decoder: str | None,
+    rule_id: str | None,
 ) -> str:
-    raw = "|".join([
-        ",".join(sorted(mitre_techniques)),
-        (decoder or ""),
-        (rule_id or ""),
-    ]).encode("utf-8")
+    raw = "|".join(
+        [
+            ",".join(sorted(mitre_techniques)),
+            (decoder or ""),
+            (rule_id or ""),
+        ]
+    ).encode("utf-8")
     return hashlib.sha1(raw, usedforsecurity=False).hexdigest()
 
 
@@ -332,8 +343,8 @@ _MISSING = object()
 
 def _make_summary_cache(maxsize: int) -> Any:
     """Returns a callable `cache(key, _set=value)`:
-       - get: cache(key) → cached value or _MISSING
-       - put: cache(key, _set=value) → stores value
+    - get: cache(key) → cached value or _MISSING
+    - put: cache(key, _set=value) → stores value
     """
     store: dict[str, LlmSummary] = {}
 
@@ -346,7 +357,7 @@ def _make_summary_cache(maxsize: int) -> Any:
             return _set
         return store.get(key, _MISSING)
 
-    _cache.size = lambda: len(store)        # type: ignore[attr-defined]
+    _cache.size = lambda: len(store)  # type: ignore[attr-defined]
     return _cache
 
 

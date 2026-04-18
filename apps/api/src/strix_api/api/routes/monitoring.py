@@ -44,7 +44,7 @@ def _registry_models(settings: Any) -> list[ModelHealth]:
         state = load_registry(
             settings.models.registry_path,
             settings.models.path,
-            verify_checksums=False,        # API surface; checksums verified at worker boot
+            verify_checksums=False,  # API surface; checksums verified at worker boot
         )
     except StrixError as exc:
         log.warning("monitoring_models_registry_unavailable", reason=exc.detail)
@@ -52,13 +52,15 @@ def _registry_models(settings: Any) -> list[ModelHealth]:
     out: list[ModelHealth] = []
     for entry in state.models.values():
         status = "degraded" if state.missing_artifacts else "active"
-        out.append(ModelHealth(
-            name=entry.name,
-            version=entry.version,
-            weights_sha256=entry.weights_sha256,
-            status=status,
-            last_health_check=_now_iso(),
-        ))
+        out.append(
+            ModelHealth(
+                name=entry.name,
+                version=entry.version,
+                weights_sha256=entry.weights_sha256,
+                status=status,
+                last_health_check=_now_iso(),
+            )
+        )
     return out
 
 
@@ -124,8 +126,13 @@ async def confidence_trend(
 ) -> ConfidenceTrendResponse:
     if session is None:
         return ConfidenceTrendResponse(window=window, points=[])
-    interval = {"15m": "15 minutes", "1h": "1 hour",
-                "24h": "24 hours", "7d": "7 days", "all": "100 years"}.get(window, "7 days")
+    interval = {
+        "15m": "15 minutes",
+        "1h": "1 hour",
+        "24h": "24 hours",
+        "7d": "7 days",
+        "all": "100 years",
+    }.get(window, "7 days")
     try:
         result = await session.execute(
             text(
@@ -180,7 +187,8 @@ async def drift(
         window_minutes=window_minutes,
         items=[
             DriftReportItem(
-                model=r.model, samples=r.samples,
+                model=r.model,
+                samples=r.samples,
                 kl_divergence=r.kl_divergence,
                 above_threshold=r.above_threshold,
             )

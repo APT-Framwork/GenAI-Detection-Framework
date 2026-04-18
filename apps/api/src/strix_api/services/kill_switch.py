@@ -23,7 +23,7 @@ _KEY = "strix:auto_response:kill_switch"
 
 @dataclass(frozen=True)
 class KillSwitchState:
-    engaged: bool         # True → block all auto-applies
+    engaged: bool  # True → block all auto-applies
     set_by: str | None
     set_at: str | None
 
@@ -56,6 +56,7 @@ class KillSwitchService:
 
     async def engage(self, *, by: str) -> None:
         from datetime import datetime
+
         async with self._r.pipeline(transaction=False) as pipe:
             await pipe.set(_KEY, "on")
             await pipe.set(_KEY + ":set_by", by)
@@ -64,6 +65,7 @@ class KillSwitchService:
 
     async def disengage(self, *, by: str) -> None:
         from datetime import datetime
+
         async with self._r.pipeline(transaction=False) as pipe:
             await pipe.set(_KEY, "off")
             await pipe.set(_KEY + ":set_by", by)

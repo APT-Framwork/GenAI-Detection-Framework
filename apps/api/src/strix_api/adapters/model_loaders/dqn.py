@@ -82,14 +82,10 @@ class DqnLoader:
         sd = ckpt["q_network_state_dict"]
         first_w = sd.get("network.0.weight")
         if first_w is None:
-            raise ModelRegistryError(
-                "DQN q_network state_dict missing 'network.0.weight'"
-            )
+            raise ModelRegistryError("DQN q_network state_dict missing 'network.0.weight'")
         actual_state = first_w.shape[1]
         if actual_state != expected_state_dim:
-            raise ModelRegistryError(
-                f"DQN state_dim={actual_state}, expected {expected_state_dim}"
-            )
+            raise ModelRegistryError(f"DQN state_dim={actual_state}, expected {expected_state_dim}")
 
         # Last linear layer's output gives action_dim. Find it (highest index).
         last_w_key = max(
@@ -128,11 +124,9 @@ class DqnLoader:
     def decide(self, state: np.ndarray) -> DqnDecision:
         """Greedy action over a single state vector."""
         if state.shape != (STATE_VECTOR_DIM,):
-            raise ValueError(
-                f"DQN expects state shape ({STATE_VECTOR_DIM},); got {state.shape}"
-            )
+            raise ValueError(f"DQN expects state shape ({STATE_VECTOR_DIM},); got {state.shape}")
         x = torch.from_numpy(state.astype(np.float32, copy=False)).to(self._device)
-        q = self._model(x.unsqueeze(0))[0]   # (5,)
+        q = self._model(x.unsqueeze(0))[0]  # (5,)
         action_idx = int(torch.argmax(q).item())
         action = DqnAction(action_idx)
         dqn_action_total.labels(action_name=action.name).inc()
@@ -145,21 +139,21 @@ class DqnLoader:
     def decide_batch(self, states: np.ndarray) -> list[DqnDecision]:
         """Greedy actions over a batch of state vectors. Used by the inference batcher."""
         if states.ndim != 2 or states.shape[1] != STATE_VECTOR_DIM:
-            raise ValueError(
-                f"DQN expects (B, {STATE_VECTOR_DIM}); got {states.shape}"
-            )
+            raise ValueError(f"DQN expects (B, {STATE_VECTOR_DIM}); got {states.shape}")
         x = torch.from_numpy(states.astype(np.float32, copy=False)).to(self._device)
-        q = self._model(x)                     # (B, 5)
+        q = self._model(x)  # (B, 5)
         actions = torch.argmax(q, dim=-1)
         decisions: list[DqnDecision] = []
         for i in range(states.shape[0]):
             a_idx = int(actions[i].item())
             action = DqnAction(a_idx)
             dqn_action_total.labels(action_name=action.name).inc()
-            decisions.append(DqnDecision(
-                action=action,
-                q_values=q[i].cpu().numpy().astype(np.float32, copy=False),
-            ))
+            decisions.append(
+                DqnDecision(
+                    action=action,
+                    q_values=q[i].cpu().numpy().astype(np.float32, copy=False),
+                )
+            )
         return decisions
 
     def _warmup(self) -> None:
