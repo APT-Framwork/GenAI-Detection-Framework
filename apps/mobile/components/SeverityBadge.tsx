@@ -1,6 +1,6 @@
 import { View, Text, StyleSheet } from "react-native";
 import { colors, typography, radius } from "../lib/theme";
-import type { Severity } from "../lib/mock-data";
+import type { Severity } from "../lib/api/hooks";
 
 const severityConfig: Record<
   Severity,
@@ -12,22 +12,28 @@ const severityConfig: Record<
     label: "Critical",
     dot: colors.critical,
   },
-  warning: {
+  high: {
+    bg: colors.criticalBg,
+    text: colors.critical,
+    label: "High",
+    dot: colors.critical,
+  },
+  medium: {
     bg: colors.warningBg,
     text: colors.warning,
-    label: "Warning",
+    label: "Medium",
     dot: colors.warning,
   },
-  info: {
+  low: {
     bg: colors.infoBg,
     text: colors.info,
-    label: "Info",
+    label: "Low",
     dot: colors.info,
   },
-  update: {
+  info: {
     bg: colors.successBg,
     text: colors.primary,
-    label: "Update",
+    label: "Info",
     dot: colors.primary,
   },
 };

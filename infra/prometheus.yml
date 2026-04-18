@@ -1,0 +1,21 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: strix_api
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["api:8000"]
+        labels:
+          service: strix-api
+
+  - job_name: strix_workers
+    metrics_path: /metrics
+    static_configs:
+      - targets:
+          - "normalizer:9090"
+          - "inference:9090"
+          - "verdicts_writer:9090"
+        labels:
+          service: strix-workers

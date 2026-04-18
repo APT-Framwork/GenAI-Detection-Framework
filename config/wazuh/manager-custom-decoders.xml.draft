@@ -1,0 +1,23 @@
+<!--
+  ============================================================================
+  DRAFT — NOT DEPLOYED — INTENTIONALLY EMPTY
+  ============================================================================
+  File:    manager-custom-decoders.xml.draft
+  Purpose: Placeholder. NO custom decoders are required to reproduce the
+           training-dataset schema. Every `_source.*` field the ML models
+           consume is already produced by Wazuh's built-in decoders
+           (auditd, syscheck, pam, sudo, sshd, dpkg-decoder, web-accesslog,
+           sca, ossec, rootcheck, systemd, kernel).
+           See docs/WAZUH_MAPPING.md §10.
+
+  Keep this file so that future log sources (e.g. Suricata eve.json,
+  an internal application log) can register their decoders here without
+  having to create the file from scratch.
+
+  Target:  /var/ossec/etc/decoders/local_decoder.xml  on the manager.
+
+  Review & sign-off required before any real deployment.
+  ============================================================================
+-->
+
+<!-- (no decoders yet) -->

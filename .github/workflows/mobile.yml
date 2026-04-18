@@ -1,0 +1,102 @@
+name: mobile
+
+on:
+  pull_request:
+    paths:
+      - "apps/mobile/**"
+      - "apps/api/**"              # auth/alerts/monitoring contracts → mobile hooks
+      - ".github/workflows/mobile.yml"
+  push:
+    branches: [main, Platforme]
+    paths:
+      - "apps/mobile/**"
+      - "apps/api/**"
+      - ".github/workflows/mobile.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: mobile-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # --------------------------------------------------------------- TS + lint
+  typecheck:
+    name: tsc --noEmit
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/mobile
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: apps/mobile/package-lock.json
+
+      - name: Install dependencies
+        # --legacy-peer-deps: Expo SDK peer ranges lag behind RN majors
+        # occasionally — matches how an Expo dev installs locally.
+        run: npm install --legacy-peer-deps
+
+      - name: TypeScript check
+        run: npx tsc --noEmit
+
+  # --------------------------------------------------------------- EAS preview
+  #
+  # Builds a shareable preview binary (iOS + Android) on every push to
+  # main/Platforme. Skipped on PRs to avoid burning EAS build minutes.
+  # Requires an `EXPO_TOKEN` secret configured in the repo/org.
+  eas-preview:
+    name: EAS preview build
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    defaults:
+      run:
+        working-directory: apps/mobile
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: apps/mobile/package-lock.json
+
+      - name: Ensure EXPO_TOKEN is set
+        id: check_token
+        run: |
+          if [ -z "${{ secrets.EXPO_TOKEN }}" ]; then
+            echo "EXPO_TOKEN not configured; skipping EAS build."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Setup EAS
+        if: steps.check_token.outputs.skip == 'false'
+        uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Install dependencies
+        if: steps.check_token.outputs.skip == 'false'
+        run: npm install --legacy-peer-deps
+
+      - name: EAS build — preview profile (non-blocking)
+        if: steps.check_token.outputs.skip == 'false'
+        # `--non-interactive --no-wait` queues the build on EAS and returns
+        # immediately. The build status + download URL appear in the EAS
+        # dashboard; failures don't fail CI while the preview channel is
+        # still being tuned.
+        continue-on-error: true
+        run: |
+          eas build \
+            --profile preview \
+            --platform all \
+            --non-interactive \
+            --no-wait

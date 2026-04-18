@@ -1,0 +1,61 @@
+name: security
+
+on:
+  pull_request:
+  push:
+    branches: [main, Platforme]
+  schedule:
+    # Weekly Monday 03:00 UTC so new CVEs get flagged without blocking PRs
+    - cron: "0 3 * * 1"
+  workflow_dispatch:
+
+concurrency:
+  group: security-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  pip-audit:
+    name: pip-audit (apps/api)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: install pip-audit
+        run: pip install pip-audit
+      - name: audit apps/api
+        working-directory: apps/api
+        # Don't fail PRs for vuln-only findings yet — warn in logs.
+        # Flip `continue-on-error: false` once Phase 8 P8-3 lands.
+        continue-on-error: true
+        run: pip-audit --strict --progress-spinner=off .
+
+  npm-audit:
+    name: npm audit (apps/web)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with: { version: 9 }
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: pnpm
+          cache-dependency-path: apps/web/pnpm-lock.yaml
+      - working-directory: apps/web
+        run: pnpm install --frozen-lockfile
+      - working-directory: apps/web
+        continue-on-error: true
+        run: pnpm audit --audit-level=high
+
+  gitleaks:
+    name: gitleaks (secrets scan)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

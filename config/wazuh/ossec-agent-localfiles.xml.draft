@@ -1,0 +1,99 @@
+<!--
+  ============================================================================
+  DRAFT — NOT DEPLOYED
+  ============================================================================
+  File:    ossec-agent-localfiles.xml.draft
+  Purpose: <localfile> + <syscheck> stanzas each STRIX Wazuh agent needs so
+           that its alerts populate the same set of `_source.*` fields the
+           ML models were trained on.
+  Target:  merge into /var/ossec/etc/ossec.conf on each agent (inside the
+           <ossec_config> root element).
+  Source of truth for the log-source list:
+           docs/DATASET_SCHEMA.md §3  (top-15 locations observed in training)
+           docs/WAZUH_MAPPING.md §7   (syscheck paths and FIM modes)
+
+  Review & sign-off required before any real deployment.
+  ============================================================================
+-->
+
+<!-- Linux auditd  →  _source.decoder.name=auditd, _source.location=/var/log/audit/audit.log -->
+<localfile>
+  <log_format>audit</log_format>
+  <location>/var/log/audit/audit.log</location>
+</localfile>
+
+<!-- Apache access log  →  decoder=web-accesslog, location=/var/log/apache2/access.log -->
+<localfile>
+  <log_format>apache</log_format>
+  <location>/var/log/apache2/access.log</location>
+</localfile>
+
+<!-- Auth log (PAM, sudo, sshd)  →  decoders=pam/sudo/sshd, location=/var/log/auth.log -->
+<localfile>
+  <log_format>syslog</log_format>
+  <location>/var/log/auth.log</location>
+</localfile>
+<localfile>
+  <log_format>syslog</log_format>
+  <location>/var/log/auth.log.1</location>
+</localfile>
+
+<!-- dpkg package events  →  decoder=dpkg-decoder, location=/var/log/dpkg.log -->
+<localfile>
+  <log_format>syslog</log_format>
+  <location>/var/log/dpkg.log</location>
+</localfile>
+
+<!-- Syslog general  →  various decoders, location=/var/log/syslog -->
+<localfile>
+  <log_format>syslog</log_format>
+  <location>/var/log/syslog</location>
+</localfile>
+
+<!-- Kernel messages  →  decoder=kernel, location=/var/log/kern.log -->
+<localfile>
+  <log_format>syslog</log_format>
+  <location>/var/log/kern.log</location>
+</localfile>
+
+<!-- Netstat listening ports (Wazuh active command) -->
+<localfile>
+  <log_format>full_command</log_format>
+  <command>netstat -tulpn | sed 's/\([[:alnum:]]\+\)\s*\([[:digit:]]*\)/\1 \2/g'</command>
+  <alias>netstat listening ports</alias>
+  <frequency>360</frequency>
+</localfile>
+
+<!-- File Integrity Monitoring (syscheck)
+     Training-dataset coverage: /etc /usr/bin /usr/sbin /bin /sbin /var/www
+     → populates _source.syscheck.* fields.
+     realtime="yes" is required for the syscheck_{added,modified,deleted} features
+     to fire with minimal latency; whodata="yes" on /var/www gets us the auditor
+     context for web-shell drops. -->
+<syscheck>
+  <disabled>no</disabled>
+  <frequency>43200</frequency>
+  <scan_on_start>yes</scan_on_start>
+
+  <directories check_all="yes" realtime="yes">/etc</directories>
+  <directories check_all="yes" realtime="yes">/usr/bin</directories>
+  <directories check_all="yes" realtime="yes">/usr/sbin</directories>
+  <directories check_all="yes" realtime="yes">/bin</directories>
+  <directories check_all="yes" realtime="yes">/sbin</directories>
+  <directories check_all="yes" whodata="yes">/var/www</directories>
+
+  <!-- Noise suppression (optional, commented out in the draft) -->
+  <!--
+  <ignore>/etc/mtab</ignore>
+  <ignore>/etc/random-seed</ignore>
+  <ignore>/etc/adjtime</ignore>
+  -->
+</syscheck>
+
+<!-- Security Configuration Assessment  →  populates _source.data.sca.* when enabled -->
+<sca>
+  <enabled>yes</enabled>
+  <scan_on_start>yes</scan_on_start>
+  <interval>12h</interval>
+  <skip_nfs>yes</skip_nfs>
+</sca>

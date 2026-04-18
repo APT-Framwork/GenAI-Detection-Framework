@@ -1,0 +1,73 @@
+# Prometheus alert rules for STRIX (P8-5 + P8-7).
+#
+# Mount via prometheus.yml:
+#   rule_files:
+#     - "/etc/prometheus/alerts.yml"
+#
+# Each alert references the matching runbook in docs/runbooks/.
+
+groups:
+  - name: strix_streams
+    interval: 30s
+    rules:
+      - alert: StrixStreamBacklog
+        expr: strix_stream_depth > 10000
+        for: 30s
+        labels:
+          severity: warning
+        annotations:
+          summary: "Stream {{ $labels.stream }} backlog > 10k for 30s"
+          runbook: "docs/runbooks/redis-backlog.md"
+
+  - name: strix_latency
+    interval: 30s
+    rules:
+      - alert: StrixInferenceP99High
+        expr: |
+          histogram_quantile(
+            0.99,
+            sum(rate(strix_inference_duration_seconds_bucket[5m])) by (le, model)
+          ) > 0.5
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "{{ $labels.model }} inference p99 > 500ms for 5m"
+          runbook: "docs/runbooks/inference-slow.md"
+
+  - name: strix_external
+    interval: 60s
+    rules:
+      - alert: StrixUpstreamErrors
+        expr: |
+          sum(rate(strix_external_api_errors_total[5m])) by (api) > 0.5
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "{{ $labels.api }} error rate > 0.5/s for 5m"
+          runbook: "docs/runbooks/external-api-down.md"
+
+  - name: strix_drift
+    interval: 5m
+    rules:
+      - alert: StrixModelDrift
+        expr: strix_score_distribution_kl_divergence > 0.2
+        for: 30m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Model {{ $labels.model }} drifting (KL > 0.2 for 30m)"
+          runbook: "docs/runbooks/model-drift.md"
+
+  - name: strix_chains
+    interval: 60s
+    rules:
+      - alert: StrixManyChainsOpen
+        expr: strix_session_active_count > 100
+        for: 5m
+        labels:
+          severity: info
+        annotations:
+          summary: "More than 100 active attack chains for 5m"
+          runbook: "docs/runbooks/many-active-chains.md"

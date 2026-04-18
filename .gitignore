@@ -27,6 +27,8 @@ downloads/
 eggs/
 .eggs/
 lib/
+!apps/web/lib/
+!apps/web/lib/**
 lib64/
 parts/
 sdist/
@@ -220,3 +222,5 @@ __marimo__/
 
 apps/mobile/node_modules
 apps/data
+
+RL_agent

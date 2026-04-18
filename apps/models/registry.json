@@ -1,0 +1,160 @@
+{
+  "$schema": "./registry.schema.json",
+  "registryVersion": 4,
+  "generatedAt": "2026-04-17T00:00:00Z",
+  "notes": "§5.9 manifest. SHA-256 verified at worker startup when MODELS_VERIFY_CHECKSUMS=true.",
+  "inputSchemaVersion": "v1",
+
+  "verifiedSchema": {
+    "featureVectorDim": 55,
+    "aeLatentDim": 64,
+    "vaeLatentDim": 32,
+    "stateVectorDim": 13,
+    "dqnActionSpace": 5,
+    "canonicalFeatureOrdering": "selected_features_top25.json",
+    "evidence": "Direct state_dict inspection confirms AE/VAE/GNN take 55-dim input; Transformer takes 64-dim AE latent; DQN takes 13-dim state with 5 actions. All 4 apps/models/*.pth files are byte-identical to their origin/models:*_top25* counterparts (see provenance below)."
+  },
+
+  "weightsProvenance": {
+    "ae":          {"identicalTo": "origin/models:reg_ae_top25_features.pth"},
+    "vae":         {"identicalTo": "origin/models:beta_vae_top25_features_32dim.pth",
+                    "variant": "Beta-VAE (Top 25), latent_dim=32"},
+    "transformer": {"identicalTo": "origin/models:transformer_next_step_prediction_top25.pth"},
+    "gnn":         {"identicalTo": "origin/models:gnn_propagation_best_no_rule.pth",
+                    "variant": "GNN Part-2: RETRAINED WITHOUT rule_level feature"},
+    "dqn":         {"source": "RL training run; matches hyperparameters.state_dim=13, action_dim=5"}
+  },
+
+  "models": {
+    "ae": {
+      "name": "AE",
+      "version": "v1",
+      "file": "ae_model.pth",
+      "weightsSha256": "346df3dae48c04704058e25283790c6ccf0a7b1701daa852769fad1ae7e2c51a",
+      "sizeBytes": 501560,
+      "trainedOn": "TP1_AE_FeatureSelection.ipynb",
+      "architecture": { "type": "autoencoder", "inputDim": 55, "latentDim": 64, "activation": "LeakyReLU(0.2)" },
+      "loaderFixes": ["LeakyReLU matches training (MODELS_REFERENCE §11)"]
+    },
+    "vae": {
+      "name": "VAE",
+      "version": "v1",
+      "file": "vae_model.pth",
+      "weightsSha256": "3efd641071837a04bfc61a5c279f6fe03fef16bb4ee85975c6ab9067b1f7adfd",
+      "sizeBytes": 1638282,
+      "trainedOn": "TP2_VAE_FeatureSelection.ipynb",
+      "architecture": { "type": "beta-vae", "inputDim": 55, "hiddenDims": [512, 256, 128], "latentDim": 32, "hasCenter": true, "beta": 0.5, "gamma": 0.01 },
+      "loaderFixes": ["Use calibrator key 'Beta-VAE (Top 25)' from probability_calibrators.pkl as malicious_prob source (not the heuristic)."]
+    },
+    "transformer": {
+      "name": "TRANSFORMER",
+      "version": "v1",
+      "file": "transformer_model.pth",
+      "weightsSha256": "e301df22101a5895b98d9cb243dfdb3db3c727c3026cfa0198289ed8a60f6fa4",
+      "sizeBytes": 3523409,
+      "trainedOn": "TP2_MLA_TE.ipynb",
+      "architecture": { "type": "transformer-ckc-predictor", "inputLatentDim": 64, "numCkcStages": 8, "activation": "gelu", "normFirst": true },
+      "loaderFixes": [
+        "activation=gelu (was default relu)",
+        "norm_first=true (was default false)",
+        "input_projection = Linear -> LayerNorm -> ReLU -> Dropout(0.1)"
+      ]
+    },
+    "gnn": {
+      "name": "GNN",
+      "version": "v1",
+      "file": "gnn_model.pth",
+      "weightsSha256": "56699c2cb0dd0f6b6cd76322623e99223c7a586a0e4b2ae0ad02e1cd62629b17",
+      "sizeBytes": 369817,
+      "trainedOn": "GNN_Network_Propagation.ipynb  (Part 2 — no rule_level)",
+      "architecture": { "type": "apt-propagation-gnn", "inChannels": 55, "hidden": 128, "layers": 3, "dropout": 0.3 },
+      "loaderFixes": ["threshold must come from a Part-2 gnn_metadata.pkl (currently Part-1 uploaded — see preprocessingArtifacts.gnn_metadata)"]
+    },
+    "dqn": {
+      "name": "DQN",
+      "version": "v1",
+      "file": "rl_agent.pth",
+      "weightsSha256": "d498f333f8648cad9a6c515e1a82ac9b472dff48473caa52483a23a00849be66",
+      "sizeBytes": 176089,
+      "trainedOn": "RL_agent/",
+      "architecture": { "type": "dqn", "stateDim": 13, "actionSpace": 5, "hiddenDims": [128, 64], "actionLabels": ["MONITOR","LOW_ALERT","ESCALATE","ISOLATE_HOST","BLOCK_USER_IP"] },
+      "loaderFixes": [],
+      "checkpointFormat": "dict with keys: q_network_state_dict, target_network_state_dict, optimizer_state_dict, epsilon, steps_done, episodes_done, hyperparameters"
+    }
+  },
+
+  "preprocessingArtifacts": {
+    "selected_features_top25": {
+      "file": "selected_features_top25.json",
+      "status": "PRESENT",
+      "sourceBranch": "origin/RL-project",
+      "sourcePath": "MLA_PROJET_RL/vae_anomaly_detector_outputs/selected_features_top25.json (identical copy also in autoencoder_outputs/)",
+      "sha256": "265eafafd0ab37d13da84459c8e69740a6cef3f09fcc3fd3cb46f5c53f926b11",
+      "sizeBytes": 2199,
+      "contents": "{ n_conceptual_features: 25, n_actual_columns: 55, log_secbert_dims: 16, cmd_secbert_dims: 16, n_individual_features: 23, individual_features: [...], all_selected_columns: [23 individual] + [log_secbert_emb_0..15 numeric order] + [cmd_secbert_emb_0..15 numeric order] }",
+      "usage": "CANONICAL 55-column feature ordering. Resolves constraint C6. Every model that takes the 55-dim vector (AE, VAE, GNN) must consume it in this order."
+    },
+    "probability_calibrators": {
+      "file": "probability_calibrators.pkl",
+      "status": "PRESENT",
+      "sourceBranch": "origin/RL-project",
+      "sourcePath": "MLA_PROJET_RL/vae_anomaly_detector_outputs/probability_calibrators.pkl",
+      "sha256": "93c54d8bba0c671368a1b043ca84c2bec915d738bbbbb4df6f514a65c09b3fc0",
+      "sizeBytes": 1581,
+      "contents": "dict[str, sklearn.linear_model.LogisticRegression] with 4 keys: 'Standard VAE (Full 119)', 'Standard VAE (Top 25)', 'Beta-VAE (Full 119)', 'Beta-VAE (Top 25)'. Each calibrator has coef_.shape=(1,1) — scalar-input LR: anomaly_score → P(malicious).",
+      "canonicalKeyForApps": "Beta-VAE (Top 25)",
+      "usage": "VAELoader picks the 'Beta-VAE (Top 25)' entry and applies it to each alert's reconstruction loss to produce vaeMaliciousProb. Replaces the heuristic that §5.10 flags as wrong."
+    },
+    "gnn_metadata": {
+      "file": "gnn_metadata.pkl",
+      "status": "PRESENT",
+      "sourceBranch": "supplied via Kaggle re-run (not from git)",
+      "sha256": "e36cd700538669f0aab8853586d7e1b23aade55f0d4736085e48f2906565a273",
+      "sizeBytes": 3250,
+      "contents": "{ features: list[55] (alphabetical SecBERT order), rule_level_included: true, scaler: StandardScaler(n_features_in=56), threshold: float (Part-1), metrics: {...}, model_params: { in_ch: 56, hid: 128, layers: 3, drop: 0.3 }, graph_params: {intra_window_sec: 1800, cross_window_sec: 1800, max_intra: 3, max_cross: 5} }",
+      "reconciliation": "Initially flagged as wrong-variant because of the in_ch=56 / rule_level_included=True fields. Reanalysis of the notebook shows Part 2 retraining slices `X_scaled[:, :-1]` and does NOT refit the scaler — so the 56-dim scaler IS the Part-2 scaler with `rule_level` as the 56th col. Slicing `scaler.mean_[:55]` and `scaler.scale_[:55]` gives the exact scaler that produced Part-2's training inputs. The 55-entry `features` list likewise excludes rule_level (saved BEFORE rule_level was appended in cell 2). Threshold differs between Part 1 and Part 2, but the plan's 13-dim state vector uses raw gnn_node_risk / gnn_neighbor_risk / gnn_risk_growth — all continuous sigmoid values — so the threshold is never invoked on the live inference path.",
+      "orderingNote": "The GNN trained with ALPHABETICAL SecBERT ordering (log_secbert_emb_0, log_secbert_emb_1, log_secbert_emb_10, log_secbert_emb_11, ..., log_secbert_emb_2, ...). This DIFFERS from selected_features_top25.json (used by AE/VAE), which has NUMERIC ordering. At live inference, the feature engineer must reorder the 55-dim vector into GNN's alphabetical order before running the GNN forward pass. Use `meta['features']` as the canonical GNN ordering.",
+      "usage": "GNNLoader: slice scaler to 55 cols, use meta['features'] for input column order, ignore threshold (not on critical path)."
+    },
+    "secbert_log_pca": {
+      "file": "secbert_log_pca.pkl",
+      "status": "PRESENT",
+      "sha256": "dc2f88f81bd024a5d9ddeb13fd218c87f44c398bcacda093ff2f97c59297f11f",
+      "sizeBytes": 53148,
+      "contents": "sklearn.decomposition.PCA(n_components=16, random_state=42) — n_features_in_=768 (SecBERT hidden_size), variance explained 77.82%",
+      "sourceNotebook": "feature_selection_final.ipynb  (custom save cell, deterministic refit)",
+      "usage": "Normalizer worker: run SecBERT on _source.full_log, mean-pool to 768-dim, then pca.transform(...) to get 16-dim log_secbert_emb_0..15."
+    },
+    "secbert_cmd_pca": {
+      "file": "secbert_cmd_pca.pkl",
+      "status": "PRESENT",
+      "sha256": "88c42e5af71344f01e9ce3d66ebf203758bbd783fec3b2f7ff8bdac519c0d78f",
+      "sizeBytes": 53148,
+      "contents": "sklearn.decomposition.PCA(n_components=16, random_state=42) — n_features_in_=768, variance explained 97.05%",
+      "sourceNotebook": "feature_selection_final.ipynb  (custom save cell, deterministic refit)",
+      "usage": "Normalizer worker: run SecBERT on _source.data.command, mean-pool to 768-dim, then pca.transform(...) to get 16-dim cmd_secbert_emb_0..15."
+    },
+    "standard_scaler": {
+      "file": "standard_scaler.pkl",
+      "status": "PRESENT",
+      "sha256": "fad843ed437f675401d877fad407275cb957289ca1d67dd8943858037ccdef37",
+      "sizeBytes": 2960,
+      "contents": "sklearn.preprocessing.StandardScaler with n_features_in_=55, feature_names_in_ = selected_features_top25.json all_selected_columns (numeric SecBERT order)",
+      "derivedVia": "infra/scripts/derive_standard_scaler.py — slice gnn_metadata.pkl['scaler'] to its first 55 cols, permute from GNN's alphabetical SecBERT order to AE/VAE canonical numeric order. Mathematically equivalent to what VAE/AE notebooks' scaler_reduced would have produced.",
+      "usage": "Normalizer worker: call scaler.transform(x_55) after the 55-col vector is assembled in canonical order, before feeding to AE/VAE. The GNN path uses gnn_metadata.pkl's scaler directly (alphabetical order), not this one."
+    }
+  },
+
+  "phase1Readiness": {
+    "status": "READY",
+    "ready": [
+      "selected_features_top25.json — canonical 55-col ordering for AE/VAE (numeric SecBERT)",
+      "probability_calibrators.pkl — use key 'Beta-VAE (Top 25)' for vae_model.pth",
+      "gnn_metadata.pkl — GNN features list (alphabetical SecBERT) + 56-col scaler (slice to [:55])",
+      "secbert_log_pca.pkl — PCA 768→16 for log_secbert_emb_*",
+      "secbert_cmd_pca.pkl — PCA 768→16 for cmd_secbert_emb_*",
+      "standard_scaler.pkl — 55-col StandardScaler in canonical numeric order"
+    ],
+    "blockers": []
+  }
+}

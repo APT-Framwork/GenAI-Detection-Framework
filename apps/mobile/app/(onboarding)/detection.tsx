@@ -65,7 +65,7 @@ export default function DetectionScreen() {
           <Text style={styles.nextButtonText}>NEXT</Text>
           <Text style={styles.nextArrow}>{"\u2192"}</Text>
         </Pressable>
-        <Pressable onPress={() => router.replace("/(tabs)/dashboard")}>
+        <Pressable onPress={() => router.replace("/(auth)/login")}>
           <Text style={styles.skipText}>SKIP INTRODUCTION</Text>
         </Pressable>
       </View>

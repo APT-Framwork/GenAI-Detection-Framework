@@ -1,15 +1,126 @@
-import { View, Text, StyleSheet, ScrollView, Pressable } from "react-native";
+import { useCallback, useMemo, useState } from "react";
+import {
+  ActivityIndicator,
+  Pressable,
+  RefreshControl,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
 import { colors, typography, spacing, radius, shadows } from "../../lib/theme";
-import { mockMetrics, mockChartData, mockPredictions, mockIntelFeed } from "../../lib/mock-data";
 import { KPICard } from "../../components/KPICard";
 import { MiniChart } from "../../components/MiniChart";
-import { useSocket } from "../../hooks/useSocket";
+import { SkeletonBlock } from "../../components/Skeleton";
+import {
+  useAttackVector,
+  useGlobalRisk,
+  useRefreshSentinelInsight,
+  useSentinelInsight,
+} from "../../lib/api/hooks";
+import { useLiveFeed, type LiveFeedEvent } from "../../lib/api/sse";
+import { useUserStore } from "../../stores/user-store";
 
 export default function DashboardScreen() {
   const router = useRouter();
-  useSocket();
+  const user = useUserStore((s) => s.user);
+  const qc = useQueryClient();
+
+  const attackVector = useAttackVector("1h");
+  const globalRisk = useGlobalRisk("1h");
+  const insight = useSentinelInsight();
+  const refreshInsight = useRefreshSentinelInsight();
+
+  // Live feed SSE. Each event invalidates dashboard aggregates + the
+  // unack-count badge so the UI converges without waiting for the
+  // polling tick.
+  const onLiveEvent = useCallback(
+    (_: LiveFeedEvent) => {
+      qc.invalidateQueries({ queryKey: ["alerts", "unack-count"] });
+      qc.invalidateQueries({ queryKey: ["dashboard", "attack-vector"] });
+      qc.invalidateQueries({ queryKey: ["dashboard", "global-risk"] });
+    },
+    [qc],
+  );
+  const liveFeed = useLiveFeed({ enabled: true, onEvent: onLiveEvent });
+
+  const [refreshing, setRefreshing] = useState(false);
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    try {
+      await Promise.all([
+        attackVector.refetch(),
+        globalRisk.refetch(),
+        insight.refetch(),
+      ]);
+    } finally {
+      setRefreshing(false);
+    }
+  }, [attackVector, globalRisk, insight]);
+
+  // Threat level gauge — percentage from global risk (0..1 → 0..100).
+  const threatPct = Math.round((globalRisk.data?.globalRisk ?? 0) * 100);
+
+  // KPI cards: total alerts in window + anomaly rate.
+  const kpiAlerts = useMemo(
+    () => ({
+      id: "alerts-1h",
+      label: "ALERTS / 1H",
+      value: String(attackVector.data?.totalAlerts ?? 0),
+    }),
+    [attackVector.data?.totalAlerts],
+  );
+  const kpiAnomaly = useMemo(
+    () => ({
+      id: "anomaly-rate",
+      label: "ANOMALY RATE",
+      value: `${Math.round(
+        (globalRisk.data?.components.anomalyRate ?? 0) * 100,
+      )}`,
+      unit: "%",
+    }),
+    [globalRisk.data?.components.anomalyRate],
+  );
+
+  // Trend chart — map GlobalRiskTrendPoint[] into the chart's ChartPoint[].
+  const chartData = useMemo(() => {
+    const trend = globalRisk.data?.trend ?? [];
+    if (trend.length === 0) return [];
+    return trend.map((p, i) => ({
+      day: i,
+      value: p.value,
+      label: p.ts,
+    }));
+  }, [globalRisk.data?.trend]);
+
+  // Active predictions — derived from attack-vector stage buckets.
+  // Pick the top 2 non-BENIGN stages with a count > 0.
+  const predictions = useMemo(() => {
+    const stages = (attackVector.data?.stages ?? []).filter(
+      (s) => s.ckcStage !== 0 && s.count > 0,
+    );
+    const top = stages
+      .slice()
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 2);
+    return top.map((s) => {
+      const severity: "critical" | "warning" =
+        s.ckcStage >= 5 ? "critical" : "warning";
+      return {
+        id: `pred-${s.ckcStage}`,
+        title: s.ckcName.replace(/_/g, " "),
+        severity,
+        confidence: `${s.count} ALERTS`,
+        description:
+          severity === "critical"
+            ? "High-severity stage active in the current window."
+            : "Chain activity in this stage — investigating.",
+      };
+    });
+  }, [attackVector.data?.stages]);
 
   return (
     <SafeAreaView style={styles.container} edges={["top"]}>
@@ -21,25 +132,49 @@ export default function DashboardScreen() {
           </View>
           <Text style={styles.headerTitle}>SENTINEL</Text>
         </View>
-        <View style={styles.avatar} />
+        <View style={styles.avatar}>
+          <Text style={styles.avatarText}>
+            {user?.email.slice(0, 2).toUpperCase() ?? "—"}
+          </Text>
+        </View>
       </View>
 
       <ScrollView
         contentContainerStyle={styles.scroll}
         showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor={colors.primary}
+          />
+        }
       >
         {/* Hero: Threat Level Gauge */}
         <View style={styles.gaugeCard}>
-          <Text style={styles.gaugeStatus}>STATUS: VIGILANT</Text>
+          <Text style={styles.gaugeStatus}>
+            STATUS:{" "}
+            {threatPct >= 70
+              ? "CRITICAL"
+              : threatPct >= 40
+              ? "ELEVATED"
+              : "VIGILANT"}
+          </Text>
           <View style={styles.gaugeCircle}>
             <View style={styles.gaugeRing}>
-              <Text style={styles.gaugeValue}>74%</Text>
-              <Text style={styles.gaugeLabel}>THREAT LEVEL</Text>
+              {globalRisk.isLoading ? (
+                <ActivityIndicator color={colors.primary} size="large" />
+              ) : (
+                <>
+                  <Text style={styles.gaugeValue}>{threatPct}%</Text>
+                  <Text style={styles.gaugeLabel}>THREAT LEVEL</Text>
+                </>
+              )}
             </View>
           </View>
           <View style={styles.kpiRow}>
-            <KPICard metric={mockMetrics[1]} />
-            <KPICard metric={mockMetrics[2]} />
+            <KPICard metric={kpiAlerts} />
+            <KPICard metric={kpiAnomaly} />
           </View>
         </View>
 
@@ -47,120 +182,213 @@ export default function DashboardScreen() {
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Global Ingress</Text>
-            <Text style={styles.sectionBadge}>LIVE STREAM</Text>
+            <Text style={styles.sectionBadge}>
+              {globalRisk.isFetching ? "UPDATING…" : "LIVE STREAM"}
+            </Text>
           </View>
-          <MiniChart data={mockChartData} />
+          {chartData.length > 0 ? (
+            <MiniChart data={chartData} />
+          ) : (
+            <View style={styles.chartEmpty}>
+              <Text style={styles.emptyHint}>
+                {globalRisk.isLoading
+                  ? "Loading trend…"
+                  : "No data in the last hour."}
+              </Text>
+            </View>
+          )}
         </View>
 
         {/* Active Predictions */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Active Predictions</Text>
-          <View style={styles.predGrid}>
-            {mockPredictions.slice(0, 2).map((p) => (
-              <View
-                key={p.id}
-                style={[
-                  styles.predCard,
-                  {
-                    borderLeftColor:
-                      p.severity === "critical"
-                        ? colors.critical
-                        : p.severity === "warning"
-                        ? colors.warning
-                        : colors.border,
-                  },
-                ]}
-              >
-                <Text style={styles.predTitle}>{p.title}</Text>
-                <View style={styles.predSeverityRow}>
-                  <View
-                    style={[
-                      styles.predDot,
-                      {
-                        backgroundColor:
-                          p.severity === "critical"
-                            ? colors.critical
-                            : colors.warning,
-                      },
-                    ]}
-                  />
-                  <Text
-                    style={[
-                      styles.predSeverity,
-                      {
-                        color:
-                          p.severity === "critical"
-                            ? colors.critical
-                            : colors.warning,
-                      },
-                    ]}
-                  >
-                    {p.severity === "critical" ? "Critical" : "Investigating"}
+          {predictions.length > 0 ? (
+            <View style={styles.predGrid}>
+              {predictions.map((p) => (
+                <View
+                  key={p.id}
+                  style={[
+                    styles.predCard,
+                    {
+                      borderLeftColor:
+                        p.severity === "critical"
+                          ? colors.critical
+                          : colors.warning,
+                    },
+                  ]}
+                >
+                  <Text style={styles.predTitle}>{p.title}</Text>
+                  <View style={styles.predSeverityRow}>
+                    <View
+                      style={[
+                        styles.predDot,
+                        {
+                          backgroundColor:
+                            p.severity === "critical"
+                              ? colors.critical
+                              : colors.warning,
+                        },
+                      ]}
+                    />
+                    <Text
+                      style={[
+                        styles.predSeverity,
+                        {
+                          color:
+                            p.severity === "critical"
+                              ? colors.critical
+                              : colors.warning,
+                        },
+                      ]}
+                    >
+                      {p.severity === "critical"
+                        ? "Critical"
+                        : "Investigating"}
+                    </Text>
+                  </View>
+                  <Text style={styles.predDesc}>
+                    {p.confidence}
+                    {"\n"}
+                    {p.description}
                   </Text>
                 </View>
-                <Text style={styles.predDesc}>
-                  {p.confidence} Confidence{"\n"}
-                  {p.description}
-                </Text>
-              </View>
-            ))}
-          </View>
-          {/* Full-width card */}
-          {mockPredictions[2] && (
-            <Pressable style={styles.driftCard}>
-              <View style={styles.driftIcon}>
-                <Text style={styles.driftIconText}>{"~"}</Text>
-              </View>
-              <View style={styles.driftText}>
-                <Text style={styles.driftTitle}>{mockPredictions[2].title}</Text>
-                <Text style={styles.driftDesc}>{mockPredictions[2].description}</Text>
-              </View>
-              <Text style={styles.driftArrow}>{">"}</Text>
-            </Pressable>
+              ))}
+            </View>
+          ) : (
+            <Text style={styles.emptyHint}>
+              No active kill-chain stages in the current window.
+            </Text>
           )}
         </View>
 
-        {/* Intelligence Feed */}
+        {/* Sentinel Insight */}
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Sentinel Insight</Text>
+            <Pressable
+              onPress={() => refreshInsight.mutate()}
+              disabled={refreshInsight.isPending || insight.isFetching}
+              hitSlop={10}
+            >
+              <Text style={styles.viewAll}>
+                {refreshInsight.isPending || insight.isFetching
+                  ? "REFRESHING…"
+                  : "REFRESH"}
+              </Text>
+            </Pressable>
+          </View>
+          <View style={styles.insightCard}>
+            {insight.isLoading ? (
+              <SkeletonBlock lines={3} lineHeight={12} />
+            ) : (
+              <>
+                <Text style={styles.insightBody}>
+                  {insight.data?.insight ??
+                    "Insight unavailable — check backend connection."}
+                </Text>
+                {insight.data?.modelVersion ? (
+                  <Text style={styles.insightMeta}>
+                    {insight.data.stale ? "STALE · " : ""}
+                    {insight.data.modelVersion}
+                  </Text>
+                ) : null}
+              </>
+            )}
+          </View>
+        </View>
+
+        {/* Live Intelligence Feed — SSE */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Intelligence Feed</Text>
-            <Pressable>
-              <Text style={styles.viewAll}>VIEW ALL</Text>
-            </Pressable>
-          </View>
-          {mockIntelFeed.slice(0, 2).map((item) => (
-            <View
-              key={item.id}
-              style={[
-                styles.feedItem,
-                item.highlighted
-                  ? { backgroundColor: colors.bg }
-                  : { backgroundColor: colors.bgSurface },
-              ]}
-            >
+            <View style={styles.sseBadgeRow}>
               <View
                 style={[
-                  styles.feedBar,
+                  styles.sseDot,
                   {
-                    backgroundColor: item.highlighted
-                      ? colors.primary
-                      : colors.textLight,
+                    backgroundColor:
+                      liveFeed.status === "open"
+                        ? colors.success
+                        : liveFeed.status === "connecting"
+                        ? colors.warning
+                        : colors.textLight,
                   },
                 ]}
               />
-              <View style={styles.feedContent}>
-                <Text style={styles.feedTime}>
-                  {item.time} {"\u00B7"} {item.source}
-                </Text>
-                <Text style={styles.feedMessage}>{item.message}</Text>
-              </View>
+              <Text style={styles.sectionBadge}>
+                {liveFeed.status === "open"
+                  ? "LIVE"
+                  : liveFeed.status === "connecting"
+                  ? "CONNECTING"
+                  : "OFFLINE"}
+              </Text>
             </View>
-          ))}
+          </View>
+          {liveFeed.events.length === 0 ? (
+            <View style={styles.feedEmpty}>
+              <Text style={styles.emptyHint}>
+                {liveFeed.status === "open"
+                  ? "Waiting for the next event…"
+                  : "SSE not connected."}
+              </Text>
+            </View>
+          ) : (
+            liveFeed.events.slice(0, 4).map((e) => {
+              const highlighted = e.ckcStage >= 5;
+              return (
+                <Pressable
+                  key={`${e.alertId}-${e.occurredAt}`}
+                  onPress={() =>
+                    e.chainId
+                      ? router.push({
+                          pathname: "/analysis/[id]",
+                          params: { id: String(e.chainId) },
+                        })
+                      : router.push("/(tabs)/alerts")
+                  }
+                  style={[
+                    styles.feedItem,
+                    highlighted
+                      ? { backgroundColor: colors.bg }
+                      : { backgroundColor: colors.bgSurface },
+                  ]}
+                >
+                  <View
+                    style={[
+                      styles.feedBar,
+                      {
+                        backgroundColor: highlighted
+                          ? colors.primary
+                          : colors.textLight,
+                      },
+                    ]}
+                  />
+                  <View style={styles.feedContent}>
+                    <Text style={styles.feedTime}>
+                      {e.agentId ?? "unknown"} {"\u00B7"} {e.ckcStageName}
+                    </Text>
+                    <Text style={styles.feedMessage} numberOfLines={2}>
+                      {e.dqnActionName
+                        ? `${e.dqnActionName.replace(/_/g, " ")} · `
+                        : ""}
+                      {e.mitreTechniques[0] ?? "No MITRE tag"}
+                      {e.vaeMaliciousProb !== null
+                        ? ` · p=${e.vaeMaliciousProb.toFixed(2)}`
+                        : ""}
+                    </Text>
+                  </View>
+                </Pressable>
+              );
+            })
+          )}
         </View>
       </ScrollView>
 
-      {/* FAB */}
-      <Pressable style={styles.fab}>
+      {/* FAB — navigate to alerts */}
+      <Pressable
+        style={styles.fab}
+        onPress={() => router.push("/(tabs)/alerts")}
+      >
         <Text style={styles.fabIcon}>{"\u26A1"}</Text>
       </Pressable>
     </SafeAreaView>
@@ -168,10 +396,7 @@ export default function DashboardScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.bg,
-  },
+  container: { flex: 1, backgroundColor: colors.bg },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -209,13 +434,19 @@ const styles = StyleSheet.create({
     height: 32,
     borderRadius: radius.full,
     backgroundColor: colors.bgAccent,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  avatarText: {
+    fontFamily: typography.family.heading,
+    fontSize: typography.size.xs,
+    color: colors.primary,
   },
   scroll: {
     paddingHorizontal: spacing.lg,
     paddingBottom: 120,
     gap: spacing.xl,
   },
-  // Gauge
   gaugeCard: {
     backgroundColor: colors.bgCard,
     borderRadius: radius.xl,
@@ -241,9 +472,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  gaugeRing: {
-    alignItems: "center",
-  },
+  gaugeRing: { alignItems: "center" },
   gaugeValue: {
     fontFamily: typography.family.heading,
     fontSize: typography.size["6xl"],
@@ -263,10 +492,7 @@ const styles = StyleSheet.create({
     marginTop: spacing.xl,
     width: "100%",
   },
-  // Section
-  section: {
-    gap: spacing.md,
-  },
+  section: { gap: spacing.md },
   sectionHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -292,11 +518,20 @@ const styles = StyleSheet.create({
     textTransform: "uppercase",
     letterSpacing: 1,
   },
-  // Predictions
-  predGrid: {
-    flexDirection: "row",
-    gap: spacing.md,
+  chartEmpty: {
+    height: 192,
+    borderRadius: radius.lg,
+    backgroundColor: colors.bgCard,
+    alignItems: "center",
+    justifyContent: "center",
+    ...shadows.card,
   },
+  emptyHint: {
+    fontFamily: typography.family.body,
+    fontSize: typography.size.sm,
+    color: colors.textMuted,
+  },
+  predGrid: { flexDirection: "row", gap: spacing.md },
   predCard: {
     flex: 1,
     backgroundColor: colors.bgCard,
@@ -324,11 +559,7 @@ const styles = StyleSheet.create({
     gap: 4,
     marginTop: spacing.sm,
   },
-  predDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-  },
+  predDot: { width: 8, height: 8, borderRadius: 4 },
   predSeverity: {
     fontFamily: typography.family.heading,
     fontSize: typography.size.xs,
@@ -341,53 +572,48 @@ const styles = StyleSheet.create({
     lineHeight: 13.75,
     marginTop: spacing.xs,
   },
-  driftCard: {
-    flexDirection: "row",
-    alignItems: "center",
+  insightCard: {
     backgroundColor: colors.bgCard,
     borderRadius: radius.xl,
-    padding: 21,
+    padding: spacing.lg,
+    gap: spacing.sm,
     borderWidth: 1,
     borderColor: colors.border,
     ...shadows.card,
   },
-  driftIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: radius.lg,
-    backgroundColor: colors.bgAccent,
-    alignItems: "center",
-    justifyContent: "center",
-    marginRight: spacing.md,
-  },
-  driftIconText: {
-    fontSize: 20,
-    color: colors.primary,
-  },
-  driftText: {
-    flex: 1,
-  },
-  driftTitle: {
-    fontFamily: typography.family.heading,
-    fontSize: typography.size.md,
-    color: colors.textPrimary,
-  },
-  driftDesc: {
+  insightBody: {
     fontFamily: typography.family.body,
-    fontSize: 11,
-    color: colors.textMuted,
-    lineHeight: 16.5,
+    fontSize: typography.size.md,
+    color: colors.textBody,
+    lineHeight: 20,
   },
-  driftArrow: {
-    fontSize: 16,
+  insightMeta: {
+    fontFamily: typography.family.heading,
+    fontSize: typography.size.xs,
     color: colors.textMuted,
+    letterSpacing: 0.8,
+    textTransform: "uppercase",
   },
-  // Feed
+  sseBadgeRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.xs,
+  },
+  sseDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+  },
+  feedEmpty: {
+    paddingVertical: spacing.lg,
+    alignItems: "center",
+  },
   feedItem: {
     flexDirection: "row",
     borderRadius: radius.lg,
     padding: spacing.md,
     gap: spacing.md,
+    marginBottom: spacing.sm,
   },
   feedBar: {
     width: 3,
@@ -411,7 +637,6 @@ const styles = StyleSheet.create({
     color: colors.textPrimary,
     lineHeight: 20,
   },
-  // FAB
   fab: {
     position: "absolute",
     bottom: 110,
@@ -424,8 +649,5 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     ...shadows.fab,
   },
-  fabIcon: {
-    fontSize: 20,
-    color: colors.primaryLight,
-  },
+  fabIcon: { fontSize: 20, color: colors.primaryLight },
 });

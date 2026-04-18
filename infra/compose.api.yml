@@ -1,0 +1,176 @@
+# STRIX API compose — Phase 0 scaffold.
+#
+# Adds Postgres (with TimescaleDB), Redis, the FastAPI app, and worker
+# replicas. Wazuh+Filebeat live in the separate training compose (see
+# INGESTION_PIPELINE.md); this file assumes `strix_net` is the shared
+# external network and `strix_alerts_volume` is the Wazuh alerts volume.
+#
+# Usage:
+#   docker compose -f infra/compose.api.yml --env-file apps/api/.env up
+#
+# Profiles:
+#   base       — postgres + redis + api          (default)
+#   workers    — + normalizer + inference + writer   (start once models exist)
+#   queue      — + arq worker for async jobs
+
+x-api-common: &api-common
+  build:
+    context: ../apps/api
+    dockerfile: Dockerfile
+  image: strix/api:dev
+  env_file:
+    - ../apps/api/.env
+  environment:
+    DB_HOST: postgres
+    REDIS_HOST: redis
+    MODELS_PATH: /app/models
+  volumes:
+    - ../apps/models:/app/models:ro
+  depends_on:
+    postgres:
+      condition: service_healthy
+    redis:
+      condition: service_healthy
+  networks:
+    - strix_net
+  restart: unless-stopped
+
+services:
+  postgres:
+    image: timescale/timescaledb:2.17.2-pg16
+    container_name: strix_postgres
+    environment:
+      POSTGRES_DB: ${DB_NAME:-strix}
+      POSTGRES_USER: ${DB_USER:-strix}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required}
+    ports:
+      - "5435:5432"
+    volumes:
+      - strix_pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-strix} -d ${DB_NAME:-strix}"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    networks:
+      - strix_net
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: strix_redis
+    command:
+      - "redis-server"
+      - "--maxmemory"
+      - "512mb"
+      - "--maxmemory-policy"
+      - "noeviction"
+      - "--save"
+      - ""
+    ports:
+      - "6380:6379"
+    volumes:
+      - strix_redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "PING"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    networks:
+      - strix_net
+    restart: unless-stopped
+
+  migrate:
+    <<: *api-common
+    container_name: strix_migrate
+    command: ["alembic", "upgrade", "head"]
+    restart: "no"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  api:
+    <<: *api-common
+    container_name: strix_api
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "python", "-c",
+             "import urllib.request; urllib.request.urlopen('http://localhost:8000/health').read()"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+
+  # --------------------------- workers (profile: workers) ------------------
+  # These start once Phase 1/2/3 code lands. CMD points at entry modules that
+  # don't exist yet — profile-gated so `up` without `--profile workers` is fine.
+  wazuh_bridge:
+    <<: *api-common
+    container_name: strix_wazuh_bridge
+    command: ["python", "-m", "strix_api.workers.wazuh_bridge"]
+    profiles: ["workers"]
+
+  normalizer:
+    <<: *api-common
+    container_name: strix_normalizer
+    command: ["python", "-m", "strix_api.workers.normalizer"]
+    profiles: ["workers"]
+
+  inference_shard0:
+    <<: *api-common
+    container_name: strix_inference_shard0
+    command: ["python", "-m", "strix_api.workers.inference"]
+    profiles: ["workers"]
+    environment:
+      DB_HOST: postgres
+      REDIS_HOST: redis
+      MODELS_PATH: /app/models
+      INFERENCE_SHARD_ID: "0"
+      INFERENCE_NUM_SHARDS: "1"  # bump + add inference_shard1 etc. to scale
+
+  verdicts_writer:
+    <<: *api-common
+    container_name: strix_verdicts_writer
+    command: ["python", "-m", "strix_api.workers.verdicts_writer"]
+    profiles: ["workers"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+
+  arq:
+    <<: *api-common
+    container_name: strix_arq
+    command: ["arq", "strix_api.workers.arq_tasks.WorkerSettings"]
+    profiles: ["queue"]
+
+  # --------------------------- observability (profile: obs) ----------------
+  prometheus:
+    image: prom/prometheus:v3.0.1
+    container_name: strix_prometheus
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    ports:
+      - "9091:9090"
+    networks:
+      - strix_net
+    profiles: ["obs"]
+    restart: unless-stopped
+
+volumes:
+  strix_pg_data:
+  strix_redis_data:
+
+networks:
+  strix_net:
+    driver: bridge

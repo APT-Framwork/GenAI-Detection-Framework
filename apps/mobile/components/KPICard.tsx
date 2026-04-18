@@ -1,6 +1,13 @@
 import { View, Text, StyleSheet } from "react-native";
 import { colors, typography, radius, shadows } from "../lib/theme";
-import type { KPIMetric } from "../lib/mock-data";
+
+export interface KPIMetric {
+  id: string;
+  label: string;
+  value: string;
+  unit?: string;
+  color?: string;
+}
 
 interface Props {
   metric: KPIMetric;

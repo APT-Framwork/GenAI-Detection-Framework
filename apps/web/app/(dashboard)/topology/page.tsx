@@ -1,6 +1,8 @@
 "use client"
 
+import { useMemo } from "react"
 import { cn } from "@/lib/utils"
+import { useTopology } from "@/lib/api/topology"
 import {
   RefreshCw,
   Download,
@@ -16,6 +18,7 @@ import {
   Database,
   Cloud,
   Monitor,
+  Loader2,
 } from "lucide-react"
 
 /* ── Inline mock data for this Figma-matched layout ─────────── */
@@ -41,15 +44,9 @@ interface GraphNode {
   size: "lg" | "md" | "sm"
 }
 
-const graphNodes: GraphNode[] = [
-  { id: "core", label: "STRIX CORE", x: 120, y: 220, icon: "server", size: "lg" },
-  { id: "datalakes", label: "DATA LAKES", x: 380, y: 200, icon: "database", size: "md" },
-  { id: "gateway", label: "EXTERNAL GATEWAY", x: 340, y: 60, icon: "cloud", size: "md" },
-  { id: "devcluster", label: "DEV CLUSTER", x: 560, y: 320, icon: "monitor", size: "md" },
-  { id: "s01", label: "S-01", x: 240, y: 360, icon: "sentinel", size: "sm" },
-  { id: "s02", label: "S-02", x: 520, y: 120, icon: "sentinel", size: "sm" },
-  { id: "s03", label: "S-03", x: 560, y: 210, icon: "sentinel", size: "sm", compromised: true },
-]
+// graphNodes are derived from the topology API at render time — see
+// useTopology() in TopologyPage. The constant below is the empty fallback.
+const graphNodes: GraphNode[] = []
 
 interface GraphEdge {
   from: string
@@ -57,15 +54,8 @@ interface GraphEdge {
   compromised?: boolean
 }
 
-const graphEdges: GraphEdge[] = [
-  { from: "core", to: "datalakes" },
-  { from: "core", to: "gateway" },
-  { from: "core", to: "s01" },
-  { from: "datalakes", to: "devcluster" },
-  { from: "datalakes", to: "s03", compromised: true },
-  { from: "gateway", to: "s02" },
-  { from: "devcluster", to: "s03", compromised: true },
-]
+// see TopologyPage for the derived list.
+const graphEdges: GraphEdge[] = []
 
 function getNodeCenter(node: GraphNode): { cx: number; cy: number } {
   const r = node.size === "lg" ? 44 : node.size === "md" ? 34 : 22
@@ -84,7 +74,39 @@ function NodeIcon({ type, size }: { type: GraphNode["icon"]; size: number }) {
 }
 
 export default function TopologyPage() {
-  const nodeMap = Object.fromEntries(graphNodes.map((n) => [n.id, n]))
+  const topology = useTopology("24h")
+
+  // Derive SVG GraphNode/GraphEdge from the API. Lay nodes out on a circle
+  // around the canvas centre — deterministic, no dependence on a layout lib.
+  const { nodes, edges, nodeMap } = useMemo(() => {
+    const apiNodes = topology.data?.nodes ?? []
+    const apiEdges = topology.data?.edges ?? []
+    const cx = 350
+    const cy = 220
+    const r = Math.max(120, Math.min(180, 30 * apiNodes.length))
+    const layoutNodes: GraphNode[] = apiNodes.map((n, i) => {
+      const t = (i / Math.max(apiNodes.length, 1)) * Math.PI * 2
+      const ix = n.type === "manager" ? "server" : n.type === "database" ? "database" : "monitor"
+      return {
+        id: n.id,
+        label: n.label,
+        sublabel: n.ip ?? undefined,
+        x: cx + Math.cos(t) * r - 34,
+        y: cy + Math.sin(t) * r - 34,
+        icon: ix,
+        compromised: n.status === "compromised",
+        size: n.type === "manager" ? "lg" : "md",
+      }
+    })
+    const layoutEdges: GraphEdge[] = apiEdges.map((e) => ({
+      from: e.source, to: e.target, compromised: e.type === "malicious",
+    }))
+    return {
+      nodes: layoutNodes,
+      edges: layoutEdges,
+      nodeMap: Object.fromEntries(layoutNodes.map((n) => [n.id, n])),
+    }
+  }, [topology.data])
 
   return (
     <div className="space-y-6">
@@ -166,7 +188,7 @@ export default function TopologyPage() {
             <rect width="100%" height="100%" fill="url(#topo-grid)" />
 
             {/* Edges */}
-            {graphEdges.map((edge, i) => {
+            {edges.map((edge, i) => {
               const fromNode = nodeMap[edge.from]
               const toNode = nodeMap[edge.to]
               if (!fromNode || !toNode) return null
@@ -188,7 +210,7 @@ export default function TopologyPage() {
             })}
 
             {/* Nodes */}
-            {graphNodes.map((node) => {
+            {nodes.map((node) => {
               const r = node.size === "lg" ? 44 : node.size === "md" ? 34 : 22
               const iconSize = node.size === "lg" ? 22 : node.size === "md" ? 18 : 14
               const fontSize = node.size === "sm" ? 9 : 10

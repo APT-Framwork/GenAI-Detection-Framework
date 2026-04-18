@@ -1,0 +1,85 @@
+name: web
+
+on:
+  pull_request:
+    paths:
+      - "apps/web/**"
+      - "apps/api/**"              # OpenAPI drift invalidates web types
+      - ".github/workflows/web.yml"
+  push:
+    branches: [main, Platforme]
+    paths:
+      - "apps/web/**"
+      - "apps/api/**"
+      - ".github/workflows/web.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: web-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # --------------------------------------------------------------- API types drift
+  api-types-drift:
+    name: api-types drift check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Dump OpenAPI from the backend source of truth.
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: install api
+        working-directory: apps/api
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .
+      - name: dump OpenAPI
+        env:
+          DB_PASSWORD: test
+        run: |
+          python infra/scripts/dump_openapi.py /tmp/fresh-openapi.json
+          diff -q apps/web/lib/openapi.json /tmp/fresh-openapi.json \
+            || (echo "::error::apps/web/lib/openapi.json is stale. Run \
+                       'python infra/scripts/dump_openapi.py apps/web/lib/openapi.json' and commit."; exit 1)
+
+      # Regenerate TS types from the committed spec, fail if they differ.
+      - uses: pnpm/action-setup@v4
+        with: { version: 9 }
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: pnpm
+          cache-dependency-path: apps/web/pnpm-lock.yaml
+      - name: install web
+        working-directory: apps/web
+        run: pnpm install --frozen-lockfile
+      - name: regenerate + diff
+        working-directory: apps/web
+        run: |
+          pnpm exec openapi-typescript ./lib/openapi.json -o /tmp/fresh-api-types.ts
+          diff -q lib/api-types.ts /tmp/fresh-api-types.ts \
+            || (echo "::error::apps/web/lib/api-types.ts is stale. Run 'pnpm gen:api-types:offline' and commit."; exit 1)
+
+  # --------------------------------------------------------------- lint + build
+  build:
+    name: lint + typecheck + build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with: { version: 9 }
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: pnpm
+          cache-dependency-path: apps/web/pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm exec tsc --noEmit
+      - run: pnpm build

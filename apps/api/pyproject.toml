@@ -1,0 +1,135 @@
+[project]
+name = "strix-api"
+version = "0.1.0"
+description = "STRIX backend: ingestion, inference, FastAPI, workers"
+requires-python = ">=3.11,<3.13"
+readme = "README.md"
+license = { text = "Proprietary" }
+authors = [{ name = "STRIX Team" }]
+
+dependencies = [
+  # Web
+  "fastapi>=0.115,<0.118",
+  "uvicorn[standard]>=0.32,<0.36",
+  "pydantic[email]>=2.9,<3",
+  "pydantic-settings>=2.5,<3",
+  "python-multipart>=0.0.12",
+  "slowapi>=0.1.9",
+  "sse-starlette>=2.1,<4",
+
+  # Auth (P4-9 / P4-10)
+  "argon2-cffi>=23.1,<26",
+  "PyJWT>=2.10,<3",
+
+  # DB
+  "sqlalchemy[asyncio]>=2.0.36,<2.1",
+  "asyncpg>=0.30,<0.31",
+  "alembic>=1.14,<1.16",
+
+  # Redis + queue
+  "redis>=5.2,<6",
+  "arq>=0.26,<0.27",
+  "msgpack>=1.1,<2",
+
+  # ML / numerics
+  "torch>=2.4,<3",
+  "torch-geometric>=2.5,<3",
+  "numpy>=1.26,<3",
+  "pandas>=2.2,<3",
+  "scikit-learn>=1.5,<2",
+  "transformers>=4.45,<5",
+  "joblib>=1.4,<2",
+
+  # External APIs / HTTP
+  "httpx>=0.28,<0.29",
+  "anthropic>=0.40,<0.50",
+  "pybreaker>=1.2,<2",
+
+  # Observability
+  "structlog>=24.4,<26",
+  "prometheus-client>=0.21,<0.23",
+  "opentelemetry-api>=1.28,<2",
+  "opentelemetry-sdk>=1.28,<2",
+]
+
+[project.optional-dependencies]
+dev = [
+  "ruff>=0.7,<0.13",
+  "mypy>=1.13,<2",
+  "pytest>=8.3,<9",
+  "pytest-asyncio>=0.24,<2",
+  "pytest-cov>=5,<7",
+  "hypothesis>=6.115,<7",
+  "respx>=0.21,<0.23",
+  "schemathesis>=3.38,<4",
+  "testcontainers[postgres,redis]>=4.8,<5",
+]
+
+[build-system]
+requires = ["hatchling>=1.25"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/strix_api"]
+
+# ---------------------------------------------------------------- ruff
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = [
+  "E", "F", "W",          # pycodestyle / pyflakes
+  "I",                     # isort
+  "B",                     # bugbear
+  "UP",                    # pyupgrade
+  "ASYNC",                 # async best practices
+  "S",                     # bandit (basic security)
+  "RET", "SIM", "PL",      # refactor / simplify / pylint
+  "TID",                   # tidy imports
+]
+ignore = [
+  "E501",   # handled by formatter
+  "PLR0913", # too many arguments — justified by FastAPI Depends
+  "S101",   # asserts in tests are fine
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S", "PLR2004"]
+"alembic/**" = ["S", "I"]
+
+# ---------------------------------------------------------------- mypy
+[tool.mypy]
+python_version = "3.11"
+strict = true
+warn_unused_ignores = true
+warn_redundant_casts = true
+disallow_untyped_decorators = false  # FastAPI/Pytest decorators are untyped
+plugins = ["pydantic.mypy"]
+
+[[tool.mypy.overrides]]
+module = ["torch.*", "torch_geometric.*", "transformers.*", "sklearn.*", "joblib.*", "pybreaker.*", "msgpack.*"]
+ignore_missing_imports = true
+
+# ---------------------------------------------------------------- pytest
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+pythonpath = ["src", "."]
+addopts = "-ra --strict-markers --strict-config"
+markers = [
+  "integration: requires Postgres + Redis testcontainers",
+  "e2e: full stack",
+  "performance: load tests",
+  "chaos: fault injection",
+]
+
+[tool.coverage.run]
+source = ["src/strix_api"]
+branch = true
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = false
+fail_under = 0  # tightened per phase: core/=95, services/workers=85, routes=80

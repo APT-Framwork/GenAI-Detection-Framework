@@ -1,6 +1,12 @@
 "use client"
 
-import { threatIntelEntries } from "@/lib/mock-data"
+import { useMemo, useState } from "react"
+
+import {
+  useCompromisedAssets,
+  useFileScan,
+  useIocSearch,
+} from "@/lib/api/threat-intel"
 import {
   Search,
   Shield,
@@ -16,6 +22,8 @@ import {
   ExternalLink,
   Filter,
   Download,
+  Upload,
+  Loader2,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -33,28 +41,95 @@ const typeIcons: Record<string, typeof Globe> = {
   hash: Hash,
 }
 
-const compromisedAssets = [
-  { hostname: "WS-FIN-09", ip: "10.0.3.15", vector: "Phishing", severity: "critical", lastSeen: "2m ago" },
-  { hostname: "DB-SENTINEL-02", ip: "10.0.2.5", vector: "Lateral Movement", severity: "high", lastSeen: "14m ago" },
-  { hostname: "pClient_srv_01", ip: "10.0.4.22", vector: "C2 Beacon", severity: "critical", lastSeen: "3m ago" },
-  { hostname: "NODE_04_02_3BV", ip: "10.0.3.15", vector: "Brute Force", severity: "medium", lastSeen: "1h ago" },
-]
+function severityFromVae(prob: number | null): string {
+  if (prob == null) return "low"
+  if (prob >= 0.85) return "critical"
+  if (prob >= 0.7) return "high"
+  if (prob >= 0.4) return "medium"
+  return "low"
+}
 
+function timeAgo(iso: string | null): string {
+  if (!iso) return "—"
+  const dt = Date.parse(iso)
+  if (Number.isNaN(dt)) return iso
+  const seconds = Math.max(0, (Date.now() - dt) / 1000)
+  if (seconds < 60) return `${Math.floor(seconds)}s ago`
+  if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`
+  if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`
+  return `${Math.floor(seconds / 86400)}d ago`
+}
+
+// Static for the "feed integrations" panel — these aren't backed by a
+// queryable endpoint in 1.0; their state comes from breaker state in the
+// monitoring tab. Kept as visual chrome.
 const breachFeeds = [
-  { name: "AlienVault OTX", status: "synced", entries: "14.2k", lastSync: "2m ago" },
-  { name: "VirusTotal", status: "synced", entries: "8.7k", lastSync: "5m ago" },
-  { name: "AbuseIPDB", status: "synced", entries: "22.1k", lastSync: "1m ago" },
-  { name: "Shodan", status: "degraded", entries: "6.3k", lastSync: "18m ago" },
-]
-
-const threatIntensity = [
-  { region: "North America", value: 72, trend: "+4.2%" },
-  { region: "Europe", value: 58, trend: "+1.8%" },
-  { region: "Asia Pacific", value: 85, trend: "+12.1%" },
-  { region: "Middle East", value: 91, trend: "+8.4%" },
+  { name: "HaveIBeenPwned", status: "synced", entries: "1 lookup/1.5s", lastSync: "live" },
+  { name: "VirusTotal",     status: "synced", entries: "4 lookups/min", lastSync: "live" },
+  { name: "MITRE ATT&CK",   status: "synced", entries: "static",        lastSync: "—" },
+  { name: "Anthropic LLM",  status: "synced", entries: "Opus + Haiku",  lastSync: "live" },
 ]
 
 export default function ThreatIntelPage() {
+  const [iocQuery, setIocQuery] = useState("")
+  const iocs = useIocSearch({ q: iocQuery || undefined, limit: 20 })
+  const compromised = useCompromisedAssets(20)
+  const fileScan = useFileScan()
+
+  // Project the API IocItem shape into the existing JSX's expected fields.
+  const iocEntries = useMemo(
+    () =>
+      (iocs.data?.items ?? []).map((item) => ({
+        type: item.type,
+        indicator: item.indicator,
+        source: item.source,
+        reputation: item.reputation,
+        timestamp: timeAgo(item.lastChecked),
+      })),
+    [iocs.data],
+  )
+
+  // Project compromised assets to the existing card layout.
+  const compromisedAssets = useMemo(
+    () =>
+      (compromised.data?.items ?? []).map((a) => ({
+        hostname: a.agentName ?? a.hostId.slice(0, 8),
+        ip: a.ipAddress ?? "—",
+        vector:
+          a.maxVaeProb != null
+            ? `VAE ${Math.round(a.maxVaeProb * 100)}% · GNN ${
+                a.maxGnnRisk != null ? Math.round(a.maxGnnRisk * 100) : "—"
+              }%`
+            : "—",
+        severity: severityFromVae(a.maxVaeProb ?? null),
+        lastSeen: timeAgo(a.lastDetectionAt ?? a.lastSeenAt),
+      })),
+    [compromised.data],
+  )
+
+  // 4-bucket regional intensity now derived from VAE distribution.
+  const threatIntensity = useMemo(() => {
+    const items = compromised.data?.items ?? []
+    const buckets = [0, 0, 0, 0]
+    for (const it of items) {
+      const p = it.maxVaeProb ?? 0
+      const bucket = p >= 0.7 ? 0 : p >= 0.4 ? 1 : p >= 0.2 ? 2 : 3
+      buckets[bucket] += 1
+    }
+    const total = items.length || 1
+    return [
+      { region: "Critical hosts", value: Math.round((buckets[0] / total) * 100), trend: `${buckets[0]} hosts` },
+      { region: "High",           value: Math.round((buckets[1] / total) * 100), trend: `${buckets[1]} hosts` },
+      { region: "Medium",         value: Math.round((buckets[2] / total) * 100), trend: `${buckets[2]} hosts` },
+      { region: "Low",            value: Math.round((buckets[3] / total) * 100), trend: `${buckets[3]} hosts` },
+    ]
+  }, [compromised.data])
+
+  const onUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const f = e.target.files?.[0]
+    if (f) fileScan.mutate(f)
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -89,15 +164,35 @@ export default function ThreatIntelPage() {
               Reputation Core — IOC Registry
             </h3>
           </div>
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[var(--strix-text-muted)]" />
-            <input
-              type="text"
-              placeholder="Search indicators..."
-              className="pl-9 pr-4 py-1.5 rounded-lg text-xs bg-[var(--strix-bg-surface)] border border-[var(--strix-border)] text-[var(--strix-text)] placeholder:text-[var(--strix-text-muted)] focus:outline-none focus:ring-1 focus:ring-strix-primary dark:focus:ring-strix-cyan w-[220px]"
-            />
+          <div className="flex items-center gap-3">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[var(--strix-text-muted)]" />
+              <input
+                type="text"
+                value={iocQuery}
+                onChange={(e) => setIocQuery(e.target.value)}
+                placeholder="Search or paste indicator (email/IP/domain/hash)…"
+                className="pl-9 pr-4 py-1.5 rounded-lg text-xs bg-[var(--strix-bg-surface)] border border-[var(--strix-border)] text-[var(--strix-text)] placeholder:text-[var(--strix-text-muted)] focus:outline-none focus:ring-1 focus:ring-strix-primary dark:focus:ring-strix-cyan w-[280px]"
+              />
+            </div>
+            <label className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-semibold uppercase tracking-wider border border-[var(--strix-border)] text-[var(--strix-text-muted)] hover:bg-[var(--strix-bg-surface)] cursor-pointer transition-colors">
+              {fileScan.isPending ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              ) : (
+                <Upload className="h-3.5 w-3.5" />
+              )}
+              Scan File
+              <input type="file" className="hidden" onChange={onUpload} />
+            </label>
           </div>
         </div>
+        {fileScan.data && (
+          <div className="mb-3 px-3 py-2 rounded-lg bg-[var(--strix-bg-surface)] border border-[var(--strix-border)] text-[10px] text-[var(--strix-text-muted)]">
+            <span className="font-bold text-[var(--strix-text)]">{fileScan.data.filename}</span>
+            {" · "}sha256 {fileScan.data.sha256.slice(0, 12)}…
+            {" · "}status {fileScan.data.status}
+          </div>
+        )}
 
         <div className="overflow-hidden rounded-lg border border-[var(--strix-border)]">
           <table className="w-full text-xs">
@@ -112,7 +207,7 @@ export default function ThreatIntelPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-[var(--strix-border)]">
-              {threatIntelEntries.map((entry, i) => {
+              {iocEntries.map((entry, i) => {
                 const TypeIcon = typeIcons[entry.type] || Globe
                 const repConfig = reputationConfig[entry.reputation]
                 const RepIcon = repConfig.icon

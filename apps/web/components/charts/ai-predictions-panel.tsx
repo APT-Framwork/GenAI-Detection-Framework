@@ -1,11 +1,21 @@
 "use client"
 
 import { cn } from "@/lib/utils"
-import type { Prediction } from "@/types"
 import { ChevronRight } from "lucide-react"
 
+// Real shape from /api/v1/analysis/chains/{id}/predictions
+interface ChainPredictions {
+  chainId: string
+  currentStage: number
+  currentStageName: string
+  predictedNextStage: number
+  predictedNextStageName: string
+  confidence: number
+  probabilities: { ckcStage: number; ckcStageName: string; prob: number }[]
+}
+
 interface AIPredictionsPanelProps {
-  predictions: Prediction[]
+  predictions: ChainPredictions | null | undefined
   className?: string
 }
 
@@ -13,8 +23,18 @@ export function AIPredictionsPanel({
   predictions,
   className,
 }: AIPredictionsPanelProps) {
-  const pred = predictions[0]
-  if (!pred) return null
+  if (!predictions) return null
+  const confPct = `${Math.round(predictions.confidence * 100)}%`
+  const second = predictions.probabilities
+    .filter((p) => p.ckcStage !== predictions.predictedNextStage)
+    .sort((a, b) => b.prob - a.prob)[0]
+  const pred = {
+    nextStep: predictions.predictedNextStageName,
+    aptFamily: `Currently at ${predictions.currentStageName}`,
+    analysis: second
+      ? `Second-most-likely next stage: ${second.ckcStageName} (${Math.round(second.prob * 100)}%)`
+      : "No alternate hypothesis available.",
+  }
 
   return (
     <div className={cn("space-y-6", className)}>
@@ -38,7 +58,7 @@ export function AIPredictionsPanel({
         <div className="flex items-center justify-between">
           <span className="text-[12px] font-semibold text-[#00343d] dark:text-[var(--strix-text)]">
             Confidence Score:{" "}
-            <span className="text-[#00666d] dark:text-[#87edf6]">94%</span>
+            <span className="text-[#00666d] dark:text-[#87edf6]">{confPct}</span>
           </span>
           <button className="text-[12px] font-semibold text-[#00666d] dark:text-[#87edf6] hover:underline flex items-center gap-0.5">
             Apply Shield

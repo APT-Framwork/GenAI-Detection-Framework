@@ -2,7 +2,7 @@ import { Tabs } from "expo-router";
 import { View, Text, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { colors, typography, radius, spacing } from "../../lib/theme";
-import { useAlertsStore } from "../../stores/alerts-store";
+import { useUnacknowledgedCount } from "../../lib/api/hooks";
 
 type TabIcon = React.ComponentProps<typeof Ionicons>["name"];
 
@@ -20,7 +20,8 @@ const TAB_CONFIG: {
 ];
 
 export default function TabLayout() {
-  const unreadCount = useAlertsStore((s) => s.unreadCount);
+  const unackQ = useUnacknowledgedCount();
+  const unreadCount = unackQ.data?.count ?? 0;
 
   return (
     <Tabs

@@ -1,0 +1,212 @@
+# =============================================================================
+# STRIX — VM 1 lab compose (everything but Wazuh itself).
+#
+# Pairs with the official wazuh-docker `single-node` compose running on the
+# same host. The relationship between the two is:
+#
+#   Wazuh manager writes JSON alerts to its volume:
+#     single-node_wazuh_logs:/var/ossec/logs/alerts/alerts.json
+#
+#   Filebeat (this compose) tails that file → pushes lines to Redis list
+#     strix:alerts:raw:list
+#
+#   wazuh_bridge worker drains that list → publishes to Redis Stream
+#     strix:alerts:raw
+#
+#   normalizer → inference (5 models) → verdicts_writer → Postgres + SSE → web UI
+#
+# Bring-up order:
+#   1. cd ~/wazuh-docker/single-node && docker compose up -d        # Wazuh first
+#   2. cd <repo> && cp apps/api/.env.example apps/api/.env          # set secrets
+#   3. docker compose -f infra/compose.lab.yml up -d --build
+#
+# Required external volume: `single-node_wazuh_logs` (created by Wazuh compose).
+# If Wazuh hasn't been started yet, this compose will fail with
+# "external volume not found" — start Wazuh first.
+# =============================================================================
+
+x-api-common: &api-common
+  build:
+    context: ../apps/api
+    dockerfile: Dockerfile
+  image: strix/api:lab
+  env_file:
+    - ../apps/api/.env
+  environment:
+    DB_HOST: postgres
+    REDIS_HOST: redis
+    MODELS_PATH: /app/models
+    INFERENCE_NUM_SHARDS: "1"
+  volumes:
+    - ../apps/models:/app/models:ro
+  depends_on:
+    postgres:
+      condition: service_healthy
+    redis:
+      condition: service_healthy
+  networks:
+    - strix_net
+  restart: unless-stopped
+
+services:
+  # ----- data layer ---------------------------------------------------
+  postgres:
+    image: timescale/timescaledb:2.17.2-pg16
+    container_name: strix_postgres
+    environment:
+      POSTGRES_DB: ${DB_NAME:-strix}
+      POSTGRES_USER: ${DB_USER:-strix}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required in apps/api/.env}
+    ports:
+      - "5432:5432"
+    volumes:
+      - strix_pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-strix} -d ${DB_NAME:-strix}"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    networks:
+      - strix_net
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: strix_redis
+    command:
+      ["redis-server", "--maxmemory", "1gb", "--maxmemory-policy", "noeviction", "--save", ""]
+    ports:
+      - "6379:6379"
+    volumes:
+      - strix_redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "PING"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    networks:
+      - strix_net
+    restart: unless-stopped
+
+  # ----- migrations (one-shot) ----------------------------------------
+  migrate:
+    <<: *api-common
+    container_name: strix_migrate
+    command: ["alembic", "upgrade", "head"]
+    restart: "no"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  # ----- API ----------------------------------------------------------
+  api:
+    <<: *api-common
+    container_name: strix_api
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "python", "-c",
+             "import urllib.request; urllib.request.urlopen('http://localhost:8000/health').read()"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+
+  # ----- workers ------------------------------------------------------
+  wazuh_bridge:
+    <<: *api-common
+    container_name: strix_wazuh_bridge
+    command: ["python", "-m", "strix_api.workers.wazuh_bridge"]
+
+  normalizer:
+    <<: *api-common
+    container_name: strix_normalizer
+    command: ["python", "-m", "strix_api.workers.normalizer"]
+
+  inference_shard0:
+    <<: *api-common
+    container_name: strix_inference_shard0
+    command: ["python", "-m", "strix_api.workers.inference"]
+    environment:
+      DB_HOST: postgres
+      REDIS_HOST: redis
+      MODELS_PATH: /app/models
+      INFERENCE_SHARD_ID: "0"
+      INFERENCE_NUM_SHARDS: "1"
+
+  verdicts_writer:
+    <<: *api-common
+    container_name: strix_verdicts_writer
+    command: ["python", "-m", "strix_api.workers.verdicts_writer"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+
+  arq:
+    <<: *api-common
+    container_name: strix_arq
+    command: ["arq", "strix_api.workers.arq_tasks.WorkerSettings"]
+
+  # ----- web frontend -------------------------------------------------
+  web:
+    build:
+      context: ../apps/web
+      dockerfile: Dockerfile
+    image: strix/web:lab
+    container_name: strix_web
+    environment:
+      # The Next.js server proxies /api/v1/* to this URL — keeps the
+      # browser same-origin, so httpOnly auth cookies just work.
+      STRIX_API_URL: http://api:8000
+    ports:
+      - "3000:3000"
+    depends_on:
+      api:
+        condition: service_healthy
+    networks:
+      - strix_net
+    restart: unless-stopped
+
+  # ----- Filebeat: Wazuh alerts → Redis list --------------------------
+  # Mounts Wazuh's logs volume read-only so it can tail alerts.json.
+  # The volume is created by the wazuh-docker single-node compose and
+  # declared external below.
+  filebeat:
+    image: docker.elastic.co/beats/filebeat:8.15.3
+    container_name: strix_filebeat
+    user: root        # needed to read /var/ossec/logs (owned by wazuh user)
+    command:
+      ["filebeat", "-e", "-strict.perms=false"]
+    volumes:
+      - ./filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
+      - wazuh_alerts:/var/ossec/logs:ro
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - strix_net
+    restart: unless-stopped
+
+volumes:
+  strix_pg_data:
+  strix_redis_data:
+  # Created by the wazuh-docker `single-node` compose. Must already exist
+  # when this stack starts. If the Wazuh compose used a different project
+  # name, adjust the `name:` to match (it's prefix + volume key).
+  wazuh_alerts:
+    external: true
+    name: single-node_wazuh_logs
+
+networks:
+  strix_net:
+    driver: bridge

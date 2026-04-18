@@ -1,0 +1,46 @@
+<!--
+  ============================================================================
+  DRAFT — NOT DEPLOYED
+  ============================================================================
+  File:    manager-ossec-conf.xml.draft
+  Purpose: Manager-side ossec.conf snippet — enables the JSON output that
+           Filebeat (our forwarder) tails, and pins alert rotation so the
+           Filebeat registry offset stays valid long enough for our retention
+           window.
+
+  Target:  merge into /var/ossec/etc/ossec.conf on the MANAGER
+           (inside the <ossec_config> root element).
+
+  Review & sign-off required before any real deployment.
+  ============================================================================
+-->
+
+<global>
+  <!-- Emit alerts.json (required — Filebeat reads this file) -->
+  <jsonout_output>yes</jsonout_output>
+
+  <!-- Still emit the legacy text alerts.log for ad-hoc debugging -->
+  <alerts_log>yes</alerts_log>
+
+  <!-- Email disabled in compose; ML pipeline handles notification -->
+  <email_notification>no</email_notification>
+
+  <!-- Don't log empty alerts -->
+  <logall>no</logall>
+  <logall_json>no</logall_json>
+</global>
+
+<!-- Alert level threshold passed to decoders/rules BEFORE writing alerts.json.
+     Level 3 matches the training extract (training data contains level-3+ alerts).
+     DO NOT raise this above 3 in production without re-evaluating the trained
+     models — the input distribution will shift. -->
+<alerts>
+  <log_alert_level>3</log_alert_level>
+  <email_alert_level>12</email_alert_level>
+</alerts>
+
+<!-- Alert log rotation. We want Filebeat to keep up with a full day's worth
+     of alerts in a single file so its registry offset is stable. -->
+<logging>
+  <log_format>plain,json</log_format>
+</logging>

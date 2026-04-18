@@ -1,7 +1,12 @@
 import { View, StyleSheet } from "react-native";
 import Svg, { Polyline, Defs, LinearGradient, Stop, Rect } from "react-native-svg";
 import { colors, radius } from "../lib/theme";
-import type { ChartPoint } from "../lib/mock-data";
+
+export interface ChartPoint {
+  day: number;
+  value: number;
+  label?: string;
+}
 
 interface Props {
   data: ChartPoint[];

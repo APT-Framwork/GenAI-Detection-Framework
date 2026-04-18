@@ -1,5 +1,5 @@
 import { useEffect, useCallback } from "react";
-import { Stack } from "expo-router";
+import { Stack, useRouter, useSegments } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useFonts } from "expo-font";
 import {
@@ -16,8 +16,25 @@ import {
 } from "@expo-google-fonts/inter";
 import * as SplashScreen from "expo-splash-screen";
 
+import { ErrorBoundary } from "../components/ErrorBoundary";
+import { QueryProvider } from "../lib/api/QueryProvider";
+import { usePushNotifications } from "../hooks/usePushNotifications";
+import { useUIStore } from "../stores/ui-store";
+import { useUserStore } from "../stores/user-store";
+
 SplashScreen.preventAutoHideAsync();
 
+/**
+ * Root layout. Responsibilities:
+ *  - Load fonts before showing any UI.
+ *  - Bootstrap the auth store once on cold start (reads SecureStore +
+ *    validates via /auth/me).
+ *  - Redirect based on auth status:
+ *      booting → stay on the current screen (splash / index)
+ *      anon    → force to /(auth)/login, unless already in the splash
+ *                / onboarding flow
+ *      authed  → if currently in (auth), bounce to /(tabs)/dashboard
+ */
 export default function RootLayout() {
   const [fontsLoaded] = useFonts({
     "SpaceGrotesk-Bold": SpaceGrotesk_700Bold,
@@ -30,6 +47,22 @@ export default function RootLayout() {
     "Inter-SemiBold": Inter_600SemiBold,
   });
 
+  const bootstrap = useUserStore((s) => s.bootstrap);
+  const hydratePrefs = useUIStore((s) => s.hydrate);
+  const status = useUserStore((s) => s.status);
+  const router = useRouter();
+  const segments = useSegments();
+
+  // Kick off auth + UI hydration once fonts are ready.
+  useEffect(() => {
+    if (fontsLoaded) {
+      void bootstrap();
+      void hydratePrefs();
+    }
+  }, [fontsLoaded, bootstrap, hydratePrefs]);
+
+  // Hide the native splash once fonts are up — our own /index.tsx
+  // handles the branded splash animation.
   const onLayoutRootView = useCallback(async () => {
     if (fontsLoaded) {
       await SplashScreen.hideAsync();
@@ -40,16 +73,47 @@ export default function RootLayout() {
     onLayoutRootView();
   }, [onLayoutRootView]);
 
+  // ---- auth-gated routing ------------------------------------------
+  useEffect(() => {
+    if (!fontsLoaded || status === "booting") return;
+
+    const inAuthGroup = segments[0] === "(auth)";
+    const inTabs = segments[0] === "(tabs)";
+    const inAnalysis = segments[0] === "analysis";
+
+    if (status === "anon" && (inTabs || inAnalysis)) {
+      router.replace("/(auth)/login");
+    } else if (status === "authed" && inAuthGroup) {
+      router.replace("/(tabs)/dashboard");
+    }
+  }, [status, segments, fontsLoaded, router]);
+
   if (!fontsLoaded) return null;
 
   return (
-    <>
-      <StatusBar style="dark" />
-      <Stack screenOptions={{ headerShown: false, animation: "fade" }}>
-        <Stack.Screen name="index" />
-        <Stack.Screen name="(onboarding)" />
-        <Stack.Screen name="(tabs)" />
-      </Stack>
-    </>
+    <ErrorBoundary>
+      <QueryProvider>
+        <StatusBar style="dark" />
+        <AppShell />
+      </QueryProvider>
+    </ErrorBoundary>
+  );
+}
+
+/**
+ * Renders the route stack and wires post-auth side effects. Must live
+ * below `<QueryProvider>` + inside the Expo Router tree so hooks that
+ * depend on either (push registration, router, etc) can resolve.
+ */
+function AppShell() {
+  usePushNotifications();
+  return (
+    <Stack screenOptions={{ headerShown: false, animation: "fade" }}>
+      <Stack.Screen name="index" />
+      <Stack.Screen name="(auth)" />
+      <Stack.Screen name="(onboarding)" />
+      <Stack.Screen name="(tabs)" />
+      <Stack.Screen name="analysis/[id]" options={{ animation: "slide_from_right" }} />
+    </Stack>
   );
 }

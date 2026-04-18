@@ -1,6 +1,10 @@
 "use client"
 
-import { modelMetrics, modelConfidenceData } from "@/lib/mock-data"
+import { useMemo } from "react"
+import { useQuery } from "@tanstack/react-query"
+
+import { apiFetch } from "@/lib/api/client"
+import { useLiveFeed } from "@/lib/api/live-feed"
 import { CircularProgress } from "@/components/charts/circular-progress"
 import { cn } from "@/lib/utils"
 import {
@@ -14,6 +18,23 @@ import {
   Cpu,
   Terminal,
 } from "lucide-react"
+
+interface ModelHealth {
+  name: string
+  version: string
+  weightsSha256: string
+  status: string
+  driftKl?: number | null
+}
+interface ModelsResponse { models: ModelHealth[] }
+interface TrendPoint {
+  ts: string
+  aeAnomaly: number
+  vaeProb: number
+  transformerConfidence: number
+  gnnRisk: number
+}
+interface ConfidenceTrendResponse { window: string; points: TrendPoint[] }
 
 const modelCards = [
   {
@@ -55,6 +76,53 @@ const telemetryStream = [
 ]
 
 export default function AiEnginePage() {
+  const models = useQuery({
+    queryKey: ["monitoring", "models"],
+    queryFn: () => apiFetch<ModelsResponse>("/monitoring/models"),
+    refetchInterval: 30_000,
+  })
+  const trend = useQuery({
+    queryKey: ["monitoring", "confidence-trend", "7d"],
+    queryFn: () => apiFetch<ConfidenceTrendResponse>("/monitoring/confidence-trend?window=7d"),
+    refetchInterval: 60_000,
+  })
+  const liveFeed = useLiveFeed({ maxEvents: 12 })
+
+  // Derived health snapshot for the header KPIs.
+  const modelMetrics = useMemo(() => {
+    const list = models.data?.models ?? []
+    const driftValues = list
+      .map((m) => m.driftKl)
+      .filter((v): v is number => typeof v === "number")
+    const avgDrift = driftValues.length
+      ? driftValues.reduce((a, b) => a + b, 0) / driftValues.length
+      : 0
+    return {
+      health:
+        list.length === 0
+          ? "unknown"
+          : list.every((m) => m.status === "active")
+          ? "optimal"
+          : "degraded",
+      accuracy: list.length === 0 ? 0 : Math.round((1 - avgDrift) * 100),
+      f1Score: list.length === 0 ? "—" : (1 - avgDrift).toFixed(2),
+      throughput: liveFeed.events.length.toString(),
+      latency: liveFeed.status,
+    }
+  }, [models.data, liveFeed.events, liveFeed.status])
+
+  // Trend is rendered as a sparkline via SVG `<polyline>` elements.
+  const modelConfidenceData = useMemo(
+    () =>
+      (trend.data?.points ?? []).map((p) => ({
+        time: new Date(p.ts).toLocaleDateString(undefined, { month: "short", day: "numeric" }),
+        classifier: Math.round(p.transformerConfidence * 100),
+        gnn: Math.round(p.gnnRisk * 100),
+        vae: Math.round(p.vaeProb * 100),
+      })),
+    [trend.data],
+  )
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -259,11 +327,14 @@ export default function AiEnginePage() {
         <div className="flex items-center gap-2 mb-4">
           <Terminal className="h-4 w-4 text-[var(--strix-text-muted)]" />
           <h3 className="text-sm font-bold text-[var(--strix-text)]">
-            Engine Telemetry Stream
+            Live Inference Stream
           </h3>
-          <span className="ml-auto text-[9px] text-emerald-500 font-semibold uppercase tracking-wider flex items-center gap-1">
+          <span className={cn(
+            "ml-auto text-[9px] font-semibold uppercase tracking-wider flex items-center gap-1",
+            liveFeed.status === "open" ? "text-emerald-500" : "text-amber-500"
+          )}>
             <Activity className="h-3 w-3" />
-            Live
+            {liveFeed.status}
           </span>
         </div>
 
@@ -272,22 +343,36 @@ export default function AiEnginePage() {
             <div className="h-2.5 w-2.5 rounded-full bg-red-500/70" />
             <div className="h-2.5 w-2.5 rounded-full bg-amber-500/70" />
             <div className="h-2.5 w-2.5 rounded-full bg-emerald-500/70" />
-            <span className="text-[9px] text-gray-500 ml-2 font-mono">strix_ai_telemetry</span>
+            <span className="text-[9px] text-gray-500 ml-2 font-mono">strix:sse:live-feed</span>
           </div>
-
-          <div className="p-4 max-h-[200px] overflow-y-auto scrollbar-thin font-mono text-[11px] leading-6 space-y-0.5">
-            {telemetryStream.map((entry, i) => (
-              <div key={i} className="flex gap-3 px-2 py-0.5 rounded hover:bg-white/5 transition-colors">
-                <span className="text-gray-500 flex-shrink-0">{entry.time}</span>
-                <span className={cn(
-                  "font-bold flex-shrink-0 min-w-[40px]",
-                  entry.type === "warn" ? "text-amber-400" : "text-cyan-400"
-                )}>
-                  {entry.type === "warn" ? "WARN" : "INFO"}
-                </span>
-                <span className="text-gray-300">{entry.event}</span>
+          <div className="p-4 max-h-[280px] overflow-y-auto scrollbar-thin font-mono text-[11px] leading-6 space-y-0.5">
+            {liveFeed.events.length === 0 ? (
+              <div className="px-2 py-1 text-gray-500">
+                Waiting for verdicts… (SSE: {liveFeed.status})
               </div>
-            ))}
+            ) : (
+              liveFeed.events.map((e) => {
+                const isHigh = e.data.ckcStage >= 4
+                return (
+                  <div key={e.id} className="flex gap-3 px-2 py-0.5 rounded hover:bg-white/5 transition-colors">
+                    <span className="text-gray-500 flex-shrink-0">
+                      {new Date(e.data.occurredAt).toLocaleTimeString()}
+                    </span>
+                    <span className={cn(
+                      "font-bold flex-shrink-0 min-w-[40px]",
+                      isHigh ? "text-amber-400" : "text-cyan-400",
+                    )}>
+                      {isHigh ? "ATTK" : "INFO"}
+                    </span>
+                    <span className="text-gray-300">
+                      {e.data.ckcStageName} · agent {e.data.agentId ?? "—"} ·
+                      {" "}VAE {e.data.vaeMaliciousProb != null ? (e.data.vaeMaliciousProb * 100).toFixed(0) : "—"}%
+                      {" "}· {e.data.dqnActionName ?? "MONITOR"}
+                    </span>
+                  </div>
+                )
+              })
+            )}
           </div>
         </div>
       </div>

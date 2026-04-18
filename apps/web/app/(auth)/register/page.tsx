@@ -3,19 +3,21 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { useAuthStore } from "@/stores/auth-store"
+import { useRegister } from "@/lib/api/auth"
+import { StrixApiError } from "@/lib/api/client"
 import { Shield, Eye, EyeOff, Loader2 } from "lucide-react"
 
 export default function RegisterPage() {
   const router = useRouter()
-  const { register } = useAuthStore()
+  const register = useRegister()
   const [designation, setDesignation] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
-  const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
+
+  const loading = register.isPending
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -31,19 +33,19 @@ export default function RegisterPage() {
       return
     }
 
-    setLoading(true)
-
     try {
-      const success = await register(designation, email, password)
-      if (success) {
-        router.push("/")
+      await register.mutateAsync({
+        email,
+        password,
+        designation: designation || undefined,
+      })
+      router.push("/")
+    } catch (err) {
+      if (err instanceof StrixApiError) {
+        setError(err.message || "Registration failed")
       } else {
-        setError("Registration failed")
+        setError("System error during registration")
       }
-    } catch {
-      setError("System error during registration")
-    } finally {
-      setLoading(false)
     }
   }
 

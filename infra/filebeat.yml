@@ -1,0 +1,56 @@
+# STRIX — Filebeat config
+# Tails /var/ossec/logs/alerts/alerts.json (the Wazuh manager's alerts log)
+# and ships every line to a Redis List. A tiny bridge worker
+# (strix_api.workers.wazuh_bridge) drains that list into the Redis Stream
+# `strix:alerts:raw` which the normalizer consumes.
+#
+# Why two hops: Filebeat's native Redis output supports `list` + `channel`
+# only — Redis Streams is not directly reachable. Rather than running
+# Logstash just for this, the bridge worker is ~30 lines.
+#
+# Operational properties of this setup:
+#   - Backpressure-safe: Filebeat's registry remembers where it is;
+#     if the bridge or Redis dies, nothing is lost.
+#   - Replayable: once on the Stream, consumer-group offsets give replay.
+#   - Idempotent ingress: the bridge uses BLPOP + XADD — losing a message
+#     between BLPOP and XADD is possible; Phase 2+ can switch to RPOPLPUSH
+#     into a "processing" list if that becomes a problem.
+
+filebeat.inputs:
+  - type: filestream
+    id: wazuh-alerts
+    enabled: true
+    paths:
+      - /var/ossec/logs/alerts/alerts.json
+    parsers:
+      - ndjson:
+          target: ""        # keep the alert at the document root
+          overwrite_keys: true
+          add_error_key: true
+          expand_keys: true
+    # Drop the Filebeat envelope fields — we only want the Wazuh alert.
+    fields_under_root: true
+
+processors:
+  - drop_fields:
+      fields: ["agent", "ecs", "host", "input", "log", "@metadata", "@version"]
+      ignore_missing: true
+
+output.redis:
+  hosts: ["redis:6379"]
+  # Password inherited from env if needed; left unset for the default compose
+  # (no auth on the internal network).
+  key: "strix:alerts:raw:list"
+  datatype: list
+  # Filebeat will multi-push batches via RPUSH.
+  codec.json:
+    pretty: false
+  timeout: 5
+  max_retries: 3
+  bulk_max_size: 64
+
+# Keep Filebeat's own logging quiet and on stdout for compose.
+logging.level: info
+logging.to_files: false
+logging.to_stderr: true
+logging.json: true

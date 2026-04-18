@@ -1,10 +1,11 @@
 "use client"
 
-import { useState } from "react"
-import { mockAlerts, globalStats } from "@/lib/mock-data"
-import { useAlertStore } from "@/stores/alert-store"
+import { useMemo, useState } from "react"
 import { useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
+
+import { useLiveFeed, type LiveFeedEvent } from "@/lib/api/live-feed"
+import { useChainList } from "@/lib/api/analysis"
 import {
   Filter,
   CheckCheck,
@@ -16,8 +17,31 @@ import {
   Activity,
 } from "lucide-react"
 
-// Only show the first 4 alerts for the Figma layout
-const feedAlerts = mockAlerts.slice(0, 4)
+function severityFromCkc(stage: number): "critical" | "high" | "medium" | "low" | "info" {
+  if (stage >= 6) return "critical"
+  if (stage >= 4) return "high"
+  if (stage >= 2) return "medium"
+  if (stage >= 1) return "low"
+  return "info"
+}
+
+function liveEventToAlert(e: LiveFeedEvent) {
+  const severity = severityFromCkc(e.ckcStage)
+  return {
+    id: e.alertId,
+    timestamp: e.occurredAt,
+    title: `${e.ckcStageName}${e.dqnActionName ? ` · ${e.dqnActionName}` : ""}`,
+    description:
+      e.mitreTechniques.length > 0
+        ? `MITRE ${e.mitreTechniques.join(", ")}`
+        : `Agent ${e.agentId ?? "unknown"}`,
+    severity,
+    source: e.agentId ?? "unknown",
+  }
+}
+
+// Replaced by useLiveFeed() inside the component
+const feedAlerts: ReturnType<typeof liveEventToAlert>[] = []
 
 // Badge config per severity
 const badgeConfig: Record<
@@ -95,23 +119,34 @@ function SeverityIcon({ severity }: { severity: string }) {
 
 export default function VigilanceFeedPage() {
   const router = useRouter()
-  const { acknowledgeAlert } = useAlertStore()
   const [filter, setFilter] = useState<string>("all")
+  const liveFeed = useLiveFeed({ maxEvents: 200 })
+  const chains = useChainList({ onlyOpen: true, limit: 1 })
+  void chains // header may consume in future iteration
+
+  // Project SSE events through the existing alert shape so the JSX below
+  // stays unchanged.
+  const allAlerts = useMemo(
+    () => liveFeed.events.map((e) => liveEventToAlert(e.data)),
+    [liveFeed.events],
+  )
 
   const alerts =
     filter === "all"
-      ? feedAlerts
-      : feedAlerts.filter((a) => a.severity === filter)
+      ? allAlerts
+      : allAlerts.filter((a) => a.severity === filter)
 
-  const criticalCount = mockAlerts.filter(
-    (a) => a.severity === "critical"
+  const criticalCount = allAlerts.filter((a) => a.severity === "critical").length
+  const warningCount = allAlerts.filter(
+    (a) => a.severity === "medium" || a.severity === "high",
   ).length
-  const warningCount = mockAlerts.filter(
-    (a) => a.severity === "medium" || a.severity === "high"
+  const updateCount = allAlerts.filter(
+    (a) => a.severity === "info" || a.severity === "low",
   ).length
-  const updateCount = mockAlerts.filter(
-    (a) => a.severity === "info" || a.severity === "low"
-  ).length
+
+  // No-op acknowledge while we don't have a backend ack endpoint yet —
+  // future P5+ ticket will wire `POST /alerts/{id}/ack`.
+  const acknowledgeAlert = (_id: string) => {}
 
   return (
     <div className="space-y-[24px]">
@@ -298,31 +333,35 @@ export default function VigilanceFeedPage() {
         <div className="flex items-center gap-[32px]">
           <div className="flex items-center gap-[8px]">
             <span className="text-[10px] font-semibold uppercase tracking-[0.8px] text-[#497f8b] dark:text-[var(--strix-text-muted)]">
-              GLOBAL UPTIME
+              SSE
             </span>
             <span className="text-[14px] font-bold text-[#00343d] dark:text-[var(--strix-text)]">
-              {globalStats.globalUptime}
+              {liveFeed.status}
             </span>
           </div>
           <div className="flex items-center gap-[8px]">
             <span className="text-[10px] font-semibold uppercase tracking-[0.8px] text-[#497f8b] dark:text-[var(--strix-text-muted)]">
-              ACTIVE NODES
+              EVENTS BUFFERED
             </span>
             <span className="text-[14px] font-bold text-[#00343d] dark:text-[var(--strix-text)]">
-              {globalStats.activeNodes.toLocaleString()}
+              {liveFeed.events.length.toLocaleString()}
             </span>
           </div>
           <div className="flex items-center gap-[8px]">
             <span className="text-[10px] font-semibold uppercase tracking-[0.8px] text-[#497f8b] dark:text-[var(--strix-text-muted)]">
-              SEC SCANS/MIN
+              OPEN CHAINS
             </span>
             <span className="text-[14px] font-bold text-[#00343d] dark:text-[var(--strix-text)]">
-              {globalStats.secScansMin}
+              {chains.data?.openCount ?? 0}
             </span>
           </div>
         </div>
         <div className="flex items-center gap-[8px]">
-          <div className="h-[8px] w-[8px] rounded-full bg-emerald-500 animate-pulse" />
+          <div
+            className={`h-[8px] w-[8px] rounded-full animate-pulse ${
+              liveFeed.status === "open" ? "bg-emerald-500" : "bg-amber-500"
+            }`}
+          />
           <Activity className="h-[18px] w-[18px] text-[#00666d] dark:text-emerald-400" />
         </div>
       </div>

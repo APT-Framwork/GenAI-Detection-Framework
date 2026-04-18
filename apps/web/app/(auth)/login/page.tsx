@@ -3,36 +3,37 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { useAuthStore } from "@/stores/auth-store"
 import { Shield, Eye, EyeOff, Loader2 } from "lucide-react"
+
+import { useLogin } from "@/lib/api/auth"
+import { StrixApiError } from "@/lib/api/client"
 
 export default function LoginPage() {
   const router = useRouter()
-  const { login } = useAuthStore()
+  const login = useLogin()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
-  const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError("")
-    setLoading(true)
-
     try {
-      const success = await login(email, password)
-      if (success) {
-        router.push("/")
+      await login.mutateAsync({ email, password })
+      router.push("/")
+    } catch (exc) {
+      if (exc instanceof StrixApiError && exc.status === 401) {
+        setError("Invalid email or password")
+      } else if (exc instanceof StrixApiError) {
+        setError(exc.problem?.detail ?? exc.message)
       } else {
-        setError("Invalid credentials")
+        setError("Authentication failed — backend unreachable")
       }
-    } catch {
-      setError("Authentication failed")
-    } finally {
-      setLoading(false)
     }
   }
+
+  const loading = login.isPending
 
   return (
     <div className="space-y-8">

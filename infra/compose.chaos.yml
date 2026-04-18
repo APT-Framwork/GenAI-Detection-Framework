@@ -1,0 +1,39 @@
+# Chaos test extension for compose.api.yml.
+#
+# Usage:
+#   docker compose -f infra/compose.api.yml -f infra/compose.chaos.yml up
+#
+# Adds Toxiproxy (https://github.com/Shopify/toxiproxy) in front of Redis
+# and Postgres so chaos tests can inject latency / drops / connection
+# failures without touching the real services. Workers point at the
+# proxied addresses via the override env vars.
+
+services:
+  toxiproxy:
+    image: ghcr.io/shopify/toxiproxy:2.10.0
+    container_name: strix_toxiproxy
+    ports:
+      - "8474:8474"      # admin API
+      - "26379:26379"    # proxied Redis
+      - "25432:25432"    # proxied Postgres
+    networks:
+      - strix_net
+    restart: unless-stopped
+
+  toxiproxy_init:
+    image: ghcr.io/shopify/toxiproxy:2.10.0
+    container_name: strix_toxiproxy_init
+    depends_on:
+      - toxiproxy
+    entrypoint: ["/bin/sh", "-c"]
+    # Uses toxiproxy-cli inside the same image to register the two upstreams.
+    command: |
+      "
+      sleep 2
+      toxiproxy-cli -h toxiproxy:8474 create -l 0.0.0.0:26379 -u redis:6379 redis-proxy
+      toxiproxy-cli -h toxiproxy:8474 create -l 0.0.0.0:25432 -u postgres:5432 pg-proxy
+      echo 'toxiproxy initialised'
+      "
+    networks:
+      - strix_net
+    restart: "no"

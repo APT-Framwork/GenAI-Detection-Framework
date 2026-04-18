@@ -1,0 +1,173 @@
+{
+  "description": "MITRE ATT&CK to Cyber Kill Chain (CKC) mapping used by the STRIX detection pipeline. Extracted from apps/notebooks/preprocessing_dataset.ipynb and cross-checked against RL_agent/synthetic/data_loader.py (TACTIC_MAPPING + TECHNIQUE_MAPPING).",
+  "source": {
+    "notebook": "apps/notebooks/preprocessing_dataset.ipynb",
+    "loader": "RL_agent/synthetic/data_loader.py (lines 97-133)",
+    "extracted_on": "2026-04-17"
+  },
+  "ckc_stages": {
+    "0": "Benign",
+    "1": "S1 Reconnaissance",
+    "2": "S2 Weaponization",
+    "3": "S3 Delivery",
+    "4": "S4 Exploitation",
+    "5": "S5 Installation",
+    "6": "S6 Command & Control",
+    "7": "S7 Actions on Objectives",
+    "-1": "Unknown (malicious, stage not determinable)"
+  },
+  "phase_priority": {
+    "comment": "Used when a row has multiple tactic/technique labels — pick the smallest number (earliest phase wins).",
+    "S1": 1,
+    "S2": 2,
+    "S3": 3,
+    "S4": 4,
+    "S5": 5,
+    "S6": 6,
+    "S7": 7
+  },
+  "tactic_id_to_ckc": {
+    "TA0043": { "name": "Reconnaissance",        "ckc": 1 },
+    "TA0001": { "name": "Initial Access",         "ckc": 3 },
+    "TA0002": { "name": "Execution",              "ckc": 4 },
+    "TA0003": { "name": "Persistence",            "ckc": 5 },
+    "TA0004": { "name": "Privilege Escalation",   "ckc": 4 },
+    "TA0005": { "name": "Defense Evasion",        "ckc": 5 },
+    "TA0006": { "name": "Credential Access",      "ckc": 7 },
+    "TA0007": { "name": "Discovery",              "ckc": 7 },
+    "TA0008": { "name": "Lateral Movement",       "ckc": 5 },
+    "TA0009": { "name": "Collection",             "ckc": 7 },
+    "TA0011": { "name": "Command and Control",    "ckc": 6 },
+    "TA0040": { "name": "Impact",                 "ckc": 7 }
+  },
+  "technique_id_to_ckc": {
+    "T1595":      { "name": "Active Scanning",                                       "ckc": 1 },
+    "T1595.002":  { "name": "Active Scanning: Vulnerability Scanning",               "ckc": 1 },
+    "T1190":      { "name": "Exploit Public-Facing Application",                     "ckc": 4 },
+    "T1078":      { "name": "Valid Accounts (first login)",                          "ckc": 3 },
+    "T1059":      { "name": "Command and Scripting Interpreter",                     "ckc": 4 },
+    "T1059.007":  { "name": "Command and Scripting Interpreter: JavaScript",         "ckc": 4 },
+    "T1059.004":  { "name": "Command and Scripting Interpreter: Unix Shell",         "ckc": 4 },
+    "T1110.001":  { "name": "Brute Force: Password Guessing",                        "ckc": 1 },
+    "T1105":      { "name": "Ingress Tool Transfer",                                 "ckc": 3 },
+    "T1136":      { "name": "Create Account",                                        "ckc": 5 },
+    "T1098":      { "name": "Account Manipulation",                                  "ckc": 5 },
+    "T1222.002":  { "name": "Linux File and Directory Permissions Modification",     "ckc": 5 },
+    "T1036.005":  { "name": "Masquerading: Match Legitimate Name or Location",       "ckc": 5 },
+    "T1068":      { "name": "Exploitation for Privilege Escalation",                 "ckc": 4 },
+    "T1548.003":  { "name": "Abuse Elevation Control Mechanism: Sudo and Sudo Caching", "ckc": 4 },
+    "T1106":      { "name": "Native API",                                            "ckc": 4 },
+    "T1083":      { "name": "File and Directory Discovery",                          "ckc": 7 },
+    "T1057":      { "name": "Process Discovery",                                     "ckc": 7 },
+    "T1082":      { "name": "System Information Discovery",                          "ckc": 7 },
+    "T1049":      { "name": "System Network Connections Discovery",                  "ckc": 7 },
+    "T1033":      { "name": "System Owner/User Discovery",                           "ckc": 7 },
+    "T1040":      { "name": "Network Sniffing",                                      "ckc": 7 },
+    "T1021":      { "name": "Remote Services",                                       "ckc": 5 },
+    "T1021.004":  { "name": "Remote Services: SSH",                                  "ckc": 5 },
+    "T1005":      { "name": "Data from Local System",                                "ckc": 7 },
+    "T1565.001":  { "name": "Data Manipulation: Stored Data Manipulation",           "ckc": 7 },
+    "T1485":      { "name": "Data Destruction",                                      "ckc": 7 },
+    "T1562.001":  { "name": "Impair Defenses: Disable or Modify Tools",              "ckc": 5 },
+    "T1070.004":  { "name": "Indicator Removal on Host: File Deletion",              "ckc": 7 },
+    "T1070.006":  { "name": "Indicator Removal on Host: Timestomp",                  "ckc": 7 }
+  },
+  "tactic_name_to_ckc": {
+    "comment": "Used when the raw alert carries MITRE fields as human-readable names (lowercase, exact match). Applied to _source.rule.mitre.tactic.",
+    "reconnaissance":       1,
+    "initial access":       3,
+    "execution":            4,
+    "persistence":          5,
+    "privilege escalation": 4,
+    "defense evasion":      5,
+    "credential access":    7,
+    "discovery":            7,
+    "lateral movement":     5,
+    "collection":           7,
+    "command and control":  6,
+    "impact":               7
+  },
+  "technique_name_to_ckc": {
+    "comment": "Applied to _source.rule.mitre.technique. Exact match first, then substring fallback (first match in insertion order).",
+    "S1": [
+      "vulnerability scanning",
+      "active scanning: vulnerability scanning",
+      "active scanning",
+      "password guessing",
+      "brute force: password guessing"
+    ],
+    "S3": [
+      "ingress tool transfer",
+      "valid accounts"
+    ],
+    "S4": [
+      "exploit public-facing application",
+      "command and scripting interpreter",
+      "javascript",
+      "command and scripting interpreter: javascript",
+      "unix shell",
+      "command and scripting interpreter: unix shell",
+      "exploitation for privilege escalation",
+      "sudo and sudo caching",
+      "abuse elevation control mechanism: sudo and sudo caching",
+      "native api"
+    ],
+    "S5": [
+      "create account",
+      "account manipulation",
+      "linux and mac file and directory permissions modification",
+      "file and directory permissions modification: linux and mac file and directory permissions modification",
+      "match legitimate name or location",
+      "masquerading: match legitimate name or location",
+      "masquerading",
+      "remote services",
+      "ssh",
+      "remote services: ssh",
+      "disable or modify tools",
+      "impair defenses: disable or modify tools"
+    ],
+    "S7": [
+      "file and directory discovery",
+      "process discovery",
+      "system information discovery",
+      "system network connections discovery",
+      "system owner/user discovery",
+      "system owner or user discovery",
+      "network sniffing",
+      "data from local system",
+      "stored data manipulation",
+      "data manipulation: stored data manipulation",
+      "file deletion",
+      "indicator removal on host: file deletion",
+      "indicator removal",
+      "indicator removal on host",
+      "timestomp",
+      "indicator removal on host: timestomp",
+      "data destruction"
+    ]
+  },
+  "resolution_rules": {
+    "1_technique_over_tactic": "When a row has both a technique and a tactic, the technique mapping wins. If no technique maps, fall back to tactic.",
+    "2_earliest_phase_wins":    "When a row has multiple tactics or techniques, reduce to the one with the smallest phase_priority number (e.g., [S1,S4,S5] -> S1).",
+    "3_name_exact_then_substring": "For name-based technique mapping: try exact lowercase match first, then substring (first matching entry wins). For tactic names, only exact match is used.",
+    "4_summary_column":        "The cyber_kill_chain_summary column is min(phase_priority) across the 4 derived columns (tactic_id, technique_id, tactic_name, technique_name).",
+    "5_no_match_is_benign":    "Rows with NO matching MITRE information are treated as Benign (stage 0)."
+  },
+  "known_gaps": {
+    "missing_tactics": {
+      "TA0010": "Exfiltration — not mapped; rows carrying only TA0010 fall through to Benign. Likely a bug; future work should assign to S7.",
+      "TA0042": "Resource Development — not mapped; likely belongs to S2 Weaponization."
+    },
+    "stage_S2_unreachable": "No rule ever outputs S2 Weaponization. The downstream models will never see this label from real data.",
+    "loader_missing_features": {
+      "comment": "RL_agent/synthetic/data_loader.py:97-133 only ports the ID-based dicts. The name-based mappings, substring fallback, technique-over-tactic precedence, and earliest-phase summary reduction are NOT present in the loader and must be re-implemented server-side for full parity with the notebook.",
+      "not_ported": [
+        "TACTIC_NAME_MAPPING",
+        "TECHNIQUE_NAME_MAPPING",
+        "substring fallback on technique names",
+        "technique-over-tactic precedence",
+        "earliest-phase-wins aggregation across multiple labels"
+      ]
+    }
+  }
+}

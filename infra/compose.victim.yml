@@ -1,0 +1,70 @@
+# =============================================================================
+# STRIX victim VM — Wazuh agent ONLY in a container.
+#
+# ⚠️  READ FIRST. This is the docker variant and has trade-offs vs the bash
+#     installer (`infra/scripts/install_victim.sh`).
+#
+# What this gives you:
+#   - One-shot `docker compose up -d` deployment of the Wazuh agent
+#   - Containerised → easy to nuke + redeploy
+#
+# What this DOES NOT give you:
+#   - Caldera sandcat agent (sandcat is a binary that does process injection,
+#     shellcode, etc. — it doesn't fit cleanly in a container at all).
+#     ⇒ Use the bash installer if you want Caldera to actually attack this host.
+#
+# Even with `network_mode: host` + read-only host mounts, the agent's view
+# of the system is shallower than a bare-metal install — file-integrity
+# monitoring picks up host changes via the bind-mounts, but rootcheck +
+# syscheck inotify hooks are limited by container capabilities.
+#
+# Bring-up:
+#   sudo MANAGER_IP=10.0.0.10 docker compose -f compose.victim.yml up -d
+#
+# Verify from VM 1:
+#   docker exec wazuh.manager /var/ossec/bin/agent_control -l
+# =============================================================================
+
+services:
+  wazuh-agent:
+    image: wazuh/wazuh-agent:4.9.2
+    container_name: strix_victim_agent
+    restart: unless-stopped
+
+    # host network so the agent registers from the VM's IP (not the docker
+    # bridge IP) and reaches the manager on its public address.
+    network_mode: host
+
+    environment:
+      # Required — IP/hostname of the Wazuh manager (VM 1).
+      WAZUH_MANAGER: "${MANAGER_IP:?set MANAGER_IP env var}"
+      WAZUH_MANAGER_PORT: "1514"
+      WAZUH_REGISTRATION_SERVER: "${MANAGER_IP}"
+      WAZUH_REGISTRATION_PORT: "1515"
+      WAZUH_AGENT_GROUP: "${AGENT_GROUP:-default}"
+      # Use the VM's hostname rather than the container's so the manager
+      # dashboard shows the real host.
+      WAZUH_AGENT_NAME: "${HOSTNAME}"
+
+    # Read-only host mounts so syscheck / FIM has something meaningful to watch.
+    # Add or trim these per the directories you actually want monitored.
+    volumes:
+      - /var/log:/var/log:ro
+      - /etc:/etc:ro
+      - /home:/home:ro
+      - /root:/root:ro
+      - wazuh_agent_data:/var/ossec/var
+
+    # Capabilities the agent needs to read raw network/audit data.
+    cap_add:
+      - AUDIT_READ
+      - AUDIT_WRITE
+      - AUDIT_CONTROL
+      - NET_ADMIN
+      - SYS_PTRACE
+
+volumes:
+  # Persists the agent's keys + queue across container restarts.
+  # Without this, every restart triggers a re-enrollment which spams the
+  # manager and creates duplicate agent IDs.
+  wazuh_agent_data:

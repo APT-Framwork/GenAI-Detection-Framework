@@ -1,47 +1,122 @@
-import { View, Text, StyleSheet, ScrollView, Pressable } from "react-native";
+import { useState } from "react";
+import {
+  ActivityIndicator,
+  Alert,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
+import { API_BASE_URL } from "../../lib/api/config";
 import { colors, typography, spacing, radius, shadows } from "../../lib/theme";
-import { mockUser } from "../../lib/mock-data";
 import { useUIStore } from "../../stores/ui-store";
+import { useUserStore } from "../../stores/user-store";
 
 type SettingsItem = {
   icon: React.ComponentProps<typeof Ionicons>["name"];
   label: string;
   value?: string;
   danger?: boolean;
+  action?: "signout" | "toggle-dark";
 };
 
-const SETTINGS_SECTIONS: { title: string; items: SettingsItem[] }[] = [
-  {
-    title: "PREFERENCES",
-    items: [
-      { icon: "moon-outline", label: "Dark Mode", value: "Off" },
-      { icon: "notifications-outline", label: "Push Notifications", value: "On" },
-      { icon: "finger-print-outline", label: "Biometric Lock", value: "Off" },
-      { icon: "language-outline", label: "Language", value: "English" },
-    ],
-  },
-  {
-    title: "SYSTEM",
-    items: [
-      { icon: "cloud-download-outline", label: "Data Sync", value: "Auto" },
-      { icon: "server-outline", label: "API Endpoint", value: "Production" },
-      { icon: "document-text-outline", label: "Logs", value: "Verbose" },
-    ],
-  },
-  {
-    title: "ACCOUNT",
-    items: [
-      { icon: "shield-checkmark-outline", label: "Security Settings" },
-      { icon: "help-circle-outline", label: "Help & Support" },
-      { icon: "log-out-outline", label: "Sign Out", danger: true },
-    ],
-  },
-];
-
 export default function ProfileScreen() {
+  const router = useRouter();
   const isDark = useUIStore((s) => s.isDark);
+  const toggleTheme = useUIStore((s) => s.toggleTheme);
+  const user = useUserStore((s) => s.user);
+  const logout = useUserStore((s) => s.logout);
+
+  const [signingOut, setSigningOut] = useState(false);
+
+  const initials = user
+    ? user.email.slice(0, 2).toUpperCase()
+    : "—";
+  const displayName = user?.email ?? "Signed out";
+  const displayRole = user?.role?.toUpperCase() ?? "ANON";
+  const designation = user?.designation
+    ? user.designation
+    : user?.userId
+    ? `OP-${user.userId.slice(0, 8).toUpperCase()}`
+    : "—";
+
+  const SETTINGS_SECTIONS: { title: string; items: SettingsItem[] }[] = [
+    {
+      title: "PREFERENCES",
+      items: [
+        {
+          icon: "moon-outline",
+          label: "Dark Mode",
+          value: isDark ? "On" : "Off",
+          action: "toggle-dark",
+        },
+        {
+          icon: "notifications-outline",
+          label: "Push Notifications",
+          value: "On",
+        },
+        { icon: "finger-print-outline", label: "Biometric Lock", value: "Off" },
+        { icon: "language-outline", label: "Language", value: "English" },
+      ],
+    },
+    {
+      title: "SYSTEM",
+      items: [
+        { icon: "cloud-download-outline", label: "Data Sync", value: "Auto" },
+        { icon: "server-outline", label: "API Endpoint", value: API_BASE_URL },
+        { icon: "document-text-outline", label: "Logs", value: "Verbose" },
+      ],
+    },
+    {
+      title: "ACCOUNT",
+      items: [
+        { icon: "shield-checkmark-outline", label: "Security Settings" },
+        { icon: "help-circle-outline", label: "Help & Support" },
+        {
+          icon: "log-out-outline",
+          label: "Sign Out",
+          danger: true,
+          action: "signout",
+        },
+      ],
+    },
+  ];
+
+  async function handleSignOut() {
+    if (signingOut) return;
+    Alert.alert(
+      "Sign out?",
+      "You'll need to enter your credentials to sign back in.",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Sign out",
+          style: "destructive",
+          onPress: async () => {
+            setSigningOut(true);
+            try {
+              await logout();
+              router.replace("/(auth)/login");
+            } finally {
+              setSigningOut(false);
+            }
+          },
+        },
+      ],
+    );
+  }
+
+  function handlePress(item: SettingsItem) {
+    if (item.action === "signout") {
+      void handleSignOut();
+    } else if (item.action === "toggle-dark") {
+      toggleTheme();
+    }
+  }
 
   return (
     <SafeAreaView style={styles.container} edges={["top"]}>
@@ -57,37 +132,34 @@ export default function ProfileScreen() {
         {/* Profile card */}
         <View style={styles.profileCard}>
           <View style={styles.avatarLarge}>
-            <Text style={styles.avatarText}>
-              {mockUser.name
-                .split(" ")
-                .map((n) => n[0])
-                .join("")}
-            </Text>
+            <Text style={styles.avatarText}>{initials}</Text>
           </View>
           <View style={styles.profileInfo}>
-            <Text style={styles.profileName}>{mockUser.name}</Text>
-            <Text style={styles.profileRole}>{mockUser.role}</Text>
-            <Text style={styles.profileDesignation}>
-              {mockUser.designation}
+            <Text style={styles.profileName} numberOfLines={1}>
+              {displayName}
             </Text>
+            <Text style={styles.profileRole}>{displayRole}</Text>
+            <Text style={styles.profileDesignation}>{designation}</Text>
           </View>
         </View>
 
-        {/* Stats row */}
+        {/* Session card */}
         <View style={styles.statsRow}>
           <View style={styles.statItem}>
-            <Text style={styles.statValue}>{mockUser.efficiency}%</Text>
-            <Text style={styles.statLabel}>EFFICIENCY</Text>
+            <Text style={styles.statValue}>
+              {user?.isActive ? "ACTIVE" : "—"}
+            </Text>
+            <Text style={styles.statLabel}>SESSION</Text>
           </View>
           <View style={styles.statDivider} />
           <View style={styles.statItem}>
-            <Text style={styles.statValue}>{mockUser.accuracy}%</Text>
-            <Text style={styles.statLabel}>ACCURACY</Text>
+            <Text style={styles.statValue}>MOBILE</Text>
+            <Text style={styles.statLabel}>CLIENT</Text>
           </View>
           <View style={styles.statDivider} />
           <View style={styles.statItem}>
-            <Text style={styles.statValue}>{mockUser.responseTime}</Text>
-            <Text style={styles.statLabel}>RESPONSE</Text>
+            <Text style={styles.statValue}>JWT</Text>
+            <Text style={styles.statLabel}>AUTH</Text>
           </View>
         </View>
 
@@ -96,38 +168,53 @@ export default function ProfileScreen() {
           <View key={section.title} style={styles.section}>
             <Text style={styles.sectionTitle}>{section.title}</Text>
             <View style={styles.sectionCard}>
-              {section.items.map((item, idx) => (
-                <Pressable
-                  key={item.label}
-                  style={[
-                    styles.settingsRow,
-                    idx < section.items.length - 1 && styles.settingsRowBorder,
-                  ]}
-                >
-                  <Ionicons
-                    name={item.icon}
-                    size={20}
-                    color={item.danger ? colors.critical : colors.textMuted}
-                  />
-                  <Text
-                    style={[
-                      styles.settingsLabel,
-                      item.danger && { color: colors.critical },
+              {section.items.map((item, idx) => {
+                const isSignOut = item.action === "signout";
+                const rowDisabled = isSignOut && signingOut;
+                return (
+                  <Pressable
+                    key={item.label}
+                    onPress={() => handlePress(item)}
+                    disabled={rowDisabled}
+                    style={({ pressed }) => [
+                      styles.settingsRow,
+                      idx < section.items.length - 1 &&
+                        styles.settingsRowBorder,
+                      pressed && { opacity: 0.7 },
                     ]}
                   >
-                    {item.label}
-                  </Text>
-                  {item.value ? (
-                    <Text style={styles.settingsValue}>{item.value}</Text>
-                  ) : (
                     <Ionicons
-                      name="chevron-forward"
-                      size={16}
-                      color={item.danger ? colors.critical : colors.textLight}
+                      name={item.icon}
+                      size={20}
+                      color={item.danger ? colors.critical : colors.textMuted}
                     />
-                  )}
-                </Pressable>
-              ))}
+                    <Text
+                      style={[
+                        styles.settingsLabel,
+                        item.danger && { color: colors.critical },
+                      ]}
+                    >
+                      {item.label}
+                    </Text>
+                    {item.value ? (
+                      <Text
+                        style={styles.settingsValue}
+                        numberOfLines={1}
+                      >
+                        {item.value}
+                      </Text>
+                    ) : isSignOut && signingOut ? (
+                      <ActivityIndicator size="small" color={colors.critical} />
+                    ) : (
+                      <Ionicons
+                        name="chevron-forward"
+                        size={16}
+                        color={item.danger ? colors.critical : colors.textLight}
+                      />
+                    )}
+                  </Pressable>
+                );
+              })}
             </View>
           </View>
         ))}

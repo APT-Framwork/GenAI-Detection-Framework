@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useMemo, useState } from "react"
 import {
   Filter,
   Shield,
@@ -13,46 +13,51 @@ import {
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
-/* ---------- static data ---------- */
+import { useNotifications, type InterventionItem } from "@/lib/api/analysis"
 
-const notifications = [
-  {
-    id: "crit-1",
-    severity: "critical" as const,
-    badge: "Critical Breach Attempt",
-    title: "Unauthorized Access: Surgical Robot Alpha-4",
-    time: "2m ago",
-    description:
-      "An unauthorized access attempt was detected on Surgical Robot Alpha-4 in Theater 1-A. The attempt originated from an unregistered device on the internal network. Sentinel Protocol has automatically quarantined the affected subnet and initiated a full forensic trace.",
-    actions: [
-      { label: "Go to Case", primary: true },
-      { label: "Acknowledge", primary: false },
-    ],
-  },
-  {
-    id: "warn-1",
-    severity: "warning" as const,
-    badge: "Anomalous Activity",
-    title: "Data Exfiltration Warning: Patient Records",
-    time: "45m ago",
-    description:
-      "Unusual outbound data transfer patterns detected from the patient records database. Over 2.4 GB of encrypted data was staged for external transmission. The transfer was intercepted and held pending review.",
-    actions: [
-      { label: "Inspect Traffic", primary: true },
-      { label: "Acknowledge", primary: false },
-    ],
-  },
-  {
-    id: "info-1",
-    severity: "info" as const,
-    badge: "Sentinel Update",
-    title: "Vulnerability Database Sync Complete",
-    time: "3h ago",
-    description:
-      "The latest vulnerability definitions have been successfully synchronized across all sentinel nodes. 147 new signatures added, covering recently disclosed CVEs in medical device firmware.",
-    actions: [{ label: "View Changelog", primary: false }],
-  },
-]
+function severityFromAction(name: string): "critical" | "warning" | "info" {
+  if (name === "BLOCK_USER_IP" || name === "ISOLATE_HOST") return "critical"
+  if (name === "ESCALATE") return "warning"
+  return "info"
+}
+
+function timeAgo(iso: string): string {
+  const dt = Date.parse(iso)
+  if (Number.isNaN(dt)) return iso
+  const seconds = Math.max(0, (Date.now() - dt) / 1000)
+  if (seconds < 60) return `${Math.floor(seconds)}s ago`
+  if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`
+  if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`
+  return `${Math.floor(seconds / 86400)}d ago`
+}
+
+function projectNotification(item: InterventionItem) {
+  const severity = severityFromAction(item.actionName)
+  const badge =
+    severity === "critical"
+      ? "Critical Intervention"
+      : severity === "warning"
+      ? "Escalation Issued"
+      : "Sentinel Update"
+  return {
+    id: item.actionId,
+    severity,
+    badge,
+    title: `${item.actionName.replace(/_/g, " ")} on ${item.agentName ?? item.hostId.slice(0, 8)}`,
+    time: timeAgo(item.decidedAt),
+    description: `DQN decided ${item.actionName} at CKC stage ${item.ckcStageName}. ${
+      item.requiresApproval
+        ? "Pending operator approval — Apply / Reject in the Analysis tab."
+        : "Auto-applied — see audit log for details."
+    }`,
+    actions: item.requiresApproval
+      ? [
+          { label: "Go to Case", primary: true, href: `/attack-analysis/${item.chainId}` },
+          { label: "Acknowledge", primary: false },
+        ]
+      : [{ label: "Go to Case", primary: true, href: `/attack-analysis/${item.chainId}` }],
+  }
+}
 
 const severityStyles = {
   critical: {
@@ -172,6 +177,11 @@ function NotificationCard({
 
 export default function NotificationsPage() {
   const [_filterOpen, setFilterOpen] = useState(false)
+  const interventions = useNotifications(50)
+  const notifications = useMemo(
+    () => (interventions.data?.items ?? []).map(projectNotification),
+    [interventions.data],
+  )
 
   return (
     <div className="space-y-[32px]">

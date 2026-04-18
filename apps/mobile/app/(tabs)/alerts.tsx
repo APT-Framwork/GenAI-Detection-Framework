@@ -1,24 +1,49 @@
-import { View, Text, StyleSheet, ScrollView, Pressable, FlatList } from "react-native";
+import { useMemo, useState } from "react";
+import {
+  ActivityIndicator,
+  FlatList,
+  Pressable,
+  RefreshControl,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { colors, typography, spacing, radius, shadows } from "../../lib/theme";
-import { useAlertsStore } from "../../stores/alerts-store";
+import { colors, typography, spacing, radius } from "../../lib/theme";
 import { AlertCard } from "../../components/AlertCard";
-import type { Severity } from "../../lib/mock-data";
+import {
+  useAcknowledgeAlert,
+  useAlertsInfinite,
+  useUnacknowledgedCount,
+  type AlertSeverityFilter,
+} from "../../lib/api/hooks";
 
-const FILTERS: { key: Severity | "all"; label: string }[] = [
+const FILTERS: { key: AlertSeverityFilter; label: string }[] = [
   { key: "all", label: "All" },
   { key: "critical", label: "Critical" },
-  { key: "warning", label: "Warning" },
-  { key: "info", label: "Info" },
-  { key: "update", label: "Update" },
+  { key: "high", label: "High" },
+  { key: "medium", label: "Medium" },
+  { key: "low", label: "Low" },
 ];
 
 export default function AlertsScreen() {
-  const { filter, setFilter, filteredAlerts, acknowledge, alerts } =
-    useAlertsStore();
+  const [filter, setFilter] = useState<AlertSeverityFilter>("all");
 
-  const displayAlerts = filteredAlerts();
-  const totalCount = alerts.length;
+  const listQ = useAlertsInfinite({ severity: filter, limit: 30 });
+  const unackQ = useUnacknowledgedCount();
+  const ackMut = useAcknowledgeAlert();
+
+  const alerts = useMemo(
+    () => (listQ.data?.pages ?? []).flatMap((p) => p.items),
+    [listQ.data],
+  );
+
+  const onEndReached = () => {
+    if (listQ.hasNextPage && !listQ.isFetchingNextPage) {
+      void listQ.fetchNextPage();
+    }
+  };
 
   return (
     <SafeAreaView style={styles.container} edges={["top"]}>
@@ -46,60 +71,102 @@ export default function AlertsScreen() {
         style={styles.filterScroll}
         contentContainerStyle={styles.filterRow}
       >
-        {FILTERS.map((f) => (
-          <Pressable
-            key={f.key}
-            style={[
-              styles.filterChip,
-              filter === f.key && styles.filterChipActive,
-            ]}
-            onPress={() => setFilter(f.key)}
-          >
-            <Text
-              style={[
-                styles.filterText,
-                filter === f.key && styles.filterTextActive,
-              ]}
+        {FILTERS.map((f) => {
+          const active = filter === f.key;
+          const suffix =
+            f.key === "all" && unackQ.data
+              ? ` (${unackQ.data.count} unack)`
+              : "";
+          return (
+            <Pressable
+              key={f.key}
+              style={[styles.filterChip, active && styles.filterChipActive]}
+              onPress={() => setFilter(f.key)}
             >
-              {f.label}
-              {f.key === "all" ? ` (${totalCount})` : ""}
-            </Text>
-          </Pressable>
-        ))}
+              <Text
+                style={[
+                  styles.filterText,
+                  active && styles.filterTextActive,
+                ]}
+              >
+                {f.label}
+                {suffix}
+              </Text>
+            </Pressable>
+          );
+        })}
       </ScrollView>
 
-      {/* Alert List */}
-      <FlatList
-        data={displayAlerts}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <AlertCard alert={item} onAcknowledge={acknowledge} />
-        )}
-        contentContainerStyle={styles.list}
-        showsVerticalScrollIndicator={false}
-        ItemSeparatorComponent={() => <View style={{ height: spacing.md }} />}
-      />
-
-      {/* Stats row */}
-      <View style={styles.statsRow}>
-        <View style={[styles.statCard, { backgroundColor: colors.bgSurface }]}>
-          <Text style={styles.statValue}>99.8%</Text>
-          <Text style={styles.statLabel}>UPTIME VIGIL</Text>
+      {/* List */}
+      {listQ.isLoading ? (
+        <View style={styles.center}>
+          <ActivityIndicator color={colors.primary} />
         </View>
-        <View style={[styles.statCard, { backgroundColor: colors.bgAccentAlt }]}>
-          <Text style={styles.statValue}>12ms</Text>
-          <Text style={styles.statLabel}>THREAT LATENCY</Text>
+      ) : listQ.isError ? (
+        <View style={styles.center}>
+          <Text style={styles.emptyTitle}>Couldn't load alerts</Text>
+          <Text style={styles.emptyDesc}>
+            {(listQ.error as Error)?.message ?? "Check backend connection."}
+          </Text>
+          <Pressable
+            style={styles.retryBtn}
+            onPress={() => void listQ.refetch()}
+          >
+            <Text style={styles.retryText}>RETRY</Text>
+          </Pressable>
         </View>
-      </View>
+      ) : alerts.length === 0 ? (
+        <View style={styles.center}>
+          <Text style={styles.emptyTitle}>No alerts</Text>
+          <Text style={styles.emptyDesc}>
+            {filter === "all"
+              ? "The backend has no alerts in this window."
+              : `No ${filter} alerts in the current window.`}
+          </Text>
+        </View>
+      ) : (
+        <FlatList
+          data={alerts}
+          keyExtractor={(item) => `${item.alertId}:${item.occurredAt}`}
+          renderItem={({ item }) => (
+            <AlertCard
+              alert={item}
+              onAcknowledge={(args) => ackMut.mutate(args)}
+              acknowledging={
+                ackMut.isPending &&
+                ackMut.variables?.alertId === item.alertId
+              }
+            />
+          )}
+          contentContainerStyle={styles.list}
+          showsVerticalScrollIndicator={false}
+          ItemSeparatorComponent={() => (
+            <View style={{ height: spacing.md }} />
+          )}
+          onEndReached={onEndReached}
+          onEndReachedThreshold={0.4}
+          ListFooterComponent={
+            listQ.isFetchingNextPage ? (
+              <View style={styles.footerLoader}>
+                <ActivityIndicator color={colors.primary} />
+              </View>
+            ) : null
+          }
+          refreshControl={
+            <RefreshControl
+              refreshing={listQ.isRefetching && !listQ.isFetchingNextPage}
+              onRefresh={() => void listQ.refetch()}
+              tintColor={colors.primary}
+            />
+          }
+        />
+      )}
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.bg,
-  },
+  container: { flex: 1, backgroundColor: colors.bg },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -154,10 +221,7 @@ const styles = StyleSheet.create({
     color: colors.textPrimary,
     letterSpacing: typography.tracking.tight,
   },
-  filterScroll: {
-    maxHeight: 48,
-    marginTop: spacing.md,
-  },
+  filterScroll: { maxHeight: 48, marginTop: spacing.md },
   filterRow: {
     paddingHorizontal: spacing.lg,
     gap: spacing.sm,
@@ -169,9 +233,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.full,
     backgroundColor: colors.bgSurface,
   },
-  filterChipActive: {
-    backgroundColor: colors.primary,
-  },
+  filterChipActive: { backgroundColor: colors.primary },
   filterText: {
     fontFamily: typography.family.heading,
     fontSize: typography.size.xs,
@@ -179,35 +241,43 @@ const styles = StyleSheet.create({
     textTransform: "uppercase",
     letterSpacing: 0.5,
   },
-  filterTextActive: {
-    color: colors.primaryLight,
-  },
+  filterTextActive: { color: colors.primaryLight },
   list: {
     padding: spacing.lg,
     paddingBottom: spacing["2xl"],
   },
-  statsRow: {
-    flexDirection: "row",
-    gap: spacing.md,
-    paddingHorizontal: spacing.lg,
-    paddingBottom: spacing.md,
-  },
-  statCard: {
+  center: {
     flex: 1,
-    borderRadius: radius.lg,
-    padding: spacing.md,
-    height: 160,
-    justifyContent: "flex-end",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: spacing.sm,
+    paddingHorizontal: spacing.xl,
   },
-  statValue: {
+  emptyTitle: {
     fontFamily: typography.family.heading,
-    fontSize: typography.size["4xl"],
+    fontSize: typography.size.xl,
     color: colors.textPrimary,
   },
-  statLabel: {
-    fontFamily: typography.family.heading,
-    fontSize: typography.size.xs,
+  emptyDesc: {
+    fontFamily: typography.family.body,
+    fontSize: typography.size.md,
     color: colors.textMuted,
-    letterSpacing: 0.5,
+    textAlign: "center",
+  },
+  retryBtn: {
+    marginTop: spacing.md,
+    backgroundColor: colors.primary,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.sm,
+    borderRadius: radius.full,
+  },
+  retryText: {
+    fontFamily: typography.family.heading,
+    fontSize: typography.size.sm,
+    color: colors.white,
+    letterSpacing: 1,
+  },
+  footerLoader: {
+    paddingVertical: spacing.lg,
   },
 });

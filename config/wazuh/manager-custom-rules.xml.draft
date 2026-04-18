@@ -1,0 +1,41 @@
+<!--
+  ============================================================================
+  DRAFT — NOT DEPLOYED
+  ============================================================================
+  File:    manager-custom-rules.xml.draft
+  Purpose: Add a STRIX marker group to every alert that leaves the manager,
+           so the Filebeat → Redis pipeline and the inference-api can identify
+           STRIX-processed events downstream. NO new detections are declared
+           here — detection is the ML models' job, not rulewriting.
+
+  Target:  /var/ossec/etc/rules/local_rules.xml  on the manager.
+  Rule IDs 100000-120000 are the Wazuh user-reserved range; we claim
+  100100-100199 for STRIX.
+
+  Review & sign-off required before any real deployment.
+  ============================================================================
+-->
+
+<group name="strix,">
+  <!-- 100100: Tag every alert that has a description (i.e. fired a real rule).
+       Purpose: gives us a stable `rule.groups` member ("strix") to filter on
+       in Filebeat / Redis consumers. -->
+  <rule id="100100" level="0" overwrite="no">
+    <if_sid>1</if_sid>
+    <description>STRIX: alert forwarded to ML inference</description>
+    <options>no_full_log</options>
+    <group>strix_forward,</group>
+  </rule>
+
+  <!-- 100110: Optional — escalate if srcip is public AND decoder is
+       web-accesslog, so the normalizer can prioritize scoring.
+       Still no detection, just a priority bucket. -->
+  <rule id="100110" level="0" overwrite="no">
+    <if_group>web|accesslog</if_group>
+    <srcip>!192.168.0.0/16</srcip>
+    <srcip>!10.0.0.0/8</srcip>
+    <srcip>!172.16.0.0/12</srcip>
+    <description>STRIX: public-srcip web alert, priority inference</description>
+    <group>strix_priority,</group>
+  </rule>
+</group>

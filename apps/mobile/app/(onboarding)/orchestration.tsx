@@ -10,7 +10,7 @@ export default function OrchestrationScreen() {
 
   const handleGetStarted = () => {
     setOnboarded(true);
-    router.replace("/(tabs)/dashboard");
+    router.replace("/(auth)/login");
   };
 
   return (

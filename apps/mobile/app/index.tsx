@@ -3,9 +3,12 @@ import { View, Text, StyleSheet, Animated, Easing } from "react-native";
 import { useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { colors, typography, spacing, radius } from "../lib/theme";
+import { useUserStore } from "../stores/user-store";
 
 export default function SplashEntry() {
   const router = useRouter();
+  const status = useUserStore((s) => s.status);
+  const isOnboarded = useUserStore((s) => s.isOnboarded);
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const progressAnim = useRef(new Animated.Value(0)).current;
 
@@ -22,13 +25,24 @@ export default function SplashEntry() {
       easing: Easing.out(Easing.cubic),
       useNativeDriver: false,
     }).start();
-
-    const timer = setTimeout(() => {
-      router.replace("/(onboarding)/detection");
-    }, 3000);
-
-    return () => clearTimeout(timer);
   }, []);
+
+  // Route once auth bootstrap resolves. If we're still `booting` after
+  // the splash animation, we wait — a blank-screen guard is worth
+  // keeping token validation correct.
+  useEffect(() => {
+    if (status === "booting") return;
+    const timer = setTimeout(() => {
+      if (status === "authed") {
+        router.replace("/(tabs)/dashboard");
+      } else if (isOnboarded) {
+        router.replace("/(auth)/login");
+      } else {
+        router.replace("/(onboarding)/detection");
+      }
+    }, 2500);
+    return () => clearTimeout(timer);
+  }, [status, isOnboarded, router]);
 
   const progressWidth = progressAnim.interpolate({
     inputRange: [0, 1],

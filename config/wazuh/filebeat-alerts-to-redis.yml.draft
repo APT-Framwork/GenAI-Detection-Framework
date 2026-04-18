@@ -1,0 +1,58 @@
+# ============================================================================
+# DRAFT — NOT DEPLOYED
+# ============================================================================
+# File:    filebeat-alerts-to-redis.yml.draft
+# Purpose: Filebeat sidecar config that tails the Wazuh manager's alerts.json
+#          and publishes each alert document to Redis Streams key
+#          `strix:alerts:raw`. This is the ingestion entry point for the
+#          STRIX real-time inference pipeline.
+#
+# Target:  /etc/filebeat/filebeat.yml (inside the filebeat container, with
+#          /var/ossec/logs mounted read-only from the wazuh-manager container).
+#
+# Review & sign-off required before any real deployment.
+# ============================================================================
+
+filebeat.inputs:
+  - type: filestream
+    id: wazuh-alerts-json
+    enabled: true
+    paths:
+      - /var/ossec/logs/alerts/alerts.json
+    parsers:
+      - ndjson:
+          target: ""          # keep the alert at the root (no extra nesting)
+          overwrite_keys: true
+          add_error_key: true
+    # The Wazuh alerts.json file rotates daily. Keep tail state across rotations.
+    close.on_state_change.renamed: false
+    ignore_older: 72h
+
+# Minimal processors — we rely on the normalizer-worker to do the real flattening
+# and feature engineering. Keeping Filebeat "dumb" means only one place owns the
+# schema contract (see docs/INGESTION_PIPELINE.md §4).
+processors:
+  - add_tags:
+      tags: [strix-raw]
+
+# Output: Redis Streams via Filebeat's built-in redis output.
+# NOTE: `datatype: stream` requires Filebeat 8.x+. On older builds, fall back
+# to `datatype: list` and have the normalizer use BLPOP instead of XREADGROUP.
+output.redis:
+  hosts: ["redis:6379"]
+  key: "strix:alerts:raw"
+  datatype: stream            # XADD -> Redis Stream (Filebeat 8.x)
+  db: 0
+  timeout: 5
+  # No auth in the single-VM compose setup; add `password:` when we harden.
+  # password: "${REDIS_PASSWORD}"
+  bulk_max_size: 128
+
+# Keep Filebeat internal logs separate from Wazuh alerts — don't ship them
+# to our Redis stream.
+logging.to_files: true
+logging.files:
+  path: /var/log/filebeat
+  name: filebeat
+  keepfiles: 3
+  permissions: 0644

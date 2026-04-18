@@ -1,23 +1,84 @@
 "use client"
 
-import { killChainStages, mockPredictions, forensicLogs } from "@/lib/mock-data"
-import { KillChainProgression } from "@/components/charts/kill-chain-progression"
-import { GraphEvolution } from "@/components/charts/graph-evolution"
+import { useMemo } from "react"
+
 import { AIPredictionsPanel } from "@/components/charts/ai-predictions-panel"
 import { ForensicLogViewer } from "@/components/charts/forensic-log-viewer"
+import { GraphEvolution } from "@/components/charts/graph-evolution"
+import { KillChainProgression } from "@/components/charts/kill-chain-progression"
+import {
+  useChainDwellTime,
+  useChainGraphEvolution,
+  useChainInfection,
+  useChainLogs,
+  useChainPredictions,
+  useCkcProgression,
+} from "@/lib/api/analysis"
 import {
   Clock,
-  AlertTriangle,
-  Download,
-  Shield,
-  Users,
-  HardDrive,
-  TrendingUp,
   FileText,
+  Loader2,
+  Users,
   Zap,
 } from "lucide-react"
 
-export default function AttackAnalysisDetailPage() {
+function formatDuration(seconds: number): string {
+  if (!Number.isFinite(seconds) || seconds <= 0) return "—"
+  const h = Math.floor(seconds / 3600)
+  const m = Math.floor((seconds % 3600) / 60)
+  const s = Math.floor(seconds % 60)
+  if (h > 0) return `${h}h ${String(m).padStart(2, "0")}m`
+  if (m > 0) return `${m}m ${String(s).padStart(2, "0")}s`
+  return `${s}s`
+}
+
+function severityFromCkc(stage: number): { label: string; cls: string } {
+  if (stage >= 6)
+    return {
+      label: "Critical",
+      cls: "bg-red-500/10 text-red-500 border-red-500/20",
+    }
+  if (stage >= 4)
+    return {
+      label: "High",
+      cls: "bg-orange-500/10 text-orange-500 border-orange-500/20",
+    }
+  if (stage >= 2)
+    return {
+      label: "Medium",
+      cls: "bg-yellow-500/10 text-yellow-600 border-yellow-500/20",
+    }
+  return { label: "Low", cls: "bg-cyan-500/10 text-cyan-600 border-cyan-500/20" }
+}
+
+interface PageProps {
+  params: { id: string }
+}
+
+export default function AttackAnalysisDetailPage({ params }: PageProps) {
+  const { id } = params
+
+  const ckcProg = useCkcProgression(id)
+  const graphEvo = useChainGraphEvolution(id)
+  const predictions = useChainPredictions(id)
+  const infection = useChainInfection(id)
+  const dwell = useChainDwellTime(id)
+  const logsQuery = useChainLogs(id, 50)
+
+  const flatLogs = useMemo(() => {
+    const pages = logsQuery.data?.pages ?? []
+    return pages.flatMap((p) => p.items)
+  }, [logsQuery.data])
+
+  const severity = severityFromCkc(predictions.data?.currentStage ?? 0)
+  const dwellLabel =
+    dwell.data && dwell.data.startedAt
+      ? formatDuration(dwell.data.durationSeconds)
+      : "—"
+
+  const isLoading =
+    ckcProg.isLoading || graphEvo.isLoading || predictions.isLoading
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -27,106 +88,112 @@ export default function AttackAnalysisDetailPage() {
             FORENSIC INCIDENT REPORT
           </p>
           <h1 className="text-3xl font-black text-[var(--strix-text)] tracking-tight">
-            External Pivot<br />
-            Escalation Analysis
+            Chain {id.slice(0, 8)}
+            <br />
+            <span className="text-base font-medium text-[var(--strix-text-muted)]">
+              {predictions.data?.currentStageName ?? "—"} · status{" "}
+              {dwell.data?.status ?? "?"}
+            </span>
           </h1>
         </div>
         <div className="flex items-center gap-4">
-          {/* Severity Badge */}
           <div className="text-right">
             <span className="text-[9px] text-[var(--strix-text-muted)] uppercase tracking-wider block mb-1">
               Threat Level
             </span>
-            <span className="inline-block px-3 py-1 rounded-md text-xs font-bold bg-red-500/10 text-red-500 border border-red-500/20 uppercase">
-              Critical
+            <span
+              className={`inline-block px-3 py-1 rounded-md text-xs font-bold border uppercase ${severity.cls}`}
+            >
+              {severity.label}
             </span>
           </div>
-          {/* Duration */}
           <div className="text-right">
             <span className="text-[9px] text-[var(--strix-text-muted)] uppercase tracking-wider block mb-1">
-              Duration
+              Dwell Time
             </span>
             <div className="flex items-center gap-1.5">
               <Clock className="h-3.5 w-3.5 text-[var(--strix-text-muted)]" />
               <span className="text-lg font-bold text-[var(--strix-text)]">
-                14m 22s
+                {dwellLabel}
               </span>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Kill Chain Progression */}
+      {/* Kill Chain Progression — DQN-actioned stages */}
       <div className="bg-[var(--strix-bg-card)] border border-[var(--strix-border)] rounded-xl p-6">
-        <KillChainProgression stages={killChainStages} />
+        {isLoading && !ckcProg.data ? (
+          <div className="flex h-32 items-center justify-center">
+            <Loader2 className="h-5 w-5 animate-spin text-strix-cyan" />
+          </div>
+        ) : (
+          <KillChainProgression stages={(ckcProg.data?.stages ?? []) as never} />
+        )}
       </div>
 
       {/* Graph Evolution + AI Predictions */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-        {/* Graph Evolution */}
         <div className="lg:col-span-7 bg-[var(--strix-bg-card)] border border-[var(--strix-border)] rounded-xl p-5">
-          <GraphEvolution />
+          <GraphEvolution snapshots={graphEvo.data?.snapshots as never} />
         </div>
-
-        {/* AI Predictions */}
         <div className="lg:col-span-5 bg-[var(--strix-bg-card)] border border-[var(--strix-border)] rounded-xl p-5">
-          <AIPredictionsPanel predictions={mockPredictions} />
+          <AIPredictionsPanel predictions={predictions.data as never} />
         </div>
       </div>
 
-      {/* Forensic Logs */}
+      {/* Forensic Logs (paged + live-tail capable) */}
       <div className="bg-[var(--strix-bg-card)] border border-[var(--strix-border)] rounded-xl p-5">
-        <ForensicLogViewer logs={forensicLogs} />
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-[12px] font-bold text-[var(--strix-text)] uppercase tracking-[1.2px]">
+            Forensic Logs
+          </h3>
+          <button
+            type="button"
+            disabled={!logsQuery.hasNextPage || logsQuery.isFetchingNextPage}
+            onClick={() => logsQuery.fetchNextPage()}
+            className="text-[10px] text-strix-primary dark:text-strix-cyan font-bold uppercase tracking-[0.5px] hover:underline disabled:opacity-50"
+          >
+            {logsQuery.hasNextPage ? "Load older" : "All loaded"}
+          </button>
+        </div>
+        <ForensicLogViewer logs={flatLogs as never} />
       </div>
 
       {/* Bottom Metrics Bar */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-[var(--strix-bg-card)] border border-[var(--strix-border)] rounded-xl p-5">
-          <span className="text-[9px] text-[var(--strix-text-muted)] uppercase tracking-wider block mb-1">
-            Infection Radius
-          </span>
-          <div className="flex items-baseline gap-1">
-            <span className="text-2xl font-bold text-[var(--strix-text)]">12.4%</span>
-            <span className="text-xs text-red-500 font-medium">+2.1%</span>
-          </div>
-          <span className="text-[10px] text-[var(--strix-text-muted)]">Today</span>
-        </div>
-
-        <div className="bg-[var(--strix-bg-card)] border border-[var(--strix-border)] rounded-xl p-5">
-          <span className="text-[9px] text-[var(--strix-text-muted)] uppercase tracking-wider block mb-1">
-            Dwell Time
-          </span>
-          <div className="flex items-baseline gap-2">
-            <span className="text-2xl font-bold text-[var(--strix-text)]">04h 22m</span>
-          </div>
-          <span className="text-[10px] text-[var(--strix-text-muted)]">
-            Active · Industry Avg
-          </span>
-        </div>
-
-        <div className="bg-[var(--strix-bg-card)] border border-[var(--strix-border)] rounded-xl p-5">
-          <span className="text-[9px] text-[var(--strix-text-muted)] uppercase tracking-wider block mb-1">
-            Data Potential Loss
-          </span>
-          <div className="flex items-baseline gap-2">
-            <span className="text-2xl font-bold text-[var(--strix-text)]">2.8 GB</span>
-          </div>
-          <span className="text-[10px] text-[var(--strix-text-muted)]">
-            Encrypted & Staged
-          </span>
-        </div>
-
-        <div className="bg-[var(--strix-bg-card)] border border-[var(--strix-border)] rounded-xl p-5">
-          <span className="text-[9px] text-[var(--strix-text-muted)] uppercase tracking-wider block mb-1">
-            Confidence Score
-          </span>
-          <div className="flex items-baseline gap-2">
-            <span className="text-2xl font-bold text-[var(--strix-text)]">High</span>
-          </div>
-          <span className="text-[10px] text-[var(--strix-text-muted)]">
-            Model 0.2 · STRIX
-          </span>
-        </div>
+        <MetricCard
+          label="Infection Radius"
+          value={
+            infection.data
+              ? `${(infection.data.percent * 100).toFixed(1)}%`
+              : "—"
+          }
+          sub={
+            infection.data
+              ? `${infection.data.infectedCount}/${infection.data.totalCount} hosts`
+              : "—"
+          }
+        />
+        <MetricCard
+          label="Dwell Time"
+          value={dwellLabel}
+          sub={dwell.data?.status ?? "—"}
+        />
+        <MetricCard
+          label="Predicted Next Stage"
+          value={predictions.data?.predictedNextStageName ?? "—"}
+          sub={
+            predictions.data
+              ? `confidence ${(predictions.data.confidence * 100).toFixed(0)}%`
+              : "—"
+          }
+        />
+        <MetricCard
+          label="Steps in Chain"
+          value={(ckcProg.data?.stages.length ?? 0).toString()}
+          sub="distinct CKC stages observed"
+        />
       </div>
 
       {/* Action Bar */}
@@ -134,7 +201,7 @@ export default function AttackAnalysisDetailPage() {
         <div className="flex items-center gap-3">
           <Users className="h-4 w-4 text-[var(--strix-text-muted)]" />
           <span className="text-xs text-[var(--strix-text-muted)]">
-            Collaborating on this case: <span className="font-semibold text-[var(--strix-text)]">Sentinel Ops Team</span>
+            Chain id: <span className="font-mono">{id}</span>
           </span>
         </div>
         <div className="flex items-center gap-2">
@@ -148,6 +215,28 @@ export default function AttackAnalysisDetailPage() {
           </button>
         </div>
       </div>
+    </div>
+  )
+}
+
+function MetricCard({
+  label,
+  value,
+  sub,
+}: {
+  label: string
+  value: string
+  sub: string
+}) {
+  return (
+    <div className="bg-[var(--strix-bg-card)] border border-[var(--strix-border)] rounded-xl p-5">
+      <span className="text-[9px] text-[var(--strix-text-muted)] uppercase tracking-wider block mb-1">
+        {label}
+      </span>
+      <div className="flex items-baseline gap-2">
+        <span className="text-2xl font-bold text-[var(--strix-text)]">{value}</span>
+      </div>
+      <span className="text-[10px] text-[var(--strix-text-muted)]">{sub}</span>
     </div>
   )
 }
