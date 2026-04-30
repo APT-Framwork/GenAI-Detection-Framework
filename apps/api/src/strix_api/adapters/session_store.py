@@ -34,9 +34,12 @@ from strix_api.core.constants import (
     CHAIN_MAX_STEPS,
 )
 from strix_api.core.session import SessionState
+from strix_api.observability import get_logger
 
 if TYPE_CHECKING:
     from redis.asyncio import Redis
+
+_log = get_logger("strix_api.adapters.session_store")
 
 _LATENTS_LIST_LIMIT = CHAIN_MAX_STEPS  # one mu per step; matches Transformer max-seq
 _TTL_SECONDS = CHAIN_IDLE_TIMEOUT_MINUTES * 60
@@ -65,6 +68,21 @@ class SessionStore:
     async def get_session(self, agent_id: str) -> SessionState | None:
         raw = await self._r.hgetall(_session_key(agent_id))
         if not raw:
+            return None
+        # A session hash without `chain_id` is partial — produced when an
+        # earlier code path or aborted run called HSET fields without going
+        # through open_session(). Treat as missing and clean up so the next
+        # alert opens a fresh chain.
+        chain_field = raw.get(b"chain_id") or raw.get("chain_id")
+        if not chain_field:
+            _log.warning(
+                "partial_session_dropped",
+                agent_id=agent_id,
+                fields=sorted(
+                    k.decode() if isinstance(k, bytes) else str(k) for k in raw
+                ),
+            )
+            await self.close_session(agent_id)
             return None
         return _decode_session(raw)
 

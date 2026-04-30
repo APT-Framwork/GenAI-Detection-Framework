@@ -204,47 +204,90 @@ class DashboardService:
     # ---- victim-graph ------------------------------------------------
 
     async def victim_graph(self, window: WindowLiteral) -> VictimGraphResponse:
-        """Latest GNN snapshot projection — hosts as nodes, shared
-        attacker/IOC links as edges. We re-aggregate from the snapshot
-        table rather than re-running the GNN here.
+        """Connected-victims projection.
+
+        Aggregates per-host from attack_chains in the window: severity from
+        max_ckc_stage, risk_score from max_vae_prob. Edges are pairs of
+        hosts whose chains overlap in time — same heuristic as the topology
+        endpoint but capped at the top-50 hosts so the panel stays readable.
         """
         interval = _interval_for(window)
-        snap_result = await self._s.execute(
+
+        node_rows = await self._s.execute(
             text(
                 """
-                SELECT nodes, edges, taken_at
-                FROM gnn_graph_snapshots
-                WHERE taken_at >= NOW() - (:interval)::INTERVAL
-                ORDER BY taken_at DESC
-                LIMIT 1
+                SELECT
+                    h.host_id::text                AS host_id,
+                    h.agent_name                   AS host_name,
+                    MAX(c.max_ckc_stage)::int      AS max_ckc,
+                    MAX(c.max_vae_prob)::float     AS max_vae,
+                    BOOL_OR(c.status = 'open')     AS any_open
+                FROM attack_chains c
+                JOIN hosts h ON h.host_id = c.host_id
+                WHERE c.opened_at >= NOW() - (:interval)::INTERVAL
+                GROUP BY h.host_id, h.agent_name
+                ORDER BY MAX(c.max_ckc_stage) DESC,
+                         MAX(c.max_vae_prob) DESC
+                LIMIT 50
                 """
             ),
             {"interval": interval},
         )
-        snap = snap_result.first()
-
-        if snap is None or snap.nodes is None:
+        hosts = node_rows.all()
+        if not hosts:
             return VictimGraphResponse(window=window, nodes=[], edges=[])
 
+        host_ids = [h.host_id for h in hosts]
         nodes = [
             VictimNode(
-                host_id=str(n["hostId"]),
-                host_name=str(n.get("hostName", n["hostId"])),
-                severity=str(n.get("severity", "info")),
-                infected=bool(n.get("infected", False)),
-                risk_score=float(n.get("riskScore", 0.0)),
+                host_id=h.host_id,
+                host_name=h.host_name,
+                severity=_severity_for_stage(h.max_ckc),
+                infected=h.max_ckc > 0,
+                risk_score=float(h.max_vae or 0.0),
             )
-            for n in (snap.nodes or [])
+            for h in hosts
         ]
+
+        # Collapse to one row per host BEFORE self-joining — without this,
+        # 50k+ chains × cross-product was hanging the request.
+        edge_rows = await self._s.execute(
+            text(
+                """
+                WITH per_host AS (
+                    SELECT host_id,
+                           MIN(opened_at)                       AS first_opened,
+                           MAX(COALESCE(closed_at, NOW()))      AS last_seen,
+                           COUNT(*)                             AS chain_count
+                      FROM attack_chains
+                     WHERE host_id::text = ANY(:host_ids)
+                       AND opened_at >= NOW() - (:interval)::INTERVAL
+                  GROUP BY host_id
+                )
+                SELECT a.host_id::text                          AS source,
+                       b.host_id::text                          AS target,
+                       LEAST(a.chain_count, b.chain_count)::int AS overlap_count
+                  FROM per_host a
+                  JOIN per_host b
+                    ON a.host_id < b.host_id
+                   AND tstzrange(a.first_opened, a.last_seen)
+                       && tstzrange(b.first_opened, b.last_seen)
+              ORDER BY overlap_count DESC
+                 LIMIT 100
+                """
+            ),
+            {"host_ids": host_ids, "interval": interval},
+        )
         edges = [
             VictimEdge(
-                from_=str(e["from"]),
-                to=str(e["to"]),
-                edge_type=str(e.get("edgeType", "unknown")),
-                shared_indicator=e.get("sharedIndicator"),
+                from_=row.source,
+                to=row.target,
+                edge_type="overlap",
+                shared_indicator=None,
             )
-            for e in (snap.edges or [])
+            for row in edge_rows.all()
         ]
+
         return VictimGraphResponse(window=window, nodes=nodes, edges=edges)
 
 
@@ -263,6 +306,20 @@ def _half_interval(interval: timedelta) -> timedelta:
     """Return half the window — used to split into first/second halves for
     the risk-growth comparison."""
     return interval / 2
+
+
+def _severity_for_stage(stage: int | None) -> str:
+    """Map CKC stage 0..7 to the UI's severity buckets."""
+    s = int(stage or 0)
+    if s >= 7:
+        return "critical"
+    if s >= 5:
+        return "high"
+    if s >= 3:
+        return "medium"
+    if s >= 1:
+        return "low"
+    return "info"
 
 
 __all__ = ["DashboardService"]

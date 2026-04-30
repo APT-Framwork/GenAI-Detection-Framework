@@ -40,7 +40,7 @@ export interface GlobalRiskResponse {
   window: WindowLiteral;
   globalRisk: number;
   components: GlobalRiskComponents;
-  delta1h: number;
+  delta1H: number;
   trend: GlobalRiskTrendPoint[];
 }
 

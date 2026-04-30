@@ -90,6 +90,16 @@ class FeatureMessage(_StreamBase):
     # worker doesn't need to re-parse the raw alert.
     srcuser: str | None = None
     srcip: str | None = None
+
+    # Forensic-log fields lifted from the Wazuh alert. Optional so older
+    # producers stay valid; the verdicts-writer persists them onto the
+    # alerts row so the Forensic Logs panel has something to render.
+    full_log: str | None = None
+    decoder_name: str | None = None
+    location: str | None = None
+    rule_id: str | None = None
+    rule_firedtimes: int | None = None
+
     schema_version: Literal["v1"] = "v1"
 
 

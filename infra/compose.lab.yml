@@ -190,6 +190,9 @@ services:
     volumes:
       - ./filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
       - wazuh_alerts:/var/ossec/logs:ro
+      # Persist filestream registry — without this Filebeat re-tails
+      # alerts.json from offset 0 on every restart.
+      - strix_filebeat_data:/usr/share/filebeat/data
     depends_on:
       redis:
         condition: service_healthy
@@ -200,6 +203,7 @@ services:
 volumes:
   strix_pg_data:
   strix_redis_data:
+  strix_filebeat_data:
   # Created by the wazuh-docker `single-node` compose. Must already exist
   # when this stack starts. If the Wazuh compose used a different project
   # name, adjust the `name:` to match (it's prefix + volume key).

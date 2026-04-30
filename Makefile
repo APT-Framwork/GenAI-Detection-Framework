@@ -10,6 +10,8 @@ SHELL := /bin/bash
 COMPOSE        := docker compose -f infra/compose.api.yml
 COMPOSE_FULL   := $(COMPOSE) --profile workers --profile queue
 COMPOSE_OBS    := $(COMPOSE) --profile obs
+COMPOSE_SIM    := docker compose -f infra/compose.simulation.yml
+COMPOSE_DEPS   := docker compose -f infra/compose.platform-deps.yml
 ENV_FILE       := apps/api/.env
 
 ADMIN_EMAIL    ?= admin@strix.local
@@ -44,6 +46,16 @@ help:
 	@printf "    \033[36mmake smoke\033[0m            full pipeline smoke test (alert → DB + SSE)\n"
 	@printf "    \033[36mmake smoke-fast\033[0m       same but assumes stack is already up + admin seeded\n"
 	@printf "    \033[36mmake smoke-mobile\033[0m     mobile-contract smoke (register → Bearer → SSE → logout)\n"
+	@printf "\n  \033[1mHost-native lab (docker sim + host platform)\033[0m\n"
+	@printf "    \033[36mmake sim-up\033[0m           bring up docker simulation (wazuh + caldera + victims)\n"
+	@printf "    \033[36mmake sim-down\033[0m         tear down simulation (keep volumes)\n"
+	@printf "    \033[36mmake deps-up\033[0m          bring up platform deps (postgres + redis + filebeat)\n"
+	@printf "    \033[36mmake deps-down\033[0m        tear down platform deps\n"
+	@printf "    \033[36mmake host-up\033[0m          start all host processes via honcho (api + workers + web)\n"
+	@printf "    \033[36mmake host-migrate\033[0m     run alembic upgrade head on the host\n"
+	@printf "    \033[36mmake host-seed\033[0m        seed admin user via the host python env\n"
+	@printf "    \033[36mmake lab-up\033[0m           full bring-up: sim + deps + migrate + seed + host-up\n"
+	@printf "    \033[36mmake lab-verify\033[0m       run the 8 connectivity probes (LAB_BRINGUP §2.5)\n"
 	@printf "\nEnv vars: ADMIN_EMAIL ADMIN_PASSWORD (defaults: admin@strix.local / changeme)\n"
 
 # --------------------------------------------------------------------- env
@@ -137,3 +149,45 @@ smoke-mobile:
 	python infra/scripts/smoke_mobile.py \
 		--api http://localhost:8000 \
 		--timeout 15
+
+# ----------------------------------------------- host-native lab ------------
+# Runs the simulation (wazuh + caldera + victims) + infra deps (postgres,
+# redis, filebeat) in docker, then starts the actual platform (api, workers,
+# web) natively on the host. See docs/LAB_BRINGUP.md.
+
+.PHONY: sim-up sim-down deps-up deps-down host-up host-migrate host-seed lab-up lab-verify
+
+sim-up:
+	$(COMPOSE_SIM) up -d --build
+
+sim-down:
+	$(COMPOSE_SIM) down
+
+deps-up: env
+	$(COMPOSE_DEPS) --env-file $(ENV_FILE) up -d
+
+deps-down:
+	$(COMPOSE_DEPS) down
+
+host-migrate:
+	cd apps/api && set -a && . ../../$(ENV_FILE) && set +a && alembic upgrade head
+
+host-seed:
+	set -a && . $(ENV_FILE) && set +a && \
+		python infra/scripts/seed_admin.py \
+			--email "$(ADMIN_EMAIL)" \
+			--password "$(ADMIN_PASSWORD)" \
+			--role admin
+
+host-up:
+	@command -v honcho >/dev/null 2>&1 || { \
+		echo "honcho not installed — run: pip install honcho"; exit 1; }
+	honcho -f Procfile.host -e $(ENV_FILE) start
+
+lab-up: sim-up deps-up host-migrate host-seed
+	@echo ""
+	@echo "✓ simulation + deps up, DB migrated, admin seeded"
+	@echo "  now run:  make host-up"
+
+lab-verify:
+	@bash infra/scripts/lab_verify.sh

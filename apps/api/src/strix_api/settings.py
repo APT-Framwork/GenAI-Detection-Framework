@@ -51,7 +51,10 @@ class RedisSettings(BaseSettings):
     port: int = 6379
     db: int = 0
     password: SecretStr | None = None
-    max_connections: int = 20
+    # Inference reads batches of 64 features and fans out per-task; each task
+    # does several pipelined Redis ops. 20 was too small — pool exhaustion
+    # surfaced as `Too many connections` after B1 made errors visible.
+    max_connections: int = 200
 
     @property
     def url(self) -> str:
@@ -77,7 +80,7 @@ class WazuhSettings(BaseSettings):
     model_config = SettingsConfigDict(env_prefix="WAZUH_")
 
     raw_stream: str = "strix:alerts:raw"
-    raw_stream_maxlen: int = 100_000
+    raw_stream_maxlen: int = 1_000_000
     consumer_group: str = "strix-normalizer"
 
 

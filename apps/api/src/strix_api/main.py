@@ -28,6 +28,7 @@ from strix_api.api.routes import (
     dashboard,
     health,
     monitoring,
+    simulation,
     streams,
     threat_intel,
     topology,
@@ -100,7 +101,10 @@ def create_app() -> FastAPI:
     app.include_router(monitoring.router, prefix=_API_PREFIX)
     app.include_router(alerts.router, prefix=_API_PREFIX)
     app.include_router(streams.router, prefix=_API_PREFIX)
+    # Phase-2 multiplexed live WebSocket — /api/v1/logs/stream.
+    app.include_router(streams.logs_router, prefix=_API_PREFIX)
     app.include_router(topology.router, prefix=_API_PREFIX)
+    app.include_router(simulation.router, prefix=_API_PREFIX)
     app.include_router(admin.router, prefix=_API_PREFIX)
 
     return app

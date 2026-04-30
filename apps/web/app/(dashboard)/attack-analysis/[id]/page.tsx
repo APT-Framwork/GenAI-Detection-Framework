@@ -1,6 +1,7 @@
 "use client"
 
-import { useMemo } from "react"
+import { useEffect, useMemo } from "react"
+import { useRouter } from "next/navigation"
 
 import { AIPredictionsPanel } from "@/components/charts/ai-predictions-panel"
 import { ForensicLogViewer } from "@/components/charts/forensic-log-viewer"
@@ -10,6 +11,7 @@ import {
   useChainDwellTime,
   useChainGraphEvolution,
   useChainInfection,
+  useChainList,
   useChainLogs,
   useChainPredictions,
   useCkcProgression,
@@ -57,18 +59,47 @@ interface PageProps {
 
 export default function AttackAnalysisDetailPage({ params }: PageProps) {
   const { id } = params
+  const router = useRouter()
 
-  const ckcProg = useCkcProgression(id)
-  const graphEvo = useChainGraphEvolution(id)
-  const predictions = useChainPredictions(id)
-  const infection = useChainInfection(id)
-  const dwell = useChainDwellTime(id)
-  const logsQuery = useChainLogs(id, 50)
+  // The sidebar links to /attack-analysis/latest. Resolve "latest" to the
+  // most recent chain id from the list endpoint and redirect — the per-chain
+  // routes require a real UUID and would 422 otherwise.
+  const isLatest = id === "latest"
+  const chainList = useChainList({ limit: 1 })
+  const resolvedId = isLatest ? chainList.data?.items[0]?.chainId ?? null : id
+
+  useEffect(() => {
+    if (isLatest && resolvedId) {
+      router.replace(`/attack-analysis/${resolvedId}`)
+    }
+  }, [isLatest, resolvedId, router])
+
+  const ckcProg = useCkcProgression(resolvedId)
+  const graphEvo = useChainGraphEvolution(resolvedId)
+  const predictions = useChainPredictions(resolvedId)
+  const infection = useChainInfection(resolvedId)
+  const dwell = useChainDwellTime(resolvedId)
+  const logsQuery = useChainLogs(resolvedId, 50)
 
   const flatLogs = useMemo(() => {
     const pages = logsQuery.data?.pages ?? []
     return pages.flatMap((p) => p.items)
   }, [logsQuery.data])
+
+  if (isLatest) {
+    const noChainsYet = chainList.isFetched && !resolvedId
+    return (
+      <div className="flex h-64 items-center justify-center">
+        {noChainsYet ? (
+          <p className="text-sm text-[var(--strix-text-muted)]">
+            No attack chains yet — run a simulation to populate this view.
+          </p>
+        ) : (
+          <Loader2 className="h-5 w-5 animate-spin text-strix-cyan" />
+        )}
+      </div>
+    )
+  }
 
   const severity = severityFromCkc(predictions.data?.currentStage ?? 0)
   const dwellLabel =

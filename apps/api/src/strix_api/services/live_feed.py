@@ -30,6 +30,14 @@ from strix_api.core.enums import CkcStage
 
 LIVE_FEED_CHANNEL = "strix:sse:live-feed"
 
+# Phase-2 per-model pubsub channels — multiplexed onto the unified
+# /api/v1/logs/stream WebSocket. Only published when the inference worker
+# is started with `STRIX_STREAM_PER_MODEL=1`. See PLATFOR_BIG_CHANGES_PLAN.md.
+STREAM_AE_CHANNEL = "strix:stream:ae"
+STREAM_VAE_CHANNEL = "strix:stream:vae"
+STREAM_GNN_CHANNEL = "strix:stream:gnn"
+STREAM_RL_CHANNEL = "strix:stream:rl"
+
 
 def chain_log_channel(chain_id: str) -> str:
     """Per-chain pubsub channel for the Analysis-tab forensic log SSE."""
@@ -73,6 +81,10 @@ async def publish_live_feed(redis: Any, verdict: dict[str, Any]) -> None:
 
 __all__ = [
     "LIVE_FEED_CHANNEL",
+    "STREAM_AE_CHANNEL",
+    "STREAM_GNN_CHANNEL",
+    "STREAM_RL_CHANNEL",
+    "STREAM_VAE_CHANNEL",
     "build_live_feed_event",
     "chain_log_channel",
     "publish_live_feed",

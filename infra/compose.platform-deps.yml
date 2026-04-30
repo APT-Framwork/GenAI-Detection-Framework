@@ -1,0 +1,97 @@
+# =============================================================================
+# STRIX platform-deps — infra the host-run platform needs.
+#
+# Use this when you're running API/web/workers natively on the host (not in
+# containers) but still want:
+#   - Postgres + Redis you don't have to install system-wide
+#   - Filebeat tailing Wazuh's alerts.json → Redis list (the bridge worker on
+#     the host then drains that list into the Redis stream)
+#
+# Pairs with infra/compose.simulation.yml (wazuh+caldera+victims). The
+# `single-node_wazuh_logs` named volume is created by that compose and
+# referenced here as external — bring the simulation stack up FIRST.
+#
+# Host-side .env overrides:
+#   DB_HOST=localhost
+#   REDIS_HOST=localhost
+#
+# Bring-up:
+#   docker compose -f infra/compose.simulation.yml  up -d --build   # first
+#   docker compose -f infra/compose.platform-deps.yml up -d          # then
+#   # now run API + workers on the host
+# =============================================================================
+
+services:
+  postgres:
+    image: timescale/timescaledb:2.17.2-pg16
+    container_name: strix_postgres
+    environment:
+      POSTGRES_DB: ${DB_NAME:-strix}
+      POSTGRES_USER: ${DB_USER:-strix}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD required — set in apps/api/.env}
+    ports:
+      - "127.0.0.1:5435:5432"
+    volumes:
+      - strix_pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-strix} -d ${DB_NAME:-strix}"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    networks: [strix_platform_net]
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: strix_redis
+    # 4gb headroom: filebeat replay incidents (stale registry) and a slow
+    # downstream consumer can both fill the `strix:alerts:raw` stream
+    # quickly. `noeviction` is intentional — alerts must not be silently
+    # dropped — so we trade memory for durability and drain via consumer
+    # groups + XTRIM in the workers.
+    command: ["redis-server", "--maxmemory", "4gb", "--maxmemory-policy", "noeviction", "--save", ""]
+    ports:
+      - "127.0.0.1:6380:6379"
+    volumes:
+      - strix_redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "PING"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    networks: [strix_platform_net]
+    restart: unless-stopped
+
+  # Tails wazuh alerts.json → RPUSH to strix:alerts:raw:list on the redis above.
+  # The host-run `wazuh_bridge` worker drains that list into the Redis stream.
+  filebeat:
+    image: docker.elastic.co/beats/filebeat:8.15.3
+    container_name: strix_filebeat
+    user: root
+    command: ["filebeat", "-e", "-strict.perms=false"]
+    volumes:
+      - ./filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
+      - wazuh_alerts:/var/ossec/logs:ro
+      # Persist the filestream registry across restarts; without this the
+      # registry sits on an anonymous volume that's discarded on container
+      # recreate, and Filebeat re-tails alerts.json from offset 0 — drowning
+      # the redis stream with stale events.
+      - strix_filebeat_data:/usr/share/filebeat/data
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks: [strix_platform_net]
+    restart: unless-stopped
+
+volumes:
+  strix_pg_data:
+  strix_redis_data:
+  strix_filebeat_data:
+  wazuh_alerts:
+    external: true
+    name: single-node_wazuh_logs
+
+networks:
+  strix_platform_net:
+    name: strix_platform_net
+    driver: bridge

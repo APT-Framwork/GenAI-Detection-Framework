@@ -54,6 +54,77 @@ SECBERT_TRUNCATE_CHARS = 2000
 _LRU_MAX = 10_000  # §7.2 "SecBERT embeddings" row
 
 
+# Canonical 55-column feature ordering — copied verbatim from
+# `feature_selection_final.ipynb` (the same notebook cell that fit
+# `standard_scaler.pkl`/`scaler_55.pkl`). The order is load-bearing: the
+# trained StandardScaler's mean_/scale_ are positional, and any permutation
+# silently corrupts every downstream model output.
+#
+# Mirror of `apps/models/selected_features_top25.json['all_selected_columns']`.
+# Layout: [0..22] 23 individuals, [23..38] log_secbert_emb_0..15,
+#         [39..54] cmd_secbert_emb_0..15.
+FEATURE_COLUMNS: list[str] = [
+    # 23 individuals (FeatureEngineerNoLeakage canonical order)
+    "decoder_auditd",
+    "firedtimes",
+    "location__var_log_audit_audit.log",
+    "srcip_is_private",
+    "decoder_web-accesslog",
+    "location__var_log_apache2_access.log",
+    "firedtimes_log",
+    "path_is_missing",
+    "has_md5",
+    "cmd_length",
+    "has_sha256",
+    "syscheck_added",
+    "cmd_is_missing",
+    "decoder_dpkg-decoder",
+    "syscheck_deleted",
+    "path_depth",
+    "syscheck_modified",
+    "location__var_log_auth.log",
+    "decoder_syscheck_deleted",
+    "path_is_sensitive",
+    "decoder_syscheck_integrity_changed",
+    "location_syscheck",
+    "path_is_temp",
+    # 16 log_secbert PCA dims
+    "log_secbert_emb_0",
+    "log_secbert_emb_1",
+    "log_secbert_emb_2",
+    "log_secbert_emb_3",
+    "log_secbert_emb_4",
+    "log_secbert_emb_5",
+    "log_secbert_emb_6",
+    "log_secbert_emb_7",
+    "log_secbert_emb_8",
+    "log_secbert_emb_9",
+    "log_secbert_emb_10",
+    "log_secbert_emb_11",
+    "log_secbert_emb_12",
+    "log_secbert_emb_13",
+    "log_secbert_emb_14",
+    "log_secbert_emb_15",
+    # 16 cmd_secbert PCA dims
+    "cmd_secbert_emb_0",
+    "cmd_secbert_emb_1",
+    "cmd_secbert_emb_2",
+    "cmd_secbert_emb_3",
+    "cmd_secbert_emb_4",
+    "cmd_secbert_emb_5",
+    "cmd_secbert_emb_6",
+    "cmd_secbert_emb_7",
+    "cmd_secbert_emb_8",
+    "cmd_secbert_emb_9",
+    "cmd_secbert_emb_10",
+    "cmd_secbert_emb_11",
+    "cmd_secbert_emb_12",
+    "cmd_secbert_emb_13",
+    "cmd_secbert_emb_14",
+    "cmd_secbert_emb_15",
+]
+
+
 # ---------------------------------------------------------------- data classes
 
 
@@ -176,12 +247,21 @@ class PreprocessingPipeline:
         canonical_order: list[str],
         calibrators: VaeCalibrators,
         gnn: GnnMetadata,
+        cmd_dominant_16: np.ndarray | None = None,
     ) -> None:
         self._secbert = secbert
         self._log_pca = log_pca
         self._cmd_pca = cmd_pca
         self._scaler = scaler_55
         self._engineer = FeatureEngineerNoLeakage()
+        # Empirical dominant cmd_secbert 16-vec (93.8% of training rows).
+        # Used as the substitute for missing/empty commands — see
+        # `_cmd_secbert_for` for the reasoning.
+        self._cmd_dominant_16 = (
+            None
+            if cmd_dominant_16 is None
+            else np.asarray(cmd_dominant_16, dtype=np.float32).copy()
+        )
 
         # Canonical order in AE/VAE space (numeric SecBERT).
         self.canonical_order = tuple(canonical_order)
@@ -213,6 +293,29 @@ class PreprocessingPipeline:
 
     # ---- hot path -----------------------------------------------------
 
+    # cmd_secbert path is split out so the unit test can inspect the
+    # pre-scaler 16-d vec directly and so missing-cmd fallback is explicit.
+    def _cmd_secbert_for(self, alert: RawAlert) -> np.ndarray:
+        """16-d cmd_secbert PCA output for one alert (PRE-scaler).
+
+        Notebook canonical recipe was "[EMPTY] → SecBERT → PCA" for missing
+        commands. In training that recipe collapsed ~93.8% of rows onto a
+        single dominant 16-vec (visible in `secbert_cmd_embeddings.parquet`).
+        Runtime SecBERT([EMPTY]) lands on a DIFFERENT 16-vec — cosine sim
+        ~0.685 with the training dominant — almost certainly because the
+        SecBERT checkpoint shipped by HuggingFace today differs from what
+        the notebook fit against. The downstream scaler has scale_≈0.12 on
+        cmd_secbert_emb_7, so a 0.685-cosine drift becomes ±28 SD. Substitute
+        the dominant vec when the alert has no command — that is the
+        empirical training behavior, modulo the SecBERT-version drift.
+        """
+        cmd = alert.data.command
+        if (cmd is None or not cmd.strip()) and self._cmd_dominant_16 is not None:
+            return self._cmd_dominant_16.copy()
+        cmd_text, _ = self._engineer.text_inputs(alert)
+        cmd_768 = self._secbert.embed_one(cmd_text)
+        return self._cmd_pca.transform(cmd_768.reshape(1, -1)).astype(np.float32)[0]
+
     def transform(self, alert: RawAlert) -> np.ndarray:
         """RawAlert → scaled 55-dim vector (canonical/numeric order)."""
         # 23 individuals
@@ -220,16 +323,16 @@ class PreprocessingPipeline:
         individuals = self._engineer.to_array(alert)
         normalizer_duration_seconds.labels(stage="individuals").observe(time.perf_counter() - t0)
 
-        # SecBERT(cmd) + SecBERT(log)
-        cmd_text, log_text = self._engineer.text_inputs(alert)
+        # SecBERT(log) — log_secbert is naturally diverse in training
+        # (only 0.5% dominance) so runtime SecBERT output is in-distribution.
+        _, log_text = self._engineer.text_inputs(alert)
         t1 = time.perf_counter()
-        cmd_768 = self._secbert.embed_one(cmd_text)
         log_768 = self._secbert.embed_one(log_text)
         normalizer_duration_seconds.labels(stage="secbert").observe(time.perf_counter() - t1)
 
         # PCA
         t2 = time.perf_counter()
-        cmd_16 = self._cmd_pca.transform(cmd_768.reshape(1, -1)).astype(np.float32)[0]
+        cmd_16 = self._cmd_secbert_for(alert)
         log_16 = self._log_pca.transform(log_768.reshape(1, -1)).astype(np.float32)[0]
         normalizer_duration_seconds.labels(stage="pca").observe(time.perf_counter() - t2)
 
@@ -325,9 +428,44 @@ def build_pipeline(
         if not p.exists():
             raise ModelRegistryError(f"required preprocessing artifact missing: {p}")
 
-    log.info("loading_secbert", model_id=SECBERT_MODEL_ID, device=device)
-    tokenizer = AutoTokenizer.from_pretrained(SECBERT_MODEL_ID)
-    model = AutoModel.from_pretrained(SECBERT_MODEL_ID).to(device)
+    # Phase E: prefer Workstream-2/Phase-A's clean Part-2 metadata
+    # (`preprocess/gnn_propagation_metadata.pkl` — 55-col scaler, threshold
+    # 0.7743 from the "NO RULE LEVEL" retrain). Fall back to the legacy
+    # 56-col `gnn_metadata.pkl` (with threshold 0.918 from Part-1) only if
+    # the Phase-A artifact is absent.
+    gnn_propagation_path = models_dir / "preprocess" / "gnn_propagation_metadata.pkl"
+
+    # Hermetic SecBERT load: prefer the locally-saved weights at
+    # `apps/models/preprocess/secbert/` so runtime never re-downloads the HF
+    # checkpoint (which can silently rev under us — that drift caused the
+    # PCA-16 cmd_secbert mismatch). Fall back to HF only if the local dir
+    # is missing (e.g. fresh checkout that hasn't run the export yet).
+    secbert_local = models_dir / "preprocess" / "secbert"
+    secbert_tokenizer_local = models_dir / "preprocess" / "secbert_tokenizer"
+    if secbert_local.is_dir() and (secbert_local / "config.json").exists():
+        secbert_model_src = str(secbert_local)
+        secbert_tok_src = (
+            str(secbert_tokenizer_local)
+            if secbert_tokenizer_local.is_dir()
+            else str(secbert_local)
+        )
+        log.info(
+            "loading_secbert",
+            model_src=secbert_model_src,
+            tokenizer_src=secbert_tok_src,
+            device=device,
+            hermetic=True,
+        )
+    else:
+        secbert_model_src = SECBERT_MODEL_ID
+        secbert_tok_src = SECBERT_MODEL_ID
+        log.warning(
+            "loading_secbert_from_hub",
+            model_id=SECBERT_MODEL_ID,
+            note="local secbert/ weights missing — runtime will hit the hub",
+        )
+    tokenizer = AutoTokenizer.from_pretrained(secbert_tok_src)
+    model = AutoModel.from_pretrained(secbert_model_src).to(device)
     model.eval()
     if model.config.hidden_size != SECBERT_HIDDEN_SIZE:  # pragma: no cover
         raise ModelRegistryError(
@@ -348,11 +486,74 @@ def build_pipeline(
     calibrators = VaeCalibrators(mapping=calib_raw)
     _ = calibrators.active  # raises if key missing
 
-    gnn_raw = _load_pickle(models_dir / required["gnn_metadata"], "dict")
-    gnn = _build_gnn_meta(gnn_raw)
+    if gnn_propagation_path.exists():
+        # Phase A artifact was saved with joblib (compressed); the legacy
+        # `gnn_metadata.pkl` is plain pickle. Use joblib here.
+        import joblib  # noqa: PLC0415 — adapter-layer import is allowed
+
+        try:
+            gnn_raw = joblib.load(gnn_propagation_path)
+        except Exception as exc:
+            raise ModelRegistryError(
+                f"failed to load {gnn_propagation_path.name}: {exc}"
+            ) from exc
+        gnn = _build_gnn_meta(gnn_raw)
+        log.info(
+            "gnn_metadata_source",
+            path=str(gnn_propagation_path),
+            threshold=gnn.threshold,
+            note="Phase-A propagation metadata (no-rule-level, 55-col, threshold 0.7743)",
+        )
+    else:
+        gnn_raw = _load_pickle(models_dir / required["gnn_metadata"], "dict")
+        gnn = _build_gnn_meta(gnn_raw)
+        log.warning(
+            "gnn_metadata_source_legacy",
+            path=str(models_dir / required["gnn_metadata"]),
+            threshold=gnn.threshold,
+            note="falling back to legacy gnn_metadata.pkl — run Phase A export",
+        )
 
     canonical = json.loads((models_dir / required["canonical_json"]).read_text())
     canonical_order: list[str] = canonical["all_selected_columns"]
+    # Drift guard: the in-code FEATURE_COLUMNS list is the authoritative,
+    # explicit ordering used at training; the JSON shipped alongside the
+    # scaler must agree. If they ever drift, fail loud at startup rather
+    # than silently mis-ordering features into the StandardScaler.
+    if canonical_order != FEATURE_COLUMNS:
+        raise ModelRegistryError(
+            "selected_features_top25.json all_selected_columns does not match "
+            "FEATURE_COLUMNS (training-notebook canonical order). Refusing to "
+            "load: a permuted scaler input would corrupt every model output."
+        )
+
+    # Empirical training-dominant cmd_secbert vec (Phase G — see
+    # `_cmd_secbert_for` for the why). Optional; if absent we fall back to
+    # the pure SecBERT path which we know lands far from training.
+    cmd_dominant_16: np.ndarray | None = None
+    dom_path = models_dir / "preprocess" / "secbert_dominant_vectors.json"
+    if dom_path.exists():
+        try:
+            dom = json.loads(dom_path.read_text())
+            cmd_dominant_16 = np.array(dom["cmd_dominant_16"], dtype=np.float32)
+            if cmd_dominant_16.shape != (16,):
+                raise ValueError(f"cmd_dominant_16 wrong shape: {cmd_dominant_16.shape}")
+            log.info(
+                "secbert_cmd_dominant_loaded",
+                path=str(dom_path),
+                count=int(dom.get("cmd_dominant_count", -1)),
+                total=int(dom.get("cmd_total", -1)),
+            )
+        except Exception as exc:
+            raise ModelRegistryError(
+                f"failed to load {dom_path.name}: {exc}"
+            ) from exc
+    else:
+        log.warning(
+            "secbert_cmd_dominant_missing",
+            path=str(dom_path),
+            note="missing-cmd alerts will use SecBERT([EMPTY]) which drifts from training",
+        )
 
     pipe = PreprocessingPipeline(
         secbert=secbert,
@@ -362,6 +563,7 @@ def build_pipeline(
         canonical_order=canonical_order,
         calibrators=calibrators,
         gnn=gnn,
+        cmd_dominant_16=cmd_dominant_16,
     )
 
     if warmup:
@@ -416,6 +618,11 @@ def _check_scaler(scaler: Any, *, expected_dim: int) -> None:
         raise ModelRegistryError(
             f"standard_scaler.pkl fit on {scaler.n_features_in_} features, expected {expected_dim}"
         )
+    # Hot-path callers pass NumPy arrays (no column names). The scaler was fit
+    # on a pandas DataFrame, so sklearn's _check_feature_names emits a per-row
+    # UserWarning. Drop the recorded names; we never use them.
+    if hasattr(scaler, "feature_names_in_"):
+        del scaler.feature_names_in_
 
 
 def _build_gnn_meta(raw: dict[str, Any]) -> GnnMetadata:
@@ -433,17 +640,18 @@ def _build_gnn_meta(raw: dict[str, Any]) -> GnnMetadata:
         )
 
     src_scaler = raw["scaler"]
-    # Part 2 retraining in the notebook slices X_scaled[:, :-1]; we do the
-    # equivalent here by taking the first 55 entries of the 56-dim scaler.
+    # Phase A's `gnn_propagation_metadata.pkl` ships a clean 55-col scaler;
+    # the legacy `gnn_metadata.pkl` ships the Part-1 56-col scaler that we
+    # slice down to 55 (matches notebook's `X_scaled[:, :-1]`).
     sliced = _Scaler()
-    if src_scaler.n_features_in_ == 56:
-        sliced.mean_ = src_scaler.mean_[:55].astype(np.float64)
-        sliced.scale_ = src_scaler.scale_[:55].astype(np.float64)
-        sliced.var_ = src_scaler.var_[:55].astype(np.float64)
-    elif src_scaler.n_features_in_ == 55:
+    if src_scaler.n_features_in_ == 55:
         sliced.mean_ = src_scaler.mean_.astype(np.float64)
         sliced.scale_ = src_scaler.scale_.astype(np.float64)
         sliced.var_ = src_scaler.var_.astype(np.float64)
+    elif src_scaler.n_features_in_ == 56:
+        sliced.mean_ = src_scaler.mean_[:55].astype(np.float64)
+        sliced.scale_ = src_scaler.scale_[:55].astype(np.float64)
+        sliced.var_ = src_scaler.var_[:55].astype(np.float64)
     else:
         raise ModelRegistryError(
             f"gnn_metadata scaler has n_features_in_={src_scaler.n_features_in_}, expected 55 or 56"
@@ -467,6 +675,7 @@ def _build_gnn_meta(raw: dict[str, Any]) -> GnnMetadata:
 
 
 __all__ = [
+    "FEATURE_COLUMNS",
     "GnnMetadata",
     "PreprocessingPipeline",
     "VaeCalibrators",

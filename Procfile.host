@@ -1,0 +1,9 @@
+# Host-run STRIX platform (pairs with infra/compose.platform-deps.yml).
+# Start with:  make host-up     (or: honcho -f Procfile.host -e apps/api/.env start)
+api:              bash -c 'cd /home/yacine/Desktop/GenAI-Detection-Framework/apps/api && /home/yacine/Desktop/GenAI-Detection-Framework/apps/api/.venv/bin/uvicorn strix_api.main:app --host 0.0.0.0 --port 8000'
+wazuh_bridge:     bash -c 'cd /home/yacine/Desktop/GenAI-Detection-Framework/apps/api && /home/yacine/Desktop/GenAI-Detection-Framework/apps/api/.venv/bin/python -m strix_api.workers.wazuh_bridge'
+normalizer:       bash -c 'cd /home/yacine/Desktop/GenAI-Detection-Framework/apps/api && /home/yacine/Desktop/GenAI-Detection-Framework/apps/api/.venv/bin/python -m strix_api.workers.normalizer'
+inference:        bash -c 'cd /home/yacine/Desktop/GenAI-Detection-Framework/apps/api && INFERENCE_SHARD_ID=0 INFERENCE_NUM_SHARDS=1 /home/yacine/Desktop/GenAI-Detection-Framework/apps/api/.venv/bin/python -m strix_api.workers.inference'
+verdicts_writer:  bash -c 'cd /home/yacine/Desktop/GenAI-Detection-Framework/apps/api && /home/yacine/Desktop/GenAI-Detection-Framework/apps/api/.venv/bin/python -m strix_api.workers.verdicts_writer'
+arq:              bash -c 'cd /home/yacine/Desktop/GenAI-Detection-Framework/apps/api && /home/yacine/Desktop/GenAI-Detection-Framework/apps/api/.venv/bin/arq strix_api.workers.arq_tasks.WorkerSettings'
+web:              bash -c 'cd /home/yacine/Desktop/GenAI-Detection-Framework/apps/web && STRIX_API_URL=http://localhost:8000 pnpm dev'

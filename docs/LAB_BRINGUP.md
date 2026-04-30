@@ -1,111 +1,168 @@
-# STRIX Lab Bring-up — 5 VM Walkthrough
+# STRIX Lab Bring-up — All-Docker Walkthrough
 
-A single, copy-pasteable runbook for the 5-VM PoC: Wazuh manager + STRIX
-app, Caldera attacker, three victim hosts. Top-to-bottom, ~25 minutes
-end-to-end on a warm network.
+A single, copy-pasteable runbook for the full PoC on **one host**: Wazuh
+manager + Caldera attacker + 2 victims, all as containers on a shared Docker
+network. The STRIX platform (API + web + workers) runs on the same host via
+its own compose and reads Wazuh alerts through a shared named volume.
 
 ```
-            VM 1 — Manager + App                       VM 2 — Attacker
-   ┌─────────────────────────────────┐         ┌──────────────────────┐
-   │  wazuh.manager   wazuh.indexer  │         │  caldera (red TS)    │
-   │  wazuh.dashboard                │◀────────│  http://VM2:8888     │
-   │                                 │         └──────────┬───────────┘
-   │  ┌──────── STRIX app ────────┐  │                    │
-   │  │ postgres  redis  filebeat │  │             sandcat │ ops
-   │  │ api  workers×4  arq  web  │  │                    ▼
-   │  └───────────────────────────┘  │         ┌──────────┴───────────┐
-   │  http://VM1:3000   :8000  :443  │         │ VMs 3/4/5 — Victims  │
-   └────────────────▲────────────────┘         │  wazuh-agent +       │
-                    │                          │  sandcat (systemd)   │
-                    └──────── alerts (1514) ───┤                      │
-                                               └──────────────────────┘
+          host (your laptop)
+ ┌─────────────────────────────────────────────────────────────────┐
+ │   host:  uvicorn · workers · pnpm dev (apps/web)                │
+ │   docker (infra/compose.platform-deps.yml): postgres · redis · filebeat │
+ │                         ▲                                       │
+ │            reads alerts │ volume: single-node_wazuh_logs        │
+ │                         │                                       │
+ │   ── simulation net (strix_lab_net, infra/compose.simulation.yml) ──
+ │                         │                                       │
+ │    wazuh.manager ◀── 1514/1515 ─── victim1 ─ sandcat ──▶ caldera│
+ │        :55000                      victim2 ─ sandcat ──▶ :8888  │
+ └─────────────────────────────────────────────────────────────────┘
 ```
+
+No VMs, no SSH, no UFW. Only prerequisite is Docker + Compose v2.
 
 ---
 
-## 0. Prerequisites (every VM)
+## 0. Prerequisites
 
 ```bash
-# All 5 VMs — Ubuntu 22.04+, run once each
-sudo apt-get update && sudo apt-get install -y curl ca-certificates gnupg
-sudo timedatectl set-ntp true             # ⚠ Wazuh enrollment fails on time skew
-
-# VMs 1, 2 only — install Docker
+# Ubuntu / Debian host
 curl -fsSL https://get.docker.com | sudo bash
 sudo usermod -aG docker $USER && newgrp docker
+
+# Sanity
+docker version
+docker compose version
 ```
 
-**Network requirements** (open these on the indicated VM's firewall):
+Clone the repo:
 
-| From → To | Port | Why |
-|---|---|---|
-| 3/4/5 → 1 | 1514, 1515 | Wazuh agent → manager (alerts + enrollment) |
-| browser → 1 | 443 | Wazuh dashboard |
-| browser → 1 | 3000, 8000 | STRIX web + API |
-| 3/4/5 → 2 | 8888 | sandcat → Caldera (C2) |
-| browser → 2 | 8888 | Caldera UI |
-
-UFW one-liners:
 ```bash
-# VM 1
-sudo ufw allow 1514,1515,443,3000,8000/tcp
-# VM 2
-sudo ufw allow 8888/tcp
-# VMs 3/4/5 — outbound only, no rules needed
+git clone <this-repo> ~/GenAI-Detection-Framework
+cd ~/GenAI-Detection-Framework
 ```
 
-Record the IPs once — every command below references them:
+Required local image: **`caldera:latest`**. If you don't already have it:
+
 ```bash
-export VM1_IP=10.0.0.10   # manager + app
-export VM2_IP=10.0.0.11   # caldera
+git clone https://github.com/mitre/caldera.git --recursive ~/caldera
+cd ~/caldera && docker build -t caldera:latest .
+cd -
 ```
 
 ---
 
-## 1. VM 1 — Wazuh stack (do this FIRST)
+## 1. Simulation stack — Wazuh + Caldera + victims
 
 ```bash
-git clone https://github.com/wazuh/wazuh-docker.git -b v4.9.2 ~/wazuh-docker
-cd ~/wazuh-docker/single-node
-docker compose -f generate-indexer-certs.yml run --rm generator
-docker compose up -d
+docker compose -f infra/compose.simulation.yml up -d --build
 ```
 
-Wait ~60s for the indexer cluster to settle, then:
+This spins up four containers on the `strix_lab_net` bridge network:
+
+| Container | Image | Role | Exposed |
+|---|---|---|---|
+| `strix_wazuh_manager` | `wazuh/wazuh-manager:4.9.2` | SIEM core, writes `alerts.json` | 1514, 1515, 55000 |
+| `strix_caldera` | `caldera:latest` | Red-team C2 server | 8888 |
+| `strix_victim1` | `strix/victim:lab` (built locally) | Ubuntu + wazuh-agent + auditd + rsyslog + sandcat | — |
+| `strix_victim2` | `strix/victim:lab` | same | — |
+
+First build of the victim image pulls Ubuntu + wazuh-agent — ~2 minutes on a
+warm cache.
+
+**Training-schema alignment:** the victim image injects the
+[config/wazuh/ossec-agent-localfiles.xml.draft](../config/wazuh/ossec-agent-localfiles.xml.draft)
+fragment into `ossec.conf` on first boot — enables auditd, syscheck, SCA, and
+the PAM/sudo/sshd/dpkg/apache log sources the ML models were trained on
+(see [WAZUH_MAPPING.md](WAZUH_MAPPING.md)). The manager runs with stock
+defaults (`log_alert_level: 3`, `jsonout_output: yes`) which already match the
+training dump.
+
+> ⚠️  **auditd caveat.** The host kernel's audit netlink is single-owner. If
+> the Docker host itself runs `auditd`, the container's `auditctl` calls fail
+> and `data.audit.*` features will be sparse (entrypoint logs this). Either
+> stop the host's auditd (`sudo systemctl stop auditd`) or bind-mount host
+> audit logs (`/var/log/audit:/var/log/audit:ro`) into the victim containers
+> if you need full auditd coverage.
 
 ```bash
 # ✅ Verify
-curl -fsSk https://localhost:443 -o /dev/null -w "dashboard: %{http_code}\n"
-docker exec wazuh.manager /var/ossec/bin/cluster_control -l
-# Expected: dashboard: 302 (redirect to login), single node listed
+docker compose -f infra/compose.simulation.yml ps
+docker exec strix_wazuh_manager /var/ossec/bin/agent_control -l
+# Expected after ~30s:
+#   ID: 001, Name: victim1, Status: Active
+#   ID: 002, Name: victim2, Status: Active
 ```
 
-Open **https://VM1_IP:443** → login `admin` / `SecretPassword`. Confirm the agents tab is empty (good — we haven't deployed any yet).
+Caldera UI: **http://localhost:8888** → login `red` / `admin`. The Agents tab
+should list `victim1` and `victim2` (paw IDs differ each run).
 
 ---
 
-## 2. VM 1 — STRIX app stack
+## 2. Platform — run natively on the host
+
+> **TL;DR** — `pip install honcho` (once), then:
+> ```
+> make lab-up        # sim + deps + migrate + seed
+> make host-up       # one command for api + all workers + web (honcho)
+> make lab-verify    # in another terminal — 8 connectivity probes
+> ```
+> The sections below explain what each step does.
+
+
+Only **Postgres + Redis + Filebeat** stay in Docker (via
+`compose.platform-deps.yml`); the API, workers, and web UI run directly on
+the host. Filebeat bridges the two worlds: it tails the Wazuh alerts volume
+(shared with the simulation stack) and pushes lines to the Redis list the
+host-run `wazuh_bridge` worker drains.
+
+### 2.1 Env
 
 ```bash
-cd ~/GenAI-Detection-Framework
 cp apps/api/.env.example apps/api/.env
 
-# Set the two required secrets
+sed -i "s|^DB_HOST=.*|DB_HOST=localhost|"    apps/api/.env
+sed -i "s|^REDIS_HOST=.*|REDIS_HOST=localhost|" apps/api/.env
 sed -i "s|^DB_PASSWORD=.*|DB_PASSWORD=$(openssl rand -base64 24)|" apps/api/.env
 sed -i "s|^# AUTH_JWT_SECRET=.*|AUTH_JWT_SECRET=$(openssl rand -base64 48)|" apps/api/.env
 sed -i "s|^AUTH_DEV_SKIP_AUTH=.*|AUTH_DEV_SKIP_AUTH=false|" apps/api/.env
 sed -i "s|^INFERENCE_NUM_SHARDS=.*|INFERENCE_NUM_SHARDS=1|" apps/api/.env
-
-# Bring up the full stack (api + 4 workers + web + filebeat + db + redis)
-docker compose -f infra/compose.lab.yml up -d --build
+sed -i "s|^MODELS_PATH=.*|MODELS_PATH=$(pwd)/apps/models|" apps/api/.env
 ```
 
-First build pulls torch+transformers and SecBERT — **5 to 10 minutes** depending on your network. Subsequent builds are seconds.
-
-Seed the bootstrap admin:
+### 2.2 Postgres + Redis + Filebeat
 
 ```bash
-docker exec strix_api python -c "
+# Compose inherits DB_PASSWORD from apps/api/.env — pass via --env-file
+docker compose --env-file apps/api/.env \
+  -f infra/compose.platform-deps.yml up -d
+```
+
+That publishes Postgres on `127.0.0.1:5432` and Redis on `127.0.0.1:6379`.
+
+### 2.3 API + workers (host)
+
+```bash
+cd apps/api
+pip install -e ".[dev]"          # one-time
+export $(grep -v '^#' .env | xargs)
+
+alembic upgrade head             # migrations
+
+# Launch each in its own terminal (or tmux / overmind / honcho):
+uvicorn strix_api.app:app --host 0.0.0.0 --port 8000 --reload
+python -m strix_api.workers.wazuh_bridge
+python -m strix_api.workers.normalizer
+python -m strix_api.workers.inference       # set INFERENCE_SHARD_ID=0
+python -m strix_api.workers.verdicts_writer
+arq strix_api.workers.arq_tasks.WorkerSettings
+```
+
+Seed the bootstrap admin (once):
+
+```bash
+cd apps/api && python -c "
 import asyncio
 from strix_api.repositories.database import init_engine, session_scope
 from strix_api.repositories.user_repo import UserRepo
@@ -119,131 +176,175 @@ async def run():
 asyncio.run(run())"
 ```
 
+### 2.4 Web
+
 ```bash
-# ✅ Verify
-curl -fsS http://localhost:8000/health           # {"status":"ok",...}
-curl -fsS http://localhost:3000 -o /dev/null -w "web: %{http_code}\n"   # 200
-docker compose -f infra/compose.lab.yml ps      # all services healthy/up
+cd apps/web
+pnpm install                     # one-time
+STRIX_API_URL=http://localhost:8000 pnpm dev
 ```
 
-Open **http://VM1_IP:3000** → login `admin@strix.io` / `changeme123!`. The dashboard loads with all-zero counters. Good — no alerts yet.
+Open **http://localhost:3000** → login `admin@strix.io` / `changeme123!`.
 
 ---
 
-## 3. VM 2 — Caldera
+## 2.5 Prove Wazuh → platform connectivity (step-by-step)
+
+Run these in order after bringing everything up. Each step isolates one hop
+so you know where a break is if the chain fails.
 
 ```bash
-cd ~/Desktop/caldera
-docker compose up -d   # or whatever the image expects
-# (you said it's pre-pulled — adjust if your run command differs)
+# ---- (a) Is the manager writing alerts.json? -----------------------------
+docker exec strix_wazuh_manager \
+  ls -la /var/ossec/logs/alerts/alerts.json
+docker exec strix_wazuh_manager \
+  tail -1 /var/ossec/logs/alerts/alerts.json | head -c 200
+# Expected: file exists, last line is a JSON doc with "rule", "agent", etc.
 ```
 
 ```bash
-# ✅ Verify
-curl -fsS http://localhost:8888 -o /dev/null -w "caldera: %{http_code}\n"   # 200/302
+# ---- (b) Are agents actually connected? ----------------------------------
+docker exec strix_wazuh_manager /var/ossec/bin/agent_control -l
+# Expected: victim1 and victim2 both "Active"
 ```
 
-Open **http://VM2_IP:8888** → login `red` / `admin`. Confirm "Agents" tab is empty.
+```bash
+# ---- (c) Trip a rule from inside a victim --------------------------------
+docker exec strix_victim1 bash -c 'cat /etc/shadow >/dev/null 2>&1 || true'
+docker exec strix_victim1 bash -c 'logger -t auth "fake: FAILED su for root"'
+# Wait ~5s for the manager to process it
+sleep 5
+docker exec strix_wazuh_manager \
+  tail -5 /var/ossec/logs/alerts/alerts.json | grep -c '"agent":{"id":"00'
+# Expected: > 0 — an alert mentioning a non-zero agent id just arrived.
+```
+
+```bash
+# ---- (d) Did Filebeat pick it up and push to Redis? ---------------------
+# While the wazuh_bridge worker is NOT running, items pile up on the list.
+# (If it IS running, LLEN will be 0 because the bridge drains it immediately —
+#  that's also a green result; skip to step (e) in that case.)
+redis-cli -h 127.0.0.1 -p 6379 LLEN strix:alerts:raw:list
+# Expected: N > 0 if bridge is stopped; 0 if it's running + draining fine.
+
+# Peek at the most recent entry without consuming it:
+redis-cli -h 127.0.0.1 -p 6379 LRANGE strix:alerts:raw:list -1 -1 | head -c 200
+```
+
+```bash
+# ---- (e) Did the bridge forward into the Redis stream? ------------------
+redis-cli -h 127.0.0.1 -p 6379 XLEN strix:alerts:raw
+redis-cli -h 127.0.0.1 -p 6379 XREVRANGE strix:alerts:raw + - COUNT 1
+# Expected: XLEN grows; last entry contains the alert JSON.
+```
+
+```bash
+# ---- (f) Did the normalizer + inference consume it? ---------------------
+# The normalizer uses a consumer group — pending-list shows work in flight.
+redis-cli -h 127.0.0.1 -p 6379 XINFO GROUPS strix:alerts:raw
+# Expected: group "strix-normalizer" with last-delivered-id moving forward.
+```
+
+```bash
+# ---- (g) Did a verdict land in Postgres? --------------------------------
+PGPASSWORD=$(grep ^DB_PASSWORD apps/api/.env | cut -d= -f2) \
+  psql -h 127.0.0.1 -U strix -d strix \
+       -c "SELECT COUNT(*), MAX(created_at) FROM verdicts;"
+# Expected: count grows over time; MAX(created_at) is within the last minute.
+```
+
+```bash
+# ---- (h) End-to-end via the API -----------------------------------------
+curl -fsS http://localhost:8000/health
+curl -fsS "http://localhost:8000/api/v1/alerts?limit=1" \
+  -H "Cookie: $(cat ~/.strix_cookie 2>/dev/null)" | jq '.items[0] | {id, rule_id, created_at}'
+# Or just watch the Vigilance Feed SSE stream in the browser.
+```
+
+If (a)–(c) pass but (d) shows LLEN=0 *and* the bridge is stopped → Filebeat
+isn't connected. Check `docker logs strix_filebeat | tail -50`. Most common
+cause: the `single-node_wazuh_logs` volume wasn't created because the
+simulation compose wasn't brought up first.
+
+If (d) passes but (e) shows XLEN=0 → the `wazuh_bridge` worker isn't running
+or can't reach Redis on `localhost:6379`. Check the worker's stdout.
+
+If (e) passes but (g) shows no rows → normalizer or inference is down, or a
+model artifact is missing (check `MODELS_PATH` and that the `.pth` files exist).
 
 ---
 
-## 4. VMs 3, 4, 5 — Victim agents (Wazuh + sandcat)
-
-From your laptop or any host with SSH access to the victims:
-
-```bash
-for vm in vm3 vm4 vm5; do
-  scp infra/scripts/install_victim.sh "$vm:/tmp/"
-  ssh "$vm" "sudo MANAGER_IP=$VM1_IP CALDERA_IP=$VM2_IP bash /tmp/install_victim.sh"
-done
-```
-
-Each VM takes ~30s. The script is idempotent — safe to re-run if anything hiccups.
-
-```bash
-# ✅ Verify from VM 1
-ssh vm1 'docker exec wazuh.manager /var/ossec/bin/agent_control -l'
-# Expected:
-#   ID: 001, Name: vm3, IP: ..., Status: Active
-#   ID: 002, Name: vm4, ...
-#   ID: 003, Name: vm5, ...
-
-# ✅ Verify from VM 2
-ssh vm2 'curl -s http://localhost:8888/api/v2/agents -H "KEY: ADMIN123" | jq ".[].host"'
-# Expected: "vm3", "vm4", "vm5"
-```
-
-If an agent is "Disconnected" or missing: jump to **Troubleshooting** below.
-
----
-
-## 5. End-to-end smoke
-
-The whole point of the lab — fire a real attack from VM 2 against the victims, watch alerts flow through Wazuh → STRIX.
+## 3. End-to-end smoke
 
 ### A. Manual probe (60s)
 
-On any victim, generate an alert that should trip Wazuh's default rules:
+Trip a Wazuh rule from inside a victim container:
 
 ```bash
-ssh vm3 'sudo cat /etc/shadow >/dev/null'   # rule 5402 fires (sudo to root)
-ssh vm3 'echo "fake auth failure" | sudo tee -a /var/log/auth.log'   # rule 5503
+docker exec strix_victim1 bash -c 'sudo cat /etc/shadow >/dev/null'
+docker exec strix_victim1 bash -c 'echo "fake auth failure" >> /var/log/auth.log'
 ```
 
 Within 5–15s:
-- **Wazuh dashboard** (https://VM1:443) → Discover → events appear
-- **STRIX dashboard** (http://VM1:3000) → Vigilance Feed → live SSE event
-- **STRIX dashboard** → Attack Vector counter ticks up
+- **STRIX dashboard** (http://localhost:3000) → Vigilance Feed → live SSE event
+- **Attack Vector** counter ticks up
 
-### B. Caldera-driven attack chain (proper test)
+### B. Caldera-driven attack chain
 
-In the Caldera UI (http://VM2:8888):
-1. **Adversaries** → "Hunter" or "Discovery" (built-in)
-2. **Operations** → New → name "lab-test", adversary "Hunter", group "red"
-3. Click **▶ Start**
+Fast path (full recipes, REST API, technique-targeted ops):
+→ **[CALDERA_PLAYBOOK.md](CALDERA_PLAYBOOK.md)**.
 
-Within 30–60s, in the STRIX dashboard:
-- **Attack Analysis** → a new chain appears
-- Click into it → kill-chain progression should advance through stages
-- **Topology** page → at least one host status flips to *warning* or *compromised*
+30-second version:
+1. http://localhost:8888 → `red` / `admin`
+2. Campaigns → Operations → `+` → Adversary: **Thief**, Group: `red`,
+   Planner: `batch`, Obfuscator: `plain-text`, Autonomous: ✅
+3. ▶ Start
+
+Within 30–60s:
+- **Attack Analysis** page → new chain appears
+- Kill-chain advances through DISCOVERY → COLLECTION stages
+- **Topology** → at least one host flips to *warning* / *compromised*
 
 ---
 
-## 6. Troubleshooting (in priority order)
+## 4. Troubleshooting
 
 | Symptom | Likely cause | Fix |
 |---|---|---|
-| `external volume "single-node_wazuh_logs" not found` when starting `compose.lab.yml` | Wazuh stack wasn't started, or used different compose project name | `docker volume ls \| grep wazuh` then update `name:` in [compose.lab.yml](../infra/compose.lab.yml) |
-| Wazuh agent stuck "Pending" / never reaches "Active" | Time skew, or 1514/1515 blocked | `sudo timedatectl set-ntp true` on victim; check UFW on VM 1 allows 1514/1515 |
-| Sandcat install fails: `connection refused` | Caldera not up yet on VM 2 | Bring Caldera up first, re-run `install_victim.sh` (idempotent) |
-| STRIX `/auth/me` returns 401 after successful login | `AUTH_DEV_SKIP_AUTH=true` substitutes a fake user not in the DB | `sed -i 's|^AUTH_DEV_SKIP_AUTH=.*|AUTH_DEV_SKIP_AUTH=false|' apps/api/.env && docker compose -f infra/compose.lab.yml restart api` |
-| Web dashboard loads but every API call 500s | API container can't reach Postgres | `docker logs strix_api \| tail -30` — usually `DB_PASSWORD` mismatch or migrate didn't run |
-| Inference worker crashloops on `OSError: PermissionError at /home/strix` | HuggingFace cache permission | Already fixed in the Dockerfile (`HF_HOME=/app/.cache/huggingface`); rebuild with `--no-cache` if you have an old image |
-| Vigilance Feed never receives SSE events | Filebeat can't read Wazuh's log file | `docker logs strix_filebeat \| tail` — usually means the wazuh_alerts volume isn't mounted; verify section 1 succeeded |
-| Caldera dashboard sees 0 agents but `systemctl status sandcat` is green on victims | Wrong CALDERA_IP at install time | `ssh vm3 'sudo systemctl edit sandcat'` → fix `-server` URL → `sudo systemctl restart sandcat` |
-| Notifications page is empty even after attacks | DQN model picks LOW_ALERT for the synthetic patterns; not a bug | Run a longer Caldera operation (Hunter → Discovery → Collection) so chains progress to CKC ≥ EXPLOITATION; the query surfaces those even at LOW_ALERT |
+| `external volume "single-node_wazuh_logs" not found` starting `compose.platform-deps.yml` | Simulation stack not up yet | `docker compose -f infra/compose.simulation.yml up -d` first |
+| `victim` health flaps, agent "Never connected" in `agent_control -l` | Caldera not healthy yet on first boot — victim's entrypoint blocks on it | `docker logs strix_victim1 -f` — wait for `sandcat launched`, then check agent |
+| Caldera UI shows 0 agents but victims are running | sandcat fetched before Caldera finished warming up | `docker compose -f infra/compose.simulation.yml restart victim1 victim2` |
+| STRIX `/auth/me` returns 401 after login | `AUTH_DEV_SKIP_AUTH=true` substitutes a fake user | `sed -i 's/^AUTH_DEV_SKIP_AUTH=.*/AUTH_DEV_SKIP_AUTH=false/' apps/api/.env` and restart the host-run `uvicorn` |
+| API 500s: `connection to server on "postgres"` | `.env` still points at docker hostname | `sed -i 's/^DB_HOST=.*/DB_HOST=localhost/' apps/api/.env` + restart uvicorn |
+| Workers 500: `Connection refused to redis:6379` | Same pattern | `sed -i 's/^REDIS_HOST=.*/REDIS_HOST=localhost/' apps/api/.env` + restart workers |
+| Vigilance Feed never receives events | Filebeat can't read alerts.json | `docker logs strix_filebeat \| tail` — confirm `single-node_wazuh_logs` volume is mounted |
+| Caldera build fails with Go / mingw errors | Upstream quirk | Build from a tagged release: `git -C ~/caldera checkout 5.1.0 && docker build -t caldera:latest ~/caldera` |
+| Victim image build fails on `apt install wazuh-agent` | Wazuh APT repo transient outage | Retry the build; optionally pin a mirror in the Dockerfile |
+| `docker compose up` on victim fails with `cap_add: AUDIT_READ` on older Docker | Docker < 20.10 | Upgrade Docker, or drop the audit caps from compose.simulation.yml |
 
 ---
 
-## 7. Tear-down / reset
+## 5. Tear-down / reset
 
 ```bash
-# Wipe STRIX state but keep Wazuh + agents
-docker compose -f infra/compose.lab.yml down -v
+# Reset STRIX platform but keep simulation + agent registrations
+docker compose -f infra/compose.platform-deps.yml down -v
 
-# Wipe everything on VM 1
-docker compose -f infra/compose.lab.yml down -v
-cd ~/wazuh-docker/single-node && docker compose down -v
+# Reset the simulation lab (wipes Wazuh agents + Caldera state)
+docker compose -f infra/compose.simulation.yml down -v
 
-# Wipe a victim
-ssh vm3 'sudo apt-get purge -y wazuh-agent && sudo systemctl disable --now sandcat && sudo rm -f /etc/systemd/system/sandcat.service /usr/local/bin/sandcat'
+# Full nuke
+docker compose -f infra/compose.platform-deps.yml down -v
+docker compose -f infra/compose.simulation.yml down -v
+docker volume rm single-node_wazuh_logs 2>/dev/null || true
 ```
 
 ---
 
 ## What to read next
 
-- **Architecture details** — [docs/IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md)
+- **Caldera attack recipes** — [docs/CALDERA_PLAYBOOK.md](CALDERA_PLAYBOOK.md)
+- **Architecture** — [docs/IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md)
 - **Wazuh field → STRIX feature mapping** — [docs/WAZUH_MAPPING.md](WAZUH_MAPPING.md)
 - **Model versions, registry, drift** — [docs/MODELS_REFERENCE.md](MODELS_REFERENCE.md)
 - **Frontend dev** — [docs/WEB_RUN.md](WEB_RUN.md)

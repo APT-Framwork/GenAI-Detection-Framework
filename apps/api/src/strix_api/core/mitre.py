@@ -128,26 +128,59 @@ def _to_enum(v: int | None) -> CkcStage | None:
     return CkcStage(v)
 
 
+_STAGE_LABEL_TO_INT = {f"S{i}": i for i in range(1, 8)}
+
+
+def _ckc_int(v: object) -> int:
+    if isinstance(v, int):
+        return v
+    if isinstance(v, dict) and "ckc" in v:
+        return int(v["ckc"])
+    return 0
+
+
+def _flatten_name_map(raw: object) -> dict[str, int]:
+    """Two supported shapes for ``*_name_to_ckc``:
+
+    1. Flat ``{name: int}`` (or ``{name: {"ckc": int}}``).
+    2. Stage-keyed ``{"S1": [name, name, ...], "S4": [...], ...}`` — this
+       is the shape used by ``docs/mitre_to_ckc.json`` (Phase F port from
+       the training notebook, where techniques were grouped by stage for
+       readability).
+
+    Either way, the result is a flat ``{name: int}`` dict.
+    """
+    if not isinstance(raw, dict):
+        return {}
+    flat: dict[str, int] = {}
+    for k, v in raw.items():
+        if k == "comment":
+            continue
+        if isinstance(v, list):
+            stage = _STAGE_LABEL_TO_INT.get(k)
+            if stage is None:
+                continue
+            for name in v:
+                if isinstance(name, str):
+                    flat[name] = stage
+        elif isinstance(v, int):
+            flat[k] = v
+        elif isinstance(v, dict):
+            flat[k] = _ckc_int(v)
+    return flat
+
+
 @lru_cache(maxsize=1)
 def get_mitre_mapper(path: str | None = None) -> MitreMapper:
     """Singleton — workers + tests share one instance."""
     p = Path(path) if path else _DEFAULT_PATH
     raw = json.loads(p.read_text(encoding="utf-8"))
 
-    def _ckc_int(v: object) -> int:
-        if isinstance(v, int):
-            return v
-        if isinstance(v, dict) and "ckc" in v:
-            return int(v["ckc"])
-        return 0
-
     return MitreMapper(
         tactic_id_to_ckc={k: _ckc_int(v) for k, v in raw.get("tactic_id_to_ckc", {}).items()},
-        tactic_name_to_ckc={k: _ckc_int(v) for k, v in raw.get("tactic_name_to_ckc", {}).items()},
+        tactic_name_to_ckc=_flatten_name_map(raw.get("tactic_name_to_ckc", {})),
         technique_id_to_ckc={k: _ckc_int(v) for k, v in raw.get("technique_id_to_ckc", {}).items()},
-        technique_name_to_ckc={
-            k: _ckc_int(v) for k, v in raw.get("technique_name_to_ckc", {}).items()
-        },
+        technique_name_to_ckc=_flatten_name_map(raw.get("technique_name_to_ckc", {})),
     )
 
 

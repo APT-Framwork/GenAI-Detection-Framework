@@ -15,7 +15,7 @@ from __future__ import annotations
 
 import base64
 from dataclasses import dataclass
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from typing import Any
 from uuid import UUID
 
@@ -50,6 +50,18 @@ def _stage_name(s: int | None) -> str | None:
     if s is None:
         return None
     return _CKC_NAMES.get(int(s))
+
+
+def _severity_for_stage_local(stage: int) -> str:
+    if stage >= 7:
+        return "critical"
+    if stage >= 5:
+        return "high"
+    if stage >= 3:
+        return "medium"
+    if stage >= 1:
+        return "low"
+    return "info"
 
 
 def _iso(dt: Any) -> str:
@@ -191,35 +203,88 @@ class AnalysisService:
     # ---- graph evolution ----------------------------------------
 
     async def graph_evolution(self, chain_id: UUID) -> GraphEvolutionResponse:
+        """Snapshots across the chain's lifetime.
+
+        We synthesise snapshots from the chain's own alerts instead of
+        gnn_graph_snapshots rows — most chains are short (seconds) so no
+        snapshot row falls within the open..close window, and the panel
+        rendered empty. One synthetic snapshot per ckc_stage transition,
+        ordered chronologically; this gives the UI a "graph evolves as the
+        attack escalates" view that animates naturally.
+        """
         chain = await self._get_chain_or_404(chain_id)
-        # Per §4.2: gnn_graph_snapshots filtered to the chain's hosts.
-        # Cheap proxy: snapshots taken between opened_at and (closed_at or now).
-        # Cast :closed_at to TIMESTAMPTZ explicitly — asyncpg can't infer
-        # the type when the bound value is Python None.
+
         result = await self._s.execute(
             text(
                 """
-                SELECT taken_at, nodes, edges
-                FROM gnn_graph_snapshots
-                WHERE taken_at >= :opened_at
-                  AND (
-                       CAST(:closed_at AS TIMESTAMPTZ) IS NULL
-                       OR taken_at <= CAST(:closed_at AS TIMESTAMPTZ)
-                  )
-                ORDER BY taken_at ASC
-                LIMIT 24
+                SELECT a.alert_id,
+                       a.host_id::text                       AS host_id,
+                       a.occurred_at,
+                       COALESCE(a.ckc_stage, 0)::int         AS ckc_stage,
+                       h.agent_name                          AS host_name
+                  FROM alerts a
+                  JOIN hosts h ON h.host_id = a.host_id
+                 WHERE a.chain_id = :chain_id
+              ORDER BY a.occurred_at ASC
+                 LIMIT 200
                 """
             ),
-            {"opened_at": chain.opened_at, "closed_at": chain.closed_at},
+            {"chain_id": chain_id},
         )
-        snaps = [
-            GraphSnapshot(
-                ts=_iso(r.taken_at),
-                nodes=list(r.nodes or []),
-                edges=list(r.edges or []),
+        rows = result.all()
+        if not rows:
+            return GraphEvolutionResponse(chain_id=chain_id, snapshots=[])
+
+        # Build cumulative snapshots — every alert adds (or refreshes) a node;
+        # we emit a snapshot whenever the worst-stage-so-far changes, capped
+        # at 6 frames so the UI's animation stays manageable.
+        seen: dict[str, dict[str, Any]] = {}  # host_id -> node
+        max_stage = -1
+        primary_host = str(chain.host_id)
+        snaps: list[GraphSnapshot] = []
+        for r in rows:
+            stage = int(r.ckc_stage or 0)
+            seen[r.host_id] = {
+                "hostId": r.host_id,
+                "hostName": r.host_name or r.host_id,
+                "ckcStage": stage,
+                "severity": _severity_for_stage_local(stage),
+            }
+            if stage > max_stage:
+                max_stage = stage
+                nodes = list(seen.values())
+                edges = [
+                    {"from": primary_host, "to": hid, "type": "lateral"}
+                    for hid in seen
+                    if hid != primary_host
+                ]
+                snaps.append(
+                    GraphSnapshot(
+                        ts=_iso(r.occurred_at),
+                        nodes=nodes,
+                        edges=edges,
+                    )
+                )
+                if len(snaps) >= 6:
+                    break
+
+        # Always emit a final snapshot with the full state, even if no stage
+        # transition happened (single-alert chains).
+        if not snaps:
+            nodes = list(seen.values())
+            edges = [
+                {"from": primary_host, "to": hid, "type": "lateral"}
+                for hid in seen
+                if hid != primary_host
+            ]
+            snaps.append(
+                GraphSnapshot(
+                    ts=_iso(rows[-1].occurred_at),
+                    nodes=nodes,
+                    edges=edges,
+                )
             )
-            for r in result.all()
-        ]
+
         return GraphEvolutionResponse(chain_id=chain_id, snapshots=snaps)
 
     # ---- ckc progression ----------------------------------------

@@ -1,0 +1,43 @@
+{
+  "cmd_dominant_16": [
+    0.20643043518066406,
+    -0.0023627281188964844,
+    -0.000202178955078125,
+    0.00021159648895263672,
+    0.0008584782481193542,
+    0.0006186442915350199,
+    2.2977590560913086e-05,
+    -0.0002489164471626282,
+    -8.612871170043945e-06,
+    -5.2945688366889954e-05,
+    -2.551823854446411e-05,
+    4.1658058762550354e-05,
+    8.69855284690857e-06,
+    -2.164393663406372e-05,
+    4.1404739022254944e-05,
+    -1.1980533599853516e-05
+  ],
+  "cmd_dominant_count": 108539,
+  "cmd_total": 115726,
+  "log_dominant_16": [
+    -9.726438522338867,
+    5.467676639556885,
+    -5.976337432861328,
+    -15.916711807250977,
+    -5.016931533813477,
+    -0.33558189868927,
+    -0.25813841819763184,
+    0.16859185695648193,
+    0.3321342468261719,
+    -0.18556177616119385,
+    0.16180896759033203,
+    -0.20920561254024506,
+    -0.1951259970664978,
+    0.0821111798286438,
+    0.25109922885894775,
+    -0.5441420078277588
+  ],
+  "log_dominant_count": 579,
+  "log_total": 115726,
+  "note": "Most-frequent 16-d PCA output across training rows. The cmd dominant value covers >93% of training and represents the net effect of the training-time placeholder substitution (missing/empty commands) that runtime SecBERT([EMPTY]) fails to reproduce \u2014 likely due to SecBERT model checkpoint drift between notebook training and live inference."
+}

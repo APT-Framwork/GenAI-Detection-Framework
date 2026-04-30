@@ -44,7 +44,7 @@ from strix_api.observability import (
 )
 from strix_api.settings import Settings, get_settings
 
-_FEATURES_STREAM_MAXLEN = 50_000  # §6.4
+_FEATURES_STREAM_MAXLEN = 1_000_000  # raised from 50k — lab runs were losing events
 
 
 # Namespace for deriving a deterministic host_id from agent_id. Kept here
@@ -123,7 +123,15 @@ class NormalizerWorker:
                         await self._handle_one(entry_id, fields)
                     except StrixError as exc:
                         # Typed domain errors → drop message + log.
-                        self._log.warning(
+                        # Wazuh-internal events (rule 503 etc.) lack agent.id
+                        # by design — log at debug to keep them out of the
+                        # warning stream.
+                        is_missing_agent_id = (
+                            exc.code == "VALIDATION_FAILED"
+                            and "missing agent.id" in (exc.detail or "")
+                        )
+                        log_method = self._log.debug if is_missing_agent_id else self._log.warning
+                        log_method(
                             "alert_dropped",
                             reason=exc.code,
                             detail=exc.detail,
@@ -196,6 +204,11 @@ class NormalizerWorker:
             mitre_techniques=list(alert.rule.mitre_techniques),
             srcuser=alert.data.srcuser,
             srcip=alert.data.srcip,
+            full_log=alert.full_log,
+            decoder_name=alert.decoder_name,
+            location=alert.location,
+            rule_id=alert.rule.rule_id,
+            rule_firedtimes=alert.rule.firedtimes,
         )
 
         await self._redis.publish(

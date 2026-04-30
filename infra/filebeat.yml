@@ -22,6 +22,11 @@ filebeat.inputs:
     enabled: true
     paths:
       - /var/ossec/logs/alerts/alerts.json
+    # Real-time tuning. Default scanner check_interval is 10s — too slow
+    # when we want alerts on the redis stream within ~1-2s of the rule
+    # firing.
+    prospector.scanner.check_interval: 1s
+    close.on_state_change.inactive: 5m
     parsers:
       - ndjson:
           target: ""        # keep the alert at the document root
@@ -32,9 +37,32 @@ filebeat.inputs:
     fields_under_root: true
 
 processors:
+  # Strip Filebeat's own envelope fields, but keep `agent` — Wazuh alerts
+  # carry their own `agent` object (`agent.id`/`agent.name`/`agent.ip`)
+  # which the normalizer requires. With `parsers.ndjson.overwrite_keys`
+  # Wazuh's value already replaces Filebeat's, so the surviving block is
+  # the Wazuh agent identity.
   - drop_fields:
-      fields: ["agent", "ecs", "host", "input", "log", "@metadata", "@version"]
+      fields: ["ecs", "host", "input", "log", "@metadata", "@version"]
       ignore_missing: true
+
+  # Tag synthetic benign traffic. The benign generator runs as user
+  # `strixbenign` (UID pinned to 4242 in the victim image bootstrap), so
+  # auditd's auid carries 4242 for those events. We pin the UID at
+  # provisioning rather than resolving dynamically — Filebeat's processor
+  # DSL has no shell-out, and a hard-coded number keeps the config flat.
+  - script:
+      lang: javascript
+      id: tag_synthetic_benign
+      source: >
+        function process(event) {
+          var auid = event.Get("data.audit.auid");
+          if (auid === undefined) { auid = event.Get("data.auid"); }
+          if (auid === undefined) { auid = event.Get("auid"); }
+          if (auid !== undefined && (auid === "4242" || auid === 4242)) {
+            event.Put("strix.synthetic_benign", true);
+          }
+        }
 
 output.redis:
   hosts: ["redis:6379"]

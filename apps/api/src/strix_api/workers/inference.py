@@ -51,6 +51,8 @@ Per-alert flow (matches §3.1 + §5.4):
 from __future__ import annotations
 
 import asyncio
+import json as _json
+import os
 import signal
 from datetime import UTC, datetime
 from typing import Any
@@ -91,11 +93,32 @@ from strix_api.observability import (
     inference_duration_seconds,
     session_active_count,
 )
-from strix_api.services.live_feed import publish_live_feed
+from strix_api.services.live_feed import (
+    STREAM_AE_CHANNEL,
+    STREAM_GNN_CHANNEL,
+    STREAM_RL_CHANNEL,
+    STREAM_VAE_CHANNEL,
+    publish_live_feed,
+)
 from strix_api.settings import Settings, get_settings
 
 _VERDICTS_STREAM = "strix:verdicts"
-_VERDICTS_STREAM_MAXLEN = 100_000
+_VERDICTS_STREAM_MAXLEN = 1_000_000
+
+# Phase 2 fan-out — gated. Default OFF to preserve current behavior.
+_STREAM_PER_MODEL_ENABLED = os.environ.get("STRIX_STREAM_PER_MODEL", "0") == "1"
+
+
+async def _publish_stream(redis: Any, channel: str, payload: dict[str, Any], log: Any) -> None:
+    """Best-effort per-model pubsub publish. Never raises — Postgres verdict
+    write is the source of truth, this is a UI-only superset."""
+    if not _STREAM_PER_MODEL_ENABLED:
+        return
+    try:
+        body = _json.dumps(payload).encode("utf-8")
+        await redis.publish(channel, body)
+    except Exception as exc:  # noqa: BLE001
+        log.warning("stream_publish_failed", channel=channel, exc_info=exc)
 
 
 # ============================================================================
@@ -133,6 +156,24 @@ class _GnnRiskCache:
     async def lookup(self, alert_id: str) -> float:
         async with self._lock:
             return float(self._risks.get(alert_id, 0.0))
+
+    async def local_degree(self, alert_id: str) -> int:
+        """Undirected degree of `alert_id` in the latest snapshot, or 0 if absent.
+
+        Used as the `affected_edges` field on the GNN stream frame so the UI
+        has a coarse fan-out signal without paying the cost of shipping the
+        full edge list per event.
+        """
+        async with self._lock:
+            snap = self._snapshot
+            if snap is None:
+                return 0
+            try:
+                i = snap.alert_ids.index(alert_id)
+            except ValueError:
+                return 0
+            edges = snap.edge_index
+            return int(((edges[0] == i) | (edges[1] == i)).sum())
 
     async def neighbor_risk(self, alert_id: str, agent_id: str) -> tuple[float, float]:
         """`(neighbor_risk, risk_growth)` for an alert.
@@ -304,7 +345,14 @@ class InferenceWorker:
                     ids.append(entry_id)
                     tasks.append(asyncio.create_task(self._handle_one(entry_id, fields)))
 
-            await asyncio.gather(*tasks, return_exceptions=True)
+            results = await asyncio.gather(*tasks, return_exceptions=True)
+            for entry_id, result in zip(ids, results, strict=True):
+                if isinstance(result, BaseException):
+                    self._log.error(
+                        "handle_one_failed",
+                        entry_id=entry_id.decode(errors="replace"),
+                        exc_info=result,
+                    )
 
             try:
                 await self._redis.ack(self.features_stream, self.consumer_group, *ids)
@@ -346,6 +394,34 @@ class InferenceWorker:
             self._log.error("ae_or_vae_failed", alert_id=msg.alert_id, exc_info=exc)
             return
 
+        # Phase 2 multiplex fan-out (per-event AE + VAE). Strict superset —
+        # never blocks on failure (see `_publish_stream`).
+        if _STREAM_PER_MODEL_ENABLED:
+            await _publish_stream(
+                self._redis.client,
+                STREAM_AE_CHANNEL,
+                {
+                    "alert_id": msg.alert_id,
+                    "host_id": msg.agent_id,
+                    "srcip": msg.srcip,
+                    "recon_error": float(recon_err),
+                    "anomaly_score": float(anomaly),
+                },
+                self._log,
+            )
+            await _publish_stream(
+                self._redis.client,
+                STREAM_VAE_CHANNEL,
+                {
+                    "alert_id": msg.alert_id,
+                    "host_id": msg.agent_id,
+                    "srcip": msg.srcip,
+                    "malicious_prob": float(mal_prob),
+                    "uncertainty": float(uncertainty),
+                },
+                self._log,
+            )
+
         # Pull the current session (or None) and decide what to do.
         session = await self._sessions.get_session(msg.agent_id)
         decision = decide_chain_action(
@@ -356,6 +432,46 @@ class InferenceWorker:
         )
 
         if decision.action is ChainAction.SKIP_BENIGN:
+            # Multiplex fan-out for SKIP_BENIGN: still emit GNN + RL frames so
+            # the live WS shows fan-out for benign traffic too. We don't run
+            # the transformer / DQN here — use cached GNN risk (0 if absent)
+            # and a no-op RL action. Cheap and keeps the dashboard live even
+            # when the chain decider classifies traffic as benign.
+            if _STREAM_PER_MODEL_ENABLED:
+                gnn_node_risk_skip = await self._gnn_cache.lookup(msg.alert_id)
+                gnn_neighbor_risk_skip, gnn_risk_growth_skip = (
+                    await self._gnn_cache.neighbor_risk(msg.alert_id, msg.agent_id)
+                )
+                affected_edges_skip = await self._gnn_cache.local_degree(msg.alert_id)
+                await _publish_stream(
+                    self._redis.client,
+                    STREAM_GNN_CHANNEL,
+                    {
+                        "alert_id": msg.alert_id,
+                        "host_id": msg.agent_id,
+                        "srcip": msg.srcip,
+                        "node_risk": float(gnn_node_risk_skip),
+                        "neighbor_risk": float(gnn_neighbor_risk_skip),
+                        "risk_growth": float(gnn_risk_growth_skip),
+                        "affected_edges": affected_edges_skip,
+                    },
+                    self._log,
+                )
+                await _publish_stream(
+                    self._redis.client,
+                    STREAM_RL_CHANNEL,
+                    {
+                        "alert_id": msg.alert_id,
+                        "host_id": msg.agent_id,
+                        "srcip": msg.srcip,
+                        "action": 0,
+                        "action_name": "NO_OP",
+                        "q_values": [],
+                        "ckc_stage": 0,
+                        "confidence": 0.0,
+                    },
+                    self._log,
+                )
             await self._emit_skip_verdict(
                 msg=msg,
                 anomaly=anomaly,
@@ -428,6 +544,41 @@ class InferenceWorker:
 
         dqn_decision: DqnDecision = await self._dqn_batcher.submit(state)
 
+        # Phase 2 multiplex fan-out (GNN + RL). `affected_edges` is a coarse
+        # count (undirected degree of this node in the latest snapshot) — full
+        # edge list lives in `gnn_graph_snapshots`.
+        if _STREAM_PER_MODEL_ENABLED:
+            affected_edges = await self._gnn_cache.local_degree(msg.alert_id)
+            await _publish_stream(
+                self._redis.client,
+                STREAM_GNN_CHANNEL,
+                {
+                    "alert_id": msg.alert_id,
+                    "host_id": msg.agent_id,
+                    "srcip": msg.srcip,
+                    "node_risk": float(gnn_node_risk),
+                    "neighbor_risk": float(gnn_neighbor_risk),
+                    "risk_growth": float(gnn_risk_growth),
+                    "affected_edges": affected_edges,
+                },
+                self._log,
+            )
+            await _publish_stream(
+                self._redis.client,
+                STREAM_RL_CHANNEL,
+                {
+                    "alert_id": msg.alert_id,
+                    "host_id": msg.agent_id,
+                    "srcip": msg.srcip,
+                    "action": int(dqn_decision.action),
+                    "action_name": dqn_decision.action.name,
+                    "q_values": dqn_decision.q_values.tolist(),
+                    "ckc_stage": int(transformer_out.pred_ckc),
+                    "confidence": float(transformer_out.confidence),
+                },
+                self._log,
+            )
+
         # Persist to Redis BEFORE emitting the verdict so a re-delivered
         # verdict sees the updated session state.
         new_step_count = await self._sessions.append_step(
@@ -476,6 +627,13 @@ class InferenceWorker:
             "dqnAction": int(dqn_decision.action),
             "dqnActionName": dqn_decision.action.name,
             "qValues": dqn_decision.q_values.tolist(),
+            "fullLog": msg.full_log,
+            "decoderName": msg.decoder_name,
+            "location": msg.location,
+            "ruleId": msg.rule_id,
+            "ruleFiredtimes": msg.rule_firedtimes,
+            "mitreTactics": list(msg.mitre_tactics),
+            "mitreTechniques": list(msg.mitre_techniques),
             "modelVersions": {
                 "ae": self._ae.version,
                 "vae": self._vae.version,
@@ -538,6 +696,13 @@ class InferenceWorker:
             "dqnAction": None,
             "dqnActionName": None,
             "qValues": None,
+            "fullLog": msg.full_log,
+            "decoderName": msg.decoder_name,
+            "location": msg.location,
+            "ruleId": msg.rule_id,
+            "ruleFiredtimes": msg.rule_firedtimes,
+            "mitreTactics": list(msg.mitre_tactics),
+            "mitreTechniques": list(msg.mitre_techniques),
             "modelVersions": {
                 "ae": self._ae.version,
                 "vae": self._vae.version,

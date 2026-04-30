@@ -1,0 +1,148 @@
+# =============================================================================
+# STRIX simulation lab — all-Docker, single network.
+#
+#   ┌────────────────────── strix_lab_net (bridge) ──────────────────────┐
+#   │                                                                    │
+#   │   wazuh.manager ◀──── 1514/1515 ──── victim1 ── sandcat ──▶ caldera│
+#   │       │                              victim2 ── sandcat ──▶        │
+#   │       └── alerts.json ─▶ volume: single-node_wazuh_logs            │
+#   │                           (consumed by platform filebeat on host)  │
+#   └────────────────────────────────────────────────────────────────────┘
+#
+# The STRIX platform stays on the host via `infra/compose.lab.yml` — it reads
+# Wazuh alerts through the shared named volume `single-node_wazuh_logs`.
+#
+# Bring-up:
+#   docker compose -f infra/compose.simulation.yml up -d --build
+# =============================================================================
+
+services:
+  wazuh.manager:
+    image: wazuh/wazuh-manager:4.9.2
+    container_name: strix_wazuh_manager
+    hostname: wazuh.manager
+    restart: unless-stopped
+    ports:
+      - "1514:1514"
+      - "1514:1514/udp"
+      - "1515:1515"
+      - "55000:55000"
+    ulimits:
+      memlock: { soft: -1, hard: -1 }
+      nofile: { soft: 655360, hard: 655360 }
+    environment:
+      INDEXER_URL: ""
+      FILEBEAT_SSL_VERIFICATION_MODE: "none"
+    volumes:
+      - wazuh_api_configuration:/var/ossec/api/configuration
+      - wazuh_etc:/var/ossec/etc
+      - wazuh_logs:/var/ossec/logs
+      # STRIX custom MITRE-tagged rules (chain off 80784/80789 etc.)
+      - ./lab-provisioning/wazuh/local_rules.xml:/var/ossec/etc/rules/local_rules.xml:ro
+      - wazuh_queue:/var/ossec/queue
+      - wazuh_var_multigroups:/var/ossec/var/multigroups
+      - wazuh_integrations:/var/ossec/integrations
+      - wazuh_active_response:/var/ossec/active-response/bin
+      - wazuh_agentless:/var/ossec/agentless
+      - wazuh_wodles:/var/ossec/wodles
+    networks:
+      strix_lab_net:
+        aliases: [wazuh.manager]
+    healthcheck:
+      test: ["CMD-SHELL", "pgrep -f wazuh-authd >/dev/null && pgrep -f wazuh-remoted >/dev/null"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+
+  caldera:
+    image: caldera:latest
+    container_name: strix_caldera
+    hostname: caldera
+    restart: unless-stopped
+    ports:
+      - "8888:8888"
+    networks:
+      strix_lab_net:
+        aliases: [caldera]
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8888/ >/dev/null || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+
+  victim1:
+    build:
+      context: ./simulation/victim
+    image: strix/victim:lab
+    container_name: strix_victim1
+    hostname: victim1
+    restart: unless-stopped
+    environment:
+      WAZUH_MANAGER: wazuh.manager
+      WAZUH_AGENT_NAME: victim1
+      CALDERA_HOST: caldera
+      CALDERA_GROUP: red
+    cap_add: [AUDIT_READ, AUDIT_WRITE, AUDIT_CONTROL, NET_ADMIN, SYS_PTRACE]
+    volumes:
+      - /var/log/audit:/var/log/audit:ro
+      # Persist agent identity (client.keys) and queued events across restarts.
+      # Without these, every container restart loses /var/ossec/etc/client.keys
+      # and the agent re-enrolls — the manager rejects the duplicate name (kept
+      # in the manager-side client.keys) for ~1h via authd's <force> settings,
+      # so the agent stays Disconnected and forwards no events.
+      - victim1_etc:/var/ossec/etc
+      - victim1_queue:/var/ossec/queue
+    depends_on:
+      wazuh.manager: { condition: service_healthy }
+      caldera: { condition: service_healthy }
+    networks:
+      strix_lab_net:
+        aliases: [victim1]
+
+  victim2:
+    build:
+      context: ./simulation/victim
+    image: strix/victim:lab
+    container_name: strix_victim2
+    hostname: victim2
+    restart: unless-stopped
+    environment:
+      WAZUH_MANAGER: wazuh.manager
+      WAZUH_AGENT_NAME: victim2
+      CALDERA_HOST: caldera
+      CALDERA_GROUP: red
+    cap_add: [AUDIT_READ, AUDIT_WRITE, AUDIT_CONTROL, NET_ADMIN, SYS_PTRACE]
+    volumes:
+      - /var/log/audit:/var/log/audit:ro
+      - victim2_etc:/var/ossec/etc
+      - victim2_queue:/var/ossec/queue
+    depends_on:
+      wazuh.manager: { condition: service_healthy }
+      caldera: { condition: service_healthy }
+    networks:
+      strix_lab_net:
+        aliases: [victim2]
+
+volumes:
+  wazuh_api_configuration:
+  wazuh_etc:
+  # Named explicitly so the platform stack (infra/compose.lab.yml) can mount it
+  # as the external `single-node_wazuh_logs` — this is what Filebeat tails.
+  wazuh_logs:
+    name: single-node_wazuh_logs
+  wazuh_queue:
+  wazuh_var_multigroups:
+  wazuh_integrations:
+  wazuh_active_response:
+  wazuh_agentless:
+  wazuh_wodles:
+  # Per-victim agent state (client.keys + buffered events).
+  victim1_etc:
+  victim1_queue:
+  victim2_etc:
+  victim2_queue:
+
+networks:
+  strix_lab_net:
+    name: strix_lab_net
+    driver: bridge

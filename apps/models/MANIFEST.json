@@ -1,0 +1,63 @@
+{
+  "generatedBy": "apps/models/preprocess/_export_artifacts.py",
+  "phase": "Workstream 2 / Phase A",
+  "artifacts": [
+    {
+      "path": "preprocess/scaler_55.pkl",
+      "sha256": "fad843ed437f675401d877fad407275cb957289ca1d67dd8943858037ccdef37",
+      "source_notebook": "apps/notebooks/feature_selection_final.ipynb",
+      "cell": "derived via infra/scripts/derive_standard_scaler.py from gnn_metadata.pkl scaler",
+      "shape_or_keys": "StandardScaler n_features_in_=55, feature_names_in_[:3]=['decoder_auditd', 'firedtimes', 'location__var_log_audit_audit.log']"
+    },
+    {
+      "path": "preprocess/pca_log_secbert.pkl",
+      "sha256": "dc2f88f81bd024a5d9ddeb13fd218c87f44c398bcacda093ff2f97c59297f11f",
+      "source_notebook": "apps/notebooks/feature_selection_final.ipynb",
+      "cell": "SecBERT log PCA fit cell (n_components=16, random_state=42)",
+      "shape_or_keys": "PCA n_components=16 n_features_in_=768"
+    },
+    {
+      "path": "preprocess/pca_cmd_secbert.pkl",
+      "sha256": "88c42e5af71344f01e9ce3d66ebf203758bbd783fec3b2f7ff8bdac519c0d78f",
+      "source_notebook": "apps/notebooks/feature_selection_final.ipynb",
+      "cell": "SecBERT cmd PCA fit cell (n_components=16, random_state=42)",
+      "shape_or_keys": "PCA n_components=16 n_features_in_=768"
+    },
+    {
+      "path": "preprocess/vae_calibrator.pkl",
+      "sha256": "7dcb1846927bf7b79acc58c1405b868b5be12695c223cc5a86efe1bc2239f706",
+      "source_notebook": "apps/notebooks/TP2_VAE_FeatureSelection.ipynb",
+      "cell": "VAE probability calibration cell (LogisticRegression on recon-loss \u2192 P(malicious)); extracted from probability_calibrators.pkl key='Beta-VAE (Top 25)'",
+      "shape_or_keys": "sklearn.linear_model.LogisticRegression coef_.shape=(1, 1) intercept_=-5.4128"
+    },
+    {
+      "path": "preprocess/gnn_propagation_metadata.pkl",
+      "sha256": "b9b3afc141ec470ec485bb3ed42aa9e56f5533952abd6de0317fbb230252987b",
+      "source_notebook": "apps/notebooks/GNN_Network_Propagation.ipynb",
+      "cell": "Part 2 'NO RULE LEVEL' retrain (cells around X_scaled[:, :-1]); threshold from FINAL TEST RESULTS print (0.7743). Scaler derived by slicing Part-1 56-col scaler to first 55 cols (notebook does not refit the scaler in Part 2).",
+      "shape_or_keys": "{features: list[55], rule_level_included: False, scaler: StandardScaler(55), threshold: 0.7743, model_params: {in_ch:55,hid:128,layers:3,drop:0.3}, metrics, graph_params}"
+    },
+    {
+      "path": "preprocess/secbert_tokenizer/",
+      "sha256": "ff2ae596a877b96a95fc8e7a17f7a3afa7f80c2c02e66aceeb2c5a600deeffbc",
+      "source_notebook": "apps/notebooks/feature_selection_final.ipynb",
+      "cell": "AutoTokenizer.from_pretrained('jackaduma/SecBERT') \u2014 exported via save_pretrained",
+      "shape_or_keys": "HF tokenizer dir, files=['special_tokens_map.json', 'tokenizer.json', 'tokenizer_config.json', 'vocab.txt']"
+    },
+    {
+      "path": "preprocess/secbert/",
+      "transformers_version": "4.57.6",
+      "sha256_files": {
+        "config.json": "80638648e23b3a96eb4f9a83e5c8a57dfbc189739b2d6a8d70e34fc632f7fa68",
+        "model.safetensors": "cd5cc8f92d25be76c9bfc597f7e017fff5ea825024e792ab3b9f7d48acd4659e",
+        "tokenizer.json": "07f76408841530b65f9b8203422cc2f82a44e2eaa6f77e3d256b89dd13c7f0c0",
+        "tokenizer_config.json": "0088a6f8bcdd4014184fb068b83ebb12896a9db2bb269a71f73de83fef24bceb",
+        "special_tokens_map.json": "b6d346be366a7d1d48332dbc9fdf3bf8960b5d879522b7799ddba59e76237ee3",
+        "vocab.txt": "6f3d250d39fe92927e6be81b069be24d89ad1e38ab16246128331681bc3376bb"
+      },
+      "source_notebook": "apps/notebooks/feature_selection_final.ipynb",
+      "cell": "AutoModel.from_pretrained('jackaduma/SecBERT') saved via save_pretrained for hermetic runtime load",
+      "shape_or_keys": "HF model dir; loaded by build_pipeline() so workers don't re-download from the hub"
+    }
+  ]
+}

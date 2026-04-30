@@ -1,0 +1,33 @@
+{
+  "run_id": "20260430T095106Z-111034",
+  "started_at": "2026-04-30T09:51:06Z",
+  "attacker_ip": "172.21.0.5",
+  "victims": [
+    {
+      "ip": "172.21.0.2",
+      "hostname": "victim1",
+      "agents": [
+        "wazuh",
+        "sandcat",
+        "auditd"
+      ]
+    },
+    {
+      "ip": "172.21.0.4",
+      "hostname": "victim2",
+      "agents": [
+        "wazuh",
+        "sandcat",
+        "auditd"
+      ]
+    }
+  ],
+  "apt_group": "APT29",
+  "tactics_planned": [
+    "Persistence",
+    "Defense Evasion",
+    "Lateral Movement",
+    "Privilege Escalation",
+    "Discovery"
+  ]
+}

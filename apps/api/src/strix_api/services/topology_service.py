@@ -91,30 +91,32 @@ class TopologyService:
             )
 
         # Edges: hosts whose chains overlapped in time within the window.
-        # A real attack-graph store would be better, but co-occurrence is the
-        # most defensible proxy from the data we already have.
+        # We aggregate chains to one row per host BEFORE the self-join so
+        # the cross product is hosts^2 (hundreds), not chains^2 (50k+) —
+        # the chain-level join was tripping `DiskFullError` on big runs.
         edge_rows = await self._s.execute(
             text(
                 """
-                WITH active AS (
-                    SELECT host_id, opened_at,
-                           COALESCE(closed_at, NOW()) AS ended_at,
-                           max_ckc_stage
+                WITH per_host AS (
+                    SELECT host_id,
+                           MIN(opened_at)                       AS first_opened,
+                           MAX(COALESCE(closed_at, NOW()))      AS last_seen,
+                           COUNT(*)                             AS chain_count,
+                           MAX(max_ckc_stage)                   AS max_ckc
                       FROM attack_chains
                      WHERE opened_at >= NOW() - (:interval)::INTERVAL
+                  GROUP BY host_id
                 )
-                SELECT a.host_id::text   AS source,
-                       b.host_id::text   AS target,
-                       COUNT(*)          AS chain_count,
-                       MAX(GREATEST(a.max_ckc_stage, b.max_ckc_stage))
-                                          AS max_ckc
-                  FROM active a
-                  JOIN active b
+                SELECT a.host_id::text                          AS source,
+                       b.host_id::text                          AS target,
+                       LEAST(a.chain_count, b.chain_count)::int AS chain_count,
+                       GREATEST(a.max_ckc, b.max_ckc)::int      AS max_ckc
+                  FROM per_host a
+                  JOIN per_host b
                     ON a.host_id < b.host_id
-                   AND tstzrange(a.opened_at, a.ended_at)
-                       && tstzrange(b.opened_at, b.ended_at)
-              GROUP BY a.host_id, b.host_id
-              ORDER BY chain_count DESC
+                   AND tstzrange(a.first_opened, a.last_seen)
+                       && tstzrange(b.first_opened, b.last_seen)
+              ORDER BY chain_count DESC, max_ckc DESC
                  LIMIT 200
                 """
             ),

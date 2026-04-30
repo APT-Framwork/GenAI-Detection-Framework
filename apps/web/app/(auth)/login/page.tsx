@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
 import { Shield, Eye, EyeOff, Loader2 } from "lucide-react"
 
@@ -10,6 +10,7 @@ import { StrixApiError } from "@/lib/api/client"
 
 export default function LoginPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const login = useLogin()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
@@ -21,7 +22,9 @@ export default function LoginPage() {
     setError("")
     try {
       await login.mutateAsync({ email, password })
-      router.push("/")
+      const next = searchParams.get("next")
+      const safeNext = next && next.startsWith("/") && !next.startsWith("//") ? next : "/"
+      router.push(safeNext)
     } catch (exc) {
       if (exc instanceof StrixApiError && exc.status === 401) {
         setError("Invalid email or password")

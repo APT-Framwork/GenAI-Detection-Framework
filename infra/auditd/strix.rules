@@ -1,0 +1,51 @@
+# STRIX — host audit rules (Kali host, bind-mounted into victim containers via
+# /var/log/audit:ro). Use Wazuh's CDB-known keys (audit-wazuh-{x,w,r,a}) so the
+# default 80700-family decoders fire and our custom MITRE-tagged rules in
+# infra/lab-provisioning/wazuh/local_rules.xml can chain off them.
+#
+# Install with:
+#   sudo cp infra/auditd/strix.rules /etc/audit/rules.d/strix.rules
+#   sudo augenrules --load
+#
+# Wazuh key map (etc/lists/audit-keys):
+#   audit-wazuh-x → execute     (parent rule 80789)
+#   audit-wazuh-w → write       (parent rule 80784)
+#   audit-wazuh-r → read        (parent rule 80785)
+#   audit-wazuh-a → attribute   (parent rule 80786)
+#   audit-wazuh-c → command     (parent rule 80790)
+
+## --- process exec (covers Discovery, Defense Evasion, C2, etc.) -------------
+-a always,exit -F arch=b64 -S execve -k audit-wazuh-x
+-a always,exit -F arch=b32 -S execve -k audit-wazuh-x
+
+## --- credential access ------------------------------------------------------
+-w /etc/passwd          -p wa -k audit-wazuh-w
+-w /etc/shadow          -p wa -k audit-wazuh-w
+-w /etc/group           -p wa -k audit-wazuh-w
+-w /etc/gshadow         -p wa -k audit-wazuh-w
+-w /root/.ssh           -p r  -k audit-wazuh-r
+-w /home                -p r  -k audit-wazuh-r
+
+## --- privilege escalation ---------------------------------------------------
+-w /etc/sudoers         -p wa -k audit-wazuh-w
+-w /etc/sudoers.d       -p wa -k audit-wazuh-w
+-w /etc/pam.d           -p wa -k audit-wazuh-w
+
+## --- persistence ------------------------------------------------------------
+-w /etc/crontab         -p wa -k audit-wazuh-w
+-w /etc/cron.d          -p wa -k audit-wazuh-w
+-w /etc/cron.hourly     -p wa -k audit-wazuh-w
+-w /etc/cron.daily      -p wa -k audit-wazuh-w
+-w /var/spool/cron      -p wa -k audit-wazuh-w
+-w /etc/systemd/system  -p wa -k audit-wazuh-w
+-w /lib/systemd/system  -p wa -k audit-wazuh-w
+-w /etc/rc.local        -p wa -k audit-wazuh-w
+-w /etc/init.d          -p wa -k audit-wazuh-w
+-w /root/.bashrc        -p wa -k audit-wazuh-w
+-w /root/.profile       -p wa -k audit-wazuh-w
+
+## --- defense evasion: log tampering ----------------------------------------
+-w /var/log/wtmp        -p wa -k audit-wazuh-w
+-w /var/log/btmp        -p wa -k audit-wazuh-w
+-w /var/log/lastlog     -p wa -k audit-wazuh-w
+-w /var/log/auth.log    -p wa -k audit-wazuh-w

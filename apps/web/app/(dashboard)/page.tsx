@@ -54,8 +54,8 @@ function severityFromCkc(stage: number): "critical" | "high" | "medium" | "low" 
 const kpiIcons = [ShieldAlert, Server, Link2, Zap]
 
 export default function DashboardPage() {
-  const attackVector = useAttackVector("1h")
-  const globalRisk = useGlobalRisk("1h")
+  const attackVector = useAttackVector("24h")
+  const globalRisk = useGlobalRisk("24h")
   const sentinel = useSentinelInsight()
   const refreshSentinel = useRefreshSentinelInsight()
   const liveFeed = useLiveFeed({ maxEvents: 8 })
@@ -67,7 +67,7 @@ export default function DashboardPage() {
     const openChains = chains.data?.openCount ?? 0
     const globalRiskPct = Math.round((globalRisk.data?.globalRisk ?? 0) * 100)
     return [
-      { label: "Alerts (1h)", value: totalAlerts.toString(), unit: "" },
+      { label: "Alerts (24h)", value: totalAlerts.toString(), unit: "" },
       { label: "Active chains", value: openChains.toString(), unit: "" },
       { label: "Global risk", value: globalRiskPct.toString(), unit: "%" },
       { label: "SSE", value: liveFeed.status, unit: "" },
@@ -77,6 +77,29 @@ export default function DashboardPage() {
   const lastUpdated = attackVector.dataUpdatedAt
     ? new Date(attackVector.dataUpdatedAt).toLocaleTimeString()
     : "—"
+
+  // Project the 8 CKC stages onto the donut. We skip BENIGN (0) — the donut
+  // is meant to show the *attack* mix — and zero-out empty stages so the
+  // colours render in the right order.
+  const attackVectorChartData = useMemo(() => {
+    const stages = attackVector.data?.stages ?? []
+    const palette: Record<number, { label: string; color: string }> = {
+      1: { label: "Reconnaissance", color: "#0D9488" },
+      2: { label: "Weaponization", color: "#006B94" },
+      3: { label: "Delivery", color: "#F59E0B" },
+      4: { label: "Exploitation", color: "#EF4444" },
+      5: { label: "Installation", color: "#8A2BE2" },
+      6: { label: "Command & Control", color: "#FB923C" },
+      7: { label: "Actions on Objectives", color: "#DC2626" },
+    }
+    return stages
+      .filter((s) => s.ckcStage > 0 && s.count > 0)
+      .map((s) => ({
+        label: palette[s.ckcStage]?.label ?? s.ckcName,
+        value: s.count,
+        color: palette[s.ckcStage]?.color ?? "#94a3b8",
+      }))
+  }, [attackVector.data])
 
   return (
     <div className="space-y-6">
@@ -119,7 +142,7 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
         {/* Attack Vector */}
         <div className="lg:col-span-4 bg-white dark:bg-[var(--strix-bg-card)] border border-[rgba(128,182,195,0.15)] dark:border-[var(--strix-border)] rounded-[48px] p-6">
-          <AttackVectorChart />
+          <AttackVectorChart data={attackVectorChartData} />
         </div>
 
         {/* Threat Intensity */}
@@ -137,7 +160,7 @@ export default function DashboardPage() {
             Δ1h:{" "}
             <span className="font-bold text-[#00343d] dark:text-[var(--strix-text)]">
               {globalRisk.data
-                ? `${(globalRisk.data.delta1h * 100).toFixed(1)}%`
+                ? `${(globalRisk.data.delta1H * 100).toFixed(1)}%`
                 : "—"}
             </span>{" "}
             · components from VAE / GNN / anomaly-rate.

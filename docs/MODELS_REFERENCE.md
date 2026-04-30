@@ -247,13 +247,19 @@ transformer_encoder = TransformerEncoder(
         batch_first=True, norm_first=True,     # ← PRE-LN
     )
 )
-pooling: x[:, -1, :]                            # LAST TOKEN, not mean pool
+pooling: x[:, -1, :]                            # last-token pooling (NOT mean pooling)
 output_head = Sequential(
     Linear(128→64), ReLU, Dropout(0.1), Linear(64→8)
 )
 ```
 
 Weight init: Xavier-uniform (dim > 1). ~810,696 params.
+
+> **Pooling:** The encoder output is reduced to a single 128-dim vector via
+> **last-token pooling** (`x[:, -1, :]`), matching the training notebook
+> (`TP2_MLA_TE.ipynb`, Cell 15). Earlier drafts of the architecture doc
+> referred to "mean pooling" — that is incorrect; the live loader and the
+> notebook both take the final time step.
 
 ### 5.4 Training
 
