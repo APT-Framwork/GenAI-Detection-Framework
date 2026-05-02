@@ -1,10 +1,12 @@
+import { Toaster } from "@/components/layout/toaster"
+
 export default function AuthLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
   return (
-    <div className="min-h-screen flex">
+    <div className="min-h-screen flex"><Toaster />
       {/* Left: Branding Panel */}
       <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-[#0A1628] via-[#0D1F3C] to-[#0B0E14] relative overflow-hidden flex-col items-center justify-center p-12">
         {/* Glow effects */}

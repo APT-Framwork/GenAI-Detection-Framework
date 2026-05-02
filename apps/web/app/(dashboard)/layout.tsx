@@ -2,6 +2,7 @@
 
 import { Sidebar } from "@/components/layout/sidebar"
 import { TopBar } from "@/components/layout/topbar"
+import { Toaster } from "@/components/layout/toaster"
 import { useSidebarStore } from "@/stores/sidebar-store"
 import { cn } from "@/lib/utils"
 
@@ -26,6 +27,7 @@ export default function DashboardLayout({
           {children}
         </main>
       </div>
+      <Toaster />
     </div>
   )
 }

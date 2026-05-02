@@ -4,10 +4,16 @@ Pure-domain. The inference worker calls `decide_chain_action(...)` with
 the new alert's signals and the current session state (or None if absent),
 and gets back a `ChainDecision` describing what to do.
 
-Rules (§5.4):
+Malice signal — GNN ONLY. Smoke testing found AE/VAE/Transformer have an
+INVERTED signal on this lab (benign rule-80789 → vae_prob ≈ 1.0; attack
+custom rules 1001xx → ≈ 0.15). Only the GNN was trained with proper
+labels here, so it is the sole gate for OPEN_NEW. AE+VAE+Transformer are
+still produced for telemetry — they are anomaly diagnostics surfaced in
+the UI, not malice probabilities.
+
+Rules (§5.4, post-fix):
   Open a NEW chain for host H if there is NO open chain AND
-      (vae_prob >= CHAIN_OPEN_VAE_THRESHOLD
-       OR ae_anomaly >= CHAIN_OPEN_AE_THRESHOLD).
+      gnn_node_risk >= CHAIN_OPEN_GNN_THRESHOLD.
   Continue the OPEN chain for H if all hold:
       - last_seen_at within CHAIN_IDLE_TIMEOUT_MINUTES
       - no prior intervention (the previous DQN action was < ESCALATE)
@@ -17,7 +23,7 @@ Rules (§5.4):
       IDLE_TIMEOUT  - prior session is older than the idle window
       MAX_STEPS     - this would be step CHAIN_MAX_STEPS (50)
 
-Benign-only hosts (no current chain AND below the open thresholds) are
+Benign-only hosts (no current chain AND below the GNN open threshold) are
 SKIPPED — the worker still scores AE+VAE for the live feed, but does NOT
 run Transformer/DQN and does NOT touch session state.
 """
@@ -32,8 +38,7 @@ from uuid import UUID, uuid4
 from strix_api.core.constants import (
     CHAIN_IDLE_TIMEOUT_MINUTES,
     CHAIN_MAX_STEPS,
-    CHAIN_OPEN_AE_THRESHOLD,
-    CHAIN_OPEN_VAE_THRESHOLD,
+    CHAIN_OPEN_GNN_THRESHOLD,
 )
 from strix_api.core.enums import DqnAction
 from strix_api.core.session import SessionState
@@ -76,9 +81,16 @@ def decide_chain_action(
     session: SessionState | None,
     ae_anomaly: float,
     vae_malicious_prob: float,
+    gnn_node_risk: float,
     occurred_at: datetime,
 ) -> ChainDecision:
-    """Pre-DQN gate: decide whether this alert opens / continues / skips a chain."""
+    """Pre-DQN gate: decide whether this alert opens / continues / skips a chain.
+
+    `gnn_node_risk` is the sole malice signal (see module docstring on the
+    AE/VAE inversion). `ae_anomaly` and `vae_malicious_prob` are still
+    accepted because callers compute and emit them for telemetry, but they
+    no longer drive open/skip.
+    """
     # Idle-timeout takes precedence — a stale session is dead even if scored high.
     if session is not None and _is_idle(session.last_seen_at, occurred_at):
         # Treat as no-session and re-evaluate against the open thresholds.
@@ -95,7 +107,7 @@ def decide_chain_action(
             session = None
 
     if session is None:
-        if _meets_open_threshold(ae_anomaly, vae_malicious_prob):
+        if _meets_open_threshold(gnn_node_risk):
             return ChainDecision(
                 action=ChainAction.OPEN_NEW,
                 chain_id=uuid4(),
@@ -153,8 +165,10 @@ def find_idle_chains_to_close(
 # ---------------------------------------------------------------- helpers
 
 
-def _meets_open_threshold(ae_anomaly: float, vae_prob: float) -> bool:
-    return vae_prob >= CHAIN_OPEN_VAE_THRESHOLD or ae_anomaly >= CHAIN_OPEN_AE_THRESHOLD
+def _meets_open_threshold(gnn_node_risk: float) -> bool:
+    # GNN-only gate. AE/VAE thresholds in constants.py are kept as
+    # informational anomaly thresholds — see module docstring.
+    return gnn_node_risk >= CHAIN_OPEN_GNN_THRESHOLD
 
 
 def _is_idle(last_seen_at: datetime, now: datetime) -> bool:

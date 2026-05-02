@@ -14,6 +14,7 @@ import {
 import { cn } from "@/lib/utils"
 
 import { useNotifications, type InterventionItem } from "@/lib/api/analysis"
+import { useTopology } from "@/lib/api/topology"
 
 function severityFromAction(name: string): "critical" | "warning" | "info" {
   if (name === "BLOCK_USER_IP" || name === "ISOLATE_HOST") return "critical"
@@ -180,10 +181,20 @@ function NotificationCard({
 export default function NotificationsPage() {
   const [_filterOpen, setFilterOpen] = useState(false)
   const interventions = useNotifications(50)
+  const topology = useTopology("24h")
   const notifications = useMemo(
     () => (interventions.data?.items ?? []).map(projectNotification),
     [interventions.data],
   )
+
+  // Replace the previous hardcoded "1,240 medical devices / 4 surgical
+  // theaters" copy with real values from the topology endpoint.
+  const monitoredHosts = topology.data?.nodes?.length ?? 0
+  const compromisedHosts = (topology.data?.nodes ?? []).filter(
+    (n) => n.status === "compromised",
+  ).length
+  const healthScore = monitoredHosts === 0 ? 100 : Math.max(0, 100 - (compromisedHosts / monitoredHosts) * 100)
+  const activeProbes = (topology.data?.edges ?? []).length
 
   return (
     <div className="space-y-[32px]">
@@ -288,8 +299,13 @@ export default function NotificationsPage() {
               ORCHESTRATION
             </h2>
             <p className="text-[18px] font-medium text-[#2b636f] dark:text-slate-300 leading-relaxed font-[Inter,sans-serif]">
-              Your Clinical Sentinel network is currently monitoring 1,240
-              active medical devices across 4 surgical theaters.
+              {monitoredHosts > 0
+                ? `Sentinel network is monitoring ${monitoredHosts.toLocaleString()} hosts. ${
+                    compromisedHosts > 0
+                      ? `${compromisedHosts} currently flagged as compromised.`
+                      : "No active compromise indicators."
+                  }`
+                : "Sentinel network is online. No topology snapshot yet — start a simulation or inject traffic to populate."}
             </p>
 
             {/* stats row */}
@@ -299,7 +315,7 @@ export default function NotificationsPage() {
                   Health Score
                 </span>
                 <div className="text-[30px] font-bold text-[#00666d] dark:text-cyan-400 leading-tight">
-                  98.4%
+                  {healthScore.toFixed(1)}%
                 </div>
               </div>
               <div>
@@ -307,7 +323,7 @@ export default function NotificationsPage() {
                   Active Probes
                 </span>
                 <div className="text-[30px] font-bold text-[#00666d] dark:text-cyan-400 leading-tight">
-                  82
+                  {activeProbes}
                 </div>
               </div>
             </div>

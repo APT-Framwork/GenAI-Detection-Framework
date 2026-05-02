@@ -1,12 +1,13 @@
 "use client"
 
-import { useMemo } from "react"
+import { useMemo, useState } from "react"
 import { useQuery } from "@tanstack/react-query"
 
 import { apiFetch } from "@/lib/api/client"
 import { useLiveFeed } from "@/lib/api/live-feed"
 import { CircularProgress } from "@/components/charts/circular-progress"
 import { cn } from "@/lib/utils"
+import { MODEL_REGISTRY, compositeMetrics, type ModelMetrics } from "@/lib/model-registry"
 import {
   Brain,
   Activity,
@@ -36,44 +37,13 @@ interface TrendPoint {
 }
 interface ConfidenceTrendResponse { window: string; points: TrendPoint[] }
 
-const modelCards = [
-  {
-    name: "GNN Classifier",
-    version: "v4.2.1",
-    status: "active",
-    accuracy: 94.2,
-    f1: 0.92,
-    color: "text-strix-primary dark:text-strix-cyan",
-    borderColor: "border-strix-primary/20 dark:border-strix-cyan/20",
-  },
-  {
-    name: "VAE Anomaly",
-    version: "v3.8.0",
-    status: "active",
-    accuracy: 89.7,
-    f1: 0.87,
-    color: "text-purple-500",
-    borderColor: "border-purple-500/20",
-  },
-  {
-    name: "RL Agent",
-    version: "v2.1.4",
-    status: "training",
-    accuracy: 91.3,
-    f1: 0.90,
-    color: "text-amber-500",
-    borderColor: "border-amber-500/20",
-  },
-]
-
-const telemetryStream = [
-  { time: "09:25:44", event: "Graph topology refreshed, 1,432 new edges processed", type: "info" },
-  { time: "09:24:12", event: "GNN inference batch #4421 completed — 14ms avg latency", type: "info" },
-  { time: "09:23:01", event: "Anomaly score threshold exceeded: subnet Alpha reconstruction error 0.012G", type: "warn" },
-  { time: "09:22:18", event: "RL agent reward signal updated: +0.34 for isolation action on node-7", type: "info" },
-  { time: "09:21:55", event: "VAE model checkpoint saved — epoch 142, loss: 0.0023", type: "info" },
-  { time: "09:20:44", event: "Feature pipeline: 22,840 events processed in window T-5min", type: "info" },
-]
+const COLOR_TINTS: Record<ModelMetrics["color"], { fg: string; bg: string; border: string }> = {
+  cyan:    { fg: "text-strix-primary dark:text-strix-cyan", bg: "bg-strix-primary/10 dark:bg-strix-cyan/10", border: "border-strix-primary/20 dark:border-strix-cyan/20" },
+  purple:  { fg: "text-purple-500",  bg: "bg-purple-500/10",  border: "border-purple-500/20" },
+  amber:   { fg: "text-amber-500",   bg: "bg-amber-500/10",   border: "border-amber-500/20" },
+  emerald: { fg: "text-emerald-500", bg: "bg-emerald-500/10", border: "border-emerald-500/20" },
+  blue:    { fg: "text-blue-500",    bg: "bg-blue-500/10",    border: "border-blue-500/20" },
+}
 
 export default function AiEnginePage() {
   const models = useQuery({
@@ -87,31 +57,46 @@ export default function AiEnginePage() {
     refetchInterval: 60_000,
   })
   const liveFeed = useLiveFeed({ maxEvents: 12 })
+  const [expandedModel, setExpandedModel] = useState<string | null>(null)
 
-  // Derived health snapshot for the header KPIs.
-  const modelMetrics = useMemo(() => {
-    const list = models.data?.models ?? []
-    const driftValues = list
+  // Composite metrics come from the registry — these are training-time
+  // eval numbers and don't depend on live signals. The previous code
+  // computed accuracy as `(1 - avgDrift)` which was always 100% when
+  // /monitoring/models returned null drift values.
+  const composite = compositeMetrics()
+
+  // Live throughput: events per minute over the SSE feed. We count
+  // events whose `occurredAt` falls in the last 60 seconds — that's
+  // already a per-minute rate, no division required. The previous
+  // implementation divided by the timestamp span, which exploded to
+  // hundreds of thousands when the buffer happened to contain a
+  // sub-second burst.
+  const throughputPerMin = useMemo(() => {
+    const xs = liveFeed.events
+    if (xs.length === 0) return null
+    const cutoff = Date.now() - 60_000
+    const recent = xs.filter((e) => {
+      const ts = Date.parse(e.data.occurredAt)
+      return Number.isFinite(ts) && ts >= cutoff
+    }).length
+    return recent
+  }, [liveFeed.events])
+
+  // Drift signal — average KL across reported live models. Real value
+  // (or null when /monitoring/models hasn't reported drift yet).
+  const avgDriftKl = useMemo(() => {
+    const xs = (models.data?.models ?? [])
       .map((m) => m.driftKl)
       .filter((v): v is number => typeof v === "number")
-    const avgDrift = driftValues.length
-      ? driftValues.reduce((a, b) => a + b, 0) / driftValues.length
-      : 0
-    return {
-      health:
-        list.length === 0
-          ? "unknown"
-          : list.every((m) => m.status === "active")
-          ? "optimal"
-          : "degraded",
-      accuracy: list.length === 0 ? 0 : Math.round((1 - avgDrift) * 100),
-      f1Score: list.length === 0 ? "—" : (1 - avgDrift).toFixed(2),
-      throughput: liveFeed.events.length.toString(),
-      latency: liveFeed.status,
-    }
-  }, [models.data, liveFeed.events, liveFeed.status])
+    if (xs.length === 0) return null
+    return xs.reduce((a, b) => a + b, 0) / xs.length
+  }, [models.data])
 
-  // Trend is rendered as a sparkline via SVG `<polyline>` elements.
+  const overallHealth: "optimal" | "degraded" | "unknown" = useMemo(() => {
+    if (avgDriftKl == null) return "unknown"
+    return avgDriftKl < 0.2 ? "optimal" : "degraded"
+  }, [avgDriftKl])
+
   const modelConfidenceData = useMemo(
     () =>
       (trend.data?.points ?? []).map((p) => ({
@@ -135,6 +120,12 @@ export default function AiEnginePage() {
             Model Performance<br />
             & Telemetry
           </h1>
+          <p className="text-[11px] text-[var(--strix-text-muted)] mt-2 max-w-[640px] leading-relaxed">
+            Test-set metrics below are training-time evaluation numbers from the artefacts under{" "}
+            <span className="font-mono text-[10px]">apps/notebooks/</span> and{" "}
+            <span className="font-mono text-[10px]">RL_agent/evaluation/</span>. Live signals (drift KL,
+            inference rate) are sourced from the API and refresh every 30 s.
+          </p>
         </div>
         <div className="flex items-center gap-3">
           <div className="text-right">
@@ -143,106 +134,134 @@ export default function AiEnginePage() {
             </span>
             <span className={cn(
               "inline-block px-3 py-1 rounded-md text-xs font-bold border uppercase",
-              modelMetrics.health === "optimal"
-                ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/20"
-                : "bg-amber-500/10 text-amber-500 border-amber-500/20"
+              overallHealth === "optimal"  && "bg-emerald-500/10 text-emerald-500 border-emerald-500/20",
+              overallHealth === "degraded" && "bg-amber-500/10  text-amber-500  border-amber-500/20",
+              overallHealth === "unknown"  && "bg-[#497f8b]/10  text-[#497f8b]  border-[#497f8b]/20",
             )}>
-              {modelMetrics.health}
+              {overallHealth}
             </span>
           </div>
         </div>
       </div>
 
-      {/* Top Metrics Row */}
+      {/* Top KPI Row — composite test-set metrics + live signals. */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-[var(--strix-bg-card)] border border-[var(--strix-border)] rounded-xl p-5">
-          <div className="flex items-center gap-1.5 mb-2">
-            <Gauge className="h-3.5 w-3.5 text-[var(--strix-text-muted)]" />
-            <span className="text-[9px] text-[var(--strix-text-muted)] uppercase tracking-wider">Accuracy</span>
-          </div>
-          <span className="text-2xl font-bold text-[var(--strix-text)]">{modelMetrics.accuracy}%</span>
-        </div>
-        <div className="bg-[var(--strix-bg-card)] border border-[var(--strix-border)] rounded-xl p-5">
-          <div className="flex items-center gap-1.5 mb-2">
-            <BarChart3 className="h-3.5 w-3.5 text-[var(--strix-text-muted)]" />
-            <span className="text-[9px] text-[var(--strix-text-muted)] uppercase tracking-wider">F1 Score</span>
-          </div>
-          <span className="text-2xl font-bold text-[var(--strix-text)]">{modelMetrics.f1Score}</span>
-        </div>
-        <div className="bg-[var(--strix-bg-card)] border border-[var(--strix-border)] rounded-xl p-5">
-          <div className="flex items-center gap-1.5 mb-2">
-            <Zap className="h-3.5 w-3.5 text-[var(--strix-text-muted)]" />
-            <span className="text-[9px] text-[var(--strix-text-muted)] uppercase tracking-wider">Throughput</span>
-          </div>
-          <span className="text-2xl font-bold text-[var(--strix-text)]">{modelMetrics.throughput}</span>
-        </div>
-        <div className="bg-[var(--strix-bg-card)] border border-[var(--strix-border)] rounded-xl p-5">
-          <div className="flex items-center gap-1.5 mb-2">
-            <Clock className="h-3.5 w-3.5 text-[var(--strix-text-muted)]" />
-            <span className="text-[9px] text-[var(--strix-text-muted)] uppercase tracking-wider">Avg Latency</span>
-          </div>
-          <span className="text-2xl font-bold text-[var(--strix-text)]">{modelMetrics.latency}</span>
-        </div>
+        <Kpi
+          icon={Gauge}
+          label="Composite Accuracy"
+          value={`${composite.accuracyPct}%`}
+          sub={`${composite.modelCount} models · test set`}
+        />
+        <Kpi
+          icon={BarChart3}
+          label="Composite F1"
+          value={composite.f1.toFixed(3)}
+          sub="harmonic mean across models"
+        />
+        <Kpi
+          icon={Zap}
+          label="Throughput"
+          value={throughputPerMin == null ? "—" : `${throughputPerMin}/min`}
+          sub={`SSE feed ${liveFeed.status}`}
+        />
+        <Kpi
+          icon={Clock}
+          label="Avg Drift KL"
+          value={avgDriftKl == null ? "—" : avgDriftKl.toFixed(4)}
+          sub={avgDriftKl == null ? "no live drift signal" : avgDriftKl < 0.2 ? "in-distribution" : "shift detected"}
+        />
       </div>
 
-      {/* Model Cards + Accuracy Gauge */}
+      {/* Model Cards + Composite gauge */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-        {/* Model Cards */}
         <div className="lg:col-span-8 space-y-4">
           <div className="flex items-center gap-2 mb-1">
             <Brain className="h-4 w-4 text-strix-primary dark:text-strix-cyan" />
             <h3 className="text-sm font-bold text-[var(--strix-text)]">Active Models</h3>
+            <span className="text-[10px] text-[var(--strix-text-muted)] uppercase tracking-wider">
+              metrics from training notebooks · click for details
+            </span>
           </div>
-          {modelCards.map((model, i) => (
-            <div key={i} className={cn(
-              "bg-[var(--strix-bg-card)] border rounded-xl p-5",
-              model.borderColor
-            )}>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className={cn("p-2 rounded-lg", model.name.includes("GNN") ? "bg-strix-primary/10 dark:bg-strix-cyan/10" : model.name.includes("VAE") ? "bg-purple-500/10" : "bg-amber-500/10")}>
-                    <Cpu className={cn("h-4 w-4", model.color)} />
-                  </div>
-                  <div>
-                    <div className="flex items-baseline gap-2">
-                      <h4 className="text-sm font-bold text-[var(--strix-text)]">{model.name}</h4>
-                      <span className="text-[10px] font-mono text-[var(--strix-text-muted)]">{model.version}</span>
+          {MODEL_REGISTRY.map((m) => {
+            const isOpen = expandedModel === m.name
+            const tint = COLOR_TINTS[m.color]
+            const live = (models.data?.models ?? []).find((lm) =>
+              lm.name.toLowerCase().includes(m.name.toLowerCase().split(" ")[0]),
+            )
+            return (
+              <div key={m.name} className={cn("bg-[var(--strix-bg-card)] border rounded-xl p-5", tint.border)}>
+                <div className="flex items-center justify-between gap-4">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className={cn("p-2 rounded-lg", tint.bg)}>
+                      <Cpu className={cn("h-4 w-4", tint.fg)} />
                     </div>
-                    <span className={cn(
-                      "text-[9px] font-bold uppercase tracking-wider",
-                      model.status === "active" ? "text-emerald-500" : "text-amber-500"
-                    )}>
-                      {model.status}
-                    </span>
+                    <div className="min-w-0">
+                      <div className="flex items-baseline gap-2 flex-wrap">
+                        <h4 className="text-sm font-bold text-[var(--strix-text)] truncate">{m.name}</h4>
+                        <span className="text-[10px] font-mono text-[var(--strix-text-muted)]">{m.version}</span>
+                      </div>
+                      <span className={cn(
+                        "text-[9px] font-bold uppercase tracking-wider",
+                        m.status === "active" ? "text-emerald-500" : "text-amber-500"
+                      )}>
+                        {m.status}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-6 shrink-0">
+                    <Metric label="Acc" value={pct(m.metrics.accuracy)} />
+                    <Metric label="F1"  value={fixed(m.metrics.f1)} />
+                    <Metric label="AUC" value={fixed(m.metrics.auc)} />
+                    <button
+                      onClick={() => setExpandedModel(isOpen ? null : m.name)}
+                      className={cn("text-[10px] font-semibold hover:underline", tint.fg)}
+                    >
+                      {isOpen ? "Hide ↑" : "View Details →"}
+                    </button>
                   </div>
                 </div>
-                <div className="flex items-center gap-6">
-                  <div className="text-right">
-                    <span className="text-[9px] text-[var(--strix-text-muted)] uppercase tracking-wider block">Accuracy</span>
-                    <span className="text-lg font-bold text-[var(--strix-text)]">{model.accuracy}%</span>
+                {isOpen && (
+                  <div className="mt-4 pt-4 border-t border-[var(--strix-border)] space-y-3">
+                    <p className="text-[11px] text-[var(--strix-text-muted)] leading-relaxed">
+                      {m.description}
+                    </p>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                      <Detail label="Architecture" value={m.architecture} />
+                      <Detail label="Precision" value={pct(m.metrics.precision)} />
+                      <Detail label="Recall" value={pct(m.metrics.recall)} />
+                      <Detail label="Threshold" value={m.metrics.threshold != null ? m.metrics.threshold.toFixed(4) : "—"} mono />
+                      {(m.metrics.extras ?? []).map((e) => (
+                        <Detail key={e.label} label={e.label} value={e.value} />
+                      ))}
+                    </div>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3 pt-2 border-t border-dashed border-[var(--strix-border)]">
+                      <Detail label="Live status" value={live?.status ?? "—"} />
+                      <Detail label="Drift KL" value={live?.driftKl?.toFixed(4) ?? "—"} />
+                      <Detail
+                        label="Weights SHA-256"
+                        value={live?.weightsSha256 ? live.weightsSha256.slice(0, 12) + "…" : "—"}
+                        mono
+                      />
+                    </div>
+                    <p className="text-[10px] text-[var(--strix-text-muted)] leading-relaxed pt-1">
+                      Source: <span className="font-mono">{m.source}</span>
+                    </p>
                   </div>
-                  <div className="text-right">
-                    <span className="text-[9px] text-[var(--strix-text-muted)] uppercase tracking-wider block">F1</span>
-                    <span className="text-lg font-bold text-[var(--strix-text)]">{model.f1}</span>
-                  </div>
-                  <button className={cn("text-[10px] font-semibold hover:underline", model.color)}>
-                    View Details →
-                  </button>
-                </div>
+                )}
               </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
 
-        {/* Accuracy Gauge */}
+        {/* Composite gauge — uses real composite test-set accuracy. */}
         <div className="lg:col-span-4 bg-[var(--strix-bg-card)] border border-[var(--strix-border)] rounded-xl p-5 flex flex-col items-center justify-center">
           <span className="text-[9px] text-[var(--strix-text-muted)] uppercase tracking-widest mb-4">
-            Composite Accuracy
+            Composite Test-Set Accuracy
           </span>
-          <CircularProgress value={modelMetrics.accuracy} size={180} strokeWidth={12} />
+          <CircularProgress value={composite.accuracyPct} size={180} strokeWidth={12} />
           <div className="mt-4 text-center">
             <span className="text-[10px] text-[var(--strix-text-muted)]">
-              Model 0.2 · STRIX Sentinel
+              mean over {composite.modelCount} models that report accuracy
             </span>
           </div>
         </div>
@@ -254,75 +273,40 @@ export default function AiEnginePage() {
           <div className="flex items-center gap-2">
             <TrendingUp className="h-4 w-4 text-strix-primary dark:text-strix-cyan" />
             <h3 className="text-sm font-bold text-[var(--strix-text)]">
-              Confidence Trend (10-Day)
+              Confidence Trend (7-Day)
             </h3>
           </div>
           <div className="flex items-center gap-4">
-            <div className="flex items-center gap-1.5">
-              <div className="h-2 w-6 rounded-full bg-strix-primary dark:bg-strix-cyan" />
-              <span className="text-[9px] text-[var(--strix-text-muted)]">Classifier</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <div className="h-2 w-6 rounded-full bg-purple-500" />
-              <span className="text-[9px] text-[var(--strix-text-muted)]">GNN</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <div className="h-2 w-6 rounded-full bg-amber-500" />
-              <span className="text-[9px] text-[var(--strix-text-muted)]">VAE</span>
-            </div>
+            <Legend color="#006B94" darkColor="#00F2FF" label="Transformer" />
+            <Legend color="#8B5CF6" label="GNN" />
+            <Legend color="#F59E0B" label="VAE" />
           </div>
         </div>
 
-        {/* SVG Line Chart */}
-        <div className="relative h-[200px] w-full">
-          <svg className="w-full h-full" viewBox="0 0 600 200" preserveAspectRatio="none">
-            {/* Grid lines */}
-            {[0, 1, 2, 3, 4].map((i) => (
-              <line
-                key={`grid-${i}`}
-                x1="0"
-                y1={i * 50}
-                x2="600"
-                y2={i * 50}
-                stroke="var(--strix-border)"
-                strokeWidth="0.5"
-                opacity="0.5"
-              />
-            ))}
-
-            {/* Classifier line */}
-            <polyline
-              fill="none"
-              stroke="#006B94"
-              strokeWidth="2"
-              className="dark:stroke-[#00F2FF]"
-              points={modelConfidenceData.map((d, i) => `${i * 66.6},${200 - (d.classifier - 60) * 5}`).join(" ")}
-            />
-            {/* GNN line */}
-            <polyline
-              fill="none"
-              stroke="#8B5CF6"
-              strokeWidth="2"
-              points={modelConfidenceData.map((d, i) => `${i * 66.6},${200 - (d.gnn - 60) * 5}`).join(" ")}
-            />
-            {/* VAE line */}
-            <polyline
-              fill="none"
-              stroke="#F59E0B"
-              strokeWidth="2"
-              points={modelConfidenceData.map((d, i) => `${i * 66.6},${200 - (d.vae - 60) * 5}`).join(" ")}
-            />
-          </svg>
-          {/* X-axis labels */}
-          <div className="flex justify-between mt-2">
-            {modelConfidenceData.map((d, i) => (
-              <span key={i} className="text-[9px] text-[var(--strix-text-muted)] font-mono">{d.time}</span>
-            ))}
+        {modelConfidenceData.length === 0 ? (
+          <div className="h-[200px] flex items-center justify-center text-[11px] text-[var(--strix-text-muted)] italic">
+            No trend points returned by /monitoring/confidence-trend yet — run a simulation to populate.
           </div>
-        </div>
+        ) : (
+          <div className="relative h-[200px] w-full">
+            <svg className="w-full h-full" viewBox="0 0 600 200" preserveAspectRatio="none">
+              {[0, 1, 2, 3, 4].map((i) => (
+                <line key={`grid-${i}`} x1="0" y1={i * 50} x2="600" y2={i * 50} stroke="var(--strix-border)" strokeWidth="0.5" opacity="0.5" />
+              ))}
+              <Trendline points={modelConfidenceData.map((d) => d.classifier)} stroke="#006B94" />
+              <Trendline points={modelConfidenceData.map((d) => d.gnn)} stroke="#8B5CF6" />
+              <Trendline points={modelConfidenceData.map((d) => d.vae)} stroke="#F59E0B" />
+            </svg>
+            <div className="flex justify-between mt-2">
+              {modelConfidenceData.map((d, i) => (
+                <span key={i} className="text-[9px] text-[var(--strix-text-muted)] font-mono">{d.time}</span>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
-      {/* Telemetry Stream */}
+      {/* Live Inference Stream */}
       <div className="bg-[var(--strix-bg-card)] border border-[var(--strix-border)] rounded-xl p-5">
         <div className="flex items-center gap-2 mb-4">
           <Terminal className="h-4 w-4 text-[var(--strix-text-muted)]" />
@@ -378,4 +362,64 @@ export default function AiEnginePage() {
       </div>
     </div>
   )
+}
+
+function pct(v: number | undefined): string {
+  return v == null ? "—" : `${(v * 100).toFixed(1)}%`
+}
+function fixed(v: number | undefined): string {
+  return v == null ? "—" : v.toFixed(3)
+}
+
+function Kpi({ icon: Icon, label, value, sub }: { icon: typeof Gauge; label: string; value: string; sub: string }) {
+  return (
+    <div className="bg-[var(--strix-bg-card)] border border-[var(--strix-border)] rounded-xl p-5">
+      <div className="flex items-center gap-1.5 mb-2">
+        <Icon className="h-3.5 w-3.5 text-[var(--strix-text-muted)]" />
+        <span className="text-[9px] text-[var(--strix-text-muted)] uppercase tracking-wider">{label}</span>
+      </div>
+      <span className="text-2xl font-bold text-[var(--strix-text)]">{value}</span>
+      <p className="text-[10px] text-[var(--strix-text-muted)] mt-1">{sub}</p>
+    </div>
+  )
+}
+
+function Metric({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="text-right">
+      <span className="text-[9px] text-[var(--strix-text-muted)] uppercase tracking-wider block">{label}</span>
+      <span className="text-base font-bold text-[var(--strix-text)]">{value}</span>
+    </div>
+  )
+}
+
+function Detail({ label, value, mono = false }: { label: string; value: string; mono?: boolean }) {
+  return (
+    <div>
+      <span className="block text-[9px] uppercase tracking-wider text-[var(--strix-text-muted)] mb-0.5">{label}</span>
+      <span className={cn("text-[var(--strix-text)] font-semibold text-[12px]", mono && "font-mono text-[10px]")}>
+        {value}
+      </span>
+    </div>
+  )
+}
+
+function Legend({ color, darkColor, label }: { color: string; darkColor?: string; label: string }) {
+  return (
+    <div className="flex items-center gap-1.5">
+      <div className="h-2 w-6 rounded-full" style={{ background: color }}>
+        {darkColor && <span className="hidden dark:block h-full w-full rounded-full" style={{ background: darkColor }} />}
+      </div>
+      <span className="text-[9px] text-[var(--strix-text-muted)]">{label}</span>
+    </div>
+  )
+}
+
+function Trendline({ points, stroke }: { points: number[]; stroke: string }) {
+  if (points.length === 0) return null
+  const stepX = points.length > 1 ? 600 / (points.length - 1) : 0
+  // Map 0..100 → 0..200 (inverted, with 10px padding top/bottom).
+  const yFor = (v: number) => 190 - Math.max(0, Math.min(100, v)) * 1.8
+  const d = points.map((v, i) => `${i * stepX},${yFor(v)}`).join(" ")
+  return <polyline fill="none" stroke={stroke} strokeWidth="2" points={d} strokeLinejoin="round" strokeLinecap="round" />
 }

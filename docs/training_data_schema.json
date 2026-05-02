@@ -1,0 +1,296 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Strix Models — Training Data Schema",
+  "description": "What each model in apps/models/*.pth was trained on. Sourced from apps/notebooks/*, apps/models/MANIFEST.json, apps/models/registry.json, gnn_metadata.pkl, selected_features_top25.json, feature_names.pkl, feature_matrix_no_leakage.parquet, labels.parquet. The runtime FeatureMessage (see docs/log_stream_schema.json) reproduces the same 55-d vector from live Wazuh alerts.",
+  "version": "1.1",
+  "see_also": {
+    "raw_column_inventory": "docs/DATASET_SCHEMA.md — exhaustive 176-column raw-field inventory with null %, unique counts, examples, and which columns are leaky.",
+    "runtime_stream_reference": "docs/log_stream_schema.json — per-stage runtime envelopes (RawAlertMessage → FeatureMessage → VerdictMessage → WS frames).",
+    "model_registry": "apps/models/registry.json — weight checksums, architecture summaries, model versions.",
+    "preprocessing_artifacts": "apps/models/MANIFEST.json — sha256 + provenance for each pickle (scaler, PCAs, calibrator, GNN metadata)."
+  },
+
+  "source_dataset": {
+    "name": "Linux-APT-Dataset-2024",
+    "primary_file": "apps/data/dataset.xlsx (single sheet `Sheet1`)",
+    "alternate_path_in_notebooks": "Linux-APT-Dataset-2024/combine.csv (cited in preprocessing_dataset.ipynb — earlier filename for the same data)",
+    "shape_raw": [115726, 176],
+    "format": "Wazuh alerts exported from an Elasticsearch / OpenSearch `wazuh-alerts-4.x-*` index — flattened `_source.*` records, one alert per row.",
+    "consumed_in": "apps/notebooks/preprocessing_dataset.ipynb → apps/notebooks/feature_selection_final.ipynb (FeatureEngineerNoLeakage)",
+    "coverage": {
+      "agents": ["Machine-1-New", "Machine-2-New", "Machine-3-New", "Machine-4-New", "Machine-5-New"],
+      "manager": "ubuntu",
+      "subnet": "192.168.217.0/24",
+      "time_range": "Oct 2023 – Jan 2024"
+    },
+    "raw_columns_extracted": [
+      "_source.@timestamp",
+      "_source.agent.id",
+      "_source.agent.name",
+      "_source.full_log",
+      "_source.rule.id",
+      "_source.rule.level",
+      "_source.rule.description",
+      "_source.rule.groups",
+      "_source.rule.mitre_tactics",
+      "_source.rule.mitre_techniques"
+    ],
+    "raw_column_groups_in_xlsx": "envelope (4) · core (8) · agent (3) · manager (1) · predecoder (3) · decoder (4) · rule (19) · rule-mitre (6) · data-audit (36) · data-sca (39) · data-other (25) · syscheck (22) · labels (6) — see docs/DATASET_SCHEMA.md §4 for the full inventory.",
+    "filter_applied": "Keep only rows where rule.mitre_tactics OR rule.mitre_techniques is non-null and matches the MITRE pattern (TAxxxx / Txxxx[.yyy]).",
+    "row_count_after_preprocessing": 115726,
+    "leakage_columns_dropped_before_features": [
+      "_source.rule.level",
+      "_source.rule.description",
+      "_source.rule.mitre_tactics",
+      "_source.rule.mitre_techniques",
+      "_source.rule.mitre.tactic",
+      "_source.rule.mitre.technique",
+      "_source.rule.mitre.id"
+    ],
+    "leakage_dropped_reason": "These fields encode the label or a near-perfect proxy of the label (Wazuh's own decision). Including them in features would let the model trivially memorise — see GNN Part 2 retrain ('NO RULE LEVEL'), which removed rule_level and re-fit on the remaining 55 columns. The live-inference normalizer (apps/api/.../wazuh_adapter.py) strips the same fields before publishing.",
+    "live_inference_caveats": [
+      "Labels (`malicious`, `cyber_kill_chain_*`) are synthesized at preprocessing time and DO NOT exist in raw Wazuh alerts. Live inference outputs them, never reads them.",
+      "Timestamp format in the xlsx export is Kibana-Discover CSV style: `Mon DD, YYYY @ HH:MM:SS.mmm`. Live Wazuh alerts ship ISO-8601 `@timestamp`. The normalization service must parse both — pd.to_datetime(..., errors='coerce') handles both.",
+      "Many raw columns are mutually-exclusive alert-type views: an auditd alert fills `_source.data.audit.*` and leaves `_source.syscheck.*` empty (and vice versa). The engineered pipeline ends with fillna(0) to absorb this.",
+      "`cyber_kill_chain_id` is 100% null in the export — drop.",
+      "`_source.data.status` has a single observed value ('DENIED') and is 100% null — never one-hot.",
+      "Training was single-site (5 agents / one /24). `ip_is_private` generalises; agent-specific one-hots would not — the committed engineering code deliberately avoids them."
+    ]
+  },
+
+  "feature_engineering": {
+    "engineered_bank_119d": {
+      "file": "apps/models/feature_matrix_no_leakage.parquet",
+      "shape": [115726, 119],
+      "names_file": "apps/models/feature_names.pkl",
+      "categories": {
+        "temporal_5":         ["hour_of_day", "day_of_week", "is_weekend", "is_night", "is_business_hours"],
+        "rule_metadata_2":    ["firedtimes", "firedtimes_log"],
+        "ip_signals_4":       ["ip_is_private", "ip_is_missing", "srcip_is_private", "srcip_is_missing"],
+        "path_signals_6":     ["path_depth", "path_is_sensitive", "path_is_hidden", "path_is_suspicious_ext", "path_is_temp", "path_is_missing"],
+        "command_keywords_21":["cmd_sudo_usage", "cmd_chmod_usage", "cmd_wget_curl", "cmd_nc_netcat", "cmd_base64", "cmd_eval_exec", "cmd_pipe_redirect", "cmd_hidden_file", "cmd_cron_at", "cmd_ssh_scp", "cmd_python_perl", "cmd_kill_pkill", "cmd_rm_delete", "cmd_cat_less", "cmd_grep_find", "cmd_env_export", "cmd_passwd_shadow", "cmd_iptables_firewall", "cmd_dd_disk", "cmd_tar_zip", "cmd_length"],
+        "command_meta_2":     ["cmd_has_args", "cmd_is_missing"],
+        "hash_signals_2":     ["has_md5", "has_sha256"],
+        "syscheck_3":         ["syscheck_added", "syscheck_modified", "syscheck_deleted"],
+        "fim_changed_8":      ["changed_size", "changed_mtime", "changed_md5", "changed_sha1", "changed_sha256", "changed_permission", "changed_uid", "changed_gid"],
+        "fim_inode_1":        ["changed_inode"],
+        "network_3":          ["srcport", "is_privileged_port", "is_high_port"],
+        "decoder_onehot_15":  ["decoder_auditd","decoder_web-accesslog","decoder_pam","decoder_syscheck_integrity_changed","decoder_syscheck_new_entry","decoder_syscheck_deleted","decoder_dpkg-decoder","decoder_sudo","decoder_sca","decoder_ossec","decoder_rootcheck","decoder_sshd","decoder_wazuh","decoder_systemd","decoder_kernel"],
+        "location_onehot_15": ["location__var_log_audit_audit.log","location__var_log_apache2_access.log","location_syscheck","location__var_log_auth.log","location__var_log_dpkg.log","location_sca","location_rootcheck","location__var_log_auth.log.1","location_logcollector","location_wazuh-agent","location__var_log_syslog","location_netstat_listening_ports","location_wazuh-monitord","location_wazuh-remoted","location__var_log_kern.log"],
+        "secbert_cmd_16":     ["cmd_secbert_emb_0..15 — PCA(16) of SecBERT[768] over the parsed command string"],
+        "secbert_log_16":     ["log_secbert_emb_0..15 — PCA(16) of SecBERT[768] over the raw full_log line"]
+      },
+      "secbert_provenance": {
+        "model": "jackaduma/SecBERT (HuggingFace)",
+        "embedding_dim_raw": 768,
+        "reduced_dim": 16,
+        "reducer": "sklearn.PCA(n_components=16, random_state=42)",
+        "pca_artifacts": ["apps/models/secbert_log_pca.pkl", "apps/models/secbert_cmd_pca.pkl"],
+        "tokenizer_model_dir": "apps/models/preprocess/secbert/ + secbert_tokenizer/"
+      }
+    },
+
+    "selected_55d": {
+      "file": "apps/models/selected_features_top25.json",
+      "rationale": "feature_selection_final.ipynb scored the 119 engineered features and kept the top-25 *conceptual* features. SecBERT contributes 2 conceptual slots (log + cmd) but expands to 32 actual columns (16 each), giving 23 individual + 32 SecBERT = 55 final columns.",
+      "n_conceptual_features": 25,
+      "n_actual_columns": 55,
+      "individual_23": [
+        "decoder_auditd",
+        "firedtimes",
+        "location__var_log_audit_audit.log",
+        "srcip_is_private",
+        "decoder_web-accesslog",
+        "location__var_log_apache2_access.log",
+        "firedtimes_log",
+        "path_is_missing",
+        "has_md5",
+        "cmd_length",
+        "has_sha256",
+        "syscheck_added",
+        "cmd_is_missing",
+        "decoder_dpkg-decoder",
+        "syscheck_deleted",
+        "path_depth",
+        "syscheck_modified",
+        "location__var_log_auth.log",
+        "decoder_syscheck_deleted",
+        "path_is_sensitive",
+        "decoder_syscheck_integrity_changed",
+        "location_syscheck",
+        "path_is_temp"
+      ],
+      "secbert_log_16": "log_secbert_emb_0 .. log_secbert_emb_15",
+      "secbert_cmd_16": "cmd_secbert_emb_0 .. cmd_secbert_emb_15",
+
+      "two_orderings_critical": {
+        "ae_vae_numeric_ordering": {
+          "consumers": ["AE", "VAE"],
+          "definition": "selected_features_top25.json `all_selected_columns` — SecBERT block in NUMERIC string order: emb_0, emb_1, emb_2, ..., emb_15.",
+          "first_few":  ["decoder_auditd", "firedtimes", "location__var_log_audit_audit.log", "srcip_is_private", "..."],
+          "secbert_block": ["log_secbert_emb_0", "log_secbert_emb_1", "log_secbert_emb_2", "...", "log_secbert_emb_15", "cmd_secbert_emb_0", "...", "cmd_secbert_emb_15"]
+        },
+        "gnn_alphabetical_ordering": {
+          "consumers": ["GNN"],
+          "definition": "gnn_metadata.pkl['features'] — SecBERT block in PYTHON STRING (alphabetical) order: emb_0, emb_1, emb_10, emb_11, ..., emb_15, emb_2, emb_3, ..., emb_9.",
+          "secbert_log_block": ["log_secbert_emb_0", "log_secbert_emb_1", "log_secbert_emb_10", "log_secbert_emb_11", "log_secbert_emb_12", "log_secbert_emb_13", "log_secbert_emb_14", "log_secbert_emb_15", "log_secbert_emb_2", "log_secbert_emb_3", "log_secbert_emb_4", "log_secbert_emb_5", "log_secbert_emb_6", "log_secbert_emb_7", "log_secbert_emb_8", "log_secbert_emb_9"],
+          "runtime_handling": "PreprocessingPipeline.transform_for_gnn(vec) re-permutes the AE/VAE-ordered vector into the GNN order at inference time."
+        }
+      },
+
+      "scaler": {
+        "file": "apps/models/preprocess/scaler_55.pkl (derived) + apps/models/standard_scaler.pkl (notebook copy)",
+        "type": "sklearn.preprocessing.StandardScaler",
+        "n_features_in": 55,
+        "fitted_on": "training-set 55-d feature matrix (the columns above) — applied at inference before any model forward pass."
+      }
+    }
+  },
+
+  "labels": {
+    "file": "apps/models/labels.parquet",
+    "row_count": 115726,
+    "alignment": "row-aligned with feature_matrix_no_leakage.parquet — same indexing.",
+    "synthesis_rule": "`malicious` and `cyber_kill_chain_*` columns are NOT native Wazuh fields. They were derived at preprocessing time: `malicious=1` when the alert has non-null `_source.rule.mitre_techniques` OR `_source.rule.mitre_tactics` (preprocessing_dataset.ipynb cell ~52). `cyber_kill_chain_tactic` is a mapping of MITRE tactic → 5-stage CKC bucket (cell ~58–62).",
+    "columns": [
+      {
+        "name": "malicious",
+        "type": "int (0|1)",
+        "description": "Binary attack label. Used by AE (anomaly target indirectly), VAE calibrator (LogReg target), and GNN (node-level supervised target).",
+        "distribution": { "0_benign": 90308, "1_malicious": 25418, "positive_rate": 0.2196 }
+      },
+      {
+        "name": "cyber_kill_chain_tactic",
+        "type": "string (S1|S3|S4|S5|S7|Unknown)",
+        "description": "Symbolic kill-chain bucket — 5-stage taxonomy used by the notebook. ~78.8% null (Unknown) because only MITRE-tagged rows get a stage.",
+        "distribution_in_labels_parquet": { "Unknown": 91178, "S3": 16556, "S4": 4291, "S7": 1777, "S5": 1281, "S1": 643 },
+        "doc_data_discrepancy": "docs/DATASET_SCHEMA.md §1 lists S4=16,556 (Install/Exploit) and S3=4,291 (Delivery) — those two are SWAPPED relative to the actual labels.parquet. Treat the parquet (`S3`=16,556 / `S4`=4,291) as authoritative for what the models trained on; the .md table is stale on this row."
+      },
+      {
+        "name": "ckc_encoded",
+        "type": "int (0..7) — only 6 values populated",
+        "description": "Numeric CKC stage. 8-class output target of the Transformer (numCkcStages=8 in registry.json), even though only 6 classes appear in training data. NOTE: this notebook-internal encoding uses 5 = Unknown (benign), which is DIFFERENT from the *runtime* CKC mapping where 0 = BENIGN. Don't conflate the two encodings.",
+        "distribution": { "0": 643, "1": 16556, "2": 4291, "3": 1281, "4": 1777, "5": 91178 },
+        "encoding_map_inferred": {
+          "0": "S1 (Reconnaissance, 643)",
+          "1": "S3 (Delivery, 16556)",
+          "2": "S4 (Exploit/Install, 4291)",
+          "3": "S5 (C2, 1281)",
+          "4": "S7 (Action, 1777)",
+          "5": "Unknown / benign (91178)"
+        }
+      },
+      {
+        "name": "cyber_kill_chain_id",
+        "type": "float64",
+        "description": "100% null in the export. Drop at load time."
+      }
+    ],
+    "leakage_note": "rule.level was excluded from features after Part-1 GNN training because it acted as a near-perfect proxy for `malicious` (Wazuh's own severity score). Part-2 GNN retrains on the 55-d vector with rule_level dropped — that is the model shipped in apps/models/gnn_model.pth."
+  },
+
+  "models": {
+    "ae": {
+      "trained_in": "apps/notebooks/TP1_AE_FeatureSelection.ipynb",
+      "input": { "shape": [55], "ordering": "numeric SecBERT (selected_features_top25.json)" },
+      "output": { "latent_shape": [64], "recon_shape": [55] },
+      "architecture": { "type": "autoencoder", "hidden_path": "55 → ... → 64 (bottleneck) → ... → 55", "activation": "LeakyReLU(0.2)" },
+      "loss": "MSE reconstruction loss; anomaly_score derived from per-sample recon_error (higher = more anomalous).",
+      "training_target": "no explicit class label — unsupervised reconstruction. The `malicious` column is used at evaluation time only.",
+      "weights_file": "apps/models/ae_model.pth",
+      "sha256": "346df3dae48c04704058e25283790c6ccf0a7b1701daa852769fad1ae7e2c51a"
+    },
+
+    "vae": {
+      "trained_in": "apps/notebooks/TP2_VAE_FeatureSelection.ipynb",
+      "variant": "Beta-VAE (Top 25)",
+      "input": { "shape": [55], "ordering": "numeric SecBERT" },
+      "output": { "latent_shape": [32], "recon_shape": [55], "uncertainty": "predictive variance over the latent posterior" },
+      "architecture": { "type": "beta-vae", "encoder_hidden": [512, 256, 128], "latent_dim": 32, "has_center": true, "beta": 0.5, "gamma": 0.01 },
+      "loss": "Beta-VAE ELBO = recon_loss + β·KL + γ·center_loss",
+      "calibrator": {
+        "file": "apps/models/probability_calibrators.pkl",
+        "key": "Beta-VAE (Top 25)",
+        "type": "sklearn.linear_model.LogisticRegression",
+        "input": "scalar — VAE per-sample reconstruction loss",
+        "output": "P(malicious) ∈ [0,1] — what becomes vaeMaliciousProb at inference",
+        "trained_on": "VAE recon_loss vs `malicious` label; coef_.shape=(1,1), intercept_=-5.4128"
+      },
+      "weights_file": "apps/models/vae_model.pth",
+      "sha256": "3efd641071837a04bfc61a5c279f6fe03fef16bb4ee85975c6ab9067b1f7adfd"
+    },
+
+    "transformer": {
+      "trained_in": "apps/notebooks/TP2_MLA_TE.ipynb",
+      "input": { "shape": ["seq_len", 64], "description": "Sequence of AE-latent vectors per host session — the AE's 64-d bottleneck, oldest→newest with the current event appended." },
+      "output": { "logits_shape": [8], "description": "8-class CKC stage prediction (next-step). softmax_max → confidence." },
+      "architecture": {
+        "type": "transformer-ckc-predictor",
+        "input_projection": "Linear → LayerNorm → ReLU → Dropout(0.1)",
+        "encoder_activation": "gelu",
+        "norm_first": true
+      },
+      "loss": "CrossEntropy on `ckc_encoded` (next event in the sequence).",
+      "training_target": "ckc_encoded (8 classes — see labels above).",
+      "weights_file": "apps/models/transformer_model.pth",
+      "sha256": "e301df22101a5895b98d9cb243dfdb3db3c727c3026cfa0198289ed8a60f6fa4"
+    },
+
+    "gnn": {
+      "trained_in": "apps/notebooks/GNN_Network_Propagation.ipynb (Part 2 — NO rule_level)",
+      "input_node_features": { "shape": [55], "ordering": "alphabetical SecBERT (gnn_metadata.pkl['features'])" },
+      "input_edges": {
+        "construction_rule": "Connect alerts that share the same agent_id within `intra_window_sec` (intra-host edges), and alerts on different hosts that share `srcip` or `srcuser` within `cross_window_sec` (cross-host edges).",
+        "graph_params": {
+          "intra_window_sec": 1800,
+          "cross_window_sec": 1800,
+          "max_intra": 3,
+          "max_cross": 5
+        }
+      },
+      "output": { "node_score": "sigmoid ∈ [0,1] — P(node is malicious)", "threshold_at_train_time": 0.7743 },
+      "architecture": { "type": "apt-propagation-gnn", "in_channels": 55, "hidden": 128, "layers": 3, "dropout": 0.3 },
+      "loss": "Binary CrossEntropy on `malicious` per node.",
+      "training_target": "malicious (binary).",
+      "metrics_at_eval": { "precision": 0.9359, "recall": 0.8015, "f1": 0.8635, "auc_roc": 0.9847 },
+      "weights_file": "apps/models/gnn_model.pth",
+      "metadata_file": "apps/models/gnn_metadata.pkl",
+      "sha256": "56699c2cb0dd0f6b6cd76322623e99223c7a586a0e4b2ae0ad02e1cd62629b17",
+      "rule_level_note": "Part-1 of the notebook included rule_level as feature #56 and overfit (precision/recall ~1.0 because rule_level encodes the label). Part-2 slices `X_scaled[:, :-1]` to drop rule_level and retrains — the shipped model is the Part-2 weights."
+    },
+
+    "dqn": {
+      "trained_in": "RL_agent/ (separate training repo, hyperparameters mirrored in registry.json)",
+      "input": {
+        "shape": [13],
+        "vector_order": [
+          "ae_anomaly_score",
+          "ae_recon_error",
+          "vae_malicious_prob",
+          "vae_uncertainty",
+          "transformer_pred_ckc",
+          "transformer_confidence",
+          "current_ckc_stage",
+          "gnn_node_risk",
+          "gnn_neighbor_risk",
+          "gnn_risk_growth",
+          "time_since_episode_start_seconds",
+          "time_since_last_event_seconds",
+          "sequence_length_so_far"
+        ],
+        "description": "Assembled at inference by `core.state_builder.build_state` from the outputs of the four prior models + the chain session state. Never appears in any single training file — the DQN was trained in a simulator that produces the same 13-d state."
+      },
+      "output": { "shape": [5], "type": "Q-values per action; argmax = action" },
+      "action_labels": ["MONITOR", "LOW_ALERT", "ESCALATE", "ISOLATE_HOST", "BLOCK_USER_IP"],
+      "architecture": { "type": "dqn", "hidden_dims": [128, 64] },
+      "checkpoint_keys": ["q_network_state_dict", "target_network_state_dict", "optimizer_state_dict", "epsilon", "steps_done", "episodes_done", "hyperparameters"],
+      "weights_file": "apps/models/rl_agent.pth",
+      "sha256": "d498f333f8648cad9a6c515e1a82ac9b472dff48473caa52483a23a00849be66"
+    }
+  },
+
+  "runtime_to_training_correspondence": {
+    "summary": "Each FeatureMessage emitted at runtime carries a 55-float feature_vector reproducing the training-time AE/VAE column order. The inference worker re-permutes into the GNN ordering on the fly. The Transformer reads the AE's 64-d latent (no separate features). The DQN reads a 13-d state assembled from the previous models' outputs.",
+    "diagram": "Wazuh alert → adapter (drop leakage cols) → preprocessor (one-hot decoder/location, SecBERT→PCA) → 55-d vector (numeric order) → AE+VAE  ;  re-permute → 55-d vector (alphabetical order) → GNN  ;  AE.latent[64] → Transformer  ;  {AE,VAE,Transformer,GNN outputs + session state} → 13-d state → DQN → action"
+  }
+}

@@ -6,6 +6,8 @@ import { cn } from "@/lib/utils"
 
 import { useLiveFeed, type LiveFeedEvent } from "@/lib/api/live-feed"
 import { useChainList } from "@/lib/api/analysis"
+import { downloadJson } from "@/lib/download"
+import { toast } from "@/lib/toast"
 import {
   Filter,
   CheckCheck,
@@ -38,6 +40,17 @@ function liveEventToAlert(e: LiveFeedEvent) {
     severity,
     source: e.agentId ?? "unknown",
   }
+}
+
+function timeAgo(iso: string): string {
+  const t = Date.parse(iso)
+  if (!Number.isFinite(t)) return iso
+  const secs = Math.max(0, Math.round((Date.now() - t) / 1000))
+  if (secs < 5) return "just now"
+  if (secs < 60) return `${secs}s ago`
+  if (secs < 3600) return `${Math.floor(secs / 60)}m ago`
+  if (secs < 86_400) return `${Math.floor(secs / 3600)}h ago`
+  return `${Math.floor(secs / 86_400)}d ago`
 }
 
 // Replaced by useLiveFeed() inside the component
@@ -126,9 +139,17 @@ export default function VigilanceFeedPage() {
 
   // Project SSE events through the existing alert shape so the JSX below
   // stays unchanged.
+  // Client-side acknowledged set. There is no backend ack endpoint yet,
+  // so we hide acknowledged alerts locally — they reappear on full
+  // reload, which is acceptable for an operator-facing live feed.
+  const [acked, setAcked] = useState<Set<string>>(new Set())
+
   const allAlerts = useMemo(
-    () => liveFeed.events.map((e) => liveEventToAlert(e.data)),
-    [liveFeed.events],
+    () =>
+      liveFeed.events
+        .map((e) => liveEventToAlert(e.data))
+        .filter((a) => !acked.has(a.id)),
+    [liveFeed.events, acked],
   )
 
   const alerts =
@@ -144,9 +165,23 @@ export default function VigilanceFeedPage() {
     (a) => a.severity === "info" || a.severity === "low",
   ).length
 
-  // No-op acknowledge while we don't have a backend ack endpoint yet —
-  // future P5+ ticket will wire `POST /alerts/{id}/ack`.
-  const acknowledgeAlert = (_id: string) => {}
+  // Client-side acknowledgement. No backend endpoint exists yet —
+  // future ticket: POST /alerts/{id}/ack.
+  const acknowledgeAlert = (id: string) => {
+    setAcked((prev) => {
+      if (prev.has(id)) return prev
+      const next = new Set(prev)
+      next.add(id)
+      return next
+    })
+  }
+  const acknowledgeAll = () => {
+    setAcked((prev) => {
+      const next = new Set(prev)
+      for (const a of allAlerts) next.add(a.id)
+      return next
+    })
+  }
 
   return (
     <div className="space-y-[24px]">
@@ -172,7 +207,11 @@ export default function VigilanceFeedPage() {
             <Filter className="h-[14px] w-[14px]" />
             Filter Feed
           </button>
-          <button className="flex items-center gap-[8px] rounded-[9999px] bg-[#00666d] px-[24px] py-[10px] text-[12px] font-semibold uppercase tracking-[0.6px] text-[#cffbff] hover:opacity-90 transition-opacity">
+          <button
+            onClick={acknowledgeAll}
+            disabled={alerts.length === 0}
+            className="flex items-center gap-[8px] rounded-[9999px] bg-[#00666d] px-[24px] py-[10px] text-[12px] font-semibold uppercase tracking-[0.6px] text-[#cffbff] hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
+          >
             <CheckCheck className="h-[14px] w-[14px]" />
             Acknowledge All
           </button>
@@ -228,10 +267,31 @@ export default function VigilanceFeedPage() {
             </div>
           </div>
 
-          {/* Generate Threat Report Card */}
-          <div className="relative h-[200px] rounded-[48px] overflow-clip">
-            <div className="absolute inset-0 bg-gradient-to-br from-[#1a2e3a] to-[#0d1a20]" />
-            {/* Abstract background decoration */}
+          {/* Generate Threat Report — downloads a JSON snapshot of the
+              currently visible feed. No backend report generator yet. */}
+          <button
+            onClick={() => {
+              if (alerts.length === 0) {
+                toast.warning("No alerts in the current feed window.")
+                return
+              }
+              const stamp = new Date().toISOString().replace(/[:.]/g, "-")
+              downloadJson(`strix-threat-report-${stamp}.json`, {
+                generatedAt: new Date().toISOString(),
+                window: "live feed (last 200 events)",
+                summary: {
+                  total: alerts.length,
+                  critical: criticalCount,
+                  warnings: warningCount,
+                  updates: updateCount,
+                },
+                alerts,
+              })
+              toast.success(`Threat report exported (${alerts.length} alerts).`)
+            }}
+            className="relative h-[200px] rounded-[48px] overflow-clip text-left group hover:scale-[1.01] transition-transform"
+          >
+            <div className="absolute inset-0 bg-gradient-to-br from-[#1a2e3a] to-[#0d1a20] group-hover:from-[#22404f] group-hover:to-[#0d1a20] transition-colors" />
             <div className="absolute inset-0 opacity-[0.08]">
               <div className="absolute top-[20%] left-[10%] h-[120px] w-[120px] rounded-full border border-white/20" />
               <div className="absolute top-[40%] right-[5%] h-[80px] w-[80px] rounded-full border border-white/30" />
@@ -244,10 +304,10 @@ export default function VigilanceFeedPage() {
                 Report
               </h4>
               <p className="text-[11px] font-medium uppercase tracking-[0.8px] text-white/60 mt-[8px]">
-                STRIX AI ANALYSIS
+                Export {alerts.length} alert{alerts.length === 1 ? "" : "s"} → JSON
               </p>
             </div>
-          </div>
+          </button>
         </div>
 
         {/* ── Right Column (col 4-12) ────────────────────── */}
@@ -277,8 +337,11 @@ export default function VigilanceFeedPage() {
                       {badge.label}
                     </span>
                   </div>
-                  <span className="text-[13px] text-[#497f8b] dark:text-[var(--strix-text-muted)]">
-                    {alert.timestamp}
+                  <span
+                    className="text-[13px] text-[#497f8b] dark:text-[var(--strix-text-muted)]"
+                    title={alert.timestamp}
+                  >
+                    {timeAgo(alert.timestamp)}
                   </span>
                 </div>
 
@@ -304,11 +367,14 @@ export default function VigilanceFeedPage() {
                   <div className="flex items-center gap-[12px] mt-[20px]">
                     <button
                       onClick={() => {
-                        if (alert.severity === "info") {
-                          // "VIEW DETAILS" for intel updates
-                        } else {
-                          router.push(`/attack-analysis/${alert.id}`)
-                        }
+                        // The live-feed event id is an alert_id, not a
+                        // chain_id — the per-chain analysis route would
+                        // 422 on it. Route to /attack-analysis/latest
+                        // (which auto-resolves to the most recent chain)
+                        // and pass the agent as a query param so the
+                        // analysis view can hint at context.
+                        const q = alert.source ? `?q=${encodeURIComponent(alert.source)}` : ""
+                        router.push(`/attack-analysis/latest${q}`)
                       }}
                       className="rounded-[9999px] bg-[#00666d] px-[20px] py-[10px] text-[11px] font-bold uppercase tracking-[0.8px] text-[#cffbff] hover:opacity-90 transition-opacity"
                     >

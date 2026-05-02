@@ -1,5 +1,6 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import { useAuthStore } from "@/stores/auth-store"
 import { cn } from "@/lib/utils"
 import {
@@ -11,7 +12,18 @@ import {
   AlertTriangle,
   Pencil,
   Download,
+  X,
 } from "lucide-react"
+import { toast } from "@/lib/toast"
+import { downloadJson } from "@/lib/download"
+
+const PROFILE_LS_KEY = "strix:profile:v1"
+
+interface EditableProfile {
+  name: string
+  role: string
+  site: string
+}
 
 const activityLogEntries = [
   {
@@ -64,13 +76,47 @@ const threatBars = [
 
 export default function ProfilePage() {
   const user = useAuthStore((s) => s.user)
+  const [overrides, setOverrides] = useState<Partial<EditableProfile>>({})
+  const [editing, setEditing] = useState(false)
 
-  const profile = user || {
+  // Hydrate user-edited overrides from localStorage on mount.
+  useEffect(() => {
+    if (typeof window === "undefined") return
+    try {
+      const raw = window.localStorage.getItem(PROFILE_LS_KEY)
+      if (raw) setOverrides(JSON.parse(raw))
+    } catch { /* ignore */ }
+  }, [])
+
+  const baseProfile = user || {
     name: "SENTINEL_CORE_01",
     role: "Senior Security Operations Analyst",
     site: "Site Alpha",
     level: 4,
     tags: ["INCIDENT_RESPONSE", "THREAT_HUNTING", "CRYPTOGRAPHY"],
+  }
+  const profile = { ...baseProfile, ...overrides }
+
+  const onExportLogs = () => {
+    const payload = {
+      exportedAt: new Date().toISOString(),
+      operator: profile.name,
+      role: profile.role,
+      site: profile.site,
+      activity: activityLogEntries,
+    }
+    const stamp = new Date().toISOString().replace(/[:.]/g, "-")
+    downloadJson(`strix-profile-${profile.name}-${stamp}.json`, payload)
+    toast.success("Profile activity log exported.")
+  }
+
+  const onSaveProfile = (next: EditableProfile) => {
+    setOverrides(next)
+    try {
+      window.localStorage.setItem(PROFILE_LS_KEY, JSON.stringify(next))
+    } catch { /* ignore */ }
+    setEditing(false)
+    toast.success("Profile updated.")
   }
 
   return (
@@ -130,11 +176,17 @@ export default function ProfilePage() {
 
               {/* Action Buttons */}
               <div className="flex flex-col sm:flex-row gap-2 mt-1">
-                <button className="bg-[#00666d] dark:bg-[#87edf6] text-[#cffbff] dark:text-[#00343d] rounded-[9999px] px-[24px] py-[12px] text-[12px] font-bold uppercase tracking-wider flex items-center gap-2 hover:opacity-90 transition-opacity">
+                <button
+                  onClick={() => setEditing(true)}
+                  className="bg-[#00666d] dark:bg-[#87edf6] text-[#cffbff] dark:text-[#00343d] rounded-[9999px] px-[24px] py-[12px] text-[12px] font-bold uppercase tracking-wider flex items-center gap-2 hover:opacity-90 transition-opacity"
+                >
                   <Pencil className="h-3.5 w-3.5" />
                   Edit Profile
                 </button>
-                <button className="bg-[#87edf6] dark:bg-[rgba(135,237,246,0.15)] text-[#00575d] dark:text-[#87edf6] rounded-[9999px] px-[24px] py-[12px] text-[12px] font-bold uppercase tracking-wider flex items-center gap-2 hover:opacity-90 transition-opacity">
+                <button
+                  onClick={onExportLogs}
+                  className="bg-[#87edf6] dark:bg-[rgba(135,237,246,0.15)] text-[#00575d] dark:text-[#87edf6] rounded-[9999px] px-[24px] py-[12px] text-[12px] font-bold uppercase tracking-wider flex items-center gap-2 hover:opacity-90 transition-opacity"
+                >
                   <Download className="h-3.5 w-3.5" />
                   Export Logs
                 </button>
@@ -358,6 +410,76 @@ export default function ProfilePage() {
           </div>
         </div>
       </div>
+
+      {editing && (
+        <EditProfileModal
+          initial={{ name: profile.name, role: profile.role, site: profile.site }}
+          onCancel={() => setEditing(false)}
+          onSave={onSaveProfile}
+        />
+      )}
     </div>
+  )
+}
+
+function EditProfileModal({
+  initial,
+  onCancel,
+  onSave,
+}: {
+  initial: EditableProfile
+  onCancel: () => void
+  onSave: (next: EditableProfile) => void
+}) {
+  const [name, setName] = useState(initial.name)
+  const [role, setRole] = useState(initial.role)
+  const [site, setSite] = useState(initial.site)
+
+  return (
+    <div className="fixed inset-0 z-[90] flex items-center justify-center bg-black/50 backdrop-blur-sm" onClick={onCancel}>
+      <div
+        className="bg-white dark:bg-[var(--strix-bg-card)] rounded-2xl shadow-xl border border-[rgba(128,182,195,0.25)] dark:border-[var(--strix-border)] w-[420px] max-w-[90vw] p-6"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-[16px] font-bold text-[#00343d] dark:text-[var(--strix-text)]">Edit Profile</h3>
+          <button onClick={onCancel} className="text-[#497f8b] hover:text-[#00343d] dark:hover:text-white">
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+        <div className="space-y-3">
+          <Field label="Name" value={name} onChange={setName} />
+          <Field label="Role" value={role} onChange={setRole} />
+          <Field label="Site" value={site} onChange={setSite} />
+        </div>
+        <div className="mt-5 flex justify-end gap-2">
+          <button
+            onClick={onCancel}
+            className="text-[12px] text-[#497f8b] dark:text-[var(--strix-text-muted)] px-4 py-2 hover:text-[#00343d] dark:hover:text-white"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={() => onSave({ name: name.trim() || initial.name, role: role.trim() || initial.role, site: site.trim() || initial.site })}
+            className="bg-[#00666d] text-white text-[12px] font-semibold rounded-full px-5 py-2 hover:opacity-90"
+          >
+            Save
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function Field({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
+  return (
+    <label className="block">
+      <span className="block text-[10px] uppercase tracking-wider text-[#497f8b] mb-1">{label}</span>
+      <input
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="w-full text-[13px] bg-[#e7faff] dark:bg-[rgba(135,237,246,0.05)] border border-[rgba(128,182,195,0.3)] dark:border-[var(--strix-border)] rounded-lg px-3 py-2 text-[#00343d] dark:text-[var(--strix-text)] outline-none focus:border-[#00666d]"
+      />
+    </label>
   )
 }

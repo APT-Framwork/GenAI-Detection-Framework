@@ -15,6 +15,10 @@ import {
 
 interface KillChainProgressionProps {
   stages: KillChainStage[]
+  /** Drives the header badge: when the chain hasn't actually breached
+   *  anything we don't want to scream "BREACH DETECTED" in red. Defaults
+   *  to true to preserve callers that pass no flag. */
+  isBreach?: boolean
   className?: string
 }
 
@@ -22,6 +26,7 @@ const stageIcons = [Search, Crosshair, Send, Bug, Download, Radio, Upload]
 
 export function KillChainProgression({
   stages,
+  isBreach = true,
   className,
 }: KillChainProgressionProps) {
   return (
@@ -31,10 +36,22 @@ export function KillChainProgression({
         <h3 className="text-base font-bold font-heading text-[#00343d] dark:text-[var(--strix-text)]">
           Cyber Kill Chain progression
         </h3>
-        <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-[9999px] text-[11px] font-bold bg-red-100 dark:bg-red-500/15 text-[#b31b25] dark:text-red-400 border border-red-200 dark:border-red-500/25 uppercase tracking-wider">
-          Breach Detected
-        </span>
+        {isBreach ? (
+          <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-[9999px] text-[11px] font-bold bg-red-100 dark:bg-red-500/15 text-[#b31b25] dark:text-red-400 border border-red-200 dark:border-red-500/25 uppercase tracking-wider">
+            Breach Detected
+          </span>
+        ) : (
+          <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-[9999px] text-[11px] font-bold bg-emerald-100 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/25 uppercase tracking-wider">
+            No breach
+          </span>
+        )}
       </div>
+
+      {stages.length === 0 && (
+        <div className="rounded-xl border border-dashed border-[rgba(128,182,195,0.3)] dark:border-[var(--strix-border)] py-8 text-center text-xs text-[#497f8b] dark:text-[var(--strix-text-muted)]">
+          No kill-chain stages recorded for this chain.
+        </div>
+      )}
 
       {/* Steps */}
       <div className="flex items-start w-full">
@@ -49,7 +66,7 @@ export function KillChainProgression({
 
           return (
             <div
-              key={stage.id}
+              key={stage.id ?? `stage-${i}`}
               className="flex items-start flex-1 last:flex-none"
             >
               {/* Node + label */}

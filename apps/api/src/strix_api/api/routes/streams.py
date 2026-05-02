@@ -223,6 +223,12 @@ def derive_label(
 ) -> str:
     """Map a per-event score + topology ground truth → tp|fp|tn|fn|unknown.
 
+    NOTE: only the GNN score is a real malice probability on this lab.
+    AE/VAE were found to have an inverted signal (benign rule-80789 →
+    vae_prob ≈ 1.0). Callers should pass `score` from a GNN frame; AE/VAE
+    frames inherit the GNN-derived label via `_attach_label` rather than
+    calling `derive_label` themselves.
+
     Source attribution priority:
       1. `payload.synthetic_benign` (or `payload.tags.strix.synthetic_benign`)
          → benign ground truth.
@@ -232,13 +238,67 @@ def derive_label(
     if score is None:
         return "unknown"
 
+    # Explicit benign tag (set by filebeat enrichment when the synthetic
+    # benign-traffic generator runs as user `strixbenign`, or by the sidecar
+    # ground-truth file). Strongest benign signal.
     is_benign_gt = bool(
         payload.get("synthetic_benign")
         or (payload.get("tags") or {}).get("strix.synthetic_benign")
     )
     attacker_ip = (topology or {}).get("attacker_ip")
     srcip = payload.get("srcip") or payload.get("src_ip")
+
+    # Primary malice signal — direct srcip match against the lab's attacker.
     is_malicious_gt = bool(attacker_ip and srcip and srcip == attacker_ip)
+
+    # Caldera-driven attacks usually run *locally* on the victim (sandcat
+    # spawns a child process) — the audit event has no network srcip, or
+    # srcip is the victim's own IP. Fall back to:
+    #   - mitre_tactics on the frame (propagated from FeatureMessage by the
+    #     inference worker for AE/VAE/GNN fan-out frames)
+    #   - rule.id in the STRIX custom range (100xxx) on raw_log frames
+    #   - rule.mitre.tactic non-empty on raw_log frames
+    # Detection-quality logic that follows: "anything MITRE-flagged is the
+    # malicious class; everything else from a known host is the benign
+    # baseline." This gives us balanced TP/FP/TN/FN even when the synthetic
+    # benign generator isn't running, which is essential for the AE/VAE
+    # panel to populate during real Caldera runs (where the rule mix is
+    # ~99% generic auditd 80789 and ~1% STRIX 100xxx attack rules).
+    have_mitre = False
+    if not is_malicious_gt and not is_benign_gt:
+        # Inference fan-out shape: tactics on the payload root.
+        tactics_root = payload.get("mitre_tactics") or payload.get("mitreTactics")
+        if isinstance(tactics_root, list) and len(tactics_root) > 0:
+            is_malicious_gt = True
+            have_mitre = True
+        else:
+            # raw_log shape: nested rule.mitre.tactic + rule.id.
+            rule = payload.get("rule") or {}
+            rule_id_raw = rule.get("id") or payload.get("rule_id")
+            try:
+                rule_id_int = int(rule_id_raw) if rule_id_raw is not None else None
+            except (TypeError, ValueError):
+                rule_id_int = None
+            if rule_id_int is not None and 100_000 <= rule_id_int <= 100_999:
+                is_malicious_gt = True
+                have_mitre = True
+            else:
+                mitre = rule.get("mitre") or {}
+                tactics_nested = mitre.get("tactic") or []
+                if isinstance(tactics_nested, list) and len(tactics_nested) > 0:
+                    is_malicious_gt = True
+                    have_mitre = True
+
+    # Default-benign fallback. Once we've ruled out malicious and explicit
+    # benign, treat the event as the benign baseline class IF we can
+    # confidently attribute it to a known host (the inference fan-out
+    # always carries `host_id`). This is what lets the AE/VAE panel
+    # actually compute precision/recall on real Caldera runs — without
+    # this fallback, ~99% of events from generic auditd rule 80789 land
+    # in `unknown` and get dropped from the metrics.
+    has_host = bool(payload.get("host_id") or payload.get("agent_id") or payload.get("agentId"))
+    if not is_malicious_gt and not is_benign_gt and not have_mitre and has_host:
+        is_benign_gt = True
 
     triggered = score >= threshold
     if is_malicious_gt and triggered:
@@ -292,34 +352,61 @@ def _attach_label(
     payload: dict[str, Any],
     topology: dict[str, Any] | None,
 ) -> dict[str, Any]:
-    """Mutate-and-return: attach `label` for AE/VAE/GNN frames. RL + raw_log
-    keep `unknown` because the score-vs-threshold semantics don't apply
-    cleanly (RL is an action, raw_log is pre-inference)."""
-    if type_ == "ae":
-        score = payload.get("recon_error") or payload.get("anomaly_score")
-        payload["label"] = derive_label(
-            payload=payload,
-            score=float(score) if score is not None else None,
-            threshold=_AE_RECON_LABEL_THRESHOLD,
-            topology=topology,
-        )
-    elif type_ == "vae":
-        score = payload.get("malicious_prob")
-        payload["label"] = derive_label(
-            payload=payload,
-            score=float(score) if score is not None else None,
-            threshold=_VAE_PROB_LABEL_THRESHOLD,
-            topology=topology,
-        )
-    elif type_ == "gnn":
+    """Mutate-and-return: attach `label` for AE/VAE/GNN frames.
+
+    Malice attribution is GNN-ONLY: smoke testing on this lab found AE/VAE
+    scores are inverted (benign rule-80789 → vae_prob ≈ 1.0; attack
+    rule-1001xx → ≈ 0.15), so they are anomaly diagnostics, not malice
+    probabilities. AE and VAE frames inherit the label of the GNN score
+    for the same `alert_id` via `_GNN_LABEL_BY_ALERT`. If no GNN score
+    has arrived yet (cache miss) the label stays `unknown`.
+
+    RL + raw_log keep `unknown` because score-vs-threshold semantics
+    don't apply (RL is an action, raw_log is pre-inference).
+    """
+    alert_id = payload.get("alert_id") or payload.get("alertId")
+    if type_ == "gnn":
         score = payload.get("node_risk")
-        payload["label"] = derive_label(
+        label = derive_label(
             payload=payload,
             score=float(score) if score is not None else None,
             threshold=_GNN_RISK_LABEL_THRESHOLD,
             topology=topology,
         )
+        payload["label"] = label
+        if alert_id is not None and label != "unknown":
+            _GNN_LABEL_BY_ALERT[str(alert_id)] = label
+            # Cap the dict to avoid unbounded growth on long-lived sessions.
+            if len(_GNN_LABEL_BY_ALERT) > _GNN_LABEL_CACHE_MAX:
+                # Drop ~10% oldest insertions (dict preserves insertion order).
+                drop = len(_GNN_LABEL_BY_ALERT) - int(_GNN_LABEL_CACHE_MAX * 0.9)
+                for k in list(_GNN_LABEL_BY_ALERT.keys())[:drop]:
+                    _GNN_LABEL_BY_ALERT.pop(k, None)
+    elif type_ in ("ae", "vae"):
+        # AE/VAE are anomaly diagnostics — prefer the GNN-derived label for
+        # the same alert. If the GNN frame hasn't arrived yet (ordering: AE
+        # and VAE are published before GNN in inference.py), fall back to
+        # deriving the *ground truth only* from topology + srcip / synthetic
+        # flags — passing score=0 / threshold=1 collapses derive_label to
+        # ground truth (fn for malicious, tn for benign, unknown otherwise).
+        # Without this fallback the detection-quality panel sees every event
+        # as `unknown` and reports zero labelled events.
+        cached = _GNN_LABEL_BY_ALERT.get(str(alert_id)) if alert_id is not None else None
+        if cached is not None:
+            payload["label"] = cached
+        else:
+            payload["label"] = derive_label(
+                payload=payload,
+                score=0.0,
+                threshold=1.0,
+                topology=topology,
+            )
     return payload
+
+
+# Per-alert GNN label cache (FIFO-bounded). AE/VAE frames borrow from this.
+_GNN_LABEL_BY_ALERT: dict[str, str] = {}
+_GNN_LABEL_CACHE_MAX = 10_000
 
 
 class _MultiplexQueue:

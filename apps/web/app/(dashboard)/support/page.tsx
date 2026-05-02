@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { cn } from "@/lib/utils"
+import { toast } from "@/lib/toast"
 import {
   BookOpen,
   Code,
@@ -317,7 +318,31 @@ export default function SupportPage() {
               {/* Submit */}
               <button
                 type="button"
-                className="w-full bg-[#00666d] dark:bg-strix-cyan text-[#cffbff] dark:text-[var(--strix-bg-dark)] rounded-[48px] py-[16px] text-[12px] uppercase tracking-[1.4px] font-bold hover:bg-[#005258] dark:hover:opacity-90 transition-colors"
+                onClick={() => {
+                  if (!subject.trim() || !description.trim()) {
+                    toast.warning("Subject and description are required.")
+                    return
+                  }
+                  if (!incidentLevel) {
+                    toast.warning("Pick an incident level.")
+                    return
+                  }
+                  // No backend ticketing endpoint exists. Open the user's
+                  // mail client with a prefilled body — at least the
+                  // request actually leaves the page.
+                  const body = encodeURIComponent(
+                    `Incident level: ${incidentLevel}\n\nSubject: ${subject}\n\nDescription:\n${description}\n\n— sent via STRIX support form`,
+                  )
+                  const subj = encodeURIComponent(`[STRIX Support] ${subject}`)
+                  if (typeof window !== "undefined") {
+                    window.location.href = `mailto:support@strix.dev?subject=${subj}&body=${body}`
+                  }
+                  toast.success("Opening your mail client with the request prefilled.")
+                  setSubject("")
+                  setDescription("")
+                  setIncidentLevel("")
+                }}
+                className="w-full bg-[#00666d] dark:bg-strix-cyan text-[#cffbff] dark:text-[var(--strix-bg-dark)] rounded-[48px] py-[16px] text-[12px] uppercase tracking-[1.4px] font-bold hover:bg-[#005258] dark:hover:opacity-90 transition-opacity"
               >
                 Transmit Request
               </button>

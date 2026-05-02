@@ -91,9 +91,10 @@ export function Sidebar() {
         })}
       </nav>
 
-      {/* Deploy Probe Button */}
+      {/* Deploy Probe Button — jumps to the live alert feed. */}
       <div className="px-3 py-3">
-        <button
+        <Link
+          href="/vigilance-feed"
           className={cn(
             "w-full flex items-center justify-center gap-2 rounded-lg py-2.5 text-xs font-semibold tracking-wide transition-all",
             "bg-strix-cyan/10 text-strix-cyan border border-strix-cyan/30 hover:bg-strix-cyan/20",
@@ -102,7 +103,7 @@ export function Sidebar() {
         >
           <Radar className="h-4 w-4" />
           {!isCollapsed && <span>ACTIVE VIGILANCE</span>}
-        </button>
+        </Link>
       </div>
 
       {/* Bottom Navigation */}

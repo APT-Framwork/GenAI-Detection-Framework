@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { cn } from "@/lib/utils"
 import {
   Server,
@@ -10,6 +10,48 @@ import {
   ChevronRight,
   Plus,
 } from "lucide-react"
+import { toast } from "@/lib/toast"
+import { randomKey } from "@/lib/download"
+
+// Persisted settings live in localStorage under this key. The page
+// hydrates from localStorage on mount and writes back on Synchronize.
+const SETTINGS_LS_KEY = "strix:settings:v1"
+
+interface PersistedSettings {
+  highVisibility: boolean
+  animateTransitions: boolean
+  compactGrid: boolean
+  density: string
+  anomalySensitivity: number
+  falsePositiveAggression: number
+  retentionDays: number
+  apiKeys: { id: string; label: string; preview: string }[]
+}
+
+const DEFAULTS: PersistedSettings = {
+  highVisibility: true,
+  animateTransitions: false,
+  compactGrid: true,
+  density: "Loose",
+  anomalySensitivity: 0.65,
+  falsePositiveAggression: 0.3,
+  retentionDays: 90,
+  apiKeys: [
+    { id: "k1", label: "st_pk_default", preview: "st_pk_••••8x2k" },
+    { id: "k2", label: "st_sk_default", preview: "st_sk_••••4m9p" },
+  ],
+}
+
+function loadSettings(): PersistedSettings {
+  if (typeof window === "undefined") return DEFAULTS
+  try {
+    const raw = window.localStorage.getItem(SETTINGS_LS_KEY)
+    if (!raw) return DEFAULTS
+    return { ...DEFAULTS, ...JSON.parse(raw) }
+  } catch {
+    return DEFAULTS
+  }
+}
 
 /* ------------------------------------------------------------------ */
 /*  Toggle                                                            */
@@ -126,16 +168,100 @@ function PillSelector({
 /* ================================================================== */
 export default function SettingsPage() {
   /* Toggles */
-  const [highVisibility, setHighVisibility] = useState(true)
-  const [animateTransitions, setAnimateTransitions] = useState(false)
-  const [compactGrid, setCompactGrid] = useState(true)
+  const [highVisibility, setHighVisibility] = useState(DEFAULTS.highVisibility)
+  const [animateTransitions, setAnimateTransitions] = useState(DEFAULTS.animateTransitions)
+  const [compactGrid, setCompactGrid] = useState(DEFAULTS.compactGrid)
 
   /* Display density */
-  const [density, setDensity] = useState("Loose")
+  const [density, setDensity] = useState(DEFAULTS.density)
 
   /* Sliders */
-  const [anomalySensitivity, setAnomalySensitivity] = useState(0.65)
-  const [falsePositiveAggression, setFalsePositiveAggression] = useState(0.3)
+  const [anomalySensitivity, setAnomalySensitivity] = useState(DEFAULTS.anomalySensitivity)
+  const [falsePositiveAggression, setFalsePositiveAggression] = useState(DEFAULTS.falsePositiveAggression)
+
+  /* Data retention + API keys */
+  const [retentionDays, setRetentionDays] = useState(DEFAULTS.retentionDays)
+  const [apiKeys, setApiKeys] = useState(DEFAULTS.apiKeys)
+  // Last-saved snapshot so "Discard Changes" restores it.
+  const savedRef = useRef<PersistedSettings>(DEFAULTS)
+
+  useEffect(() => {
+    const s = loadSettings()
+    savedRef.current = s
+    setHighVisibility(s.highVisibility)
+    setAnimateTransitions(s.animateTransitions)
+    setCompactGrid(s.compactGrid)
+    setDensity(s.density)
+    setAnomalySensitivity(s.anomalySensitivity)
+    setFalsePositiveAggression(s.falsePositiveAggression)
+    setRetentionDays(s.retentionDays)
+    setApiKeys(s.apiKeys)
+  }, [])
+
+  const onConfigureMfa = () => {
+    toast.info(
+      "MFA enrolment requires a TOTP authenticator app. Provisioning flow not enabled in this build.",
+      5000,
+    )
+  }
+
+  const onGenerateKey = () => {
+    const raw = `st_sk_${randomKey(24)}`
+    const preview = `${raw.slice(0, 6)}••••${raw.slice(-4)}`
+    setApiKeys((prev) => [...prev, { id: `k${Date.now()}`, label: raw, preview }])
+    if (typeof navigator !== "undefined" && navigator.clipboard) {
+      navigator.clipboard.writeText(raw).catch(() => undefined)
+      toast.success("New API key generated. Full key copied to clipboard — store it now, it won't be shown again.", 6000)
+    } else {
+      toast.success(`New API key generated: ${raw}`, 8000)
+    }
+  }
+
+  const onEditRetention = () => {
+    if (typeof window === "undefined") return
+    const v = window.prompt("Data retention (days):", String(retentionDays))
+    if (v == null) return
+    const n = parseInt(v, 10)
+    if (!Number.isFinite(n) || n <= 0 || n > 3650) {
+      toast.error("Retention must be a positive integer (≤ 3650 days).")
+      return
+    }
+    setRetentionDays(n)
+    toast.success(`Retention staged at ${n} days. Press Synchronize to persist.`)
+  }
+
+  const onDiscard = () => {
+    const s = savedRef.current
+    setHighVisibility(s.highVisibility)
+    setAnimateTransitions(s.animateTransitions)
+    setCompactGrid(s.compactGrid)
+    setDensity(s.density)
+    setAnomalySensitivity(s.anomalySensitivity)
+    setFalsePositiveAggression(s.falsePositiveAggression)
+    setRetentionDays(s.retentionDays)
+    setApiKeys(s.apiKeys)
+    toast.info("Pending changes discarded.")
+  }
+
+  const onSynchronize = () => {
+    const next: PersistedSettings = {
+      highVisibility,
+      animateTransitions,
+      compactGrid,
+      density,
+      anomalySensitivity,
+      falsePositiveAggression,
+      retentionDays,
+      apiKeys,
+    }
+    try {
+      window.localStorage.setItem(SETTINGS_LS_KEY, JSON.stringify(next))
+      savedRef.current = next
+      toast.success("Configuration synchronized.")
+    } catch {
+      toast.error("Failed to persist settings (localStorage unavailable).")
+    }
+  }
 
   return (
     <div className="space-y-[24px]">
@@ -182,10 +308,13 @@ export default function SettingsPage() {
                     Data Retention
                   </p>
                   <p className="text-[11px] text-[#497f8b] dark:text-[var(--strix-text-muted)]">
-                    Policy: 90 Days
+                    Policy: {retentionDays} Days
                   </p>
                 </div>
-                <button className="text-[12px] font-semibold text-[#00666d] dark:text-[#87edf6] hover:underline">
+                <button
+                  onClick={onEditRetention}
+                  className="text-[12px] font-semibold text-[#00666d] dark:text-[#87edf6] hover:underline"
+                >
                   Edit
                 </button>
               </div>
@@ -264,7 +393,10 @@ export default function SettingsPage() {
                 Biometric + TOTP verification required for all critical
                 operations. Enforces layered identity checks on every session.
               </p>
-              <button className="mt-[16px] self-start bg-[#d6f6ff] dark:bg-[rgba(0,102,109,0.2)] text-[#00666d] dark:text-[#87edf6] text-[13px] font-semibold rounded-[32px] px-[24px] py-[10px] hover:opacity-90 transition-opacity">
+              <button
+                onClick={onConfigureMfa}
+                className="mt-[16px] self-start bg-[#d6f6ff] dark:bg-[rgba(0,102,109,0.2)] text-[#00666d] dark:text-[#87edf6] text-[13px] font-semibold rounded-[32px] px-[24px] py-[10px] hover:opacity-90 transition-opacity"
+              >
                 Configure MFA
               </button>
             </div>
@@ -275,7 +407,10 @@ export default function SettingsPage() {
                 <div className="flex items-center justify-center h-[40px] w-[40px] rounded-[14px] bg-[#e7faff] dark:bg-[rgba(135,237,246,0.1)]">
                   <Key className="h-[20px] w-[20px] text-[#00666d] dark:text-[#87edf6]" />
                 </div>
-                <button className="flex items-center gap-[4px] text-[12px] font-semibold text-[#00666d] dark:text-[#87edf6] hover:underline">
+                <button
+                  onClick={onGenerateKey}
+                  className="flex items-center gap-[4px] text-[12px] font-semibold text-[#00666d] dark:text-[#87edf6] hover:underline"
+                >
                   <Plus className="h-[14px] w-[14px]" />
                   Generate
                 </button>
@@ -283,17 +418,28 @@ export default function SettingsPage() {
               <h3 className="text-[20px] font-bold text-[#00343d] dark:text-[var(--strix-text)] font-[family-name:var(--font-space-grotesk),_'Space_Grotesk',_sans-serif] mb-[16px]">
                 API Key Registry
               </h3>
-              <div className="space-y-[8px] flex-1">
-                <div className="bg-[#e7faff] dark:bg-[rgba(135,237,246,0.05)] rounded-[32px] p-[12px] px-[18px]">
-                  <span className="text-[13px] font-mono text-[#00343d] dark:text-[var(--strix-text)]">
-                    st_pk_&#8226;&#8226;&#8226;&#8226;8x2k
-                  </span>
-                </div>
-                <div className="bg-[#e7faff] dark:bg-[rgba(135,237,246,0.05)] rounded-[32px] p-[12px] px-[18px]">
-                  <span className="text-[13px] font-mono text-[#00343d] dark:text-[var(--strix-text)]">
-                    st_sk_&#8226;&#8226;&#8226;&#8226;4m9p
-                  </span>
-                </div>
+              <div className="space-y-[8px] flex-1 max-h-[140px] overflow-y-auto">
+                {apiKeys.map((k) => (
+                  <div key={k.id} className="bg-[#e7faff] dark:bg-[rgba(135,237,246,0.05)] rounded-[32px] p-[12px] px-[18px] flex items-center justify-between gap-2">
+                    <span className="text-[13px] font-mono text-[#00343d] dark:text-[var(--strix-text)] truncate">
+                      {k.preview}
+                    </span>
+                    <button
+                      onClick={() => {
+                        setApiKeys((prev) => prev.filter((p) => p.id !== k.id))
+                        toast.info("Key revoked locally — Synchronize to persist.")
+                      }}
+                      className="text-[11px] text-rose-500 hover:underline shrink-0"
+                    >
+                      revoke
+                    </button>
+                  </div>
+                ))}
+                {apiKeys.length === 0 && (
+                  <div className="text-[12px] text-[#497f8b] dark:text-[var(--strix-text-muted)] italic">
+                    No API keys yet — click Generate.
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -406,10 +552,16 @@ export default function SettingsPage() {
 
           {/* ------ Action Bar ------ */}
           <div className="flex justify-end gap-[16px]">
-            <button className="text-[14px] font-medium text-[#497f8b] dark:text-[var(--strix-text-muted)] hover:text-[#00343d] dark:hover:text-[var(--strix-text)] transition-colors">
+            <button
+              onClick={onDiscard}
+              className="text-[14px] font-medium text-[#497f8b] dark:text-[var(--strix-text-muted)] hover:text-[#00343d] dark:hover:text-[var(--strix-text)] transition-colors"
+            >
               Discard Changes
             </button>
-            <button className="bg-[#00666d] text-[#cffbff] text-[14px] font-semibold rounded-[32px] px-[40px] py-[12px] shadow hover:opacity-90 transition-opacity">
+            <button
+              onClick={onSynchronize}
+              className="bg-[#00666d] text-[#cffbff] text-[14px] font-semibold rounded-[32px] px-[40px] py-[12px] shadow hover:opacity-90 transition-opacity"
+            >
               Synchronize Configuration
             </button>
           </div>

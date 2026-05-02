@@ -1,14 +1,14 @@
 "use client"
 
-import { useMemo } from "react"
+import { useMemo, useState } from "react"
 import { cn } from "@/lib/utils"
 import { useTopology } from "@/lib/api/topology"
+import { useLiveFeed } from "@/lib/api/live-feed"
+import { downloadJson } from "@/lib/download"
+import { toast } from "@/lib/toast"
 import {
   RefreshCw,
   Download,
-  Plus,
-  Minus,
-  Maximize2,
   Activity,
   Shield,
   Timer,
@@ -20,16 +20,6 @@ import {
   Monitor,
   Loader2,
 } from "lucide-react"
-
-/* ── Inline mock data for this Figma-matched layout ─────────── */
-
-const logEntries = [
-  { time: "14:22:03", type: "PING", message: "10.0.14.22 SUCCESS", alert: false },
-  { time: "14:22:04", type: "INGRESS", message: "4.2 MB encrypted packet", alert: false },
-  { time: "14:22:09", type: "ALERT", message: "Unauthorized SSH attempt", alert: true },
-  { time: "14:22:12", type: "PROCESS", message: "Kernel-Init ID:4490", alert: false },
-  { time: "14:22:15", type: "_", message: "listening for inbound signals...", alert: false },
-]
 
 /* ── SVG Network Graph Nodes ───────────────────────────────── */
 
@@ -75,6 +65,8 @@ function NodeIcon({ type, size }: { type: GraphNode["icon"]; size: number }) {
 
 export default function TopologyPage() {
   const topology = useTopology("24h")
+  const liveFeed = useLiveFeed({ maxEvents: 200 })
+  const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null)
 
   // Derive SVG GraphNode/GraphEdge from the API. Lay nodes out on a circle
   // around the canvas centre — deterministic, no dependence on a layout lib.
@@ -108,6 +100,52 @@ export default function TopologyPage() {
     }
   }, [topology.data])
 
+  // Real selected-node detail. If nothing's clicked, show the first
+  // compromised host (or the first host overall).
+  const apiNodes = topology.data?.nodes ?? []
+  const selectedNode = useMemo(() => {
+    if (selectedNodeId) {
+      return apiNodes.find((n) => n.id === selectedNodeId) ?? null
+    }
+    const compromised = apiNodes.find((n) => n.status === "compromised")
+    return compromised ?? apiNodes[0] ?? null
+  }, [apiNodes, selectedNodeId])
+
+  // Real network vitals derived from the topology + live feed.
+  const totalHosts = apiNodes.length
+  const healthyHosts = apiNodes.filter((n) => n.status === "healthy").length
+  const compromisedHosts = apiNodes.filter((n) => n.status === "compromised").length
+  const trafficPerMin = useMemo(() => {
+    const cutoff = Date.now() - 60_000
+    return liveFeed.events.filter((e) => {
+      const t = Date.parse(e.data.occurredAt)
+      return Number.isFinite(t) && t >= cutoff
+    }).length
+  }, [liveFeed.events])
+  const threatPressure: { label: string; pct: number; color: string } = useMemo(() => {
+    if (totalHosts === 0) return { label: "Idle", pct: 0, color: "#497f8b" }
+    const ratio = compromisedHosts / totalHosts
+    if (ratio === 0) return { label: "Low", pct: 8, color: "#10B981" }
+    if (ratio < 0.2) return { label: "Moderate", pct: 40, color: "#F59E0B" }
+    if (ratio < 0.5) return { label: "Elevated", pct: 70, color: "#EA580C" }
+    return { label: "Critical", pct: 95, color: "#b31b25" }
+  }, [totalHosts, compromisedHosts])
+  const segmentHealthPct = totalHosts === 0 ? 100 : Math.round((healthyHosts / totalHosts) * 1000) / 10
+  const segmentHealthLabel = segmentHealthPct >= 95 ? "OPTIMAL" : segmentHealthPct >= 80 ? "DEGRADED" : "CRITICAL"
+
+  // "Last re-scan" — when the topology query last returned. Formatted
+  // as relative time, refreshes when query refetches.
+  const lastRescanLabel = useMemo(() => {
+    const t = topology.dataUpdatedAt
+    if (!t) return "—"
+    const secs = Math.max(0, Math.round((Date.now() - t) / 1000))
+    if (secs < 60) return `${secs}s ago`
+    if (secs < 3600) return `${Math.floor(secs / 60)}m ${String(secs % 60).padStart(2, "0")}s ago`
+    return `${Math.floor(secs / 3600)}h ago`
+  // include `liveFeed.events.length` so the label re-renders periodically
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [topology.dataUpdatedAt, liveFeed.events.length])
+
   return (
     <div className="space-y-6">
       {/* ── Header ────────────────────────────────────────── */}
@@ -121,11 +159,29 @@ export default function TopologyPage() {
           </p>
         </div>
         <div className="flex items-center gap-3 shrink-0">
-          <button className="flex items-center gap-2 bg-[#00666d] text-[#cffbff] rounded-[9999px] px-[24px] py-[10px] text-[13px] font-semibold uppercase tracking-wider hover:bg-[#005a60] transition-colors">
-            <RefreshCw className="h-4 w-4" />
+          <button
+            onClick={() => {
+              topology.refetch()
+              toast.info("Re-scanning topology…")
+            }}
+            disabled={topology.isFetching}
+            className="flex items-center gap-2 bg-[#00666d] text-[#cffbff] rounded-[9999px] px-[24px] py-[10px] text-[13px] font-semibold uppercase tracking-wider hover:bg-[#005a60] transition-colors disabled:opacity-60"
+          >
+            <RefreshCw className={cn("h-4 w-4", topology.isFetching && "animate-spin")} />
             Re-Scan Topology
           </button>
-          <button className="flex items-center gap-2 rounded-[9999px] px-[24px] py-[10px] text-[13px] font-semibold uppercase tracking-wider border border-[rgba(128,182,195,0.3)] text-[#00343d] dark:text-[var(--strix-text)] dark:border-[var(--strix-border)] hover:bg-[#d6f6ff]/50 dark:hover:bg-[var(--strix-bg-surface)] transition-colors">
+          <button
+            onClick={() => {
+              if (!topology.data) {
+                toast.warning("No topology data to export yet.")
+                return
+              }
+              const stamp = new Date().toISOString().replace(/[:.]/g, "-")
+              downloadJson(`strix-topology-${stamp}.json`, topology.data)
+              toast.success("Topology snapshot exported.")
+            }}
+            className="flex items-center gap-2 rounded-[9999px] px-[24px] py-[10px] text-[13px] font-semibold uppercase tracking-wider border border-[rgba(128,182,195,0.3)] text-[#00343d] dark:text-[var(--strix-text)] dark:border-[var(--strix-border)] hover:bg-[#d6f6ff]/50 dark:hover:bg-[var(--strix-bg-surface)] transition-colors"
+          >
             <Download className="h-4 w-4" />
             Export Map
           </button>
@@ -136,22 +192,20 @@ export default function TopologyPage() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
         {/* ── Left: Network Graph (col 1-8) ───────────────── */}
         <div className="lg:col-span-8 bg-white dark:bg-[var(--strix-bg-card)] border border-[rgba(128,182,195,0.15)] dark:border-[var(--strix-border)] rounded-[48px] p-6 relative overflow-hidden">
-          {/* Zoom Controls */}
-          <div className="absolute top-8 left-8 z-10 flex flex-col gap-1">
-            {[
-              { icon: Plus, label: "Zoom in" },
-              { icon: Minus, label: "Zoom out" },
-              { icon: Maximize2, label: "Expand" },
-            ].map(({ icon: Icon, label }) => (
-              <button
-                key={label}
-                aria-label={label}
-                className="w-9 h-9 flex items-center justify-center rounded-[12px] bg-white/80 dark:bg-[var(--strix-bg-surface)] border border-[rgba(128,182,195,0.15)] dark:border-[var(--strix-border)] text-[#00343d] dark:text-[var(--strix-text)] hover:bg-[#d6f6ff] dark:hover:bg-[var(--strix-bg-card)] transition-colors"
-              >
-                <Icon className="h-4 w-4" />
-              </button>
-            ))}
+          {/* Hint label — replaces the previous dead zoom controls. */}
+          <div className="absolute top-8 left-8 z-10 px-3 py-1.5 rounded-full bg-white/80 dark:bg-[var(--strix-bg-surface)]/80 backdrop-blur border border-[rgba(128,182,195,0.15)] dark:border-[var(--strix-border)] text-[10px] text-[#497f8b] dark:text-[var(--strix-text-muted)] uppercase tracking-wider font-medium">
+            click a node for details · {totalHosts} hosts
           </div>
+          {topology.isLoading && !topology.data && (
+            <div className="absolute inset-0 flex items-center justify-center z-20 bg-white/70 dark:bg-[var(--strix-bg-card)]/70 backdrop-blur-sm">
+              <Loader2 className="h-5 w-5 animate-spin text-[#00666d] dark:text-[#87edf6]" />
+            </div>
+          )}
+          {!topology.isLoading && totalHosts === 0 && (
+            <div className="absolute inset-0 flex items-center justify-center z-10 text-[12px] text-[#497f8b] dark:text-[var(--strix-text-muted)] italic">
+              No topology yet — start a simulation or wait for the first agent check-in.
+            </div>
+          )}
 
           {/* SVG Graph */}
           <svg
@@ -218,7 +272,11 @@ export default function TopologyPage() {
               const cy = node.y + r
 
               return (
-                <g key={node.id} className="cursor-pointer">
+                <g
+                  key={node.id}
+                  className="cursor-pointer"
+                  onClick={() => setSelectedNodeId(node.id)}
+                >
                   {/* Outer ring / bg */}
                   <circle
                     cx={cx}
@@ -279,12 +337,19 @@ export default function TopologyPage() {
             })}
           </svg>
 
-          {/* Segment Health badge */}
-          <div className="absolute bottom-8 left-8 flex items-center gap-2 bg-white/90 dark:bg-[var(--strix-bg-surface)]/90 backdrop-blur-sm rounded-[9999px] px-4 py-2 border border-[rgba(128,182,195,0.15)] dark:border-[var(--strix-border)]">
-            <div className="h-2.5 w-2.5 rounded-full bg-emerald-500 animate-pulse" />
-            <span className="text-[10px] text-[#497f8b] dark:text-[var(--strix-text-muted)] uppercase tracking-wider font-medium">Segment Health</span>
-            <span className="text-[11px] text-[#00343d] dark:text-[var(--strix-text)] font-bold">OPTIMAL (99.9%)</span>
-          </div>
+          {/* Segment Health badge — derived from healthy / total hosts. */}
+          {totalHosts > 0 && (
+            <div className="absolute bottom-8 left-8 flex items-center gap-2 bg-white/90 dark:bg-[var(--strix-bg-surface)]/90 backdrop-blur-sm rounded-[9999px] px-4 py-2 border border-[rgba(128,182,195,0.15)] dark:border-[var(--strix-border)]">
+              <div className={cn(
+                "h-2.5 w-2.5 rounded-full animate-pulse",
+                segmentHealthLabel === "OPTIMAL" ? "bg-emerald-500" : segmentHealthLabel === "DEGRADED" ? "bg-amber-500" : "bg-rose-500",
+              )} />
+              <span className="text-[10px] text-[#497f8b] dark:text-[var(--strix-text-muted)] uppercase tracking-wider font-medium">Segment Health</span>
+              <span className="text-[11px] text-[#00343d] dark:text-[var(--strix-text)] font-bold">
+                {segmentHealthLabel} ({segmentHealthPct.toFixed(1)}%)
+              </span>
+            </div>
+          )}
         </div>
 
         {/* ── Right Column (col 9-12) ─────────────────────── */}
@@ -302,149 +367,184 @@ export default function TopologyPage() {
             </p>
 
             <div className="space-y-5">
-              {/* Traffic Volume */}
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-[10px] text-[#497f8b] dark:text-[var(--strix-text-muted)] uppercase tracking-wider font-medium">
-                    Traffic Volume
-                  </span>
-                  <span className="text-[14px] font-bold text-[#00666d] dark:text-[#87edf6]">
-                    1.4 GB/S
-                  </span>
-                </div>
-                <div className="h-2 rounded-full bg-[rgba(128,182,195,0.12)] dark:bg-[var(--strix-border)] overflow-hidden">
-                  <div className="h-full w-[72%] rounded-full bg-[#00666d] dark:bg-[#87edf6]" />
-                </div>
-              </div>
+              {/* Traffic — events/min over the SSE feed. */}
+              <Vital
+                label="Traffic"
+                value={`${trafficPerMin}/min`}
+                pct={Math.min(100, trafficPerMin * 2)}
+                color="#00666d"
+              />
 
-              {/* Active Sentinels */}
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-[10px] text-[#497f8b] dark:text-[var(--strix-text-muted)] uppercase tracking-wider font-medium">
-                    Active Sentinels
-                  </span>
-                  <span className="text-[14px] font-bold text-[#00666d] dark:text-[#87edf6]">
-                    42 / 48
-                  </span>
-                </div>
-                <div className="h-2 rounded-full bg-[rgba(128,182,195,0.12)] dark:bg-[var(--strix-border)] overflow-hidden">
-                  <div className="h-full w-[87.5%] rounded-full bg-[#00666d] dark:bg-[#87edf6]" />
-                </div>
-              </div>
+              {/* Active Sentinels — healthy hosts vs total. */}
+              <Vital
+                label="Active Sentinels"
+                value={totalHosts > 0 ? `${healthyHosts} / ${totalHosts}` : "—"}
+                pct={totalHosts === 0 ? 0 : (healthyHosts / totalHosts) * 100}
+                color="#00666d"
+              />
 
-              {/* Threat Pressure */}
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-[10px] text-[#497f8b] dark:text-[var(--strix-text-muted)] uppercase tracking-wider font-medium">
-                    Threat Pressure
-                  </span>
-                  <span className="text-[14px] font-bold text-[#b31b25]">
-                    Moderate
-                  </span>
-                </div>
-                <div className="h-2 rounded-full bg-[rgba(128,182,195,0.12)] dark:bg-[var(--strix-border)] overflow-hidden">
-                  <div className="h-full w-[40%] rounded-full bg-[#b31b25]" />
-                </div>
-              </div>
+              {/* Threat Pressure — derived from compromised count. */}
+              <Vital
+                label="Threat Pressure"
+                value={threatPressure.label}
+                pct={threatPressure.pct}
+                color={threatPressure.color}
+              />
             </div>
           </div>
 
-          {/* ── Node Details Card ───────────────────────────── */}
-          <div className="bg-[#d6f6ff] dark:bg-[var(--strix-bg-surface)] rounded-[48px] p-[24px] border-l-4 border-l-[#00666d] dark:border-l-[#87edf6] relative overflow-hidden">
-            <h3 className="text-[14px] font-bold text-[#00343d] dark:text-[var(--strix-text)] uppercase tracking-wide mb-4 font-[family-name:var(--font-space-grotesk)]">
-              NODE_B4-22_DEV
-            </h3>
+          {/* ── Node Details Card — driven by selectedNode. */}
+          <div className={cn(
+            "bg-[#d6f6ff] dark:bg-[var(--strix-bg-surface)] rounded-[48px] p-[24px] border-l-4 relative overflow-hidden",
+            selectedNode?.status === "compromised"
+              ? "border-l-[#b31b25]"
+              : selectedNode?.status === "warning"
+              ? "border-l-amber-500"
+              : "border-l-[#00666d] dark:border-l-[#87edf6]",
+          )}>
+            {!selectedNode ? (
+              <p className="text-[12px] text-[#497f8b] dark:text-[var(--strix-text-muted)] italic">
+                Click a node in the graph to see its details.
+              </p>
+            ) : (
+              <>
+                <div className="flex items-center justify-between gap-2 mb-1">
+                  <h3 className="text-[14px] font-bold text-[#00343d] dark:text-[var(--strix-text)] uppercase tracking-wide font-[family-name:var(--font-space-grotesk)] truncate">
+                    {selectedNode.label}
+                  </h3>
+                  {selectedNodeId && (
+                    <button
+                      onClick={() => setSelectedNodeId(null)}
+                      className="text-[9px] uppercase tracking-wider text-[#497f8b] dark:text-[var(--strix-text-muted)] hover:underline shrink-0"
+                    >
+                      clear
+                    </button>
+                  )}
+                </div>
+                <p className="text-[10px] text-[#497f8b] dark:text-[var(--strix-text-muted)] font-mono mb-4">
+                  id {selectedNode.id.length > 18 ? selectedNode.id.slice(0, 18) + "…" : selectedNode.id}
+                </p>
 
-            {/* Info Boxes */}
-            <div className="grid grid-cols-2 gap-3 mb-5">
-              <div className="bg-white/60 dark:bg-[var(--strix-bg-card)]/60 rounded-[16px] px-3 py-2.5">
-                <span className="text-[9px] text-[#497f8b] dark:text-[var(--strix-text-muted)] uppercase tracking-wider block mb-0.5">
-                  IP Address
-                </span>
-                <span className="text-[13px] font-bold text-[#00343d] dark:text-[var(--strix-text)] font-mono">
-                  10.0.14.22
-                </span>
-              </div>
-              <div className="bg-white/60 dark:bg-[var(--strix-bg-card)]/60 rounded-[16px] px-3 py-2.5">
-                <span className="text-[9px] text-[#497f8b] dark:text-[var(--strix-text-muted)] uppercase tracking-wider block mb-0.5">
-                  Status
-                </span>
-                <span className="text-[13px] font-bold text-[#b31b25] uppercase">
-                  Unsecured
-                </span>
-              </div>
-            </div>
+                <div className="grid grid-cols-2 gap-3 mb-3">
+                  <Info label="IP Address" value={selectedNode.ip ?? "—"} mono />
+                  <Info
+                    label="Status"
+                    value={selectedNode.status.toUpperCase()}
+                    valueClass={
+                      selectedNode.status === "compromised"
+                        ? "text-[#b31b25]"
+                        : selectedNode.status === "warning"
+                        ? "text-amber-600 dark:text-amber-400"
+                        : "text-emerald-600 dark:text-emerald-400"
+                    }
+                  />
+                  <Info label="Type" value={selectedNode.type} />
+                  <Info
+                    label="Open Chains"
+                    value={String(selectedNode.openChains)}
+                    valueClass={selectedNode.openChains > 0 ? "text-amber-600 dark:text-amber-400" : ""}
+                  />
+                </div>
 
-            {/* Live Log Stream */}
-            <div>
-              <div className="flex items-center gap-1.5 mb-2">
-                <div className="h-2 w-2 rounded-full bg-[#b31b25] animate-pulse" />
-                <span className="text-[9px] text-[#497f8b] dark:text-[var(--strix-text-muted)] uppercase tracking-wider font-medium">
-                  Live Log Stream
-                </span>
-              </div>
-              <div className="bg-[#00343d] dark:bg-[#0a1a1f] rounded-[20px] p-4 space-y-1 font-mono text-[11px] leading-[1.7] overflow-hidden">
-                {logEntries.map((entry, i) => (
-                  <div
-                    key={i}
-                    className={cn(
-                      entry.alert
-                        ? "text-[#ff6b6b]"
-                        : entry.type === "_"
-                        ? "text-[#497f8b]"
-                        : "text-[#87edf6]"
-                    )}
-                  >
-                    <span className="text-[#497f8b]">[{entry.time}]</span>{" "}
-                    {entry.type === "_" ? (
-                      <span className="italic">_{entry.message}</span>
-                    ) : (
-                      <>
-                        <span className={entry.alert ? "text-[#ff6b6b] font-semibold" : "text-[#9ae9fc]"}>
-                          {entry.type}:
-                        </span>{" "}
-                        {entry.message}
-                      </>
-                    )}
+                {selectedNode.maxCkcStage > 0 && (
+                  <div className="bg-white/60 dark:bg-[var(--strix-bg-card)]/60 rounded-[16px] px-3 py-2.5 mb-3">
+                    <span className="text-[9px] text-[#497f8b] dark:text-[var(--strix-text-muted)] uppercase tracking-wider block mb-0.5">
+                      Max CKC Stage Observed (24 h)
+                    </span>
+                    <span className="text-[13px] font-bold text-[#00343d] dark:text-[var(--strix-text)]">
+                      {selectedNode.maxCkcStage} / 7
+                    </span>
                   </div>
-                ))}
-              </div>
-            </div>
+                )}
+
+                <a
+                  href={`/threat-intel?q=${encodeURIComponent(selectedNode.label)}`}
+                  className="inline-block text-[11px] text-[#00666d] dark:text-[#87edf6] hover:underline font-semibold"
+                >
+                  Investigate in Threat Intel →
+                </a>
+              </>
+            )}
           </div>
         </div>
       </div>
 
-      {/* ── Bottom Status Bar ─────────────────────────────── */}
-      <div className="relative">
-        <div className="bg-white dark:bg-[var(--strix-bg-card)] border border-[rgba(128,182,195,0.15)] dark:border-[var(--strix-border)] rounded-[48px] px-[24px] py-[16px]">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            {[
-              { icon: Shield, label: "ENCRYPTION STATUS", value: "Quantum-Grade Active" },
-              { icon: Timer, label: "NETWORK LATENCY", value: "1.2ms Global Avg" },
-              { icon: Sparkles, label: "AI ORCHESTRATION", value: "Autonomous Level 4" },
-              { icon: Clock, label: "LAST RE-SCAN", value: "02m 45s ago" },
-            ].map(({ icon: Icon, label, value }) => (
-              <div key={label} className="flex items-center gap-3">
-                <div className="h-9 w-9 rounded-full bg-[#d6f6ff] dark:bg-[rgba(135,237,246,0.08)] flex items-center justify-center shrink-0">
-                  <Icon className="h-4 w-4 text-[#00666d] dark:text-[#87edf6]" />
-                </div>
-                <div className="min-w-0">
-                  <span className="text-[9px] text-[#497f8b] dark:text-[var(--strix-text-muted)] uppercase tracking-wider block">
-                    {label}
-                  </span>
-                  <span className="text-[12px] font-bold text-[#00343d] dark:text-[var(--strix-text)] truncate block">
-                    {value}
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
+      {/* ── Bottom Status Bar — values derived from real signals. */}
+      <div className="bg-white dark:bg-[var(--strix-bg-card)] border border-[rgba(128,182,195,0.15)] dark:border-[var(--strix-border)] rounded-[48px] px-[24px] py-[16px]">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <StatusItem
+            icon={Shield}
+            label="Transport"
+            value="HTTPS · WSS"
+          />
+          <StatusItem
+            icon={Timer}
+            label="Live Feed"
+            value={liveFeed.status}
+          />
+          <StatusItem
+            icon={Sparkles}
+            label="DQN Policy"
+            value="active · gated"
+          />
+          <StatusItem
+            icon={Clock}
+            label="Last Re-Scan"
+            value={lastRescanLabel}
+          />
         </div>
+      </div>
+    </div>
+  )
+}
 
-        {/* FAB Button */}
-        <button className="absolute -bottom-3 right-6 h-[48px] w-[48px] bg-[#00666d] hover:bg-[#005a60] text-white rounded-full flex items-center justify-center shadow-lg transition-colors">
-          <Plus className="h-5 w-5" />
-        </button>
+function Vital({ label, value, pct, color }: { label: string; value: string; pct: number; color: string }) {
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-2">
+        <span className="text-[10px] text-[#497f8b] dark:text-[var(--strix-text-muted)] uppercase tracking-wider font-medium">
+          {label}
+        </span>
+        <span className="text-[14px] font-bold" style={{ color }}>
+          {value}
+        </span>
+      </div>
+      <div className="h-2 rounded-full bg-[rgba(128,182,195,0.12)] dark:bg-[var(--strix-border)] overflow-hidden">
+        <div
+          className="h-full rounded-full transition-all duration-300"
+          style={{ width: `${Math.max(0, Math.min(100, pct))}%`, background: color }}
+        />
+      </div>
+    </div>
+  )
+}
+
+function Info({ label, value, mono = false, valueClass = "" }: { label: string; value: string; mono?: boolean; valueClass?: string }) {
+  return (
+    <div className="bg-white/60 dark:bg-[var(--strix-bg-card)]/60 rounded-[16px] px-3 py-2.5">
+      <span className="text-[9px] text-[#497f8b] dark:text-[var(--strix-text-muted)] uppercase tracking-wider block mb-0.5">
+        {label}
+      </span>
+      <span className={cn("text-[13px] font-bold text-[#00343d] dark:text-[var(--strix-text)]", mono && "font-mono", valueClass)}>
+        {value}
+      </span>
+    </div>
+  )
+}
+
+function StatusItem({ icon: Icon, label, value }: { icon: typeof Shield; label: string; value: string }) {
+  return (
+    <div className="flex items-center gap-3">
+      <div className="h-9 w-9 rounded-full bg-[#d6f6ff] dark:bg-[rgba(135,237,246,0.08)] flex items-center justify-center shrink-0">
+        <Icon className="h-4 w-4 text-[#00666d] dark:text-[#87edf6]" />
+      </div>
+      <div className="min-w-0">
+        <span className="text-[9px] text-[#497f8b] dark:text-[var(--strix-text-muted)] uppercase tracking-wider block">
+          {label}
+        </span>
+        <span className="text-[12px] font-bold text-[#00343d] dark:text-[var(--strix-text)] truncate block">
+          {value}
+        </span>
       </div>
     </div>
   )

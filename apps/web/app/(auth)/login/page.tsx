@@ -7,6 +7,7 @@ import { Shield, Eye, EyeOff, Loader2 } from "lucide-react"
 
 import { useLogin } from "@/lib/api/auth"
 import { StrixApiError } from "@/lib/api/client"
+import { toast } from "@/lib/toast"
 
 export default function LoginPage() {
   const router = useRouter()
@@ -121,6 +122,17 @@ export default function LoginPage() {
           </label>
           <button
             type="button"
+            onClick={() => {
+              const e = email.trim()
+              if (!e) {
+                toast.warning("Enter your operator email above first.")
+                return
+              }
+              toast.info(
+                `If an account exists for ${e}, a reset link will be dispatched. (Reset flow not enabled in this build.)`,
+                6000,
+              )
+            }}
             className="text-xs text-strix-primary dark:text-strix-cyan hover:underline"
           >
             Reset access key

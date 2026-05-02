@@ -226,3 +226,10 @@ apps/mobile/node_modules
 apps/data
 
 RL_agent
+
+# Local debug artefacts
+.playwright-mcp/
+.vscode/mcp.json
+*.png
+docs/conversations/
+infra/simulation/runs/

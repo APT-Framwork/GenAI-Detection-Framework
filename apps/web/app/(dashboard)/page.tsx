@@ -1,285 +1,149 @@
-"use client"
+// -----------------------------------------------------------------------------
+// Dashboard page — Phase 9 final layout.
+//
+// Rows (min-width 1280):
+//   * Header: simulation run header (run_id, attacker_ip, started_at).
+//     The connection status pill lives in apps/web/components/layout/topbar.tsx.
+//   * Two-column grid:
+//       left  → SimulationTopologyPanel + RlKillChain
+//       right → GraphEvolution (live) + DetectionQualityPanel
+//   * Full-width: ForensicLogViewer (live tail).
+//
+// All ring buffers are bounded (ws.ts default cap 500; per-panel internal caps
+// in their respective files). useEffect cleanups, intervals are cleared on
+// unmount. No new wall-clock timers added at this layer.
+// -----------------------------------------------------------------------------
 
-import { useMemo } from "react"
+"use client";
 
-import { AttackVectorChart } from "@/components/charts/attack-vector-chart"
-import { CircularProgress } from "@/components/charts/circular-progress"
-import { LiveAlertCard } from "@/components/feed/live-alert-card"
-import { VictimGraph } from "@/components/dashboard/VictimGraph"
-import {
-  useAttackVector,
-  useGlobalRisk,
-  useSentinelInsight,
-  useRefreshSentinelInsight,
-} from "@/lib/api/hooks"
-import { useLiveFeed, type LiveFeedEvent } from "@/lib/api/live-feed"
-import { useChainList } from "@/lib/api/analysis"
-import {
-  ShieldAlert,
-  Server,
-  Link2,
-  Zap,
-  Brain,
-  Loader2,
-  AlertTriangle,
-} from "lucide-react"
-
-// Project a LiveFeedEvent into the shape `LiveAlertCard` expects.
-// LiveAlertCard's existing prop type lives in apps/web/types — we keep
-// this projector tiny + adaptive so a future card-component refactor
-// doesn't require backend changes.
-function liveEventToAlertProp(e: LiveFeedEvent) {
-  return {
-    id: e.alertId,
-    timestamp: e.occurredAt,
-    title: e.dqnActionName ? `[${e.dqnActionName}] ${e.ckcStageName}` : e.ckcStageName,
-    description: e.mitreTechniques.length
-      ? `MITRE ${e.mitreTechniques.join(", ")}`
-      : `Agent ${e.agentId ?? "unknown"}`,
-    severity: severityFromCkc(e.ckcStage),
-    source: e.agentId ?? "unknown",
-    mitreTactics: e.mitreTechniques,
-    impact: e.dqnActionName ?? "MONITOR",
-  }
-}
-
-function severityFromCkc(stage: number): "critical" | "high" | "medium" | "low" | "info" {
-  if (stage >= 6) return "critical"
-  if (stage >= 4) return "high"
-  if (stage >= 2) return "medium"
-  if (stage >= 1) return "low"
-  return "info"
-}
-
-const kpiIcons = [ShieldAlert, Server, Link2, Zap]
+import { SimulationTopologyPanel } from "@/components/topology/simulation-topology-panel";
+import { GraphEvolution } from "@/components/charts/graph-evolution";
+import { ForensicLogViewer } from "@/components/charts/forensic-log-viewer";
+import { AptAttackTimeline } from "@/components/charts/apt-attack-timeline";
+import { RlKillChain } from "@/components/charts/rl-kill-chain";
+import { DetectionQualityPanel } from "@/components/charts/detection-quality-panel";
+import { PredetectionReceipt } from "@/components/charts/predetection-receipt";
+import { useLatestSimulationRun } from "@/lib/api/simulation";
 
 export default function DashboardPage() {
-  const attackVector = useAttackVector("24h")
-  const globalRisk = useGlobalRisk("24h")
-  const sentinel = useSentinelInsight()
-  const refreshSentinel = useRefreshSentinelInsight()
-  const liveFeed = useLiveFeed({ maxEvents: 8 })
-  const chains = useChainList({ onlyOpen: true, limit: 1 })
-
-  // Derived KPIs from live aggregates (zero is a valid value — no mock fallback).
-  const kpis = useMemo(() => {
-    const totalAlerts = attackVector.data?.totalAlerts ?? 0
-    const openChains = chains.data?.openCount ?? 0
-    const globalRiskPct = Math.round((globalRisk.data?.globalRisk ?? 0) * 100)
-    return [
-      { label: "Alerts (24h)", value: totalAlerts.toString(), unit: "" },
-      { label: "Active chains", value: openChains.toString(), unit: "" },
-      { label: "Global risk", value: globalRiskPct.toString(), unit: "%" },
-      { label: "SSE", value: liveFeed.status, unit: "" },
-    ]
-  }, [attackVector.data, chains.data, globalRisk.data, liveFeed.status])
-
-  const lastUpdated = attackVector.dataUpdatedAt
-    ? new Date(attackVector.dataUpdatedAt).toLocaleTimeString()
-    : "—"
-
-  // Project the 8 CKC stages onto the donut. We skip BENIGN (0) — the donut
-  // is meant to show the *attack* mix — and zero-out empty stages so the
-  // colours render in the right order.
-  const attackVectorChartData = useMemo(() => {
-    const stages = attackVector.data?.stages ?? []
-    const palette: Record<number, { label: string; color: string }> = {
-      1: { label: "Reconnaissance", color: "#0D9488" },
-      2: { label: "Weaponization", color: "#006B94" },
-      3: { label: "Delivery", color: "#F59E0B" },
-      4: { label: "Exploitation", color: "#EF4444" },
-      5: { label: "Installation", color: "#8A2BE2" },
-      6: { label: "Command & Control", color: "#FB923C" },
-      7: { label: "Actions on Objectives", color: "#DC2626" },
-    }
-    return stages
-      .filter((s) => s.ckcStage > 0 && s.count > 0)
-      .map((s) => ({
-        label: palette[s.ckcStage]?.label ?? s.ckcName,
-        value: s.count,
-        color: palette[s.ckcStage]?.color ?? "#94a3b8",
-      }))
-  }, [attackVector.data])
+  const latest = useLatestSimulationRun();
+  const t = latest.data?.topology;
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-start justify-between">
-        <div>
-          <p className="text-[10px] text-[#00666d] dark:text-strix-cyan uppercase tracking-[1.2px] font-bold mb-1">
-            LIVE SENTINEL
-          </p>
-          <h1 className="text-[36px] font-bold text-[#00343d] dark:text-[var(--strix-text)] tracking-[-0.9px] leading-tight font-[family-name:var(--font-space-grotesk)]">
-            Attack Timeline
-          </h1>
-        </div>
-        <div className="flex items-center gap-3">
-          <span className="text-[10px] text-[#497f8b] dark:text-[var(--strix-text-muted)] uppercase tracking-[0.5px]">
-            Last updated: {lastUpdated}
-          </span>
-          <div
-            className={`h-2 w-2 rounded-full animate-pulse ${
-              liveFeed.status === "open" ? "bg-emerald-500" : "bg-amber-500"
-            }`}
-          />
-        </div>
-      </div>
-
-      {/* Victim Graph (replaces KillChainTimeline per §11.1) */}
-      <div className="bg-white dark:bg-[var(--strix-bg-card)] border border-[rgba(128,182,195,0.15)] dark:border-[var(--strix-border)] rounded-[48px] p-8">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-[12px] font-bold text-[#00343d] dark:text-[var(--strix-text)] uppercase tracking-[1.2px]">
-            Connected Victims
-          </h3>
-          <span className="text-[10px] text-[#497f8b] dark:text-[var(--strix-text-muted)] uppercase tracking-[0.5px]">
-            Window: 1 h
-          </span>
-        </div>
-        <VictimGraph window="1h" />
-      </div>
-
-      {/* Middle Row: Attack Vector + Threat Intensity + AI Insight */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-        {/* Attack Vector */}
-        <div className="lg:col-span-4 bg-white dark:bg-[var(--strix-bg-card)] border border-[rgba(128,182,195,0.15)] dark:border-[var(--strix-border)] rounded-[48px] p-6">
-          <AttackVectorChart data={attackVectorChartData} />
-        </div>
-
-        {/* Threat Intensity */}
-        <div className="lg:col-span-3 bg-white dark:bg-[var(--strix-bg-card)] border border-[rgba(128,182,195,0.15)] dark:border-[var(--strix-border)] rounded-[48px] p-6 flex flex-col items-center">
-          <h3 className="text-[12px] font-bold text-[#00343d] dark:text-[var(--strix-text)] uppercase tracking-[1.2px] mb-4 self-start">
-            Threat Intensity
-          </h3>
-          <CircularProgress
-            value={Math.round((globalRisk.data?.globalRisk ?? 0) * 100)}
-            size={150}
-            strokeWidth={10}
-            color="#00666d"
-          />
-          <p className="text-[14px] text-[#497f8b] dark:text-[var(--strix-text-muted)] mt-4 text-center leading-relaxed">
-            Δ1h:{" "}
-            <span className="font-bold text-[#00343d] dark:text-[var(--strix-text)]">
-              {globalRisk.data
-                ? `${(globalRisk.data.delta1H * 100).toFixed(1)}%`
-                : "—"}
-            </span>{" "}
-            · components from VAE / GNN / anomaly-rate.
-          </p>
-        </div>
-
-        {/* AI Sentinel Insight */}
-        <div className="lg:col-span-5 bg-white dark:bg-[var(--strix-bg-card)] border border-[rgba(128,182,195,0.15)] dark:border-[var(--strix-border)] rounded-[48px] p-6 flex flex-col">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
-              <Brain className="h-4 w-4 text-[#00666d] dark:text-strix-cyan" />
-              <h3 className="text-[12px] font-bold text-[#00343d] dark:text-[var(--strix-text)] uppercase tracking-[1.2px]">
-                AI Sentinel Insight
-              </h3>
-              {sentinel.data?.stale && (
-                <span className="flex items-center gap-1 text-[9px] uppercase tracking-[0.5px] text-amber-600 dark:text-amber-400">
-                  <AlertTriangle className="h-3 w-3" /> stale
-                </span>
-              )}
-            </div>
-            <span className="text-[9px] text-[#497f8b] dark:text-[var(--strix-text-muted)] uppercase tracking-[0.5px]">
-              {sentinel.data?.modelVersion ?? "—"}
-            </span>
+    // Outer flex so the rail-variant of the predetection receipt can sit
+    // sticky to the right of the main column. The main column keeps the
+    // existing 1280-min-width grid; the rail is fixed-width 300px.
+    <div className="min-w-[1280px] flex gap-4">
+      <div className="flex-1 space-y-4">
+        {/* Header — sim run banner. Connection status sits in the global topbar. */}
+        <div className="flex items-center justify-between bg-white dark:bg-[var(--strix-bg-card)] border border-[rgba(128,182,195,0.15)] dark:border-[var(--strix-border)] rounded-2xl px-5 py-3">
+          <div>
+            <p className="text-[10px] text-[#00666d] dark:text-strix-cyan uppercase tracking-[1.2px] font-bold mb-1">
+              LIVE SENTINEL
+            </p>
+            <h1 className="text-[24px] font-bold text-[#00343d] dark:text-[var(--strix-text)] tracking-tight font-[family-name:var(--font-space-grotesk)]">
+              Attack Timeline
+            </h1>
           </div>
-          <div className="bg-[#d6f6ff] dark:bg-[var(--strix-bg-surface)] rounded-[32px] p-5 flex-1">
-            {sentinel.isLoading ? (
-              <div className="flex h-24 items-center justify-center">
-                <Loader2 className="h-5 w-5 animate-spin text-[#00666d] dark:text-strix-cyan" />
-              </div>
-            ) : (
+          <div className="flex items-center gap-4 text-[10px] uppercase tracking-wider text-[#497f8b] dark:text-[var(--strix-text-muted)]">
+            {t?.run_id ? (
               <>
-                <p className="text-[14px] text-[#2b636f] dark:text-[var(--strix-text)] leading-relaxed font-[family-name:var(--font-inter)]">
-                  {sentinel.data?.insight ?? "No insight available."}
-                </p>
-                {sentinel.data?.recommendedActions?.length ? (
-                  <ul className="mt-3 space-y-1 text-[12px] text-[#497f8b] dark:text-[var(--strix-text-muted)]">
-                    {sentinel.data.recommendedActions.slice(0, 3).map((a, i) => (
-                      <li key={i}>
-                        <span className="font-bold">{a.label}</span>
-                        {a.rationale && ` — ${a.rationale}`}
-                      </li>
-                    ))}
-                  </ul>
-                ) : null}
+                <Pill k="run" v={t.run_id} />
+                <Pill k="apt" v={(t.apt_group ?? t.apt) as string | undefined} />
+                <Pill k="attacker" v={t.attacker_ip} />
+                <Pill k="started" v={fmtTime(t.started_at)} />
               </>
+            ) : (
+              <span>awaiting topology…</span>
             )}
           </div>
-          <button
-            type="button"
-            disabled={refreshSentinel.isPending}
-            onClick={() => refreshSentinel.mutate()}
-            className="mt-4 w-full py-3 rounded-[9999px] text-[12px] font-bold uppercase tracking-[1.2px] bg-[#00666d] dark:bg-strix-cyan text-[#cffbff] dark:text-[#0b0e14] hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center justify-center gap-2"
-          >
-            {refreshSentinel.isPending && <Loader2 className="h-4 w-4 animate-spin" />}
-            Refresh Insight
-          </button>
         </div>
+
+        {/* Row 1 — Topology + Graph evolution */}
+        <div className="grid grid-cols-12 gap-4">
+          <Card className="col-span-6">
+            <SimulationTopologyPanel />
+          </Card>
+          <Card className="col-span-6">
+            <GraphEvolution />
+          </Card>
+        </div>
+
+        {/* Row 2 — APT Attack Timeline (live, paced) | RL Intervention
+            Timeline (frozen verdicts). Side-by-side per the design. */}
+        <div className="grid grid-cols-12 gap-4">
+          <Card className="col-span-6">
+            <AptAttackTimeline />
+          </Card>
+          <Card className="col-span-6">
+            <RlKillChain />
+          </Card>
+        </div>
+
+        {/* Row 3 — Detection quality (full-width since it pairs naturally
+            with the intervention timeline above and benefits from horizontal
+            space for the AE | VAE side-by-side cards). */}
+        <div className="grid grid-cols-12 gap-4">
+          <Card className="col-span-12">
+            <DetectionQualityPanel />
+          </Card>
+        </div>
+
+        {/* Inline-variant predetection receipt — full-width below the grid.
+            The rail variant lives in the right rail; both render the same
+            store, so you can pick whichever feels best and remove the other. */}
+        <PredetectionReceipt variant="inline" />
+
+        {/* Full-width log feed */}
+        <Card>
+          <ForensicLogViewer />
+        </Card>
       </div>
 
-      {/* Bottom Row: Live Feed (full width — TimelineChart removed) */}
-      <div className="bg-white dark:bg-[var(--strix-bg-card)] border border-[rgba(128,182,195,0.15)] dark:border-[var(--strix-border)] rounded-[48px] p-6">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-[12px] font-bold text-[#00343d] dark:text-[var(--strix-text)] uppercase tracking-[1.2px]">
-            Live Feed
-          </h3>
-          <div className="flex items-center gap-3">
-            <span className="text-[10px] px-3 py-1 rounded-[9999px] bg-[#baf1ff] text-[#00666d] dark:bg-strix-cyan/10 dark:text-strix-cyan font-bold uppercase tracking-[0.5px]">
-              {liveFeed.status.toUpperCase()}
-            </span>
-            <a
-              href="/vigilance-feed"
-              className="text-[10px] text-[#00666d] dark:text-strix-cyan font-bold uppercase tracking-[0.5px] hover:underline"
-            >
-              View all
-            </a>
-          </div>
+      {/* Right rail — sticky predetection toast stack. Hidden below
+          1600px viewport so the inline receipt below the grid is the
+          single canonical view at narrower widths and the rail header
+          doesn't get clipped (main column is min-w-1280, rail wants
+          ~280px). */}
+      <aside className="w-[280px] shrink-0 hidden 2xl:block">
+        <div className="sticky top-4">
+          <PredetectionReceipt variant="rail" />
         </div>
-        {liveFeed.events.length === 0 ? (
-          <p className="text-[12px] text-[#497f8b] dark:text-[var(--strix-text-muted)] py-8 text-center">
-            Waiting for alerts… (SSE: {liveFeed.status})
-          </p>
-        ) : (
-          <div className="space-y-0">
-            {liveFeed.events.slice(0, 6).map((e) => (
-              <LiveAlertCard
-                key={e.id}
-                alert={liveEventToAlertProp(e.data) as never}
-                compact
-              />
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* Bottom KPI Bar */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {kpis.map((kpi, i) => {
-          const Icon = kpiIcons[i] ?? ShieldAlert
-          return (
-            <div
-              key={kpi.label}
-              className="bg-white dark:bg-[var(--strix-bg-card)] border border-[rgba(128,182,195,0.15)] dark:border-[var(--strix-border)] rounded-[48px] p-6 flex items-center gap-4"
-            >
-              <div className="flex h-12 w-12 items-center justify-center rounded-[32px] bg-[rgba(0,102,109,0.1)] dark:bg-strix-cyan/10">
-                <Icon className="h-5 w-5 text-[#00666d] dark:text-strix-cyan" />
-              </div>
-              <div>
-                <span className="text-[24px] font-bold text-[#00343d] dark:text-[var(--strix-text)]">
-                  {kpi.value}
-                </span>
-                <p className="text-[10px] text-[#497f8b] dark:text-[var(--strix-text-muted)] uppercase tracking-[1px]">
-                  {kpi.label}
-                  {kpi.unit && ` · ${kpi.unit}`}
-                </p>
-              </div>
-            </div>
-          )
-        })}
-      </div>
+      </aside>
     </div>
-  )
+  );
+}
+
+function Card({ className, children }: { className?: string; children: React.ReactNode }) {
+  return (
+    <div
+      className={
+        "bg-white dark:bg-[var(--strix-bg-card)] border border-[rgba(128,182,195,0.15)] dark:border-[var(--strix-border)] rounded-2xl p-5 " +
+        (className ?? "")
+      }
+    >
+      {children}
+    </div>
+  );
+}
+
+function Pill({ k, v }: { k: string; v: string | undefined | null }) {
+  if (!v) return null;
+  return (
+    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-[rgba(128,182,195,0.25)] dark:border-[var(--strix-border)]">
+      <span className="text-[#497f8b] dark:text-[var(--strix-text-muted)]">{k}</span>
+      <span className="font-mono text-[10px] text-[#00343d] dark:text-[var(--strix-text)]">
+        {v}
+      </span>
+    </span>
+  );
+}
+
+function fmtTime(iso: string | undefined | null): string | undefined {
+  if (!iso) return undefined;
+  try {
+    return new Date(iso).toLocaleTimeString();
+  } catch {
+    return iso;
+  }
 }

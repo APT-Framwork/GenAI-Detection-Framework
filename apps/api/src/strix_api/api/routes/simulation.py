@@ -28,8 +28,9 @@ def _runs_dir() -> Path:
     if override:
         return Path(override)
     # this file: apps/api/src/strix_api/api/routes/simulation.py
-    # repo root is 5 parents up.
-    return Path(__file__).resolve().parents[5] / "infra" / "simulation" / "runs"
+    # parents[0]=routes, [1]=api, [2]=strix_api, [3]=src, [4]=api, [5]=apps,
+    # [6]=repo root.  (streams.py uses the same parents[6] resolution.)
+    return Path(__file__).resolve().parents[6] / "infra" / "simulation" / "runs"
 
 
 @router.get("/runs/latest", response_model=dict)

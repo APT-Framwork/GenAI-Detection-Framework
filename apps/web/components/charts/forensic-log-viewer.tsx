@@ -1,16 +1,55 @@
-"use client"
+// -----------------------------------------------------------------------------
+// forensic-log-viewer.tsx (Phase 4 — terminal-style live log box).
+//
+// Two modes:
+//   * Live mode (default): subscribes to `useLogStream(["raw_log"])` and shows
+//     the 4–5 most recent events with a slide-up animation. Pause/resume button
+//     freezes RENDER, not the stream — the WebSocket keeps appending into the
+//     ring buffer in `lib/api/ws.ts` so resume catches up to the freshest tail.
+//   * Legacy mode: pass `logs={…}` to render a static list (used by the
+//     attack-analysis chain page where logs come from a per-chain query).
+// -----------------------------------------------------------------------------
 
-import { useState } from "react"
-import { cn } from "@/lib/utils"
-import type { LogEntry } from "@/types"
-import { Terminal } from "lucide-react"
+"use client";
+
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Pause, Play, Terminal } from "lucide-react";
+
+import {
+  severityColors,
+  severityFromCkcStage,
+  severityFromRisk,
+  type Severity,
+} from "@/lib/design-tokens";
+import {
+  useLogStream,
+  useLogStreamConnection,
+  type RawLogPayload,
+} from "@/lib/api/ws";
+import { cn } from "@/lib/utils";
+import type { LogEntry } from "@/types";
 
 interface ForensicLogViewerProps {
-  logs: LogEntry[]
-  className?: string
+  /**
+   * Optional static logs. When provided, the viewer renders these (legacy
+   * mode for the attack-analysis chain page). When omitted, it binds to the
+   * live `raw_log` WebSocket stream.
+   */
+  logs?: LogEntry[];
+  /** How many recent lines to show in live mode. Plan §4-Phase-4: 4–5. */
+  tailLines?: number;
+  className?: string;
 }
 
-const levelColors: Record<string, string> = {
+interface DisplayLine {
+  key: string;
+  timestamp: string;
+  level: string;
+  severity: Severity;
+  message: string;
+}
+
+const FALLBACK_LEVEL_COLORS: Record<string, string> = {
   AUTH: "text-gray-400",
   WARN: "text-amber-400",
   ERROR: "text-red-400",
@@ -23,44 +62,115 @@ const levelColors: Record<string, string> = {
   SUCCESS: "text-emerald-400",
   EXEC: "text-amber-400",
   NET: "text-blue-400",
+};
+
+function formatTime(iso: string | undefined): string {
+  if (!iso) return "--:--:--";
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return iso.slice(11, 19) || iso;
+  return d.toISOString().slice(11, 19);
 }
 
-const levelBg: Record<string, string> = {
-  AUTH: "bg-gray-500/8",
-  WARN: "bg-amber-500/8",
-  ERROR: "bg-red-500/10",
-  INFO: "bg-blue-500/8",
-  ALERT: "bg-orange-500/8",
-  BLOCK: "bg-red-500/10",
-  STRIX_AI: "bg-cyan-500/8",
-  NOTICE: "bg-emerald-500/10",
-  PROCESS: "bg-purple-500/8",
-  SUCCESS: "bg-emerald-500/10",
-  EXEC: "bg-amber-500/8",
-  NET: "bg-blue-500/8",
+// Severity rank — higher = more severe. Used to combine signals from
+// multiple models so a benign Transformer prediction can't override an
+// ESCALATE/ISOLATE intervention or a high GNN risk.
+const SEV_RANK: Record<Severity, number> = {
+  benign: 0,
+  low: 1,
+  medium: 2,
+  high: 3,
+  critical: 4,
+};
+function maxSeverity(...sevs: Severity[]): Severity {
+  return sevs.reduce((acc, s) => (SEV_RANK[s] > SEV_RANK[acc] ? s : acc), "benign");
+}
+// DqnAction integers (matches apps/api/.../core/enums/dqn.py).
+//   0=MONITOR, 1=LOW_ALERT, 2=ESCALATE, 3=ISOLATE_HOST, 4=BLOCK_USER_IP
+function severityFromDqnAction(action: number): Severity {
+  if (action >= 4) return "critical";
+  if (action >= 3) return "high";
+  if (action >= 2) return "high";
+  if (action >= 1) return "medium";
+  return "benign";
 }
 
-type FilterType = "all" | "error" | "system"
+function payloadToLine(p: RawLogPayload, ts: string): DisplayLine {
+  const stage = typeof p.ckcStage === "number" ? p.ckcStage : 0;
+  // Combine signals — Transformer's CKC alone misclassifies many real-attack
+  // events as benign (it was trained on a Wazuh distribution that doesn't
+  // match the live audit firehose 1:1). Take the max of CKC, DQN action,
+  // and GNN node risk so an ESCALATE/ISOLATE or high node-risk forces the
+  // line into the appropriate colour band.
+  const ckcSev = severityFromCkcStage(stage);
+  const action = typeof p.dqnAction === "number" ? p.dqnAction : 0;
+  const dqnSev = severityFromDqnAction(action);
+  const risk = typeof p.gnnNodeRisk === "number" ? p.gnnNodeRisk : 0;
+  const riskSev = severityFromRisk(risk);
+  const severity = maxSeverity(ckcSev, dqnSev, riskSev);
+  // Prefer the DQN action label when the agent has actually intervened —
+  // that's the most actionable thing for an analyst to read.
+  const level = (
+    action >= 2 && p.dqnActionName
+      ? p.dqnActionName
+      : p.ckcStageName ?? p.dqnActionName ?? "EVENT"
+  ).toUpperCase();
+  const agent = p.agentId ?? p.agent_id ?? "—";
+  const mitre = (p.mitreTechniques ?? []).slice(0, 3).join(",");
+  const actionStr = p.dqnActionName ? ` action=${p.dqnActionName}` : "";
+  const riskStr = typeof p.gnnNodeRisk === "number" ? ` risk=${p.gnnNodeRisk.toFixed(2)}` : "";
+  const message = `agent=${agent}${actionStr}${riskStr}${mitre ? ` mitre=${mitre}` : ""}`;
+  return {
+    key: `${p.alertId ?? p.alert_id ?? ts}-${ts}`,
+    timestamp: formatTime(p.occurredAt ?? ts),
+    level,
+    severity,
+    message,
+  };
+}
 
-export function ForensicLogViewer({ logs, className }: ForensicLogViewerProps) {
-  const [filter, setFilter] = useState<FilterType>("all")
-  const [expanded, setExpanded] = useState(false)
+export function ForensicLogViewer({ logs, tailLines = 10, className }: ForensicLogViewerProps) {
+  const isLive = logs === undefined;
 
-  const filteredLogs =
-    filter === "all"
-      ? logs
-      : filter === "error"
-        ? logs.filter(
-            (l) => l.level === "ERROR" || l.level === "ALERT" || l.level === "BLOCK"
-          )
-        : logs.filter(
-            (l) =>
-              l.level === "PROCESS" ||
-              l.level === "INFO" ||
-              l.level === "STRIX_AI"
-          )
+  // Live mode state.
+  const live = useLogStream(["raw_log"]);
+  const conn = useLogStreamConnection();
+  const [paused, setPaused] = useState(false);
 
-  const displayLogs = expanded ? filteredLogs : filteredLogs.slice(0, 8)
+  // When paused, freeze the snapshot reference so re-renders triggered by
+  // unrelated state (parent re-renders, the 1Hz tick from the status hook)
+  // don't pull a fresher slice.
+  const frozenRef = useRef<DisplayLine[] | null>(null);
+
+  const liveLines: DisplayLine[] = useMemo(() => {
+    if (!isLive) return [];
+    if (paused && frozenRef.current) return frozenRef.current;
+    const buf = live.frames.raw_log ?? [];
+    const tail = buf.slice(-tailLines).reverse(); // newest first
+    const lines = tail.map((f) => payloadToLine(f.payload, f.ts));
+    frozenRef.current = lines;
+    return lines;
+    // live.seq.raw_log advances on every new frame — that's our render trigger.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isLive, paused, tailLines, live.seq.raw_log]);
+
+  // Capture the snapshot at the moment of pause so resume picks up cleanly.
+  useEffect(() => {
+    if (paused && isLive) frozenRef.current = liveLines;
+  }, [paused, isLive, liveLines]);
+
+  // Legacy mode: project LogEntry[] into DisplayLine[].
+  const legacyLines: DisplayLine[] = useMemo(() => {
+    if (isLive) return [];
+    return (logs ?? []).slice(0, 8).map((l, i) => ({
+      key: `${l.timestamp}-${i}`,
+      timestamp: l.timestamp,
+      level: l.level,
+      severity: levelToSeverity(l.level),
+      message: l.message,
+    }));
+  }, [isLive, logs]);
+
+  const display = isLive ? liveLines : legacyLines;
 
   return (
     <div className={cn("w-full", className)}>
@@ -72,36 +182,30 @@ export function ForensicLogViewer({ logs, className }: ForensicLogViewerProps) {
             <h3 className="text-base font-bold font-heading text-[#00343d] dark:text-[var(--strix-text)]">
               Forensic Raw Logs
             </h3>
+            {isLive && <LiveBadge state={conn.state} paused={paused} />}
           </div>
           <p className="text-[11px] text-[#497f8b] dark:text-[var(--strix-text-muted)] ml-6">
-            Direct extraction from ELK-Sentinel stream
+            {isLive
+              ? "Last 5 events from /api/v1/logs/stream"
+              : "Direct extraction from ELK-Sentinel stream"}
           </p>
         </div>
-        <div className="flex items-center gap-2">
-          <span className="text-[10px] text-[#497f8b] dark:text-[var(--strix-text-muted)] uppercase tracking-wider font-semibold mr-1">
-            Log Filters:
-          </span>
-          {(
-            [
-              { key: "all", label: "All Stream" },
-              { key: "error", label: "Error only" },
-              { key: "system", label: "System Trace" },
-            ] as const
-          ).map((f) => (
-            <button
-              key={f.key}
-              onClick={() => setFilter(f.key)}
-              className={cn(
-                "px-3 py-1 rounded-[9999px] text-[10px] font-medium transition-colors",
-                filter === f.key
-                  ? "bg-[#00666d] text-white dark:bg-[#00666d]"
-                  : "text-[#497f8b] dark:text-[var(--strix-text-muted)] border border-[rgba(128,182,195,0.15)] dark:border-[var(--strix-border)] hover:bg-gray-50 dark:hover:bg-gray-800"
-              )}
-            >
-              {f.label}
-            </button>
-          ))}
-        </div>
+        {isLive && (
+          <button
+            onClick={() => setPaused((p) => !p)}
+            className={cn(
+              "inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider transition-colors",
+              paused
+                ? "bg-amber-500/15 text-amber-400 border border-amber-500/40 hover:bg-amber-500/25"
+                : "border border-[rgba(128,182,195,0.25)] dark:border-[var(--strix-border)] text-[#497f8b] dark:text-[var(--strix-text-muted)] hover:bg-gray-50 dark:hover:bg-gray-800",
+            )}
+            aria-pressed={paused}
+            title={paused ? "Resume rendering — stream is still buffering" : "Pause rendering — stream keeps buffering"}
+          >
+            {paused ? <Play size={11} /> : <Pause size={11} />}
+            {paused ? "Resume" : "Pause"}
+          </button>
+        )}
       </div>
 
       {/* Log Terminal */}
@@ -117,49 +221,86 @@ export function ForensicLogViewer({ logs, className }: ForensicLogViewerProps) {
         </div>
 
         {/* Log lines */}
-        <div className="p-5 max-h-[360px] overflow-y-auto scrollbar-thin font-mono text-[11px] leading-7 space-y-0">
-          {displayLogs.map((log, i) => {
-            const isHighlighted =
-              log.level === "NOTICE" || log.level === "ERROR"
+        <div className="p-5 font-mono text-[11px] leading-7 min-h-[180px]">
+          {display.length === 0 && (
+            <div className="text-gray-500 italic px-3">
+              {isLive ? "waiting for events…" : "no entries"}
+            </div>
+          )}
+          {display.map((line) => {
+            const sev = severityColors[line.severity];
             return (
               <div
-                key={i}
-                className={cn(
-                  "flex gap-4 px-3 py-0.5 rounded-lg transition-colors",
-                  isHighlighted
-                    ? levelBg[log.level] || ""
-                    : "hover:bg-white/[0.03]"
-                )}
+                key={line.key}
+                className="animate-slide-up-in flex gap-4 px-3 py-0.5 rounded-lg"
+                style={{
+                  backgroundColor: line.severity === "critical" || line.severity === "high" ? sev.bg : undefined,
+                }}
               >
                 <span className="text-gray-500 flex-shrink-0 select-none whitespace-nowrap">
-                  {log.timestamp}
+                  {line.timestamp}
                 </span>
                 <span
                   className={cn(
                     "font-bold flex-shrink-0 min-w-[80px] uppercase",
-                    levelColors[log.level] || "text-gray-400"
+                    FALLBACK_LEVEL_COLORS[line.level] ?? "",
                   )}
+                  style={{
+                    color: FALLBACK_LEVEL_COLORS[line.level] ? undefined : sev.fg,
+                  }}
                 >
-                  {log.level}
+                  {line.level}
                 </span>
-                <span className="text-gray-300">{log.message}</span>
+                <span className="text-gray-300 truncate">{line.message}</span>
               </div>
-            )
+            );
           })}
         </div>
       </div>
-
-      {/* Load more */}
-      <div className="flex justify-center mt-4">
-        <button
-          onClick={() => setExpanded(!expanded)}
-          className="px-6 py-2.5 rounded-[9999px] text-[10px] font-bold uppercase tracking-widest border border-[rgba(128,182,195,0.15)] dark:border-[var(--strix-border)] text-[#497f8b] dark:text-[var(--strix-text-muted)] hover:bg-[#e7faff] dark:hover:bg-[var(--strix-bg-surface)] transition-colors"
-        >
-          {expanded
-            ? "Collapse Logs"
-            : `Load Extended Logs (${Math.max(filteredLogs.length - 8, 1420)} Lines)`}
-        </button>
-      </div>
     </div>
-  )
+  );
+}
+
+// ---- helpers ----------------------------------------------------------------
+
+function LiveBadge({ state, paused }: { state: string; paused: boolean }) {
+  const live = state === "open" && !paused;
+  return (
+    <span
+      className={cn(
+        "inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider",
+        live
+          ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/40"
+          : paused
+            ? "bg-amber-500/15 text-amber-400 border border-amber-500/40"
+            : "bg-gray-500/15 text-gray-400 border border-gray-500/40",
+      )}
+    >
+      <span
+        className={cn(
+          "h-1.5 w-1.5 rounded-full",
+          live ? "bg-emerald-400 animate-live-pulse" : paused ? "bg-amber-400" : "bg-gray-400",
+        )}
+      />
+      {paused ? "PAUSED" : live ? "LIVE" : state.toUpperCase()}
+    </span>
+  );
+}
+
+function levelToSeverity(level: LogEntry["level"]): Severity {
+  switch (level) {
+    case "ERROR":
+    case "BLOCK":
+      return "critical";
+    case "ALERT":
+      return "high";
+    case "WARN":
+      return "medium";
+    case "NOTICE":
+    case "INFO":
+    case "STRIX_AI":
+      return "low";
+    default:
+      return "benign";
+  }
 }

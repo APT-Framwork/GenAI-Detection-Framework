@@ -43,11 +43,15 @@ def test_envelope_shape() -> None:
 
 
 def test_label_tp_fp_tn_fn_unknown() -> None:
+    """`derive_label` is the pure threshold→ground-truth mapper.
+    Per the AE/VAE inversion finding, this is now only fed GNN scores in
+    production (`_attach_label` enforces that), but the function itself
+    remains threshold-agnostic and is unit-tested here as such."""
     from strix_api.api.routes.streams import derive_label
 
     topo = {"attacker_ip": "10.0.0.5"}
 
-    # TP — malicious src + score over threshold
+    # TP — malicious src + GNN score over threshold
     assert (
         derive_label(payload={"srcip": "10.0.0.5"}, score=0.9, threshold=0.5, topology=topo)
         == "tp"
@@ -87,6 +91,43 @@ def test_label_tp_fp_tn_fn_unknown() -> None:
         derive_label(payload={"srcip": "10.0.0.5"}, score=None, threshold=0.5, topology=topo)
         == "unknown"
     )
+
+
+def test_attach_label_vae_inherits_gnn_label_for_benign_event() -> None:
+    """Inversion guard: a synthetic-benign event with vae_prob=1.0 (the
+    rule-80789 saturation pattern) and gnn_node_risk=0.0 must label as TN
+    on BOTH the GNN frame and the VAE frame — VAE no longer drives malice.
+    """
+    from strix_api.api.routes.streams import _attach_label, _GNN_LABEL_BY_ALERT
+
+    _GNN_LABEL_BY_ALERT.clear()
+    topo = {"attacker_ip": "10.0.0.5"}
+    benign_payload_base = {
+        "alert_id": "evt-benign-1",
+        "srcip": "10.0.0.99",
+        "synthetic_benign": True,
+    }
+
+    # GNN frame arrives first: low risk + benign tag → tn.
+    gnn_frame = _attach_label("gnn", {**benign_payload_base, "node_risk": 0.0}, topo)
+    assert gnn_frame["label"] == "tn"
+
+    # VAE frame for the SAME alert with saturated prob — must inherit GNN's tn,
+    # not flip to fp on its own.
+    vae_frame = _attach_label("vae", {**benign_payload_base, "malicious_prob": 1.0}, topo)
+    assert vae_frame["label"] == "tn"
+
+
+def test_attach_label_ae_vae_unknown_when_gnn_missing() -> None:
+    """If the GNN frame hasn't arrived yet for `alert_id`, AE/VAE labels
+    fall back to `unknown` rather than fabricating a malice verdict."""
+    from strix_api.api.routes.streams import _attach_label, _GNN_LABEL_BY_ALERT
+
+    _GNN_LABEL_BY_ALERT.clear()
+    topo = {"attacker_ip": "10.0.0.5"}
+    payload = {"alert_id": "evt-no-gnn", "srcip": "10.0.0.5", "malicious_prob": 0.99}
+    out = _attach_label("vae", payload, topo)
+    assert out["label"] == "unknown"
 
 
 def test_multiplex_queue_drops_oldest() -> None:

@@ -1,0 +1,356 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Strix Platform — Log & Event Stream Reference",
+  "description": "Canonical reference for the data flowing through the platform, from Wazuh ingest to dashboard frames. Each section describes one stream/message type, with field types, required flags, and a concrete example.",
+  "version": "1.0",
+  "generated_for_repo_at_commit": "Platforme branch · 2026-05-01",
+  "constants": {
+    "FEATURE_VECTOR_DIM": 55,
+    "STATE_VECTOR_DIM": 13,
+    "AE_LATENT_DIM": 64,
+    "DQN_ACTION_SPACE": 5,
+    "GNN_RISK_ALERT_THRESHOLD": 0.7743,
+    "INFECTION_VAE_PROB_THRESHOLD": 0.7,
+    "GNN_SNAPSHOT_INTERVAL_SECONDS": 30
+  },
+  "pipeline_layers": [
+    {
+      "stage": 1,
+      "name": "WazuhRawAlert",
+      "transport": "Redis list `strix:alerts:raw:list` (filebeat sink) OR direct adapter push",
+      "description": "Raw Wazuh alert as forwarded by filebeat. Wazuh's native shape — nested rule/agent/data objects, free-form. The Wazuh adapter strips envelope fields (_index, _id, _version, _score) and leaky columns (rule.level, rule.description, rule.mitre.tactic[s], rule.mitre.technique[s]) before publishing downstream.",
+      "fields": [
+        { "path": "timestamp",                   "type": "string (ISO-8601)", "required": true,  "description": "Event time as written by Wazuh." },
+        { "path": "agent.id",                    "type": "string",            "required": true,  "description": "Wazuh agent UUID — primary host identifier." },
+        { "path": "agent.name",                  "type": "string",            "required": false, "description": "Hostname or registered agent name." },
+        { "path": "agent.ip",                    "type": "string",            "required": false, "description": "Source IP of the host running the agent." },
+        { "path": "rule.id",                     "type": "string",            "required": true,  "description": "Wazuh rule ID. STRIX-tagged attack rules sit in 100000-100999." },
+        { "path": "rule.firedtimes",             "type": "integer",           "required": false, "description": "How many times this rule has fired in the current window." },
+        { "path": "rule.level",                  "type": "integer",           "required": false, "description": "DROPPED before features (label leakage) — never reaches the model." },
+        { "path": "rule.description",            "type": "string",            "required": false, "description": "DROPPED before features (label leakage)." },
+        { "path": "rule.mitre.tactic",           "type": "string[]",          "required": false, "description": "DROPPED from features. Lifted as metadata only into FeatureMessage.mitreTactics." },
+        { "path": "rule.mitre.technique",        "type": "string[]",          "required": false, "description": "DROPPED from features. Lifted as metadata only into FeatureMessage.mitreTechniques." },
+        { "path": "decoder.name",                "type": "string",            "required": false, "description": "Wazuh decoder that parsed this event (e.g., 'auditd')." },
+        { "path": "location",                    "type": "string",            "required": false, "description": "Source path on the agent (e.g., '/var/log/audit/audit.log')." },
+        { "path": "full_log",                    "type": "string",            "required": false, "description": "Original raw line — used for the Forensic Logs panel." },
+        { "path": "data.audit.*",                "type": "object",            "required": false, "description": "Auditd-decoded fields: exe, auid, uid, gid, syscall, success, key, etc." },
+        { "path": "data.srcip",                  "type": "string",            "required": false, "description": "Source IP of the actor when the event has a network component." },
+        { "path": "data.srcuser",                "type": "string",            "required": false, "description": "Source user (Linux account name) — used for GNN edge construction." },
+        { "path": "tags.strix.synthetic_benign", "type": "boolean",           "required": false, "description": "Set by filebeat enrichment when traffic comes from the synthetic benign generator (user `strixbenign`). Strongest benign ground-truth signal." }
+      ],
+      "example": {
+        "timestamp": "2026-05-01T13:42:08.123Z",
+        "agent": { "id": "001", "name": "victim1", "ip": "10.10.10.21" },
+        "rule": {
+          "id": "100401",
+          "firedtimes": 3,
+          "mitre": { "tactic": ["TA0008"], "technique": ["T1021.004"] }
+        },
+        "decoder": { "name": "auditd" },
+        "location": "/var/log/audit/audit.log",
+        "full_log": "type=EXECVE msg=audit(...): argc=3 a0=\"ssh\" a1=\"-i\" a2=\"key.pem\"",
+        "data": {
+          "audit": { "exe": "/usr/bin/ssh", "auid": "1000", "uid": "0", "syscall": "execve", "success": "yes" },
+          "srcip": "10.10.10.5",
+          "srcuser": "root"
+        }
+      }
+    },
+
+    {
+      "stage": 2,
+      "name": "RawAlertMessage",
+      "transport": "Redis stream `strix:alerts:raw:0` (MessagePack-encoded)",
+      "schema_class": "strix_api.core.messages.RawAlertMessage",
+      "description": "Internal envelope produced by the Wazuh adapter and consumed by the normalizer. The leaky columns from layer 1 are already stripped here.",
+      "fields": [
+        { "path": "alertId",     "type": "string",            "required": true, "description": "Stable alert identifier (Wazuh _id when present, else hashed)." },
+        { "path": "ingestedAt",  "type": "string (ISO-8601)", "required": true, "description": "When the platform received the alert (UTC, microsecond precision)." },
+        { "path": "rawJson",     "type": "object",            "required": true, "description": "Flattened Wazuh _source dict, post-strip." }
+      ],
+      "example": {
+        "alertId": "abc123-7f88",
+        "ingestedAt": "2026-05-01T13:42:08.456789+00:00",
+        "rawJson": { "timestamp": "2026-05-01T13:42:08.123Z", "agent": { "id": "001" }, "rule": { "id": "100401" }, "data": { "audit": { "exe": "/usr/bin/ssh" } } }
+      }
+    },
+
+    {
+      "stage": 3,
+      "name": "FeatureMessage",
+      "transport": "Redis stream `strix:features:{shard_id}` (MessagePack-encoded)",
+      "schema_class": "strix_api.core.messages.FeatureMessage",
+      "description": "Output of the normalizer / preprocessing pipeline. Carries the 55-d feature vector + the metadata the inference worker needs to assemble the 13-d state vector and to construct GNN edges. None of the metadata fields below (currentCkcStage, mitreTactics, mitreTechniques, srcuser, srcip) are fed to AE/VAE/Transformer/GNN as features.",
+      "fields": [
+        { "path": "alertId",          "type": "string",                 "required": true,  "description": "Echoes RawAlertMessage.alertId." },
+        { "path": "agentId",          "type": "string",                 "required": true,  "description": "Wazuh agent ID — primary key for session/chain state." },
+        { "path": "hostId",           "type": "string (UUID)",          "required": true,  "description": "Stable platform UUID for the host (from `hosts` table)." },
+        { "path": "occurredAt",       "type": "string (ISO-8601)",      "required": true,  "description": "Event time — used as the wallclock for chain timing." },
+        { "path": "featureVector",    "type": "float[55]",              "required": true,  "description": "Canonical AE/VAE feature order (selected_features_top25.json, numeric SecBERT). The GNN re-permutes inside the inference worker." },
+        { "path": "currentCkcStage",  "type": "integer (0..7)",         "required": true,  "description": "0 = BENIGN; 1..7 = Recon, Weapon, Delivery, Exploit, Install, C2, Action. Resolved from MITRE→CKC mapping." },
+        { "path": "mitreTactics",     "type": "string[] (TAxxxx)",      "required": false, "description": "MITRE tactic IDs (e.g., 'TA0001'). Used for GT labelling + UI." },
+        { "path": "mitreTechniques",  "type": "string[] (Txxxx[.yyy])", "required": false, "description": "MITRE technique IDs. Surfaced on RL frames + receipts." },
+        { "path": "srcuser",          "type": "string?",                "required": false, "description": "Linux user for GNN edge: same-user → edge." },
+        { "path": "srcip",            "type": "string?",                "required": false, "description": "Source IP for GNN edge: same-srcip → edge. Also used by the topology label-derivation." },
+        { "path": "fullLog",          "type": "string?",                "required": false, "description": "Forensic-log passthrough." },
+        { "path": "decoderName",      "type": "string?",                "required": false, "description": "e.g., 'auditd'." },
+        { "path": "location",         "type": "string?",                "required": false, "description": "Source file path on the agent." },
+        { "path": "ruleId",           "type": "string?",                "required": false, "description": "Wazuh rule ID echoed for the dashboard." },
+        { "path": "ruleFiredtimes",   "type": "integer?",               "required": false, "description": "How many times the rule has fired this window." },
+        { "path": "schemaVersion",    "type": "string ('v1')",          "required": true,  "description": "Wire-format version. Bump when fields change semantics." }
+      ],
+      "example": {
+        "alertId": "abc123-7f88",
+        "agentId": "001",
+        "hostId": "f4b7c2e1-3d6a-49a8-9c11-7e2b1e4d5a8c",
+        "occurredAt": "2026-05-01T13:42:08.123000+00:00",
+        "featureVector": [0.0, 0.124, 0.0, "...53 more floats..."],
+        "currentCkcStage": 6,
+        "mitreTactics": ["TA0008"],
+        "mitreTechniques": ["T1021.004"],
+        "srcuser": "root",
+        "srcip": "10.10.10.5",
+        "fullLog": "type=EXECVE msg=audit(...): argc=3 ...",
+        "decoderName": "auditd",
+        "location": "/var/log/audit/audit.log",
+        "ruleId": "100401",
+        "ruleFiredtimes": 3,
+        "schemaVersion": "v1"
+      }
+    },
+
+    {
+      "stage": 4,
+      "name": "VerdictMessage",
+      "transport": "Redis stream `strix:verdicts` (consumed by verdicts-writer → Postgres)",
+      "schema_class": "strix_api.core.messages.VerdictMessage",
+      "description": "Final per-event decision after AE+VAE+GNN+Transformer+DQN. Authoritative source of truth — drives the `detections`, `dqn_actions`, and `attack_chain` tables.",
+      "fields": [
+        { "path": "alertId",                "type": "string",        "required": true,  "description": "FK back to the alert." },
+        { "path": "chainId",                "type": "UUID | null",   "required": true,  "description": "null when SKIP_BENIGN (no chain row to upsert)." },
+        { "path": "stepInChain",            "type": "integer | null","required": true,  "description": "0-indexed step within the chain. null on skip." },
+        { "path": "occurredAt",             "type": "string (ISO)",  "required": true,  "description": "Event time." },
+        { "path": "agentId",                "type": "string",        "required": true,  "description": "Echoes FeatureMessage.agentId." },
+        { "path": "currentCkcStage",        "type": "integer (0..7)","required": true,  "description": "CKC stage of THIS event." },
+        { "path": "isFirstInChain",         "type": "boolean",       "required": true,  "description": "True when this event opened the chain (OPEN_NEW)." },
+        { "path": "closeReason",            "type": "string | null", "required": true,  "description": "One of TIMEOUT, ISOLATED, COMPLETED, MAX_LENGTH, or null if still open." },
+        { "path": "openedAt",               "type": "string (ISO) | null", "required": true, "description": "Episode start. null on skip." },
+        { "path": "aeAnomalyScore",         "type": "float [0,1]",   "required": true,  "description": "Calibrated anomaly probability. Inverted on this lab — see streams.py `_attach_label`." },
+        { "path": "aeReconError",           "type": "float >= 0",    "required": true,  "description": "Raw reconstruction error (unbounded, MSE-like)." },
+        { "path": "aeLatent",               "type": "float[64]",     "required": true,  "description": "AE bottleneck — fed to the Transformer as the per-event token." },
+        { "path": "vaeMaliciousProb",       "type": "float [0,1]",   "required": true,  "description": "Probability of malice (also inverted on this lab)." },
+        { "path": "vaeUncertainty",         "type": "float >= 0",    "required": true,  "description": "Predictive uncertainty from the VAE." },
+        { "path": "transformerPredCkc",     "type": "integer (0..7)","required": true,  "description": "Predicted next CKC stage given the latent sequence." },
+        { "path": "transformerConfidence",  "type": "float [0,1]",   "required": true,  "description": "Softmax max for the predicted stage." },
+        { "path": "gnnNodeRisk",            "type": "float [0,1]",   "required": true,  "description": "Per-alert malice score from the GNN snapshot." },
+        { "path": "gnnNeighborRisk",        "type": "float [0,1]",   "required": true,  "description": "Mean risk of cross-host neighbours in the same snapshot." },
+        { "path": "gnnRiskGrowth",          "type": "float",         "required": true,  "description": "current_global_mean − prior_global_mean (half-window split)." },
+        { "path": "stateVector",            "type": "float[13]",     "required": true,  "description": "Assembled DQN input. Order: ae_anomaly, ae_recon, vae_prob, vae_unc, transformer_pred_ckc, transformer_conf, current_ckc, gnn_node_risk, gnn_neighbor_risk, gnn_risk_growth, t_since_episode, t_since_last_event, seq_len." },
+        { "path": "dqnAction",              "type": "integer 0..4",  "required": true,  "description": "0=NO_OP, 1=MONITOR, 2=ESCALATE, 3=ISOLATE, 4=ROLLBACK." },
+        { "path": "dqnActionName",          "type": "string",        "required": true,  "description": "Symbolic name matching dqnAction." },
+        { "path": "qValues",                "type": "float[5]",      "required": true,  "description": "Q-value per action; argmax = dqnAction." },
+        { "path": "modelVersions",          "type": "object<string,string>", "required": true, "description": "Map of model-name → registry version (ae, vae, transformer, gnn, dqn)." },
+        { "path": "fullLog",                "type": "string?",       "required": false, "description": "Passthrough from FeatureMessage." },
+        { "path": "decoderName",            "type": "string?",       "required": false, "description": "Passthrough." },
+        { "path": "location",               "type": "string?",       "required": false, "description": "Passthrough." },
+        { "path": "ruleId",                 "type": "string?",       "required": false, "description": "Passthrough." },
+        { "path": "ruleFiredtimes",         "type": "integer?",      "required": false, "description": "Passthrough." },
+        { "path": "mitreTactics",           "type": "string[]",      "required": false, "description": "Passthrough." },
+        { "path": "mitreTechniques",        "type": "string[]",      "required": false, "description": "Passthrough." }
+      ],
+      "example_open": {
+        "alertId": "abc123-7f88",
+        "chainId": "f4b7c2e1-3d6a-49a8-9c11-7e2b1e4d5a8c",
+        "stepInChain": 4,
+        "occurredAt": "2026-05-01T13:42:08.123Z",
+        "agentId": "001",
+        "currentCkcStage": 6,
+        "isFirstInChain": false,
+        "closeReason": null,
+        "openedAt": "2026-05-01T13:41:55.018Z",
+        "aeAnomalyScore": 0.18,
+        "aeReconError": 1.42,
+        "aeLatent": ["...64 floats..."],
+        "vaeMaliciousProb": 0.21,
+        "vaeUncertainty": 0.04,
+        "transformerPredCkc": 7,
+        "transformerConfidence": 0.81,
+        "gnnNodeRisk": 0.83,
+        "gnnNeighborRisk": 0.61,
+        "gnnRiskGrowth": 0.12,
+        "stateVector": ["...13 floats..."],
+        "dqnAction": 2,
+        "dqnActionName": "ESCALATE",
+        "qValues": [0.04, 0.18, 0.62, 0.11, 0.05],
+        "modelVersions": { "ae": "v1.2", "vae": "v1.1", "transformer": "v0.9", "gnn": "v1.0", "dqn": "v0.7" },
+        "mitreTactics": ["TA0008"],
+        "mitreTechniques": ["T1021.004"]
+      },
+      "example_skip": {
+        "alertId": "abc124-9aa0",
+        "chainId": null,
+        "stepInChain": null,
+        "occurredAt": "2026-05-01T13:42:09.001Z",
+        "agentId": "001",
+        "currentCkcStage": 0,
+        "isFirstInChain": false,
+        "closeReason": null,
+        "openedAt": null,
+        "aeAnomalyScore": 0.97,
+        "aeReconError": 0.31,
+        "aeLatent": ["...64 floats..."],
+        "vaeMaliciousProb": 0.95,
+        "vaeUncertainty": 0.02,
+        "transformerPredCkc": null,
+        "transformerConfidence": null,
+        "gnnNodeRisk": null,
+        "gnnNeighborRisk": null,
+        "gnnRiskGrowth": null,
+        "stateVector": null,
+        "dqnAction": null,
+        "dqnActionName": null,
+        "qValues": null,
+        "modelVersions": { "ae": "v1.2", "vae": "v1.1" },
+        "mitreTactics": [],
+        "mitreTechniques": []
+      }
+    },
+
+    {
+      "stage": 5,
+      "name": "MultiplexWebSocketEnvelope",
+      "transport": "WebSocket `/api/v1/logs/stream` — JSON frames",
+      "description": "What the dashboard receives. Each frame has an envelope `{type, ts, payload}`. The payload shape depends on `type`. Below: every type the multiplexer emits.",
+      "envelope": {
+        "type": "string (one of: raw_log, ae, vae, gnn, rl, topology, status)",
+        "ts":   "string (ISO-8601, server-tagged emit time)",
+        "payload": "object — see per-type schemas"
+      },
+      "payloads": {
+        "raw_log": {
+          "description": "One verdict event projected to the live-feed shape (see strix_api.services.live_feed.build_live_feed_event).",
+          "fields": [
+            { "path": "alertId",          "type": "string",      "description": "Echoes VerdictMessage.alertId." },
+            { "path": "agentId",          "type": "string",      "description": "Wazuh agent." },
+            { "path": "chainId",          "type": "UUID | null", "description": "Null when SKIP_BENIGN." },
+            { "path": "occurredAt",       "type": "string (ISO)" },
+            { "path": "ckcStage",         "type": "integer 0..7" },
+            { "path": "ckcStageName",     "type": "string",      "description": "BENIGN | RECON | WEAPONIZATION | DELIVERY | EXPLOITATION | INSTALLATION | C2 | ACTION." },
+            { "path": "vaeMaliciousProb", "type": "float [0,1]" },
+            { "path": "aeAnomalyScore",   "type": "float [0,1]" },
+            { "path": "gnnNodeRisk",      "type": "float [0,1]" },
+            { "path": "dqnAction",        "type": "integer 0..4" },
+            { "path": "dqnActionName",    "type": "string" },
+            { "path": "mitreTechniques",  "type": "string[]" }
+          ]
+        },
+        "ae": {
+          "description": "Per-event AE diagnostic (AE/VAE scores are inverted on this lab; the backend attaches the `label` from the GNN's verdict).",
+          "fields": [
+            { "path": "alert_id",      "type": "string" },
+            { "path": "host_id",       "type": "string" },
+            { "path": "srcip",         "type": "string?" },
+            { "path": "recon_error",   "type": "float >= 0" },
+            { "path": "anomaly_score", "type": "float [0,1]" },
+            { "path": "mitre_tactics", "type": "string[]" },
+            { "path": "label",         "type": "string", "description": "tp | fp | tn | fn | unknown — attached by the WS layer (see streams.py `_attach_label`)." }
+          ]
+        },
+        "vae": {
+          "fields": [
+            { "path": "alert_id",       "type": "string" },
+            { "path": "host_id",        "type": "string" },
+            { "path": "srcip",          "type": "string?" },
+            { "path": "malicious_prob", "type": "float [0,1]" },
+            { "path": "uncertainty",    "type": "float >= 0" },
+            { "path": "mitre_tactics",  "type": "string[]" },
+            { "path": "label",          "type": "string" }
+          ]
+        },
+        "gnn": {
+          "fields": [
+            { "path": "alert_id",       "type": "string" },
+            { "path": "host_id",        "type": "string" },
+            { "path": "srcip",          "type": "string?" },
+            { "path": "node_risk",      "type": "float [0,1]" },
+            { "path": "neighbor_risk",  "type": "float [0,1]" },
+            { "path": "risk_growth",    "type": "float" },
+            { "path": "affected_edges", "type": "integer", "description": "Undirected degree of this node in the latest snapshot." },
+            { "path": "mitre_tactics",  "type": "string[]" },
+            { "path": "label",          "type": "string", "description": "GNN is the only score the platform uses for malice ground-truth labelling." }
+          ]
+        },
+        "rl": {
+          "description": "DQN decision frame — drives the RL Kill-Chain Timeline.",
+          "fields": [
+            { "path": "alert_id",            "type": "string" },
+            { "path": "host_id",             "type": "string" },
+            { "path": "srcip",               "type": "string?" },
+            { "path": "action",              "type": "integer 0..4" },
+            { "path": "action_name",         "type": "string", "description": "NO_OP | MONITOR | ESCALATE | ISOLATE | ROLLBACK." },
+            { "path": "q_values",            "type": "float[5]" },
+            { "path": "ckc_stage",           "type": "integer 0..7", "description": "Display stage = max(transformer_pred_ckc, mitre_ckc_stage, chain_max_ckc_stage)." },
+            { "path": "transformer_pred_ckc","type": "integer 0..7" },
+            { "path": "mitre_ckc_stage",     "type": "integer 0..7", "description": "Wazuh-tagged stage for THIS event." },
+            { "path": "chain_max_ckc_stage", "type": "integer 0..7", "description": "Running max across the chain — what the predetection latch keys on." },
+            { "path": "confidence",          "type": "float [0,1]" },
+            { "path": "mitre_tactics",       "type": "string[]" },
+            { "path": "mitre_techniques",    "type": "string[]", "description": "Added in this branch — surfaced on the predetection receipt." }
+          ]
+        },
+        "topology": {
+          "description": "Simulation-run topology snapshot. Emitted on connect + whenever a new run starts.",
+          "fields": [
+            { "path": "run_id",          "type": "string" },
+            { "path": "started_at",      "type": "string (ISO)" },
+            { "path": "attacker_ip",     "type": "string" },
+            { "path": "apt_group",       "type": "string?", "description": "e.g., APT29, APT41." },
+            { "path": "tactics_planned", "type": "string[]", "description": "MITRE tactic IDs the lab runner intends to execute." },
+            { "path": "victims",         "type": "TopologyVictim[]" }
+          ],
+          "TopologyVictim": [
+            { "path": "ip",       "type": "string?" },
+            { "path": "hostname", "type": "string?" },
+            { "path": "name",     "type": "string?" },
+            { "path": "agents",   "type": "string[]" },
+            { "path": "agent_id", "type": "string?" }
+          ]
+        },
+        "status": {
+          "description": "Connection-level signals.",
+          "fields": [
+            { "path": "state", "type": "string", "description": "connected | heartbeat | shutdown | dropped:N (runtime-tagged when the per-client queue overflowed)." }
+          ]
+        }
+      }
+    }
+  ],
+
+  "channel_map": {
+    "STREAM_AE_CHANNEL":       "strix:stream:ae",
+    "STREAM_VAE_CHANNEL":      "strix:stream:vae",
+    "STREAM_GNN_CHANNEL":      "strix:stream:gnn",
+    "STREAM_RL_CHANNEL":       "strix:stream:rl",
+    "LIVE_FEED_CHANNEL":       "strix:sse:livefeed",
+    "VERDICTS_STREAM":         "strix:verdicts",
+    "FEATURES_STREAM":         "strix:features:{shard_id}",
+    "RAW_ALERTS_LIST":         "strix:alerts:raw:list",
+    "CHAIN_LOG_CHANNEL_FMT":   "strix:sse:chain:{chain_id}"
+  },
+
+  "label_derivation_notes": {
+    "summary": "AE/VAE scores are INVERTED on this lab (benign rule-80789 → score≈1.0; STRIX-tagged attack rule-100xxx → score≈0.15). The backend therefore derives the per-frame {tp, fp, tn, fn, unknown} label from the GNN score only; AE and VAE frames inherit the GNN-derived label for the same alert_id.",
+    "thresholds": {
+      "STRIX_AE_LABEL_THRESHOLD":  1.0,
+      "STRIX_VAE_LABEL_THRESHOLD": 0.5,
+      "STRIX_GNN_LABEL_THRESHOLD": 0.7743
+    },
+    "ground_truth_priority": [
+      "1. payload.synthetic_benign or tags.strix.synthetic_benign → benign",
+      "2. payload.srcip == topology.attacker_ip → malicious",
+      "3. payload.mitre_tactics non-empty OR rule.id in 100000..100999 OR rule.mitre.tactic non-empty → malicious",
+      "4. has host_id and not malicious → benign baseline",
+      "5. else → unknown"
+    ]
+  }
+}

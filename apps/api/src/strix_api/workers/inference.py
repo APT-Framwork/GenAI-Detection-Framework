@@ -72,8 +72,13 @@ from strix_api.adapters.session_store import SessionState, SessionStore
 from strix_api.api.errors import ValidationFailedError
 from strix_api.core.batcher import MicroBatcher
 from strix_api.core.constants import (
+    CHAIN_OPEN_GNN_THRESHOLD,
+    DQN_OOD_AE_RECON_THRESHOLD,
+    DQN_Q_MARGIN_MIN,
+    DQN_STAGE7_FORCE_ESCALATE_GNN_MIN,
     GNN_SNAPSHOT_INTERVAL_SECONDS,
 )
+from strix_api.core.enums.dqn import DqnAction
 from strix_api.core.gnn_window import (
     GraphSnapshot,
     NodeFact,
@@ -135,6 +140,12 @@ class _GnnRiskCache:
     def __init__(self) -> None:
         self._facts: list[NodeFact] = []
         self._risks: dict[str, float] = {}
+        # Per-agent fallback: the latest risk among that agent's scored alerts
+        # in the current snapshot. Used when `lookup(alert_id)` misses because
+        # the alert hasn't been included in a snapshot yet (snapshots rebuild
+        # every GNN_SNAPSHOT_INTERVAL_SECONDS). Without this, fresh alerts
+        # *always* score 0.0 → SKIP_BENIGN → chain never opens for new hosts.
+        self._risk_by_agent: dict[str, float] = {}
         self._snapshot: GraphSnapshot | None = None
         self._lock = asyncio.Lock()
 
@@ -152,10 +163,37 @@ class _GnnRiskCache:
         async with self._lock:
             self._risks = dict(zip(snapshot.alert_ids, risks.tolist(), strict=True))
             self._snapshot = snapshot
+            # Index agent → latest risk (snapshot is already sorted ascending
+            # by occurred_at — last write wins, so we end with the freshest).
+            agent_risks: dict[str, float] = {}
+            # filter_window's facts list is sorted; build_snapshot preserves
+            # that order, so iterating snapshot.alert_ids in order and
+            # cross-referencing the in-window facts gives temporal ordering.
+            facts_by_id = {f.alert_id: f for f in self._facts}
+            for aid, r in zip(snapshot.alert_ids, risks.tolist(), strict=True):
+                fact = facts_by_id.get(aid)
+                if fact is None:
+                    continue
+                agent_risks[fact.agent_id] = float(r)
+            self._risk_by_agent = agent_risks
 
-    async def lookup(self, alert_id: str) -> float:
+    async def lookup(self, alert_id: str, agent_id: str | None = None) -> float:
+        """Return the GNN risk for this alert. Falls back to the latest risk
+        scored for the same agent when the alert_id isn't in the current
+        snapshot — snapshots are rebuilt periodically, so a fresh alert from
+        an already-known host inherits its host's most-recent risk instead of
+        the fail-closed 0.0 (which would force every new alert into
+        SKIP_BENIGN until the next snapshot tick). Returns 0.0 only when
+        neither the alert nor the agent has been scored yet."""
         async with self._lock:
-            return float(self._risks.get(alert_id, 0.0))
+            exact = self._risks.get(alert_id)
+            if exact is not None:
+                return float(exact)
+            if agent_id is not None:
+                agent_score = self._risk_by_agent.get(agent_id)
+                if agent_score is not None:
+                    return float(agent_score)
+            return 0.0
 
     async def local_degree(self, alert_id: str) -> int:
         """Undirected degree of `alert_id` in the latest snapshot, or 0 if absent.
@@ -406,6 +444,10 @@ class InferenceWorker:
                     "srcip": msg.srcip,
                     "recon_error": float(recon_err),
                     "anomaly_score": float(anomaly),
+                    # Carry MITRE tactics so streams.py derive_label can mark
+                    # ground truth even when srcip isn't the attacker IP
+                    # (Caldera attacks run locally on the victim).
+                    "mitre_tactics": msg.mitre_tactics,
                 },
                 self._log,
             )
@@ -418,9 +460,31 @@ class InferenceWorker:
                     "srcip": msg.srcip,
                     "malicious_prob": float(mal_prob),
                     "uncertainty": float(uncertainty),
+                    "mitre_tactics": msg.mitre_tactics,
                 },
                 self._log,
             )
+
+        # GNN risk drives the chain-open gate (see core.sequence docstring on
+        # the AE/VAE inversion finding). Look it up here so the decision can
+        # use it; lookup falls back to the agent's most-recent scored risk
+        # when this exact alert_id isn't in the current snapshot (snapshots
+        # rebuild every 30 s, so without the agent fallback every fresh
+        # alert would force SKIP_BENIGN). Returns 0.0 only when neither the
+        # alert nor the agent has ever been scored — true cold start.
+        gnn_node_risk = await self._gnn_cache.lookup(msg.alert_id, msg.agent_id)
+
+        # MITRE-tagged events bypass the GNN cold-start. If Wazuh has
+        # already classified the alert into a CKC stage (>0) via its rule
+        # set, that is itself ground truth for "this is an attack tactic"
+        # — the GNN was added to catch *unlabelled* anomalies, not to
+        # second-guess explicit MITRE attribution. Without this hybrid
+        # gate, fresh agents with rule 80789–dominated traffic never open
+        # chains in real time (observed: +0 dqn_actions on a 443 s run
+        # where 1,990/2,000 events were rule 80789 with no MITRE tag and
+        # only ~10 were rule 100xxx STRIX-tagged attack tactics).
+        if msg.current_ckc_stage > 0 and gnn_node_risk < CHAIN_OPEN_GNN_THRESHOLD:
+            gnn_node_risk = float(CHAIN_OPEN_GNN_THRESHOLD)
 
         # Pull the current session (or None) and decide what to do.
         session = await self._sessions.get_session(msg.agent_id)
@@ -428,6 +492,7 @@ class InferenceWorker:
             session=session,
             ae_anomaly=float(anomaly),
             vae_malicious_prob=float(mal_prob),
+            gnn_node_risk=float(gnn_node_risk),
             occurred_at=occurred_at,
         )
 
@@ -438,7 +503,7 @@ class InferenceWorker:
             # and a no-op RL action. Cheap and keeps the dashboard live even
             # when the chain decider classifies traffic as benign.
             if _STREAM_PER_MODEL_ENABLED:
-                gnn_node_risk_skip = await self._gnn_cache.lookup(msg.alert_id)
+                # Reuse `gnn_node_risk` already looked up above (decision input).
                 gnn_neighbor_risk_skip, gnn_risk_growth_skip = (
                     await self._gnn_cache.neighbor_risk(msg.alert_id, msg.agent_id)
                 )
@@ -450,13 +515,20 @@ class InferenceWorker:
                         "alert_id": msg.alert_id,
                         "host_id": msg.agent_id,
                         "srcip": msg.srcip,
-                        "node_risk": float(gnn_node_risk_skip),
+                        "node_risk": float(gnn_node_risk),
                         "neighbor_risk": float(gnn_neighbor_risk_skip),
                         "risk_growth": float(gnn_risk_growth_skip),
                         "affected_edges": affected_edges_skip,
+                        "mitre_tactics": msg.mitre_tactics,
                     },
                     self._log,
                 )
+                # SKIP_BENIGN path — DQN doesn't run, so action=NO_OP, but
+                # we still want the dashboard to reflect the MITRE-tagged
+                # stage of the event (a benign-classified event from a
+                # Persistence rule should still show Installation in the
+                # kill-chain heatmap, otherwise stages 4-7 stay empty
+                # whenever the chain decider rules SKIP_BENIGN).
                 await _publish_stream(
                     self._redis.client,
                     STREAM_RL_CHANNEL,
@@ -467,8 +539,13 @@ class InferenceWorker:
                         "action": 0,
                         "action_name": "NO_OP",
                         "q_values": [],
-                        "ckc_stage": 0,
+                        "ckc_stage": int(msg.current_ckc_stage),
+                        "transformer_pred_ckc": 0,
+                        "mitre_ckc_stage": int(msg.current_ckc_stage),
+                        "chain_max_ckc_stage": int(msg.current_ckc_stage),
                         "confidence": 0.0,
+                        "mitre_tactics": msg.mitre_tactics,
+                        "mitre_techniques": msg.mitre_techniques,
                     },
                     self._log,
                 )
@@ -515,8 +592,8 @@ class InferenceWorker:
             sequence_arr,
         )
 
-        # GNN risk: lookup latest cache for THIS alert (will be 0 for first ~60s).
-        gnn_node_risk = await self._gnn_cache.lookup(msg.alert_id)
+        # `gnn_node_risk` was looked up before the chain decision (above).
+        # Neighbor + risk-growth still need a fresh lookup here.
         gnn_neighbor_risk, gnn_risk_growth = await self._gnn_cache.neighbor_risk(
             msg.alert_id,
             msg.agent_id,
@@ -544,6 +621,67 @@ class InferenceWorker:
 
         dqn_decision: DqnDecision = await self._dqn_batcher.submit(state)
 
+        # ---- Lab-distribution decision gates --------------------------
+        # See core/constants.py "DQN decision gates" section for the
+        # full diagnosis. These three gates correct two failure modes
+        # observed in the wild without retraining the DQN. The Q-values
+        # we emit downstream are still the raw model outputs (so the
+        # dashboard shows the actual policy); only the chosen `action`
+        # is overridden when a gate fires. Each override is logged with
+        # `gate_reason` for forensics.
+        original_action = dqn_decision.action
+        gate_reason: str | None = None
+        gated_action = original_action
+
+        # Priority 1 — stage 7 force-escalate. The trained policy
+        # reliably picks LOW_ALERT here because Q(ESCALATE | stage=7)
+        # is negative; SOC-wise that's wrong.
+        if (
+            int(msg.current_ckc_stage) >= 7
+            and float(gnn_node_risk) >= DQN_STAGE7_FORCE_ESCALATE_GNN_MIN
+            and original_action.value < DqnAction.ESCALATE.value
+        ):
+            gated_action = DqnAction.ESCALATE
+            gate_reason = "stage7_force_escalate"
+
+        # Priority 2 — OOD gate. AE recon explosion saturates the VAE
+        # calibrator on lab data; the DQN reads "VAE near 1.0" as
+        # "attack" and ISOLATEs benign noise. Override on GNN-only.
+        elif float(recon_err) > DQN_OOD_AE_RECON_THRESHOLD:
+            if float(gnn_node_risk) >= CHAIN_OPEN_GNN_THRESHOLD:
+                gated_action = DqnAction.ESCALATE
+                gate_reason = "ood_gnn_says_attack"
+            else:
+                gated_action = DqnAction.MONITOR
+                gate_reason = "ood_gnn_says_benign"
+
+        # Priority 3 — Q-margin abstention. If max(Q) − second(Q) is
+        # below the configured floor, the choice is essentially noise.
+        elif original_action.value >= DqnAction.ESCALATE.value:
+            qs = np.asarray(dqn_decision.q_values, dtype=np.float64)
+            chosen_q = float(qs[int(original_action.value)])
+            qs_no_chosen = np.delete(qs, int(original_action.value))
+            second_q = float(qs_no_chosen.max()) if qs_no_chosen.size else chosen_q
+            if (chosen_q - second_q) < DQN_Q_MARGIN_MIN:
+                gated_action = DqnAction.MONITOR
+                gate_reason = "q_margin_abstain"
+
+        if gate_reason is not None:
+            self._log.info(
+                "dqn_action_gated",
+                alert_id=msg.alert_id,
+                host_id=msg.agent_id,
+                ckc_stage=int(msg.current_ckc_stage),
+                ae_recon_error=float(recon_err),
+                vae_malicious_prob=float(mal_prob),
+                gnn_node_risk=float(gnn_node_risk),
+                original_action=original_action.name,
+                gated_action=gated_action.name,
+                gate_reason=gate_reason,
+            )
+            # Replace decision in-place. Q-values stay intact for the UI.
+            dqn_decision = DqnDecision(action=gated_action, q_values=dqn_decision.q_values)
+
         # Phase 2 multiplex fan-out (GNN + RL). `affected_edges` is a coarse
         # count (undirected degree of this node in the latest snapshot) — full
         # edge list lives in `gnn_graph_snapshots`.
@@ -560,8 +698,30 @@ class InferenceWorker:
                     "neighbor_risk": float(gnn_neighbor_risk),
                     "risk_growth": float(gnn_risk_growth),
                     "affected_edges": affected_edges,
+                    "mitre_tactics": msg.mitre_tactics,
                 },
                 self._log,
+            )
+            # Three stage signals on the RL frame so the dashboard can show
+            # the deepest the chain has actually walked, instead of just the
+            # Transformer's per-event prediction (which is OOD on lab data
+            # and collapses to ~Delivery for most events even when the
+            # underlying Wazuh tactic is later in the kill chain):
+            #   * `transformer_pred_ckc` — Transformer's classification.
+            #   * `mitre_ckc_stage`      — Wazuh-tagged MITRE→CKC mapping
+            #     for THIS event (`msg.current_ckc_stage`).
+            #   * `chain_max_ckc_stage`  — running max for the chain
+            #     (deepest stage *any* prior event in this session reached).
+            # `ckc_stage` itself is set to the max of the three so the
+            # frontend's existing readers see the sane progression.
+            chain_max_ckc = max(
+                int(session.max_ckc_stage if session is not None else 0),
+                int(msg.current_ckc_stage),
+            )
+            display_ckc = max(
+                int(transformer_out.pred_ckc),
+                int(msg.current_ckc_stage),
+                chain_max_ckc,
             )
             await _publish_stream(
                 self._redis.client,
@@ -573,8 +733,13 @@ class InferenceWorker:
                     "action": int(dqn_decision.action),
                     "action_name": dqn_decision.action.name,
                     "q_values": dqn_decision.q_values.tolist(),
-                    "ckc_stage": int(transformer_out.pred_ckc),
+                    "ckc_stage": display_ckc,
+                    "transformer_pred_ckc": int(transformer_out.pred_ckc),
+                    "mitre_ckc_stage": int(msg.current_ckc_stage),
+                    "chain_max_ckc_stage": chain_max_ckc,
                     "confidence": float(transformer_out.confidence),
+                    "mitre_tactics": msg.mitre_tactics,
+                    "mitre_techniques": msg.mitre_techniques,
                 },
                 self._log,
             )

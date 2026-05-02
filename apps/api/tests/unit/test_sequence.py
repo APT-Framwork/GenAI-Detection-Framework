@@ -9,6 +9,7 @@ from strix_api.core.constants import (
     CHAIN_IDLE_TIMEOUT_MINUTES,
     CHAIN_MAX_STEPS,
     CHAIN_OPEN_AE_THRESHOLD,
+    CHAIN_OPEN_GNN_THRESHOLD,
     CHAIN_OPEN_VAE_THRESHOLD,
 )
 from strix_api.core.enums import DqnAction
@@ -53,6 +54,7 @@ def test_skip_benign_when_below_thresholds_and_no_session() -> None:
         session=None,
         ae_anomaly=0.1,
         vae_malicious_prob=0.1,
+        gnn_node_risk=0.0,
         occurred_at=_NOW,
     )
     assert decision.action is ChainAction.SKIP_BENIGN
@@ -60,11 +62,12 @@ def test_skip_benign_when_below_thresholds_and_no_session() -> None:
     assert not decision.runs_full_pipeline
 
 
-def test_open_new_when_vae_threshold_met() -> None:
+def test_open_new_when_gnn_threshold_met() -> None:
     decision = decide_chain_action(
         session=None,
         ae_anomaly=0.0,
-        vae_malicious_prob=CHAIN_OPEN_VAE_THRESHOLD + 0.01,
+        vae_malicious_prob=0.0,
+        gnn_node_risk=CHAIN_OPEN_GNN_THRESHOLD + 0.01,
         occurred_at=_NOW,
     )
     assert decision.action is ChainAction.OPEN_NEW
@@ -73,14 +76,40 @@ def test_open_new_when_vae_threshold_met() -> None:
     assert decision.runs_full_pipeline
 
 
-def test_open_new_when_ae_threshold_met() -> None:
+def test_high_ae_vae_low_gnn_skips_benign() -> None:
+    """Inversion guard: AE/VAE saturating must NOT open a chain on its own.
+    This is the symptom we saw on rule-80789 (benign vae≈1.0)."""
     decision = decide_chain_action(
         session=None,
-        ae_anomaly=CHAIN_OPEN_AE_THRESHOLD + 0.01,
+        ae_anomaly=10.0,
+        vae_malicious_prob=1.0,
+        gnn_node_risk=0.0,
+        occurred_at=_NOW,
+    )
+    assert decision.action is ChainAction.SKIP_BENIGN
+
+
+def test_low_ae_vae_high_gnn_opens_new() -> None:
+    """Mirror: pure GNN signal must open even when AE/VAE are quiet."""
+    decision = decide_chain_action(
+        session=None,
+        ae_anomaly=0.0,
         vae_malicious_prob=0.0,
+        gnn_node_risk=CHAIN_OPEN_GNN_THRESHOLD + 0.05,
         occurred_at=_NOW,
     )
     assert decision.action is ChainAction.OPEN_NEW
+
+
+def test_all_low_skips_benign() -> None:
+    decision = decide_chain_action(
+        session=None,
+        ae_anomaly=0.0,
+        vae_malicious_prob=0.0,
+        gnn_node_risk=0.0,
+        occurred_at=_NOW,
+    )
+    assert decision.action is ChainAction.SKIP_BENIGN
 
 
 def test_continue_when_session_open_and_within_idle_window() -> None:
@@ -89,6 +118,7 @@ def test_continue_when_session_open_and_within_idle_window() -> None:
         session=session,
         ae_anomaly=0.0,
         vae_malicious_prob=0.0,
+        gnn_node_risk=0.0,
         occurred_at=_NOW,
     )
     assert decision.action is ChainAction.CONTINUE
@@ -105,14 +135,16 @@ def test_idle_timeout_promotes_to_skip_or_new() -> None:
         session=session,
         ae_anomaly=0.0,
         vae_malicious_prob=0.0,
+        gnn_node_risk=0.0,
         occurred_at=_NOW,
     )
     assert d1.action is ChainAction.SKIP_BENIGN
-    # Above threshold → OPEN_NEW (different chain_id from the stale session)
+    # Above GNN threshold → OPEN_NEW (different chain_id from the stale session)
     d2 = decide_chain_action(
         session=session,
         ae_anomaly=0.0,
-        vae_malicious_prob=CHAIN_OPEN_VAE_THRESHOLD + 0.1,
+        vae_malicious_prob=0.0,
+        gnn_node_risk=CHAIN_OPEN_GNN_THRESHOLD + 0.1,
         occurred_at=_NOW,
     )
     assert d2.action is ChainAction.OPEN_NEW
@@ -126,7 +158,8 @@ def test_max_steps_reached_forces_new_chain_evaluation() -> None:
     decision = decide_chain_action(
         session=session,
         ae_anomaly=CHAIN_OPEN_AE_THRESHOLD + 1,
-        vae_malicious_prob=0.0,
+        vae_malicious_prob=CHAIN_OPEN_VAE_THRESHOLD + 0.1,
+        gnn_node_risk=CHAIN_OPEN_GNN_THRESHOLD + 0.1,
         occurred_at=_NOW,
     )
     assert decision.action is ChainAction.OPEN_NEW
@@ -144,6 +177,7 @@ def test_prior_intervention_kills_continuation() -> None:
             session=session,
             ae_anomaly=0,
             vae_malicious_prob=0,
+            gnn_node_risk=0.0,
             occurred_at=_NOW,
         )
         assert below.action is ChainAction.SKIP_BENIGN, closed_by
@@ -151,7 +185,8 @@ def test_prior_intervention_kills_continuation() -> None:
         above = decide_chain_action(
             session=session,
             ae_anomaly=0,
-            vae_malicious_prob=CHAIN_OPEN_VAE_THRESHOLD + 0.1,
+            vae_malicious_prob=0,
+            gnn_node_risk=CHAIN_OPEN_GNN_THRESHOLD + 0.1,
             occurred_at=_NOW,
         )
         assert above.action is ChainAction.OPEN_NEW, closed_by

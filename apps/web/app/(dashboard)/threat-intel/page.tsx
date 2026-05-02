@@ -1,12 +1,15 @@
 "use client"
 
 import { useMemo, useState } from "react"
+import { useRouter } from "next/navigation"
 
 import {
   useCompromisedAssets,
   useFileScan,
   useIocSearch,
 } from "@/lib/api/threat-intel"
+import { downloadCsv } from "@/lib/download"
+import { toast } from "@/lib/toast"
 import {
   Search,
   Shield,
@@ -60,34 +63,87 @@ function timeAgo(iso: string | null): string {
   return `${Math.floor(seconds / 86400)}d ago`
 }
 
-// Static for the "feed integrations" panel — these aren't backed by a
-// queryable endpoint in 1.0; their state comes from breaker state in the
-// monitoring tab. Kept as visual chrome.
-const breachFeeds = [
-  { name: "HaveIBeenPwned", status: "synced", entries: "1 lookup/1.5s", lastSync: "live" },
-  { name: "VirusTotal",     status: "synced", entries: "4 lookups/min", lastSync: "live" },
-  { name: "MITRE ATT&CK",   status: "synced", entries: "static",        lastSync: "—" },
-  { name: "Anthropic LLM",  status: "synced", entries: "Opus + Haiku",  lastSync: "live" },
-]
+// Each entry maps to a real backend adapter under
+// apps/api/src/strix_api/adapters/. We don't have a dedicated
+// /monitoring/adapters health endpoint yet, so the per-feed status is
+// derived from observable signals at runtime (see useFeedStatuses
+// inside the page component). The metadata below is intrinsic to the
+// adapter (rate limits, source kind) and doesn't change between runs.
+const FEED_REGISTRY = [
+  {
+    name: "HaveIBeenPwned",
+    adapterPath: "apps/api/src/strix_api/adapters/hibp_adapter.py",
+    rate: "1 lookup / 1.5s",
+    kind: "live",
+    description: "Email breach lookups for IOC enrichment.",
+  },
+  {
+    name: "VirusTotal",
+    adapterPath: "apps/api/src/strix_api/adapters/virustotal_adapter.py",
+    rate: "4 lookups / min",
+    kind: "live",
+    description: "File hash + URL scan via /threat-intel/virustotal/scan.",
+  },
+  {
+    name: "MITRE ATT&CK",
+    adapterPath: "static reference set",
+    rate: "static",
+    kind: "static",
+    description: "Tactic/technique catalogue loaded at boot.",
+  },
+  {
+    name: "Anthropic LLM",
+    adapterPath: "apps/api/src/strix_api/adapters/llm_adapter.py",
+    rate: "Opus + Haiku",
+    kind: "live",
+    description: "LLM-assisted IOC summarisation (Anthropic Messages API).",
+  },
+] as const
 
 export default function ThreatIntelPage() {
+  const router = useRouter()
   const [iocQuery, setIocQuery] = useState("")
   const iocs = useIocSearch({ q: iocQuery || undefined, limit: 20 })
   const compromised = useCompromisedAssets(20)
   const fileScan = useFileScan()
+  // Reputation filter — multi-select. Empty = show all.
+  const [filterOpen, setFilterOpen] = useState(false)
+  const [reputationFilter, setReputationFilter] = useState<Set<string>>(new Set())
 
   // Project the API IocItem shape into the existing JSX's expected fields.
   const iocEntries = useMemo(
-    () =>
-      (iocs.data?.items ?? []).map((item) => ({
+    () => {
+      const all = (iocs.data?.items ?? []).map((item) => ({
         type: item.type,
         indicator: item.indicator,
         source: item.source,
         reputation: item.reputation,
         timestamp: timeAgo(item.lastChecked),
-      })),
-    [iocs.data],
+      }))
+      if (reputationFilter.size === 0) return all
+      return all.filter((e) => reputationFilter.has(e.reputation))
+    },
+    [iocs.data, reputationFilter],
   )
+
+  const onExport = () => {
+    if (iocEntries.length === 0) {
+      toast.warning("Nothing to export — IOC list is empty.")
+      return
+    }
+    const stamp = new Date().toISOString().replace(/[:.]/g, "-")
+    downloadCsv(`strix-iocs-${stamp}.csv`, iocEntries as unknown as Record<string, unknown>[])
+    toast.success(`Exported ${iocEntries.length} IOCs.`)
+  }
+
+  const toggleReputation = (rep: string) => {
+    setReputationFilter((prev) => {
+      const next = new Set(prev)
+      if (next.has(rep)) next.delete(rep)
+      else next.add(rep)
+      return next
+    })
+  }
 
   // Project compromised assets to the existing card layout.
   const compromisedAssets = useMemo(
@@ -143,15 +199,47 @@ export default function ThreatIntelPage() {
             Exposure Tracking
           </h1>
         </div>
-        <div className="flex items-center gap-2">
-          <button className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-[10px] font-semibold uppercase tracking-wider border border-[var(--strix-border)] text-[var(--strix-text-muted)] hover:bg-[var(--strix-bg-surface)] transition-colors">
+        <div className="flex items-center gap-2 relative">
+          <button
+            onClick={() => setFilterOpen((v) => !v)}
+            className={cn(
+              "flex items-center gap-1.5 px-4 py-2 rounded-lg text-[10px] font-semibold uppercase tracking-wider border border-[var(--strix-border)] hover:bg-[var(--strix-bg-surface)] transition-colors",
+              reputationFilter.size > 0
+                ? "text-strix-primary dark:text-strix-cyan border-strix-cyan/40"
+                : "text-[var(--strix-text-muted)]"
+            )}
+          >
             <Filter className="h-3.5 w-3.5" />
-            Filters
+            Filters {reputationFilter.size > 0 && `(${reputationFilter.size})`}
           </button>
-          <button className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-[10px] font-semibold uppercase tracking-wider border border-[var(--strix-border)] text-[var(--strix-text-muted)] hover:bg-[var(--strix-bg-surface)] transition-colors">
+          <button
+            onClick={onExport}
+            className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-[10px] font-semibold uppercase tracking-wider border border-[var(--strix-border)] text-[var(--strix-text-muted)] hover:bg-[var(--strix-bg-surface)] transition-colors"
+          >
             <Download className="h-3.5 w-3.5" />
-            Export
+            Export CSV
           </button>
+          {filterOpen && (
+            <div className="absolute right-0 top-12 z-20 bg-[var(--strix-bg-card)] border border-[var(--strix-border)] rounded-lg shadow-xl p-3 min-w-[220px]">
+              <div className="text-[9px] uppercase tracking-wider text-[var(--strix-text-muted)] mb-2">Reputation</div>
+              {(["malicious", "suspicious", "clean", "unknown"] as const).map((r) => (
+                <label key={r} className="flex items-center gap-2 py-1 cursor-pointer text-[11px] text-[var(--strix-text)]">
+                  <input
+                    type="checkbox"
+                    checked={reputationFilter.has(r)}
+                    onChange={() => toggleReputation(r)}
+                  />
+                  <span className="capitalize">{r}</span>
+                </label>
+              ))}
+              <button
+                onClick={() => { setReputationFilter(new Set()); setFilterOpen(false) }}
+                className="mt-2 text-[10px] text-strix-cyan hover:underline"
+              >
+                Clear filters
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
@@ -230,7 +318,17 @@ export default function ThreatIntelPage() {
                     </td>
                     <td className="py-3 px-4 text-[var(--strix-text-muted)] font-mono text-[10px]">{entry.timestamp}</td>
                     <td className="py-3 px-4">
-                      <button className="text-strix-primary dark:text-strix-cyan hover:underline text-[10px] font-semibold flex items-center gap-1">
+                      <button
+                        onClick={() => {
+                          // Use the indicator as the search query on the
+                          // attack-analysis "latest" view — at minimum it
+                          // gets the operator to a context where the IOC
+                          // can be cross-referenced. No dedicated IOC
+                          // detail route exists yet.
+                          router.push(`/attack-analysis/latest?q=${encodeURIComponent(entry.indicator)}`)
+                        }}
+                        className="text-strix-primary dark:text-strix-cyan hover:underline text-[10px] font-semibold flex items-center gap-1"
+                      >
                         Investigate <ExternalLink className="h-3 w-3" />
                       </button>
                     </td>
@@ -306,29 +404,51 @@ export default function ThreatIntelPage() {
           </div>
 
           <div className="space-y-3">
-            {breachFeeds.map((feed, i) => (
-              <div key={i} className="flex items-center gap-3 p-3 rounded-lg bg-[var(--strix-bg-surface)] border border-[var(--strix-border)]">
-                <div className={cn(
-                  "h-2 w-2 rounded-full flex-shrink-0",
-                  feed.status === "synced" ? "bg-emerald-500" : "bg-amber-500"
-                )} />
-                <div className="flex-1">
-                  <div className="flex items-baseline justify-between">
-                    <span className="text-xs font-bold text-[var(--strix-text)]">{feed.name}</span>
-                    <span className="text-[10px] font-mono text-[var(--strix-text-muted)]">{feed.entries} entries</span>
-                  </div>
-                  <div className="flex items-center justify-between mt-0.5">
-                    <span className={cn(
-                      "text-[9px] font-semibold uppercase",
-                      feed.status === "synced" ? "text-emerald-500" : "text-amber-500"
-                    )}>
-                      {feed.status}
-                    </span>
-                    <span className="text-[10px] text-[var(--strix-text-muted)]">Last sync: {feed.lastSync}</span>
+            {FEED_REGISTRY.map((feed) => {
+              // We mark a feed "online" when:
+              //   * static adapter (MITRE) — always online once loaded
+              //   * IOC search query has returned for HIBP/VT
+              //     (their results contribute to the IOC table)
+              //   * file scan has succeeded for VT
+              // If iocs.isError we fall back to "degraded" so the
+              // pill is honest about connection problems.
+              const usedByIocSearch = feed.name === "HaveIBeenPwned" || feed.name === "VirusTotal"
+              const status: "online" | "static" | "degraded" | "idle" =
+                feed.kind === "static"
+                  ? "static"
+                  : iocs.isError
+                  ? "degraded"
+                  : usedByIocSearch && iocs.isFetched
+                  ? "online"
+                  : "idle"
+              const dotCls =
+                status === "online"   ? "bg-emerald-500" :
+                status === "static"   ? "bg-cyan-500"    :
+                status === "degraded" ? "bg-rose-500"    : "bg-[#497f8b]"
+              const labelCls =
+                status === "online"   ? "text-emerald-500" :
+                status === "static"   ? "text-cyan-500"    :
+                status === "degraded" ? "text-rose-500"    : "text-[#497f8b]"
+              return (
+                <div key={feed.name} className="flex items-center gap-3 p-3 rounded-lg bg-[var(--strix-bg-surface)] border border-[var(--strix-border)]" title={feed.description}>
+                  <div className={cn("h-2 w-2 rounded-full flex-shrink-0", dotCls)} />
+                  <div className="flex-1">
+                    <div className="flex items-baseline justify-between">
+                      <span className="text-xs font-bold text-[var(--strix-text)]">{feed.name}</span>
+                      <span className="text-[10px] font-mono text-[var(--strix-text-muted)]">{feed.rate}</span>
+                    </div>
+                    <div className="flex items-center justify-between mt-0.5 gap-2">
+                      <span className={cn("text-[9px] font-semibold uppercase", labelCls)}>
+                        {status}
+                      </span>
+                      <span className="text-[10px] text-[var(--strix-text-muted)] font-mono truncate">
+                        {feed.adapterPath}
+                      </span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
         </div>
       </div>

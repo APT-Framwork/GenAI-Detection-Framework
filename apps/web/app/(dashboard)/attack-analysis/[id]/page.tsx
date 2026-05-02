@@ -4,28 +4,34 @@ import { useEffect, useMemo } from "react"
 import { useRouter } from "next/navigation"
 
 import { AIPredictionsPanel } from "@/components/charts/ai-predictions-panel"
-import { ForensicLogViewer } from "@/components/charts/forensic-log-viewer"
-import { GraphEvolution } from "@/components/charts/graph-evolution"
 import { KillChainProgression } from "@/components/charts/kill-chain-progression"
+import { ChainStageTimeline } from "@/components/charts/chain-stage-timeline"
+import { AffectedHostsTable } from "@/components/charts/affected-hosts-table"
+import { StageProbabilityBars } from "@/components/charts/stage-probability-bars"
+import { OperatorNotes } from "@/components/charts/operator-notes"
 import {
   useChainDwellTime,
-  useChainGraphEvolution,
   useChainInfection,
   useChainList,
-  useChainLogs,
   useChainPredictions,
   useCkcProgression,
 } from "@/lib/api/analysis"
+import type { CkcProgressionStep } from "@/lib/api/analysis"
+import type { KillChainStage } from "@/types"
+import { downloadJson } from "@/lib/download"
+import { toast } from "@/lib/toast"
 import {
   Clock,
   FileText,
   Loader2,
+  Target,
   Users,
   Zap,
 } from "lucide-react"
 
 function formatDuration(seconds: number): string {
-  if (!Number.isFinite(seconds) || seconds <= 0) return "—"
+  if (!Number.isFinite(seconds) || seconds < 0) return "—"
+  if (seconds === 0) return "<1s"
   const h = Math.floor(seconds / 3600)
   const m = Math.floor((seconds % 3600) / 60)
   const s = Math.floor(seconds % 60)
@@ -35,22 +41,40 @@ function formatDuration(seconds: number): string {
 }
 
 function severityFromCkc(stage: number): { label: string; cls: string } {
-  if (stage >= 6)
-    return {
-      label: "Critical",
-      cls: "bg-red-500/10 text-red-500 border-red-500/20",
+  if (stage >= 6) return { label: "Critical", cls: "bg-red-500/10 text-red-500 border-red-500/20" }
+  if (stage >= 4) return { label: "High", cls: "bg-orange-500/10 text-orange-500 border-orange-500/20" }
+  if (stage >= 2) return { label: "Medium", cls: "bg-yellow-500/10 text-yellow-600 border-yellow-500/20" }
+  if (stage >= 1) return { label: "Low", cls: "bg-cyan-500/10 text-cyan-600 border-cyan-500/20" }
+  return { label: "Benign", cls: "bg-emerald-500/10 text-emerald-600 border-emerald-500/20" }
+}
+
+/** Adapt the API's CkcProgressionStep[] to the existing
+ *  KillChainProgression component's KillChainStage shape. The API
+ *  doesn't carry a per-stage status, so we derive one: every stage in
+ *  the array is "completed", and we pad up to 7 with "pending". */
+function toKillChainStages(steps: CkcProgressionStep[]): KillChainStage[] {
+  const FULL = ["Reconnaissance", "Weaponization", "Delivery", "Exploitation", "Installation", "Command & Control", "Actions on Objectives"]
+  const seen = new Set(steps.map((s) => s.ckcStage))
+  return FULL.map((name, i) => {
+    const idx = i + 1
+    const step = steps.find((s) => s.ckcStage === idx)
+    if (step) {
+      return {
+        id: `ckc-${idx}`,
+        name: step.ckcStageName || name,
+        status: "completed" as const,
+        timestamp: step.enteredAt
+          ? new Date(step.enteredAt).toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" })
+          : undefined,
+      }
     }
-  if (stage >= 4)
     return {
-      label: "High",
-      cls: "bg-orange-500/10 text-orange-500 border-orange-500/20",
+      id: `ckc-${idx}`,
+      name,
+      status: seen.size > 0 ? ("pending" as const) : ("pending" as const),
+      timestamp: undefined,
     }
-  if (stage >= 2)
-    return {
-      label: "Medium",
-      cls: "bg-yellow-500/10 text-yellow-600 border-yellow-500/20",
-    }
-  return { label: "Low", cls: "bg-cyan-500/10 text-cyan-600 border-cyan-500/20" }
+  })
 }
 
 interface PageProps {
@@ -61,9 +85,6 @@ export default function AttackAnalysisDetailPage({ params }: PageProps) {
   const { id } = params
   const router = useRouter()
 
-  // The sidebar links to /attack-analysis/latest. Resolve "latest" to the
-  // most recent chain id from the list endpoint and redirect — the per-chain
-  // routes require a real UUID and would 422 otherwise.
   const isLatest = id === "latest"
   const chainList = useChainList({ limit: 1 })
   const resolvedId = isLatest ? chainList.data?.items[0]?.chainId ?? null : id
@@ -75,16 +96,9 @@ export default function AttackAnalysisDetailPage({ params }: PageProps) {
   }, [isLatest, resolvedId, router])
 
   const ckcProg = useCkcProgression(resolvedId)
-  const graphEvo = useChainGraphEvolution(resolvedId)
   const predictions = useChainPredictions(resolvedId)
   const infection = useChainInfection(resolvedId)
   const dwell = useChainDwellTime(resolvedId)
-  const logsQuery = useChainLogs(resolvedId, 50)
-
-  const flatLogs = useMemo(() => {
-    const pages = logsQuery.data?.pages ?? []
-    return pages.flatMap((p) => p.items)
-  }, [logsQuery.data])
 
   if (isLatest) {
     const noChainsYet = chainList.isFetched && !resolvedId
@@ -101,14 +115,34 @@ export default function AttackAnalysisDetailPage({ params }: PageProps) {
     )
   }
 
-  const severity = severityFromCkc(predictions.data?.currentStage ?? 0)
-  const dwellLabel =
-    dwell.data && dwell.data.startedAt
-      ? formatDuration(dwell.data.durationSeconds)
-      : "—"
+  const currentStage = predictions.data?.currentStage ?? 0
+  const maxStageReached = ckcProg.data?.stages.reduce((m, s) => Math.max(m, s.ckcStage), 0) ?? 0
+  const severity = severityFromCkc(Math.max(currentStage, maxStageReached))
+  // Treat as a real breach only if the chain reached a meaningful CKC
+  // stage. Stage 0 / closed-as-benign chains don't warrant the red
+  // "BREACH DETECTED" badge — that was the misleading thing on the
+  // previous page.
+  const isBreach = maxStageReached >= 2 || (dwell.data?.status === "open" && currentStage >= 1)
 
-  const isLoading =
-    ckcProg.isLoading || graphEvo.isLoading || predictions.isLoading
+  // Format dwell on closed chains too — previously "—" appeared even
+  // when we had a real start + close timestamp.
+  const dwellLabel = dwell.data?.startedAt
+    ? formatDuration(dwell.data.durationSeconds)
+    : "—"
+
+  const stages = useMemo(
+    () => toKillChainStages(ckcProg.data?.stages ?? []),
+    [ckcProg.data?.stages],
+  )
+
+  const isLoading = ckcProg.isLoading || predictions.isLoading
+
+  // Pick the first infected host as the "primary host" for
+  // intel-deep-link purposes.
+  const primaryHost =
+    infection.data?.infectedHosts?.[0]?.hostName ??
+    infection.data?.infectedHosts?.[0]?.hostId ??
+    null
 
   return (
     <div className="space-y-6">
@@ -124,6 +158,7 @@ export default function AttackAnalysisDetailPage({ params }: PageProps) {
             <span className="text-base font-medium text-[var(--strix-text-muted)]">
               {predictions.data?.currentStageName ?? "—"} · status{" "}
               {dwell.data?.status ?? "?"}
+              {dwell.data?.closeReason ? ` · ${dwell.data.closeReason}` : ""}
             </span>
           </h1>
         </div>
@@ -132,9 +167,7 @@ export default function AttackAnalysisDetailPage({ params }: PageProps) {
             <span className="text-[9px] text-[var(--strix-text-muted)] uppercase tracking-wider block mb-1">
               Threat Level
             </span>
-            <span
-              className={`inline-block px-3 py-1 rounded-md text-xs font-bold border uppercase ${severity.cls}`}
-            >
+            <span className={`inline-block px-3 py-1 rounded-md text-xs font-bold border uppercase ${severity.cls}`}>
               {severity.label}
             </span>
           </div>
@@ -152,59 +185,74 @@ export default function AttackAnalysisDetailPage({ params }: PageProps) {
         </div>
       </div>
 
-      {/* Kill Chain Progression — DQN-actioned stages */}
+      {/* Kill Chain Progression — full 7-stage view derived from API. */}
       <div className="bg-[var(--strix-bg-card)] border border-[var(--strix-border)] rounded-xl p-6">
         {isLoading && !ckcProg.data ? (
           <div className="flex h-32 items-center justify-center">
             <Loader2 className="h-5 w-5 animate-spin text-strix-cyan" />
           </div>
         ) : (
-          <KillChainProgression stages={(ckcProg.data?.stages ?? []) as never} />
+          <KillChainProgression stages={stages} isBreach={isBreach} />
         )}
       </div>
 
-      {/* Graph Evolution + AI Predictions */}
+      {/* Row 1: Stage Timeline (DQN actions per stage) | AI Predictions */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
         <div className="lg:col-span-7 bg-[var(--strix-bg-card)] border border-[var(--strix-border)] rounded-xl p-5">
-          <GraphEvolution snapshots={graphEvo.data?.snapshots as never} />
+          <div className="flex items-center gap-2 mb-4">
+            <Target className="h-4 w-4 text-strix-primary dark:text-strix-cyan" />
+            <h3 className="text-sm font-bold text-[var(--strix-text)]">Stage Timeline</h3>
+            <span className="text-[10px] text-[var(--strix-text-muted)] uppercase tracking-wider">
+              entries + DQN actions per stage
+            </span>
+          </div>
+          <ChainStageTimeline stages={ckcProg.data?.stages ?? []} />
         </div>
         <div className="lg:col-span-5 bg-[var(--strix-bg-card)] border border-[var(--strix-border)] rounded-xl p-5">
-          <AIPredictionsPanel predictions={predictions.data as never} />
+          <AIPredictionsPanel
+            predictions={predictions.data as never}
+            hostId={primaryHost}
+          />
         </div>
       </div>
 
-      {/* Forensic Logs (paged + live-tail capable) */}
-      <div className="bg-[var(--strix-bg-card)] border border-[var(--strix-border)] rounded-xl p-5">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-[12px] font-bold text-[var(--strix-text)] uppercase tracking-[1.2px]">
-            Forensic Logs
-          </h3>
-          <button
-            type="button"
-            disabled={!logsQuery.hasNextPage || logsQuery.isFetchingNextPage}
-            onClick={() => logsQuery.fetchNextPage()}
-            className="text-[10px] text-strix-primary dark:text-strix-cyan font-bold uppercase tracking-[0.5px] hover:underline disabled:opacity-50"
-          >
-            {logsQuery.hasNextPage ? "Load older" : "All loaded"}
-          </button>
+      {/* Row 2: Affected Hosts | Stage probability distribution */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+        <div className="lg:col-span-7 bg-[var(--strix-bg-card)] border border-[var(--strix-border)] rounded-xl p-5">
+          <div className="flex items-center gap-2 mb-4">
+            <Users className="h-4 w-4 text-strix-primary dark:text-strix-cyan" />
+            <h3 className="text-sm font-bold text-[var(--strix-text)]">Affected Hosts</h3>
+            {infection.data && (
+              <span className="ml-auto text-[10px] text-[var(--strix-text-muted)] uppercase tracking-wider font-mono">
+                {infection.data.infectedCount}/{infection.data.totalCount} hosts ·{" "}
+                {(infection.data.percent * 100).toFixed(1)}% radius
+              </span>
+            )}
+          </div>
+          <AffectedHostsTable hosts={infection.data?.infectedHosts ?? []} />
         </div>
-        <ForensicLogViewer logs={flatLogs as never} />
+        <div className="lg:col-span-5 bg-[var(--strix-bg-card)] border border-[var(--strix-border)] rounded-xl p-5">
+          <div className="flex items-center gap-2 mb-4">
+            <Target className="h-4 w-4 text-strix-primary dark:text-strix-cyan" />
+            <h3 className="text-sm font-bold text-[var(--strix-text)]">CKC Stage Distribution</h3>
+          </div>
+          <p className="text-[10px] text-[var(--strix-text-muted)] mb-3 leading-relaxed">
+            Transformer's per-stage probability for this chain's next move.
+            The highlighted bar is the top prediction.
+          </p>
+          <StageProbabilityBars
+            probabilities={predictions.data?.probabilities ?? []}
+            predictedNextStage={predictions.data?.predictedNextStage ?? null}
+          />
+        </div>
       </div>
 
       {/* Bottom Metrics Bar */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <MetricCard
           label="Infection Radius"
-          value={
-            infection.data
-              ? `${(infection.data.percent * 100).toFixed(1)}%`
-              : "—"
-          }
-          sub={
-            infection.data
-              ? `${infection.data.infectedCount}/${infection.data.totalCount} hosts`
-              : "—"
-          }
+          value={infection.data ? `${(infection.data.percent * 100).toFixed(1)}%` : "—"}
+          sub={infection.data ? `${infection.data.infectedCount}/${infection.data.totalCount} hosts` : "—"}
         />
         <MetricCard
           label="Dwell Time"
@@ -214,17 +262,18 @@ export default function AttackAnalysisDetailPage({ params }: PageProps) {
         <MetricCard
           label="Predicted Next Stage"
           value={predictions.data?.predictedNextStageName ?? "—"}
-          sub={
-            predictions.data
-              ? `confidence ${(predictions.data.confidence * 100).toFixed(0)}%`
-              : "—"
-          }
+          sub={predictions.data ? `confidence ${(predictions.data.confidence * 100).toFixed(0)}%` : "—"}
         />
         <MetricCard
           label="Steps in Chain"
           value={(ckcProg.data?.stages.length ?? 0).toString()}
           sub="distinct CKC stages observed"
         />
+      </div>
+
+      {/* Operator notes — local-only scratchpad. */}
+      <div className="bg-[var(--strix-bg-card)] border border-[var(--strix-border)] rounded-xl p-5">
+        <OperatorNotes chainId={resolvedId ?? id} />
       </div>
 
       {/* Action Bar */}
@@ -236,11 +285,39 @@ export default function AttackAnalysisDetailPage({ params }: PageProps) {
           </span>
         </div>
         <div className="flex items-center gap-2">
-          <button className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-[10px] font-semibold uppercase tracking-wider border border-[var(--strix-border)] text-[var(--strix-text-muted)] hover:bg-[var(--strix-bg-surface)] transition-colors">
+          <button
+            onClick={() => {
+              const bundle = {
+                exportedAt: new Date().toISOString(),
+                chainId: id,
+                infection: infection.data ?? null,
+                ckcProgression: ckcProg.data ?? null,
+                dwellTime: dwell.data ?? null,
+                predictions: predictions.data ?? null,
+              }
+              const stamp = new Date().toISOString().replace(/[:.]/g, "-")
+              downloadJson(`strix-forensic-${id}-${stamp}.json`, bundle)
+              toast.success("Forensic bundle exported (JSON).")
+            }}
+            className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-[10px] font-semibold uppercase tracking-wider border border-[var(--strix-border)] text-[var(--strix-text-muted)] hover:bg-[var(--strix-bg-surface)] transition-colors"
+          >
             <FileText className="h-3.5 w-3.5" />
-            Export Forensic PDF
+            Export Forensic
           </button>
-          <button className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-[10px] font-semibold uppercase tracking-wider bg-red-500 text-white hover:bg-red-600 transition-colors">
+          <button
+            onClick={() => {
+              if (typeof window === "undefined") return
+              const ok = window.confirm(
+                "Initiate counter-measure on this chain? This is a manual operator action. The platform does not auto-execute network blocks; the request will be queued for approval.",
+              )
+              if (!ok) return
+              toast.warning(
+                "Counter-measure queued for approval. (Backend RL counter-measure endpoint is not enabled in this build.)",
+                6000,
+              )
+            }}
+            className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-[10px] font-semibold uppercase tracking-wider bg-red-500 text-white hover:bg-red-600 transition-colors"
+          >
             <Zap className="h-3.5 w-3.5" />
             Initiate Counter-Measure
           </button>
@@ -250,15 +327,7 @@ export default function AttackAnalysisDetailPage({ params }: PageProps) {
   )
 }
 
-function MetricCard({
-  label,
-  value,
-  sub,
-}: {
-  label: string
-  value: string
-  sub: string
-}) {
+function MetricCard({ label, value, sub }: { label: string; value: string; sub: string }) {
   return (
     <div className="bg-[var(--strix-bg-card)] border border-[var(--strix-border)] rounded-xl p-5">
       <span className="text-[9px] text-[var(--strix-text-muted)] uppercase tracking-wider block mb-1">

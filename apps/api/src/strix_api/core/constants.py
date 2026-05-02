@@ -6,12 +6,24 @@ codebase. Tickets that need to mutate these are called out in §10.
 
 from __future__ import annotations
 
+import os
 from typing import Final
 
 # ---- Chain lifecycle (§5.4, §6.3) -----------------------------------
-# ⚠️ PRELIMINARY — recalibrate in P2-9 against ≥1-week real-stream sample.
-CHAIN_OPEN_VAE_THRESHOLD: Final[float] = 0.5
-CHAIN_OPEN_AE_THRESHOLD: Final[float] = 1.0
+# Smoke testing on this lab found AE/VAE/Transformer have an INVERTED
+# malice signal (benign rule-80789 → vae_prob ≈ 1.0, attack rule-1001xx → ≈ 0.15);
+# only the GNN learned proper labels. So the chain-open gate uses GNN node-risk
+# only. AE/VAE thresholds below are kept as INFORMATIONAL anomaly thresholds
+# (UI diagnostics + downstream references) — they no longer drive open/skip.
+#
+# The default 0.7743 is from gnn_propagation_metadata.pkl. Lowered for
+# synthetic-traffic testing via STRIX_GNN_OPEN_THRESHOLD — Caldera-driven runs
+# leave the env var unset and keep the trained threshold.
+CHAIN_OPEN_GNN_THRESHOLD: Final[float] = float(
+    os.environ.get("STRIX_GNN_OPEN_THRESHOLD", "0.7743")
+)
+CHAIN_OPEN_VAE_THRESHOLD: Final[float] = 0.5  # informational / anomaly diagnostic
+CHAIN_OPEN_AE_THRESHOLD: Final[float] = 1.0  # informational / anomaly diagnostic
 
 CHAIN_IDLE_TIMEOUT_MINUTES: Final[int] = 120  # §12 Q5 (was 30, revised)
 CHAIN_MAX_STEPS: Final[int] = 50  # mirrors APTEnvironment.max_steps
@@ -40,3 +52,45 @@ FEATURE_VECTOR_DIM: Final[int] = 55
 STATE_VECTOR_DIM: Final[int] = 13
 AE_LATENT_DIM: Final[int] = 64
 DQN_ACTION_SPACE: Final[int] = 5
+
+# ---- DQN decision gates (lab-distribution mitigation) ---------------
+# The DQN was trained on Linux-APT-Dataset-2024 distribution. On the live
+# Caldera lab, two failure modes appear in the data (verified via direct
+# postgres queries on a 5-tactic APT29 run):
+#
+#   STORY 1 — Distribution shift saturates VAE on benign noise. AE
+#   reconstruction error climbs to ~44 on lab events (training-time max
+#   was ~12). The VAE calibrator is logistic-regression on recon_error,
+#   so it pegs to 0.999 → DQN reads "high VAE prob" as "attack" and
+#   outputs ISOLATE_HOST on plain auditd events. Observed 97,888 stage-0
+#   ISOLATEs with gnn_node_risk = 0 (the GNN — the only correct signal —
+#   said "benign", DQN ignored it).
+#
+#   STORY 2 — Reward shaping at training time taught the DQN that
+#   intervention after stage 7 has no value (it can't prevent what
+#   already happened). On lab data, Q(ESCALATE | stage=7) is NEGATIVE.
+#   2,957 stage-7 events were silently downgraded to LOW_ALERT.
+#
+# These three gates fix both without retraining. Tunable via env.
+
+# OOD gate: AE recon error above this threshold ⇒ AE/VAE inputs to the
+# DQN are unreliable; bypass the DQN and decide on GNN risk only.
+# Training-time AE max ≈ 12, lab-time tail ≈ 44, so 8 sits in OOD-only.
+DQN_OOD_AE_RECON_THRESHOLD: Final[float] = float(
+    os.environ.get("STRIX_DQN_OOD_AE_RECON_THRESHOLD", "8.0")
+)
+
+# Q-margin abstention: if max(Q) − second_max(Q) is below this, the
+# argmax is essentially noise — force NO_OP. Silent-stage-7 ESCALATE
+# bucket had Q-margin 0.18, so 0.4 cleanly gates that out.
+DQN_Q_MARGIN_MIN: Final[float] = float(
+    os.environ.get("STRIX_DQN_Q_MARGIN_MIN", "0.4")
+)
+
+# Stage-7 force-escalate: regardless of DQN output, if THIS event lands
+# on CKC stage 7 (Action — kill-chain endpoint) and the GNN has any
+# meaningful node risk, force ESCALATE. Reverses the negative-Q learned
+# behaviour from Story 2.
+DQN_STAGE7_FORCE_ESCALATE_GNN_MIN: Final[float] = float(
+    os.environ.get("STRIX_DQN_STAGE7_GNN_MIN", "0.5")
+)
