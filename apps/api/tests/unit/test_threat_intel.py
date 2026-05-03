@@ -9,11 +9,11 @@ import httpx
 import pytest
 from fastapi.testclient import TestClient
 
-from strix_api.adapters.hibp_adapter import HibpAdapter, HibpError
 from strix_api.adapters.virustotal_adapter import (
     VirusTotalAdapter,
     VirusTotalError,
 )
+from strix_api.adapters.xposedornot_adapter import XonAdapter, XonError
 from strix_api.services.threat_intel_service import detect_indicator_type
 from strix_api.settings import ThreatIntelSettings
 
@@ -46,15 +46,12 @@ def test_detect_distinguishes_hash_from_hex_email_lookalike() -> None:
     assert detect_indicator_type("a" * 64) == "hash"
 
 
-# ---- HIBP adapter ----------------------------------------------------
+# ---- XposedOrNot adapter --------------------------------------------
 
 
-def _ti_settings(
-    *, hibp_key: str | None = "key", vt_key: str | None = "key"
-) -> ThreatIntelSettings:
+def _ti_settings(*, vt_key: str | None = "key") -> ThreatIntelSettings:
     return ThreatIntelSettings(
-        hibp_api_key=hibp_key,
-        hibp_user_agent="strix-test/1.0",
+        xon_user_agent="strix-test/1.0",
         virustotal_api_key=vt_key,
         breaker_fail_max=3,
         breaker_reset_timeout_seconds=1,
@@ -62,11 +59,12 @@ def _ti_settings(
 
 
 @pytest.mark.asyncio
-async def test_hibp_404_is_clean_not_error() -> None:
-    transport = httpx.MockTransport(lambda req: httpx.Response(404))
+async def test_xon_clean_response_is_clean() -> None:
+    body = {"Error": "Not found", "email": None}
+    transport = httpx.MockTransport(lambda req: httpx.Response(200, json=body))
     client = httpx.AsyncClient(transport=transport)
     try:
-        adapter = HibpAdapter(_ti_settings(), client=client)
+        adapter = XonAdapter(_ti_settings(), client=client)
         out = await adapter.lookup_email("alice@example.com")
         assert out.reputation == "clean"
         assert out.breach_count == 0
@@ -75,12 +73,16 @@ async def test_hibp_404_is_clean_not_error() -> None:
 
 
 @pytest.mark.asyncio
-async def test_hibp_200_with_breaches_is_malicious() -> None:
-    body = [{"Name": "Adobe", "Domain": "adobe.com"}, {"Name": "Yahoo"}]
+async def test_xon_breaches_is_malicious() -> None:
+    body = {
+        "breaches": [["Adobe", "Yahoo"]],
+        "email": "alice@example.com",
+        "status": "success",
+    }
     transport = httpx.MockTransport(lambda req: httpx.Response(200, json=body))
     client = httpx.AsyncClient(transport=transport)
     try:
-        adapter = HibpAdapter(_ti_settings(), client=client)
+        adapter = XonAdapter(_ti_settings(), client=client)
         out = await adapter.lookup_email("alice@example.com")
         assert out.reputation == "malicious"
         assert out.breach_count == 2
@@ -90,12 +92,24 @@ async def test_hibp_200_with_breaches_is_malicious() -> None:
 
 
 @pytest.mark.asyncio
-async def test_hibp_429_is_transient_error() -> None:
+async def test_xon_404_is_clean_not_error() -> None:
+    transport = httpx.MockTransport(lambda req: httpx.Response(404))
+    client = httpx.AsyncClient(transport=transport)
+    try:
+        adapter = XonAdapter(_ti_settings(), client=client)
+        out = await adapter.lookup_email("alice@example.com")
+        assert out.reputation == "clean"
+    finally:
+        await client.aclose()
+
+
+@pytest.mark.asyncio
+async def test_xon_429_is_transient_error() -> None:
     transport = httpx.MockTransport(lambda req: httpx.Response(429))
     client = httpx.AsyncClient(transport=transport)
     try:
-        adapter = HibpAdapter(_ti_settings(), client=client)
-        with pytest.raises(HibpError) as exc_info:
+        adapter = XonAdapter(_ti_settings(), client=client)
+        with pytest.raises(XonError) as exc_info:
             await adapter.lookup_email("alice@example.com")
         assert exc_info.value.transient is True
     finally:
@@ -103,42 +117,19 @@ async def test_hibp_429_is_transient_error() -> None:
 
 
 @pytest.mark.asyncio
-async def test_hibp_401_is_permanent_error() -> None:
-    transport = httpx.MockTransport(lambda req: httpx.Response(401))
-    client = httpx.AsyncClient(transport=transport)
-    try:
-        adapter = HibpAdapter(_ti_settings(), client=client)
-        with pytest.raises(HibpError) as exc_info:
-            await adapter.lookup_email("alice@example.com")
-        assert exc_info.value.transient is False
-    finally:
-        await client.aclose()
-
-
-@pytest.mark.asyncio
-async def test_hibp_breaker_opens_after_repeated_failure() -> None:
+async def test_xon_breaker_opens_after_repeated_failure() -> None:
     transport = httpx.MockTransport(lambda req: httpx.Response(500))
     client = httpx.AsyncClient(transport=transport)
     try:
-        adapter = HibpAdapter(_ti_settings(), client=client)
-        # Trigger fail_max=3 failures
+        adapter = XonAdapter(_ti_settings(), client=client)
         for _ in range(3):
-            with pytest.raises(HibpError):
+            with pytest.raises(XonError):
                 await adapter.lookup_email("alice@example.com")
         assert adapter.breaker_state == "open"
-        # Subsequent call should fast-fail with breaker error mapped to HibpError.
-        with pytest.raises(HibpError):
+        with pytest.raises(XonError):
             await adapter.lookup_email("alice@example.com")
     finally:
         await client.aclose()
-
-
-@pytest.mark.asyncio
-async def test_hibp_no_api_key_is_permanent_error() -> None:
-    adapter = HibpAdapter(_ti_settings(hibp_key=None))
-    with pytest.raises(HibpError) as exc_info:
-        await adapter.lookup_email("alice@example.com")
-    assert exc_info.value.transient is False
 
 
 # ---- VirusTotal adapter ---------------------------------------------
@@ -286,7 +277,7 @@ def test_vt_scan_rejects_email(client: TestClient) -> None:
         json={"indicator": "alice@example.com"},
     )
     assert resp.status_code == 400
-    assert "HIBP" in resp.json().get("detail", "")
+    assert "XposedOrNot" in resp.json().get("detail", "")
 
 
 def test_vt_scan_rejects_garbage_indicator(client: TestClient) -> None:

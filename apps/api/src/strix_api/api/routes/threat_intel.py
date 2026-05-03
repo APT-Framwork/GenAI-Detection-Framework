@@ -19,8 +19,8 @@ from uuid import uuid4
 from fastapi import APIRouter, Depends, File, Query, UploadFile
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from strix_api.adapters.hibp_adapter import HibpAdapter
 from strix_api.adapters.virustotal_adapter import VirusTotalAdapter
+from strix_api.adapters.xposedornot_adapter import XonAdapter
 from strix_api.api.deps import SettingsDep, get_db_session
 from strix_api.api.errors import StrixError
 from strix_api.api.schemas.threat_intel import (
@@ -72,7 +72,7 @@ def _ioc_to_schema(r: IocResult) -> IocItem:
 @router.get(
     "/iocs",
     response_model=IocSearchResponse,
-    summary="Search the IOC cache, with on-demand HIBP/VT lookup when q is exact",
+    summary="Search the IOC cache, with on-demand XposedOrNot/VT lookup when q is exact",
 )
 async def search_iocs(
     settings: SettingsDep,
@@ -86,11 +86,11 @@ async def search_iocs(
         return IocSearchResponse(items=[], total=0, page=page, limit=limit)
 
     ioc_repo = IocRepo(session)
-    hibp = HibpAdapter(settings.threat_intel)
+    xon = XonAdapter(settings.threat_intel)
     vt = VirusTotalAdapter(settings.threat_intel)
     service = ThreatIntelService(
         ioc_repo=ioc_repo,
-        hibp=hibp,
+        xon=xon,
         virustotal=vt,
         compromised=CompromisedAssetsRepo(session),
     )
@@ -111,11 +111,11 @@ async def search_iocs(
             # Adapter explicitly raised — fall through to a cache-only search.
             pass
         finally:
-            await hibp.aclose()
+            await xon.aclose()
             await vt.aclose()
 
     rows, total = await service.search(query=q, indicator_type=type, page=page, limit=limit)
-    await hibp.aclose()
+    await xon.aclose()
     await vt.aclose()
     return IocSearchResponse(
         items=[_ioc_to_schema(r) for r in rows],
@@ -175,7 +175,7 @@ async def virustotal_scan(
     if sniffed is None:
         raise _BadRequestError(f"unrecognized indicator: {body.indicator!r}")
     if sniffed == "email":
-        raise _BadRequestError("email lookups go through HIBP, not VT")
+        raise _BadRequestError("email lookups go through XposedOrNot, not VT")
 
     job_id = uuid4()
     try:

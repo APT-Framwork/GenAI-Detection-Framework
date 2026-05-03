@@ -87,8 +87,7 @@ class WazuhSettings(BaseSettings):
 class ThreatIntelSettings(BaseSettings):
     model_config = SettingsConfigDict(env_prefix="THREAT_INTEL_")
 
-    hibp_api_key: SecretStr | None = None
-    hibp_user_agent: str = "strix-platform/1.0"
+    xon_user_agent: str = "strix-platform/1.0"
     virustotal_api_key: SecretStr | None = None
     # Circuit-breaker tuning (applies to all upstreams)
     breaker_fail_max: int = 5

@@ -14,7 +14,7 @@ class IocItem(StrixBase):
     indicator: str
     type: str  # 'email' | 'ip' | 'domain' | 'hash'
     reputation: str  # 'malicious' | 'suspicious' | 'clean' | 'unknown'
-    source: str  # 'hibp' | 'virustotal' | 'cache'
+    source: str  # 'xon' | 'virustotal' | 'cache'
     last_checked: str
     breach_count: int | None = None
     stale: bool = False

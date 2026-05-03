@@ -7,13 +7,13 @@ from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 from typing import Any
 
-from strix_api.adapters.hibp_adapter import HibpAdapter, HibpError
 from strix_api.adapters.virustotal_adapter import VirusTotalAdapter, VirusTotalError
+from strix_api.adapters.xposedornot_adapter import XonAdapter, XonError
 from strix_api.repositories.ioc_repo import CompromisedAssetsRepo, IocRepo
 from strix_api.repositories.models import IocLookupCache
 
-_HIBP_POSITIVE_TTL = timedelta(hours=24)
-_HIBP_NEGATIVE_TTL = timedelta(minutes=5)
+_XON_POSITIVE_TTL = timedelta(hours=24)
+_XON_NEGATIVE_TTL = timedelta(minutes=5)
 _VT_TTL = timedelta(hours=24)
 
 _EMAIL_RE = re.compile(r"^[^\s@]+@[^\s@]+\.[^\s@]+$")
@@ -28,7 +28,7 @@ class IocResult:
     indicator: str
     indicator_type: str  # 'email' | 'ip' | 'domain' | 'hash'
     reputation: str  # 'malicious' | 'suspicious' | 'clean' | 'unknown'
-    source: str  # 'hibp' | 'virustotal' | 'cache'
+    source: str  # 'xon' | 'virustotal' | 'cache'
     last_checked: datetime
     breach_count: int | None = None
     payload: dict[str, Any] | None = None
@@ -56,12 +56,12 @@ class ThreatIntelService:
         self,
         *,
         ioc_repo: IocRepo,
-        hibp: HibpAdapter,
+        xon: XonAdapter,
         virustotal: VirusTotalAdapter,
         compromised: CompromisedAssetsRepo,
     ) -> None:
         self._iocs = ioc_repo
-        self._hibp = hibp
+        self._xon = xon
         self._vt = virustotal
         self._compromised = compromised
 
@@ -72,7 +72,7 @@ class ThreatIntelService:
             raise ValueError(f"unrecognized indicator shape: {indicator!r}")
 
         normalized = indicator.strip().lower()
-        source = "hibp" if sniffed == "email" else "virustotal"
+        source = "xon" if sniffed == "email" else "virustotal"
 
         cached = await self._iocs.get(
             indicator=normalized,
@@ -85,12 +85,12 @@ class ThreatIntelService:
 
         try:
             if sniffed == "email":
-                hit = await self._hibp.lookup_email(normalized)
-                ttl = _HIBP_POSITIVE_TTL if hit.reputation == "malicious" else _HIBP_NEGATIVE_TTL
+                hit = await self._xon.lookup_email(normalized)
+                ttl = _XON_POSITIVE_TTL if hit.reputation == "malicious" else _XON_NEGATIVE_TTL
                 await self._iocs.upsert(
                     indicator=normalized,
                     indicator_type="email",
-                    source="hibp",
+                    source="xon",
                     reputation=hit.reputation,
                     payload={"breachCount": hit.breach_count, "breaches": hit.breaches},
                     ttl=ttl,
@@ -99,7 +99,7 @@ class ThreatIntelService:
                     indicator=normalized,
                     indicator_type="email",
                     reputation=hit.reputation,
-                    source="hibp",
+                    source="xon",
                     last_checked=now,
                     breach_count=hit.breach_count,
                     payload={"breaches": hit.breaches},
@@ -141,7 +141,7 @@ class ThreatIntelService:
                 payload={"counts": vt.counts.__dict__, "engines": vt.engines},
             )
 
-        except (HibpError, VirusTotalError) as exc:
+        except (XonError, VirusTotalError) as exc:
             # Transient upstream failure or breaker open — serve stale cache
             # (per §5.14 fallback policy).
             if cached and exc.transient:

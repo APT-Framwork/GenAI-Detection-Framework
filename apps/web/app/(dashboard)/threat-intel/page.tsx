@@ -71,11 +71,11 @@ function timeAgo(iso: string | null): string {
 // adapter (rate limits, source kind) and doesn't change between runs.
 const FEED_REGISTRY = [
   {
-    name: "HaveIBeenPwned",
-    adapterPath: "apps/api/src/strix_api/adapters/hibp_adapter.py",
-    rate: "1 lookup / 1.5s",
+    name: "XposedOrNot",
+    adapterPath: "apps/api/src/strix_api/adapters/xposedornot_adapter.py",
+    rate: "1 lookup / 1s",
     kind: "live",
-    description: "Email breach lookups for IOC enrichment.",
+    description: "Free email breach lookups for IOC enrichment (no API key).",
   },
   {
     name: "VirusTotal",
@@ -407,12 +407,12 @@ export default function ThreatIntelPage() {
             {FEED_REGISTRY.map((feed) => {
               // We mark a feed "online" when:
               //   * static adapter (MITRE) — always online once loaded
-              //   * IOC search query has returned for HIBP/VT
+              //   * IOC search query has returned for XposedOrNot/VT
               //     (their results contribute to the IOC table)
               //   * file scan has succeeded for VT
               // If iocs.isError we fall back to "degraded" so the
               // pill is honest about connection problems.
-              const usedByIocSearch = feed.name === "HaveIBeenPwned" || feed.name === "VirusTotal"
+              const usedByIocSearch = feed.name === "XposedOrNot" || feed.name === "VirusTotal"
               const status: "online" | "static" | "degraded" | "idle" =
                 feed.kind === "static"
                   ? "static"

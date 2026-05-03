@@ -17,7 +17,7 @@ export interface IocItem {
   indicator: string;
   type: "email" | "ip" | "domain" | "hash";
   reputation: "malicious" | "suspicious" | "clean" | "unknown";
-  source: "hibp" | "virustotal" | "cache";
+  source: "xon" | "virustotal" | "cache";
   lastChecked: string;
   breachCount?: number | null;
   stale?: boolean;
