@@ -1,0 +1,129 @@
+{% extends 'sidebar.html' %}
+
+{% block content %}
+
+<br><br><br>
+<div style="display:flex; margin: 0 auto; width: 50vw; justify-content: center;flex-direction: column;align-items: center;">
+
+
+    <div class="box" style="width: 80vw">
+    <p>Add an activity to the scenario </p>
+
+    <form action="" method="POST">{% csrf_token %}
+        <div class="select">
+            {{form.tactic_choice}}
+        </div>
+
+        <div class="select">
+            {{form.technique_choice}}
+        </div>
+
+        <div class="select">
+            {{form.procedure_choice}}
+        </div>
+
+        <input type="hidden" value="{{scenario_id}}" name="scenario_id">
+
+        <input type="submit" value="add" class="input" style="width: 5vw">
+
+    </form>
+    </div>
+    <br><br><br><br>
+    {% if messages %}
+        {% for message in messages %}
+            <article class="message is-warning">
+                <div class="message-header">
+                    <p>Error</p>
+                </div>
+                <div class="message-body">
+                    {{ message }}
+                </div>
+            </article>
+        {% endfor %}
+    {% endif %}
+    <br><br><br><br>
+
+    <div class="box" style="width: 80vw">
+        <h5 class="subtitle is-5">Scenario</h5>
+
+        <table class="table" style="width: 70vw">
+            <tbody>
+                {% for step in scenario_steps %}
+                    <tr>
+                        <td>{{step.tactic}}</td>
+                        <td>{{step.technique}}</td>
+                        <td>{{step.procedure}}</td>
+                    </tr>
+
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+ <script>
+    function maj_technique_choice() {
+      var selectElement = document.getElementById("id_procedure_choice");
+      while (selectElement.options.length > 0) {
+        selectElement.remove(0);
+      }
+      var tactic = document.getElementById("id_tactic_choice").value;
+      if (tactic=="---") {
+          var selectElement = document.getElementById("id_technique_choice");
+          while (selectElement.options.length > 0) {
+              selectElement.remove(0);
+          }
+          return;
+      }
+      var url = "{% url 'maj_technique-choice' %}?tactic=" + encodeURIComponent(tactic);
+
+      fetch(url)
+        .then(response => response.json())
+        .then(data => {
+          var select = document.getElementById("id_technique_choice");
+          select.innerHTML = "";
+          data.forEach(option => {
+            var el = document.createElement("option");
+            el.textContent = option[1];
+            el.value = encodeURIComponent(option[0]);
+            select.appendChild(el);
+          });
+        })
+        .catch(error => {
+          console.error(error);
+        });
+
+
+    }
+
+    function maj_procedure_choice() {
+      var tactic = document.getElementById("id_tactic_choice").value;
+      var technique = document.getElementById("id_technique_choice").value;
+      if (technique == "---") {
+        var selectElement = document.getElementById("id_procedure_choice");
+        while (selectElement.options.length > 0) {
+           selectElement.remove(0);
+        }
+        return;
+      }
+      var url = "{% url 'maj_procedure-choice' %}?tactic=" + encodeURIComponent(tactic) + "&technique=" + encodeURIComponent(technique);
+
+      fetch(url)
+        .then(response => response.json())
+        .then(data => {
+          var select = document.getElementById("id_procedure_choice");
+          select.innerHTML = "";
+          data.forEach(option => {
+            var el = document.createElement("option");
+            el.textContent = option[1];
+            el.value = option[0];
+            select.appendChild(el);
+          });
+        })
+        .catch(error => {
+          console.error(error);
+        });
+    }
+  </script>
+
+{% endblock %}

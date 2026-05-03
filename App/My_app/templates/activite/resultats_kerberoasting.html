@@ -1,0 +1,64 @@
+{% extends 'sidebar.html' %}
+
+{% block content %}
+
+<br><br>
+<div style="display:flex; margin: 0 auto; width: 50vw; justify-content: center;flex-direction: column;align-items: center;">
+    <h2 class="subtitle is-2">Domain service accounts</h2>
+
+    {% if messages %}
+        <div>
+            {% for message in messages %}
+                <article class="message is-warning">
+                    <div class="message-header">
+                        <p>Error</p>
+                        <button class="delete" aria-label="delete"></button>
+                    </div>
+                    <div class="message-body">
+                        {{ message }}
+                    </div>
+                </article>
+            {% endfor %}
+
+
+        </div>
+
+    {% else %}
+
+
+    <table class="table" style="width: 70vw">
+        <thead>
+            <tr>
+                <th>Domain controler ip/fqdn</th>
+                <th>SPN</th>
+                <th>Service</th>
+                <th>Service hash</th>
+
+            </tr>
+        </thead>
+        <tbody>
+
+        {% for service in results.services %}
+            <tr>
+                <td>{{ results.dc_ip }}</td>
+                <td>{{ service.SPN }}</td>
+                <td>{{ service.service }}</td>
+                <td>
+
+                    {{ service.service_compte_hash|linebreaksbr }}
+
+                </td>
+
+
+
+            </tr>
+        {% endfor %}
+
+    </table>
+
+
+    {% endif %}
+</div>
+
+
+{% endblock %}

@@ -1,0 +1,71 @@
+{% extends 'attacks.html' %}
+
+{% block attack %}
+<br><br><br>
+<div style="display:flex; margin: 0 auto; width: 50vw; justify-content: center;flex-direction: column;align-items: center;">
+    <br><br><br>
+    <div class="box" style="width: 60vw">
+    <br><br>
+
+<h2 class="subtitle is-2">SMB enumeration</h2>
+<form action="" method="POST">
+    {% csrf_token %}
+
+    <div class="field">
+        <label class="label">Activity name</label>
+        <div class="control">
+            {{ form.smb_enum_name }}
+        </div>
+    </div>
+
+    <div class="field">
+        <label class="label">Ip list</label>
+        <div class="select">
+            {{ form.ip_address }}
+        </div>
+    </div>
+
+    <div class="field">
+        <label class="label">Ip address</label>
+        <div class="control">
+            {{ form.ip_address2 }}
+        </div>
+    </div>
+    <br><br>
+    <div class="field">
+        <div class="control">
+            Import from database {{ form.checkbox }}
+        </div>
+    </div>
+
+    <div style="display: flex; justify-content: flex-end;">
+    <input class="button is-dark" type="submit" value="Start">
+    </div>
+
+</form>
+</div>
+</div>
+
+<script>
+
+    window.addEventListener('load', function() {
+        toggleInputs();  // Appeler la fonction pour activer/désactiver les champs selon l'état initial de la case à cocher
+    });
+
+    function toggleInputs() {
+    var checkbox = document.getElementById("id_checkbox");
+    var list_ip = document.getElementById("id_ip_address");
+    var ip_char = document.getElementById("id_ip_address2");
+
+    if (checkbox.checked) {
+      list_ip.disabled = false;  // Activer le champ
+      ip_char.disabled = true; // Déactiver le champ
+    } else {
+      list_ip.disabled = true;  // Désactiver le champ
+      ip_char.disabled = false; // Activer le champ
+     }
+    }
+
+
+</script>
+{% endblock %}

@@ -1,0 +1,59 @@
+{% load static %}
+<!DOCTYPE html>
+<!-- Created by CodingLab |www.youtube.com/c/CodingLabYT-->
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="UTF-8">
+    <title> Port listener</title>
+      <link rel="stylesheet" href="{% static 'xterm/css/xterm.css' %}" />
+      <link rel="stylesheet" href="{% static 'bulma/css/bulma.css' %}">
+      <script src="{% static 'xterm/lib/xterm.js' %}"></script>
+
+     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   </head>
+<body>
+
+      <br><br>
+      <div style="display:flex; margin: 0 auto; width: 50vw; justify-content: center;flex-direction: column;align-items: center;">
+          <h2 class="subtitle is-2">Port listener</h2>
+          {% if messages %}
+        <div>
+            {% for message in messages %}
+                <article class="message is-warning">
+                    <div class="message-header">
+                        <p>info</p>
+
+                    </div>
+                    <div class="message-body">
+                        {{ message }}
+                    </div>
+                </article>
+            {% endfor %}
+
+
+        </div>
+
+    {% else %}
+
+        <div>
+            <h3><b>Shell</b></h3>
+            <hr>
+            <div id="terminal"></div>
+            <div id="monDiv"></div>
+            <!--<button onclick="f1('ls')">Command ls</button>-->
+            </div>
+          <form method="POST" action=""> {% csrf_token %}
+          <input value="session uuid:{{session_uuid}}" type="hidden" id="session_uuid" name="session_uuid">
+              <br><br>
+              <input type="submit" value="Choisir une TTP" class="button is-dark">
+          </form>
+
+    <script src="{% static 'xterm/lib/frontend1.js' %}"></script>
+
+    {% endif %}
+
+</div>
+
+
+</body>
+</html>

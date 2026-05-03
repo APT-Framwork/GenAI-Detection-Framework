@@ -1,0 +1,39 @@
+{% extends 'sidebar.html' %}
+
+{% block content %}
+
+<br><br><br>
+<div style="display:flex; margin: 0 auto; width: 50vw; justify-content: center;flex-direction: column;align-items: center;">
+    <div class="box" style="width: 80vw">
+    <h5 class="subtitle is-5">Add a scenario</h5>
+
+    <form action="" method="POST">{% csrf_token %}
+        <p>{{ form.scenario_name }} <input type="submit" value="add" class="input" style="width: 5vw"></p>
+
+    </form>
+        <br><br>
+        <a href="{% url 'My_app-scenario' %}?stop_scenario=stop">Stop scenario</a>
+    </div>
+    <br><br><br><br>
+
+
+    <div class="box" style="width: 80vw">
+        <h5 class="subtitle is-5">Scenarios</h5>
+        <table class="table" style="width: 70vw">
+            <tbody>
+            {% for scenario in scenario_list %}
+                <tr>
+                    <td>{{scenario.scenario_name}}</td>
+                    <td><a href="{% url 'My_app-scenario' %}?use_id={{scenario.id}}">use</a></td>
+                    <td><a href="{% url 'My_app-scenario' %}?modify_id={{scenario.id}}">modify</a></td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+
+
+{% endblock %}

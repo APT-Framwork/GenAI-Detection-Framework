@@ -1,0 +1,79 @@
+{% extends 'attacks.html' %}
+
+{% block attack %}
+
+{% include 'navbar.html' %}
+<br><br>
+
+
+{% if procedures %}
+
+    <div style="display:flex; margin: 0 auto; width: 50vw; justify-content: center;flex-direction: column;align-items: center;">
+
+    <table class="table" style="width: 70vw">
+        <thead>
+            <tr>
+                <th>Procedure</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+
+            {% for procedure_name, procedure_info in procedures.items %}
+                <tr>
+                    <td><a href="{% url 'attacks-post_exp' %}?procedure={{procedure_info.name}}&tactic={{tactic}}&technique={{technique}}&uuid={{session_uuid}}">{{ procedure_name }} </a></td>
+                    <td> {{ procedure_info.description }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    </div>
+
+    <!--
+
+        <div style="display:flex; margin: 0 auto; width: 50vw; justify-content: center;flex-direction: column;align-items: center;">
+            <br><br><br>
+            <h4 class="subtitle is-4">Choisissez une procédure</h4>
+
+            {% for procedure_name, procedure_info in procedures.items %}
+
+
+                    <button class="button is-fullwidth" style="width: 40vw;">
+                        <a href="{% url 'attacks-post_exp' %}?procedure={{procedure_info.name}}&tactic={{tactic}}&technique={{technique}}&uuid={{session_uuid}}">
+                            {{ procedure_name }}
+                        </a>
+                    </button>
+
+            {% endfor %}
+        </div>
+
+       -->
+
+{% elif form %}
+<br><br><br>
+<div style="display:flex; margin: 0 auto; width: 50vw; justify-content: center;flex-direction: column;align-items: center;">
+    <br><br><br>
+    <div class="box" style="width: 60vw">
+    <br><br>
+    <form action="" method="POST">
+        {% csrf_token %}
+
+
+        {% for field in form %}
+            <div class="field">
+                <div class="control">
+                    {% if field.field.widget.input_type != 'hidden' %} <label class="label">{{ field.label_tag }}</label> {% endif %} {{ field }}
+                </div>
+            </div>
+        {% endfor %}
+        <div style="display: flex; justify-content: flex-end;">
+            <input class="button is-dark" type="submit" value="start">
+        </div>
+
+    </form>
+</div>
+</div>
+
+{% endif %}
+
+{% endblock %}

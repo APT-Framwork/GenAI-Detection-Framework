@@ -1,0 +1,65 @@
+{% extends 'sidebar.html' %}
+
+{% block content %}
+
+<br><br>
+<div style="display:flex; margin: 0 auto; width: 50vw; justify-content: center;flex-direction: column;align-items: center;">
+
+    {% if messages %}
+        <div>
+            {% for message in messages %}
+                <article class="message is-warning">
+                    <div class="message-header">
+
+                        <p>info</p>
+                    </div>
+                    <div class="message-body">
+                        {{ message }}
+                    </div>
+                </article>
+            {% endfor %}
+
+
+        </div>
+
+    {% else %}
+
+
+
+    <h2 class="subtitle is-2">SMB enumeration result</h2>
+    <table class="table" style="width: 70vw">
+        <thead>
+            <tr>
+                <th>host_ip</th>
+                <th>mac_addr</th>
+                <th>FQDN</th>
+                <th>workgroup</th>
+                <th>OS</th>
+                <th>computer_name</th>
+                <th>smb_authentication_level</th>
+                <th>smb_challenge_response</th>
+                <th>smb_signature</th>
+                <th>smb_v2_signature</th>
+
+            </tr>
+        </thead>
+        <tbody>
+            {% for host, info in activity_results.items %}
+            <tr>
+                <td>{{info.host_ip}}</td>
+                <td>{{info.mac_addr}}</td>
+                <td>{{info.FQDN}}</td>
+                <td>{{info.workgroup}}</td>
+                <td>{{info.OS}}</td>
+                <td>{{info.computer_name}}</td>
+                <td>{{info.smb_authentication_level}}</td>
+                <td>{{info.smb_challenge_response}}</td>
+                <td>{{info.smb_signature}}</td>
+                <td>{{info.smb_v2_signature}}</td>
+            </tr>
+            {% endfor %}
+    </table>
+
+    {% endif %}
+</div>
+{% endblock %}

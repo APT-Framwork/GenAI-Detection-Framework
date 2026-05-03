@@ -1,0 +1,75 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+  <head>
+  	<title>Login 09</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+
+	<link rel="stylesheet" href="{% static 'css/style_auth.css' %}">
+
+	</head>
+	<body style="background-color: #540c30;">
+	<section class="ftco-section">
+		<div class="container">
+			
+			<div class="row justify-content-center">
+				<div class="col-md-6 col-lg-4">
+					<div class="login-wrap py-5">
+		      	<div class="img d-flex align-items-center justify-content-center" style="background-image: url({% static 'images/1.jpg' %});"></div>
+		      	<h3 class="text-center mb-0">Welcome</h3>
+		      	<p class="text-center">Sign in by entering the information below</p>
+						<form action="" method="POST" class="login-form"> {% csrf_token %}
+
+							<div class="form-group">
+								<div class="icon d-flex align-items-center justify-content-center"><span class="fa fa-user"></span></div>
+									{{form.username}}
+							</div>
+
+							 <div class="form-group">
+	            				<div class="icon d-flex align-items-center justify-content-center"><span class="fa fa-lock"></span></div>
+								 	{{form.password}}
+							 </div>
+
+		      		<!--<div class="form-group">
+		      			<div class="icon d-flex align-items-center justify-content-center"><span class="fa fa-user"></span></div>
+		      			<input type="text" class="form-control" placeholder="Username">
+		      		</div>
+	            <div class="form-group">
+	            	<div class="icon d-flex align-items-center justify-content-center"><span class="fa fa-lock"></span></div>
+	              <input type="password" class="form-control" placeholder="Password">
+	            </div>
+	            <div class="form-group d-md-flex">
+								<div class="w-100 text-md-right">
+									<a href="#">Forgot Password</a>
+								</div>
+	            </div>
+							-->
+	            <div class="form-group">
+	            	<button type="submit" class="btn form-control btn-primary rounded submit px-3">Get Started</button>
+	            </div>
+	          </form>
+	          <div class="w-100 text-center mt-4 text">
+				  {% if messages %}
+				  	{% for message in messages %}
+				  		<span style="color: red;">{{message}}</span>
+				  	{% endfor %}
+				  {% endif%}
+	          	<p class="mb-0">Don't have an account?</p>
+		          <a href="{% url 'register-page' %}">Sign Up</a>
+	          </div>
+	        </div>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<script src="{% static 'js/jquery.min.js' %}"></script>
+  <script src="{% static 'js/popper.js' %}"></script>
+  <script src="{% static 'js/bootstrap.min.js' %}"></script>
+  <script src="{% static 'js/main.js' %}"></script>
+
+	</body>
+</html>
+

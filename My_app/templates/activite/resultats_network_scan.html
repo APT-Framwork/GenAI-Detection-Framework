@@ -1,0 +1,116 @@
+{% extends 'sidebar.html' %}
+
+{% block content %}
+
+<br><br>
+<div style="display:flex; margin: 0 auto; width: 50vw; justify-content: center;flex-direction: column;align-items: center;">
+
+    {% if messages %}
+        <div>
+            {% for message in messages %}
+                <article class="message is-warning">
+                    <div class="message-header">
+
+                        <p>info</p>
+                    </div>
+                    <div class="message-body">
+                        {{ message }}
+                    </div>
+                </article>
+            {% endfor %}
+
+
+        </div>
+
+    {% else %}
+
+
+    <h2 class="subtitle is-2">Hosts</h2>
+    <table class="table" style="width: 70vw">
+        <thead>
+            <tr>
+                <th>Machine</th>
+                <th>Status</th>
+                <th>hostname</th>
+
+            </tr>
+        </thead>
+        <tbody>
+            {% for key, val in activity.results.items %}
+            <tr>
+                <td>{{ key }}</td>
+                <td>{{ val.state }}</td>
+                <td>{{ val.hostname }}</td>
+            </tr>
+            {% endfor %}
+    </table>
+
+    <br><br>
+
+    <h2 class="subtitle is-2">Os matches</h2>
+    <table class="table" style="width: 70vw">
+        <thead>
+            <tr>
+                <th>Machine</th>
+                <th>Os_match name</th>
+                <th>Os match accuracy</th>
+                <th> Os match line</th>
+
+            </tr>
+        </thead>
+        <tbody>
+        {% for key, val in activity.results.items %}
+            {% for key2, val2 in val.os.items %}
+                <tr>
+                    <td>{{ key }}</td>
+                    <td>{{ key2 }}</td>
+                    <td>{{ val2.osmatch_accuracy }}</td>
+                    <td> {{ val2.osmatch_line }}</td>
+                </tr>
+            {% endfor %}
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <br><br>
+
+    <h2 class="subtitle is-2">Port stats</h2>
+
+    {% for key, val in activity.results.items %}
+
+
+    <br>
+    <h4 class="subtitle is-5">Host {{ key }}</h4>
+    <table class="table" style="width: 70vw">
+        <thead>
+
+            <tr>
+                <th>Port</th>
+                <th>Protocol</th>
+                <th>Status</th>
+                <th>Service</th>
+                <th>Version</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for key2, val2 in val.port.items %}
+                <tr>
+                    <td>{{ key2 }}</td>
+                    <td>{{ val2.protocol }}</td>
+                    <td>{{ val2.status }}</td>
+                    <td>{{ val2.service }}</td>
+                    <td>{{ val2.version }}</td>
+                </tr>
+            {% endfor %}
+
+        </tbody>
+    </table>
+
+
+    {% endfor %}
+
+    {% endif %}
+</div>
+
+{% endblock %}
+

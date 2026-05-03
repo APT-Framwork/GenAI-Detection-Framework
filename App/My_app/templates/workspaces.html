@@ -1,0 +1,48 @@
+{% extends 'sidebar.html' %}
+
+{% block content %}
+
+<br><br><br>
+<div style="display:flex; margin: 0 auto; width: 50vw; justify-content: center;flex-direction: column;align-items: center;">
+  <div class="box" style="width: 75vw">
+  <h5 class="subtitle is-5">Create a Workspace</h5>
+
+  <form action="" method="POST">{% csrf_token %}
+      {{ form.workspace_name }}
+      <input type="submit" value="Add" class="input" style="width: 5vw">
+
+  </form>
+  </div>
+  <br><br><br><br>
+
+  <div class="box" style="width: 75vw">
+      <h5 class="subtitle is-5">Workspaces</h5>
+
+
+      <table class="table" style="width: 70vw">
+            <tbody>
+                {% for workspace in workspace_list %}
+                    <tr>
+                        <td>{{workspace.id}}</td>
+                        <td>{{workspace.name}}</td>
+                        <td><a href="{% url 'My_app-workspaces' %}?workspace_id={{workspace.id}}">Select</a></td>
+                        <td><a href="{% url 'My_app-workspaces' %}?modify_id={{workspace.id}}">Modify</a></td>
+                    </tr>
+
+                {% endfor %}
+            </tbody>
+      </table>
+
+
+<!--
+<button class="button is-fullwidth" style="width: 40vw;"><a href="{% url 'My_app-workspaces' %}?workspace_id={{workspace.id}}">{{workspace.name}}</a></button>
+  -->
+  </div>
+  <br><br><br><br>
+
+
+</div>
+
+
+{% endblock %}
+

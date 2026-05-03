@@ -1,0 +1,118 @@
+{% load static %}
+<!DOCTYPE html>
+<!-- Created by CodingLab |www.youtube.com/c/CodingLabYT-->
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="UTF-8">
+    <title> ART </title>
+    <link rel="stylesheet" href="{% static 'sidebar/css/style.css' %}">
+      <link rel="stylesheet" href="{% static 'bulma/css/bulma.css' %}">
+    <!-- Boxicons CDN Link -->
+    <link href="{% static 'sidebar/css/boxicons.min.css' %}" rel="stylesheet">
+     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   </head>
+<body>
+  <div class="sidebar">
+    <div class="logo-details">
+
+     <!--<i class='bx bxl-c-plus-plus icon'></i>-->
+     <!--<img src="1.png" alt="" class="bx bxl-c-plus-plus icon">-->
+        <div class="logo_name">ART</div>
+        <img src="{% static 'sidebar/fonts/1.png' %}" class="bx bx-menu" id="btn" alt="">
+        <!--<i class='bx bx-menu' id="btn" ></i>-->
+    </div>
+    <ul class="nav-list">
+
+      <li>
+        <a href="{% url 'My_app-activite' %}">
+          <!--<i class='bx bx-grid-alt'></i>-->
+          <img src="{% static 'sidebar/fonts/activite.png' %}" class='bx bx-grid-alt' alt="">
+          <span class="links_name">Activities</span>
+        </a>
+         <span class="tooltip">Activities</span>
+      </li>
+      <li>
+       <a href="{% url 'My_app-workspaces' %}">
+        <!--<i class='bx bx-folder' ></i>-->
+        <img src="{% static 'sidebar/fonts/workspaces.png' %}" class='bx bx-folder' alt="">
+        <span class="links_name">Workpaces</span>
+
+       </a>
+       <span class="tooltip">Workspaces</span>
+     </li>
+     <li>
+       <a href="{% url 'My_app-attacks' %}">
+
+         <!--<i class='bx bx-chat' ></i>-->
+         <img src="{% static 'sidebar/fonts/attack.png' %}" class='bx bx-chat' alt="">
+         <span class="links_name">Attacks</span>
+       </a>
+       <span class="tooltip">Attacks</span>
+     </li>
+     <li>
+       <a href="{% url 'My_app-scenario' %}">
+         <!--<i class='bx bx-pie-chart-alt-2' ></i>-->
+         <img src="{% static 'sidebar/fonts/analytics2.svg' %}" class="bx bx-pie-chart-alt-2" alt="">
+         <span class="links_name">Scenario</span>
+       </a>
+       <span class="tooltip">Scenario</span>
+     </li>
+
+        <li>
+       <a href="{% url 'My_app-alerts' %}">
+         <!--<i class='bx bx-pie-chart-alt-2' ></i>-->
+         <img src="{% static 'sidebar/fonts/alerte.png' %}" class="bx bx-pie-chart-alt-2" alt="">
+         <span class="links_name">Alerts</span>
+       </a>
+       <span class="tooltip">Alerts</span>
+     </li>
+
+        <li>
+       <a href="{% url 'My_app-rapport' %}">
+         <!--<i class='bx bx-pie-chart-alt-2' ></i>-->
+         <img src="{% static 'sidebar/fonts/rapport.png' %}" class="bx bx-pie-chart-alt-2" alt="">
+         <span class="links_name">Report</span>
+       </a>
+       <span class="tooltip">Report</span>
+     </li>
+
+
+
+
+     <li>
+       <a href="{% url 'My_app-logout' %}">
+         <!--<i class='bx bx-cog' ></i>-->
+         <img src="{% static 'sidebar/fonts/exit.png' %}" class="bx bx-cog" alt="">
+         <span class="links_name">Log out</span>
+       </a>
+       <span class="tooltip">Log out</span>
+     </li>
+
+
+     <li class="profile">
+         <div class="profile-details">
+           <img src="{% static 'sidebar/images/profile.jpg' %}" alt="profileImg">
+           <div class="name_job">
+             <div class="name">{{request.user}}</div>
+             <!--<div class="job">description</div>-->
+           </div>
+         </div>
+         <!--<i class='bx bx-log-out' id="log_out" ></i>-->
+         <!--<img src="exit.png" class='bx bx-log-out' id="log_out" alt="">-->
+     </li>
+    </ul>
+
+  </div>
+  <section class="home-section">
+
+      {% block content %}
+      replace me
+      {% endblock %}
+
+  </section>
+
+  <script src="{% static 'sidebar/js/script.js' %}"></script>
+
+
+</body>
+</html>

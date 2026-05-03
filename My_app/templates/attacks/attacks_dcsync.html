@@ -1,0 +1,147 @@
+{% extends 'attacks.html' %}
+
+{% block attack %}
+<br><br><br>
+<div style="display:flex; margin: 0 auto; width: 50vw; justify-content: center;flex-direction: column;align-items: center;">
+    <br><br><br>
+    <div class="box" style="width: 60vw">
+    <br><br>
+
+<h2 class="subtitle is-2">Dcsync</h2>
+<form action="" method="POST">
+    {% csrf_token %}
+
+    <div style="display:flex; align-items:center; justify-content:space-between;">
+        <div>
+    <div class="field">
+        <label class="label">Activity name</label>
+        <div class="control">
+            {{ form.dcsync_name }}
+        </div>
+    </div>
+
+    <div class="field">
+        <label class="label">domain contoller ip address</label>
+        <div class="control">
+            {{ form.ip_address }}
+        </div>
+    </div>
+
+    <div class="field">
+        <label class="label">Domain name</label>
+        <div class="control">
+            {{ form.domain }}
+        </div>
+    </div>
+
+    <div class="field">
+        <label class="label">Username</label>
+        <div class="control">
+            {{ form.username }}
+        </div>
+    </div>
+
+    <div class="field">
+        <label class="label">Password</label>
+        <div class="control">
+            {{ form.password }}
+        </div>
+    </div>
+
+        </div>
+
+        <div>
+
+            <div class="field">
+                <div class="control">
+                    Import from database {{ form.checkbox }}
+                </div>
+            </div>
+
+            <div class="field">
+                <label class="label">Domain controller</label>
+                <div class="select">
+                    {{ form.domain_controllers }}
+                </div>
+            </div>
+
+            <div class="field">
+                <label class="label">Admin</label>
+                <div class="select">
+                    {{ form.credentials }}
+                </div>
+            </div>
+
+
+
+
+        </div>
+
+    </div>
+
+
+
+    <div style="display: flex; justify-content: flex-end;">
+    <input class="button is-dark" type="submit" value="Start">
+    </div>
+</form>
+    </div>
+</div>
+
+
+<script>
+
+    window.addEventListener('load', function() {
+        toggleInputs();  // Appeler la fonction pour activer/désactiver les champs selon l'état initial de la case à cocher
+    });
+
+    function toggleInputs() {
+    var checkbox = document.getElementById("id_checkbox");
+    var ip_address = document.getElementById("id_ip_address");
+    var domain = document.getElementById("id_domain");
+    var username = document.getElementById("id_username");
+    var user_password = document.getElementById("id_password");
+    var domain_controllers = document.getElementById("id_domain_controllers");
+    var credentials = document.getElementById("id_credentials");
+
+
+    if (checkbox.checked) {
+      domain_controllers.disabled = false;
+      credentials.disabled = false;
+      ip_address.disabled = true;
+      domain.disabled = true;
+      username.disabled = true;
+      user_password.disabled = true;
+
+    } else {
+      domain_controllers.disabled = true;
+      credentials.disabled = true;
+      ip_address.disabled = false;
+      domain.disabled = false;
+      username.disabled = false;
+      user_password.disabled = false;
+
+
+      // Effectuer la requête vers la vue Django pour récupérer le username, password et le domain name
+
+        fetch("{% url 'get_workspace-info' %}")
+            .then(response => response.json())
+            .then(data => {
+                // Traiter les données JSON
+
+                document.getElementById("id_domain").value = data.domain_name;
+
+            })
+            .catch(error => {
+                console.error(error);
+            });
+
+
+     }
+    }
+
+
+</script>
+
+
+{% endblock %}

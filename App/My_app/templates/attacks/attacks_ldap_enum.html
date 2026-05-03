@@ -1,0 +1,119 @@
+{% extends 'attacks.html' %}
+
+{% block attack %}
+<br><br><br>
+<div style="display:flex; margin: 0 auto; width: 50vw; justify-content: center;flex-direction: column;align-items: center;">
+    <br><br><br>
+    <div class="box" style="width: 60vw">
+    <br><br>
+
+<h2 class="subtitle is-2">Ldap enumeration</h2>
+<form action="" method="POST">
+    {% csrf_token %}
+
+    <div class="field">
+        <label class="label">Activity name</label>
+        <div class="control">
+            {{ form.ldap_enum_name }}
+        </div>
+    </div>
+
+    <div class="field">
+        <label class="label">Domain name</label>
+        <div class="control">
+            {{ form.domain_name }}
+        </div>
+    </div>
+
+    <div class="field">
+        <label class="label">Ip list</label>
+        <div class="select">
+            {{ form.ip_address }}
+        </div>
+    </div>
+
+    <div class="field">
+        <label class="label">Ip address</label>
+        <div class="control">
+            {{ form.ip_address2 }}
+        </div>
+    </div>
+
+    <div class="field">
+        <label class="label">User</label>
+        <div class="control">
+            {{ form.username }}
+        </div>
+    </div>
+
+    <div class="field">
+        <label class="label">Password</label>
+        <div class="control">
+            {{ form.password }}
+        </div>
+    </div>
+
+    <br><br>
+
+    <div class="field">
+        <div class="control">
+            Import from database {{ form.checkbox }}
+        </div>
+    </div>
+
+    <div style="display: flex; justify-content: flex-end;">
+    <input class="button is-dark" type="submit" value="Start">
+    </div>
+
+</form>
+</div>
+</div>
+
+<script>
+
+    window.addEventListener('load', function() {
+        toggleInputs();  // Appeler la fonction pour activer/désactiver les champs selon l'état initial de la case à cocher
+    });
+
+    function toggleInputs() {
+    var checkbox = document.getElementById("id_checkbox");
+    var list_ip = document.getElementById("id_ip_address");
+    var ip_char = document.getElementById("id_ip_address2");
+
+    if (checkbox.checked) {
+      list_ip.disabled = false;  // Activer le champ
+      ip_char.disabled = true; // Déactiver le champ
+
+      // Effectuer la requête vers la vue Django pour récupérer le username, password et le domain name
+
+        fetch("{% url 'get_workspace-info' %}")
+            .then(response => response.json())
+            .then(data => {
+                // Traiter les données JSON
+                document.getElementById("id_username").value = data.domain_user;
+                document.getElementById("id_password").value = data.user_password;
+                document.getElementById("id_domain_name").value = data.domain_name;
+
+            })
+            .catch(error => {
+                console.error(error);
+            });
+
+
+
+    } else {
+      list_ip.disabled = true;  // Désactiver le champ
+      ip_char.disabled = false; // Activer le champ
+
+      // vider les champs username, password et domain_name
+
+      document.getElementById("id_username").value = '';
+      document.getElementById("id_password").value = '';
+      document.getElementById("id_domain_name").value = '';
+     }
+    }
+
+
+</script>
+
+{% endblock %}

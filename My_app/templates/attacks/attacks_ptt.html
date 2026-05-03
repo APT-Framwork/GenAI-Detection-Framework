@@ -1,0 +1,102 @@
+{% extends 'attacks.html' %}
+
+{% block attack %}
+<br><br><br>
+<div style="display:flex; margin: 0 auto; width: 50vw; justify-content: center;flex-direction: column;align-items: center;">
+    <br><br><br>
+    <div class="box" style="width: 60vw">
+    <br><br>
+
+<h2 class="subtitle is-2">Pass the ticket</h2>
+<form action="" method="POST">
+    {% csrf_token %}
+
+
+
+    <div class="field">
+        <label class="label">Activity name</label>
+        <div class="control">
+            {{ form.ptt_name }}
+        </div>
+    </div>
+
+
+    <div class="field">
+        <label class="label">Ticket path</label>
+        <div class="control">
+            {{ form.ticket_path }}
+        </div>
+    </div>
+
+    <div class="field">
+        <label class="label">Target ip address</label>
+        <div class="control">
+            {{ form.ip_address }}
+        </div>
+    </div>
+
+    <div class="field">
+        <div class="control">
+            Import from database {{ form.checkbox }}
+        </div>
+    </div>
+
+    <div class="field">
+        <label class="label">IP list</label>
+        <div class="select">
+            {{ form.ip_address_choice }}
+        </div>
+    </div>
+
+    <div class="field">
+        <label class="label">Ticket list</label>
+        <div class="select">
+            {{ form.ticket_path_choice }}
+        </div>
+    </div>
+
+
+
+
+
+    <div style="display: flex; justify-content: flex-end;">
+    <input class="button is-dark" type="submit" value="Start">
+    </div>
+
+</form>
+    </div>
+</div>
+
+
+<script>
+
+    window.addEventListener('load', function() {
+        toggleInputs();  // Appeler la fonction pour activer/désactiver les champs selon l'état initial de la case à cocher
+    });
+
+    function toggleInputs() {
+    var checkbox = document.getElementById("id_checkbox");
+    var ip_address = document.getElementById("id_ip_address");
+    var ticket_path = document.getElementById("id_ticket_path");
+
+    var ip_address_choice = document.getElementById("id_ip_address_choice");
+    var ticket_path_choice = document.getElementById("id_ticket_path_choice");
+
+    if (checkbox.checked) {
+      ip_address_choice.disabled = false;
+      ticket_path_choice.disabled = false;
+      ip_address.disabled = true;
+      ticket_path.disabled = true;
+    } else {
+      ip_address_choice.disabled = true;
+      ticket_path_choice.disabled = true;
+      ip_address.disabled = false;
+      ticket_path.disabled = false;
+     }
+    }
+
+
+</script>
+
+
+{% endblock %}

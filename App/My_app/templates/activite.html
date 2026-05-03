@@ -1,0 +1,58 @@
+{% extends 'sidebar.html' %}
+
+{% block content %}
+<br><br>
+<div style="display:flex; margin: 0 auto; width: 50vw; justify-content: center;flex-direction: column;align-items: center;">
+
+    {% if messages %}
+        <div>
+            {% for message in messages %}
+                <article class="message is-warning">
+                    <div class="message-header">
+                        <p>info</p>
+                    </div>
+                    <div class="message-body">
+                        {{ message }}
+                    </div>
+                </article>
+            {% endfor %}
+
+
+        </div>
+
+    {% else %}
+
+
+    <h2 class="subtitle is-2">My activities</h2>
+    <table class="table" style="width: 70vw">
+        <thead>
+            <tr>
+                <th>Type</th>
+                <th>Name</th>
+                <th>Start time</th>
+                <th>End time</th>
+                <th>Results</th>
+                <th>Events</th>
+
+            </tr>
+        </thead>
+        <tbody>
+
+        {% for activity in activities %}
+        <tr>
+            <td>{{activity.type}}</td>
+            <td>{{activity.name}}</td>
+            <td>{{activity.begin_date}}</td>
+            <td>{{activity.end_date}}</td>
+            <td><a href="{% url 'My_app-activite' %}?id={{ activity.id }}">View</a></td>
+            <td><a href="{% url 'My_app-activite' %}?activity_id={{ activity.id }}">View</a></td>
+        </tr>
+        {% endfor %}
+        </tbody>
+
+    </table>
+
+    {% endif %}
+</div>
+
+{% endblock %}

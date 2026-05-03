@@ -1,0 +1,123 @@
+{% extends 'sidebar.html' %}
+
+{% block content %}
+{% if messages %}
+<div>
+    {% for message in messages %}
+    <article class="message is-warning">
+        <div class="message-header">
+            <p>info</p>
+
+        </div>
+        <div class="message-body">
+            {{ message }}
+        </div>
+    </article>
+    {% endfor %}
+
+
+</div>
+{% endif %}
+
+{% if afficher == True %}
+    {% include 'navbar.html' %}
+    <br>
+    <br>
+
+    {% if attacks != None %}
+        <div style="display:flex; margin: 0 auto; width: 50vw; justify-content: center;flex-direction: column;align-items: center;">
+
+            <table class="table" style="width: 70vw">
+                <thead>
+                    <tr>
+                        <th>Technique/sub-technique</th>
+                        <th>Description</th>
+
+                    </tr>
+                </thead>
+            <tbody>
+
+                {% for key, val in attacks.items %}
+                    <tr>
+                        <td><a href="{% url val.lien %}">{{ key }}</a></td>
+                        <td>{{ val.description }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+            </table>
+        </div>
+
+
+
+    {% elif techniques != None %}
+
+        <div style="display:flex; margin: 0 auto; width: 50vw; justify-content: center;flex-direction: column;align-items: center;">
+
+            <table class="table" style="width: 70vw">
+                <thead>
+                    <tr>
+                        <th>Techniques/sub-techniques</th>
+                        <!--<th>Description</th>-->
+
+                    </tr>
+                </thead>
+                <tbody>
+
+                    {% for technique_id, technique_info in techniques.items %}
+                        {% if technique_info.url %}
+                            <tr>
+                                <td> <a href="{% url technique_info.url %}">{{technique_id}} - {{ technique_info.name }}</a> </td>
+                                <!--<td> {{ technique_info.description }} </td>-->
+                            </tr>
+
+                        {% else %}
+
+                            <tr>
+                                <td> <a href="{% url 'attacks-post_exp' %}?tactic={{technique_info.tactic}}&technique={{technique_id}}&uuid={{session_uuid}}">{{technique_id}} - {{ technique_info.name }}</a> </td>
+                                <!--<td> This technique/sub-technique contains these procedures : <br> {{ technique_info.procedure_names | linebreaksbr}} <br> You must choose one of these procedures to see its description</td>-->
+                            </tr>
+                        {% endif %}
+
+
+
+                    {% endfor%}
+                </tbody>
+            </table>
+        </div>
+
+       <!--
+        <div style="display:flex; margin: 0 auto; width: 50vw; justify-content: center;flex-direction: column;align-items: center;">
+            <br><br><br>
+
+
+            <h4 class="subtitle is-4">Choisissez une technique</h4>
+
+            {% for technique_id, technique_info in techniques.items %}
+
+                {% if technique_info.url %}
+                <button class="button is-fullwidth" style="width: 40vw;">
+                    <a href="{% url technique_info.url %}">
+                        {{technique_id}}: {{ technique_info.name }}
+                    </a>
+                </button>
+                {% else %}
+                <button class="button is-fullwidth" style="width: 40vw;">
+                    <a href="{% url 'attacks-post_exp' %}?tactic={{technique_info.tactic}}&technique={{technique_id}}&uuid={{session_uuid}}">
+                        {{technique_id}}: {{ technique_info.name }}
+                    </a>
+                </button>
+                {% endif %}
+            {% endfor %}
+        </div>
+        -->
+
+
+    {% endif %}
+
+{% endif %}
+
+{% block attack %}
+
+{% endblock %}
+
+{% endblock %}

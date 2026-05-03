@@ -1,0 +1,167 @@
+{% extends 'attacks.html' %}
+
+{% block attack %}
+<br><br><br>
+<div style="display:flex; margin: 0 auto; width: 50vw; justify-content: center;flex-direction: column;align-items: center;">
+    <br><br><br>
+    <div class="box" style="width: 60vw">
+    <br><br>
+
+<h2 class="subtitle is-2">Forge Kerberos Tickets: Silver Ticket</h2>
+<form action="" method="POST">
+    {% csrf_token %}
+
+
+    <div style="display:flex; align-items:center; justify-content:space-between;">
+        <div>
+    <div class="field">
+        <label class="label">Activity name</label>
+        <div class="control">
+            {{ form.silver_ticket_name }}
+        </div>
+    </div>
+
+
+    <div class="field">
+        <label class="label">Hash service account</label>
+        <div class="control">
+            {{ form.service_ntlm_hash }}
+        </div>
+    </div>
+
+            <div class="field">
+                <label class="label">Domain name</label>
+                <div class="control">
+                    {{ form.domain_name }}
+                </div>
+            </div>
+
+            <div class="field">
+                <label class="label">Domain sid</label>
+                <div class="control">
+                    {{ form.domain_sid }}
+                </div>
+            </div>
+
+            <div class="field">
+                <label class="label">SPN</label>
+                <div class="control">
+                    {{ form.spn }}
+                </div>
+            </div>
+
+            <div class="field">
+                <label class="label">Spoofed username</label>
+                <div class="control">
+                    {{ form.spoofed_username }}
+                </div>
+            </div>
+
+        </div>
+
+        <div>
+
+
+            <div class="field">
+                <div class="control">
+                    Import from database {{ form.checkbox }}
+                </div>
+            </div>
+
+            <div class="field">
+                <label class="label">Compromised service account</label>
+                <div class="select">
+                    {{ form.spn_and_hash }}
+                </div>
+            </div>
+
+            <div class="field">
+                <label class="label">Domain sid</label>
+                <div class="select">
+                    {{ form.domain_sid_choice }}
+                </div>
+            </div>
+
+            <div class="field">
+                <label class="label">Spoofed username</label>
+                <div class="select">
+                    {{ form.spoofed_username_choice }}
+                </div>
+            </div>
+
+
+
+        </div>
+
+    </div>
+         <div style="display: flex; justify-content: flex-end;">
+                <input class="button is-dark" type="submit" value="Start">
+         </div>
+
+
+</form>
+    </div>
+</div>
+
+
+<script>
+
+    window.addEventListener('load', function() {
+        toggleInputs();  // Appeler la fonction pour activer/désactiver les champs selon l'état initial de la case à cocher
+    });
+
+    function toggleInputs() {
+    var checkbox = document.getElementById("id_checkbox");
+    var service_ntlm_hash = document.getElementById("id_service_ntlm_hash");
+    var domain_name = document.getElementById("id_domain_name");
+    var domain_sid = document.getElementById("id_domain_sid");
+    var spoofed_username = document.getElementById("id_spoofed_username");
+    var spn_and_hash = document.getElementById("id_spn_and_hash");
+    var domain_sid_choice = document.getElementById("id_domain_sid_choice");
+    var spoofed_username_choice = document.getElementById("id_spoofed_username_choice");
+    var spn = document.getElementById("id_spn");
+
+
+    if (checkbox.checked) {
+      domain_name.disabled = false;
+      spn_and_hash.disabled = false;
+      domain_sid_choice.disabled = false;
+      spoofed_username_choice.disabled = false;
+      service_ntlm_hash.disabled = true;
+      domain_sid.disabled = true;
+      spoofed_username.disabled = true;
+      spn.disabled = true;
+
+      // Effectuer la requête vers la vue Django pour récupérer le username, password et le domain name
+
+        fetch("{% url 'get_workspace-info' %}")
+            .then(response => response.json())
+            .then(data => {
+                // Traiter les données JSON
+
+                domain_name.value = data.domain_name;
+
+            })
+            .catch(error => {
+                console.error(error);
+            });
+
+    } else {
+      domain_name.disabled = false;
+      spn_and_hash.disabled = true;
+      domain_sid_choice.disabled = true;
+      spoofed_username_choice.disabled = true;
+      service_ntlm_hash.disabled = false;
+      domain_sid.disabled = false;
+      spoofed_username.disabled = false;
+      spn.disabled = false;
+
+      domain_name.value = '';
+
+     }
+    }
+
+
+</script>
+
+{% endblock %}

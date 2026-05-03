@@ -1,0 +1,118 @@
+{% extends 'attacks.html' %}
+
+{% block attack %}
+<br><br><br>
+<div style="display:flex; margin: 0 auto; width: 50vw; justify-content: center;flex-direction: column;align-items: center;">
+    <br><br><br>
+    <div class="box" style="width: 60vw">
+    <br><br>
+
+<h2 class="subtitle is-2">Pass the hash</h2>
+<form action="" method="POST">
+    {% csrf_token %}
+
+    <div class="field">
+        <label class="label">Activity Name</label>
+        <div class="control">
+            {{ form.pth_name }}
+        </div>
+    </div>
+
+    <div class="field">
+        <label class="label">Username</label>
+        <div class="control">
+            {{ form.username }}
+        </div>
+    </div>
+
+    <div class="field">
+        <label class="label">Hash valuee</label>
+        <div class="control">
+            {{ form.hash_value }}
+        </div>
+    </div>
+
+    <div class="field">
+        <label class="label">domain account</label>
+        <div class="control">
+            {{ form.dc_checkbox }}
+        </div>
+    </div>
+
+    <div class="field">
+        <label class="label">Domain</label>
+        <div class="control">
+            {{ form.domain }}
+        </div>
+    </div>
+
+    <br><br>
+    <div class="field">
+        <label class="label">Import from database</label>
+        <div class="control">
+            {{ form.checkbox }}
+        </div>
+    </div>
+
+    <div class="field">
+        <label class="label">Hash</label>
+        <div class="select">
+            {{ form.hash_choices }}
+        </div>
+    </div>
+
+    <div style="display: flex; justify-content: flex-end;">
+    <input class="button is-dark" type="submit" value="Start">
+    </div>
+
+</form>
+    </div>
+</div>
+
+<script>
+
+    window.addEventListener('load', function() {
+        toggleInputs();  // Appeler la fonction pour activer/désactiver les champs selon l'état initial de la case à cocher checkbox
+        toggleInputs2();
+    });
+
+    function toggleInputs() {
+    var checkbox = document.getElementById("id_checkbox");
+    var username = document.getElementById("id_username");
+    var hash_value = document.getElementById("id_hash_value");
+    var dc_checkbox = document.getElementById("id_dc_checkbox");
+    var domain = document.getElementById("id_domain");
+    var hash_choices = document.getElementById("id_hash_choices");
+
+
+    if (checkbox.checked) {
+      username.disabled = true;  // Désactiver le champ
+      hash_value.disabled = true; // Déactiver le champ
+      dc_checkbox.disabled = true; // Désactiver le chmap
+      domain.disabled = true; // Désactiver le champ
+      hash_choices.disabled = false; // Désactiver le champ
+
+    } else {
+      username.disabled = false;  // Activer le champ
+      hash_value.disabled = false; // Activer le champ
+      dc_checkbox.disabled = false; // Activer le chmap
+      domain.disabled = false; // Activer le champ
+      hash_choices.disabled = true; //Désactiver le champ
+     }
+    }
+
+
+    function toggleInputs2() {
+    var domain = document.getElementById("id_domain");
+    var dc_checkbox = document.getElementById("id_dc_checkbox");
+    if (dc_checkbox.checked){
+    domain.disabled = false;
+    } else {
+    domain.disabled = true;
+    }
+    }
+
+</script>
+
+{% endblock %}
+

@@ -1,0 +1,103 @@
+{% extends 'sidebar.html' %}
+
+{% block content %}
+
+<br><br>
+<div style="display:flex; margin: 0 auto; width: 50vw; justify-content: center;flex-direction: column;align-items: center;">
+
+    {% if messages %}
+        <div>
+            {% for message in messages %}
+                <article class="message is-warning">
+                    <div class="message-header">
+
+                        <p>info</p>
+                    </div>
+                    <div class="message-body">
+                        {{ message }}
+                    </div>
+                </article>
+            {% endfor %}
+
+
+        </div>
+
+    {% else %}
+
+
+
+    <h2 class="subtitle is-2">Domain controllers</h2>
+    <table class="table" style="width: 70vw">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>operating_system</th>
+                <th>dns_host_name</th>
+
+            </tr>
+        </thead>
+        <tbody>
+            {% for domain_controller in activity_results.domain_controllers %}
+            <tr>
+                <td>{{ domain_controller.name }}</td>
+                <td>{{ domain_controller.operating_system }}</td>
+                <td>{{ domain_controller.dns_host_name }}</td>
+            </tr>
+            {% endfor %}
+    </table>
+
+    <br><br><br>
+
+    <h2 class="subtitle is-2">Domain admins</h2>
+    <table class="table" style="width: 70vw">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Distinguished name</th>
+                <th>mail</th>
+
+            </tr>
+        </thead>
+        <tbody>
+            {% for domain_admin in activity_results.domain_admins %}
+            <tr>
+                <td>{{ domain_admin.name }}</td>
+                <td>{{ domain_admin.distinguishedName }}</td>
+                <td>{{ domain_admin.mail }}</td>
+            </tr>
+            {% endfor %}
+    </table>
+
+    <br><br><br>
+
+    <h2 class="subtitle is-2">Domain users</h2>
+    <table class="table" style="width: 70vw">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>user_principal_name</th>
+                <th>mail</th>
+                <th>description</th>
+                <th>membre_de</th>
+
+            </tr>
+        </thead>
+        <tbody>
+            {% for domain_user in activity_results.domain_users %}
+            <tr>
+                <td>{{ domain_user.name }}</td>
+                <td>{{ domain_user.user_principal_name }}</td>
+                <td>{{ domain_user.mail }}</td>
+                <td>{{ domain_user.description }}</td>
+                <td>{{ domain_user.membre_de }}</td>
+
+            </tr>
+            {% endfor %}
+    </table>
+
+    {% endif %}
+</div>
+
+{% endblock %}
+
+

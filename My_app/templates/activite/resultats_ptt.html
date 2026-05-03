@@ -1,0 +1,63 @@
+{% extends 'sidebar.html' %}
+
+{% block content %}
+
+
+<br><br>
+<div style="display:flex; margin: 0 auto; width: 50vw; justify-content: center;flex-direction: column;align-items: center;">
+
+    {% if messages %}
+        <div>
+            {% for message in messages %}
+                <article class="message is-warning">
+                    <div class="message-header">
+                        <p>Error</p>
+                        <button class="delete" aria-label="delete"></button>
+                    </div>
+                    <div class="message-body">
+                        {{ message }}
+                    </div>
+                </article>
+            {% endfor %}
+
+
+        </div>
+
+    {% else %}
+
+
+    <h2 class="subtitle is-2">Pass the ticket results</h2>
+    <table class="table" style="width: 70vw">
+        <thead>
+        <tr>
+            <th>Used ticket</th> <th>{{ results.ticket_path }}</th>
+        </tr>
+        <tr>
+            <th>Target service</th> <th>{{ results.Service }}</th>
+        </tr>
+
+        <tr>
+            <th>Host ip</th>
+            <th>Host name</th>
+            <th>Pwn3d</th>
+        </tr>
+        </thead>
+        <tbody>
+
+            {% for host in results.hosts %}
+                <tr>
+                    <td>{{host.host_ip}}</td>
+                    <td>{{host.host_name}}</td>
+                    <td>{{host.Pwn3d}}</td>
+                </tr>
+            {% endfor %}
+
+        </tbody>
+    </table>
+
+    {% endif %}
+</div>
+
+
+
+{% endblock %}

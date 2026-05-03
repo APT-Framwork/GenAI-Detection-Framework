@@ -1,0 +1,30 @@
+from django.urls import path
+from .views import *
+
+urlpatterns = [
+    path("workspaces/", My_app_workspaces, name="My_app-workspaces"),
+    path("workspace_info/", get_workspace_info, name="get_workspace-info"),
+    path("activite/", My_app_activite, name="My_app-activite"),
+    path("attacks/", My_app_attacks, name="My_app-attacks"),
+    path("scenario/", My_app_scenario, name="My_app-scenario"),
+    path("user/", My_app_user, name="My_app-user"),
+    path("logout/", My_app_logout, name="My_app-logout"),
+    path("attacks/network_scan/", attacks_network_scan, name="attacks-network_scan"),
+    path("attacks/vuln_scan/", attacks_vuln_scan, name="attacks-vuln_scan"),
+    path("attacks/ldap_enum/", attacks_ldap_enum, name="attacks-ldap_enum"),
+    path("attacks/smb_enum/", attacks_smb_enum, name="attacks-smb_enum"),
+    path("attacks/exploitation/", attacks_exploitation, name="attacks-exploitation"),
+    path("attacks/post_exp/", attacks_post_exp, name="attacks-post_exp"),
+    path("attacks/port_listener/", attacks_port_listener, name="attacks-port_listener"),
+    path("attacks/post_exp/password_cracking/", attacks_password_cracking, name="attacks-password_cracking"),
+    path("attacks/pth/", attacks_pth, name="attacks-pth"),
+    path("attacks/dcsync/", attacks_dcsync, name="attacks-dcsync"),
+    path("attacks/golden_ticket/", attacks_golden_ticket, name="attacks-golden_ticket"),
+    path("attacks/ptt/", attacks_ptt, name="attacks-ptt"),
+    path("attacks/kerberoasting/", attacks_kerberoasting, name="attacks-kerberoasting"),
+    path("attacks/silver_ticket/", attacks_silver_ticket, name="attacks-silver_ticket"),
+    path("scenario/maj_technique/", maj_technique_choice, name="maj_technique-choice"),
+    path("scenario/maj_procedure/", maj_procedure_choice, name="maj_procedure-choice"),
+    path("rapport/", My_app_rapport, name="My_app-rapport"),
+    path("alerts/", My_app_alerts, name="My_app-alerts"),
+]

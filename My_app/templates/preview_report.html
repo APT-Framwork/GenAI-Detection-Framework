@@ -1,0 +1,36 @@
+{% extends 'sidebar.html' %}
+
+{% block content %}
+
+<div style="display: flex">
+
+    {% if messages %}
+        <div>
+            {% for message in messages %}
+                <article class="message is-warning">
+                    <div class="message-header">
+                        <p>info</p>
+                    </div>
+                    <div class="message-body">
+                        {{ message }}
+                    </div>
+                </article>
+            {% endfor %}
+
+
+        </div>
+
+    {% else %}
+
+    <embed src="data:application/pdf;base64,{{ pdf_content }}" type="application/pdf" style="width: 100vw; height: 100vh;">
+
+    <!--
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" name="download">Télécharger le rapport</button>
+    </form>
+    -->
+{% endif %}
+</div>
+
+{% endblock %}

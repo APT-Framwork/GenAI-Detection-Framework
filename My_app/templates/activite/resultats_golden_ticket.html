@@ -1,0 +1,53 @@
+{% extends 'sidebar.html' %}
+
+{% block content %}
+
+<br><br>
+<div style="display:flex; margin: 0 auto; width: 50vw; justify-content: center;flex-direction: column;align-items: center;">
+    <h2 class="subtitle is-2"></h2>
+
+    {% if messages %}
+        <div>
+            {% for message in messages %}
+                <article class="message is-warning">
+                    <div class="message-header">
+                        <p>Error</p>
+                        <button class="delete" aria-label="delete"></button>
+                    </div>
+                    <div class="message-body">
+                        {{ message }}
+                    </div>
+                </article>
+            {% endfor %}
+
+
+        </div>
+
+    {% else %}
+
+
+    <table class="table" style="width: 70vw">
+        <thead>
+            <tr>
+                <th>Ticket type</th>
+                <th>Ticket path</th>
+                <th>Ticket name</th>
+
+            </tr>
+        </thead>
+        <tbody>
+
+            <tr>
+                <td>{{ results.ticket_type }}</td>
+                <td>{{ results.ticket_path }}</td>
+                <td>{{ results.ticket_name }}</td>
+            </tr>
+
+    </table>
+
+
+    {% endif %}
+</div>
+
+
+{% endblock %}

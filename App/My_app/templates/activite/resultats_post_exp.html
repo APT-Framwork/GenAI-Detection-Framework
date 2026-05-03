@@ -1,0 +1,169 @@
+{% extends 'sidebar.html' %}
+
+{% block content %}
+
+{% if messages %}
+{% for message in messages %}
+    <article class="message is-warning">
+        <div class="message-header">
+            <p>info</p>
+
+        </div>
+        <div class="message-body">
+            {{ message }}
+        </div>
+    </article>
+{% endfor %}
+{% else %}
+<br><br>
+<div style="display:flex; margin: 0 auto; width: 50vw; justify-content: center;flex-direction: column;align-items: center;">
+
+    {% if traitement %}
+
+        {% if procedure == 'Dump LSASS.exe Memory using ProcDump' or procedure == 'Dump LSASS.exe Memory using comsvcs.dll'%}
+            <h2 class="subtitle is-2">Results of lsass memory dump</h2>
+
+            <table class="table" style="width: 70vw">
+                <thead>
+                    <tr>
+                        <th>sid</th>
+                        <th>LM hash</th>
+                        <th>NTLM hash</th>
+                        <th>username</th>
+                        <th>Domain name</th>
+                        <th>Password</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for key, val in traitement.items %}
+                    <tr>
+                        <td>{{ key }}</td>
+                        <td>{{ val.lm_hash}}</td>
+                        <td>{{ val.ntlm_hash }}</td>
+                        <td>{{ val.username }}</td>
+                        <td>{{ val.domain_name }}</td>
+                        <td>{{ val.password }}</td>
+                    </tr>
+
+                    {% endfor %}
+                </tbody>
+            </table>
+
+        {% elif procedure == 'Dump-SAM-With-Mimikatz' %}
+            <h2 class="subtitle is-2">SAM dump results</h2>
+
+            <table class="table" style="width: 70vw">
+                <thead>
+                    <tr>
+                        <th>rid</th>
+                        <th>User</th>
+                        <th>NTLM hash</th>
+
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for key, val in traitement.items %}
+                        <tr>
+                            <td>{{ key }}</td>
+                            <td>{{ val.User}}</td>
+                            <td>{{ val.Hash_NTLM}}</td>
+                        </tr>
+
+                    {% endfor %}
+                </tbody>
+            </table>
+
+
+        {% elif procedure == 'Cached Credential Dump via Mimikatz' %}
+
+            <h2 class="subtitle is-2">Cached Credential Dump results</h2>
+
+            <table class="table" style="width: 70vw">
+                <thead>
+                    <tr>
+                        <th>rid</th>
+                        <th>User</th>
+                        <th>MsCacheV2</th>
+
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for key, val in traitement.items %}
+                    <tr>
+                        <td> {{ key }}</td>
+                        <td>{{ val.User}}</td>
+                        <td>{{ val.MsCacheV2}}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+        {% elif procedure == 'At.exe Scheduled task' %}
+
+            <h2 class="subtitle is-2">At.exe Scheduled task</h2>
+
+            <table class="table" style="width: 70vw">
+                <tbody>
+                    <tr>
+                        <td> Results : </td>
+                        <td>{{ traitement }}</td>
+                    </tr>
+                </tbody>
+            </table>
+
+        {% elif procedure == 'Service ImagePath Change with reg.exe' %}
+
+            <h2 class="subtitle is-2">Service ImagePath Change with reg.exe</h2>
+
+            <table class="table" style="width: 70vw">
+                <tbody>
+                    <tr>
+                        <td> Results : </td>
+                        <td>{{ traitement }}</td>
+                    </tr>
+                </tbody>
+            </table>
+
+        {% elif procedure == 'IFEO Add Debugger' or procedure == 'IFEO Global Flags' %}
+            <h2 class="subtitle is-2"> Event Triggered Execution: Image File Execution Options Injection </h2>
+
+            <table class="table" style="width: 70vw">
+                <tbody>
+                    <tr>
+                        <td> Results : </td>
+                        <td>{{ traitement }}</td>
+                    </tr>
+                </tbody>
+            </table>
+
+
+
+        {% endif %}
+    {% endif %}
+
+
+
+
+
+    <h2 class="subtitle is-2">Results of executed commands</h2>
+    <table class="table" style="width: 70vw">
+        <thead>
+            <tr>
+                <th>commande</th>
+                <th>resultat</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for key, val in results.items %}
+            <tr>
+                <td>{{ key }}</td>
+                <td><pre>{{ val }}</pre></td>
+            </tr>
+            {% endfor %}
+    </table>
+</div>
+{% endif %}
+{% endblock %}

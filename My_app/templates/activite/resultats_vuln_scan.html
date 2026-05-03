@@ -1,0 +1,66 @@
+{% extends 'sidebar.html' %}
+
+{% block content %}
+
+<br><br>
+<div style="display:flex; margin: 0 auto; width: 50vw; justify-content: center;flex-direction: column;align-items: center;">
+
+    {% if messages %}
+        <div>
+            {% for message in messages %}
+                <article class="message is-warning">
+                    <div class="message-header">
+                        <p>info</p>
+                    </div>
+                    <div class="message-body">
+                        {{ message }}
+                    </div>
+                </article>
+            {% endfor %}
+
+
+        </div>
+
+    {% else %}
+
+
+    <h2 class="subtitle is-2">List of vulnerabilities</h2>
+    <table class="table" style="width: 70vw">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Host</th>
+                <th>port</th>
+                <th>Severity</th>
+                <th>refs</th>
+
+            </tr>
+        </thead>
+        <tbody>
+
+            {% for key, value in vulns.items %}
+                <tr>
+                    <td>{{ value.name }}</td>
+                    <td>{{ value.host }}</td>
+                    <td>{{ value.port }}</td>
+                    <td>{{ value.severity }}</td>
+                    <td>
+                        <ul>
+                            {% if value.refs %}
+                                {% for ref in value.refs %}
+                                    <li> Type: {{ ref.type}} --> {{ ref.id }}</li>
+                                {% endfor %}
+                            {% endif %}
+                        </ul>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+
+    </table>
+
+    {% endif %}
+</div>
+
+
+{% endblock %}

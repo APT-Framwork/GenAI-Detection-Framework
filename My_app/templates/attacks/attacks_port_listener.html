@@ -1,0 +1,45 @@
+{% extends 'attacks.html' %}
+
+{% block attack %}
+<br><br><br>
+<div style="display:flex; margin: 0 auto; width: 50vw; justify-content: center;flex-direction: column;align-items: center;">
+    <br><br><br>
+    <div class="box" style="width: 60vw">
+    <br><br>
+
+<h2 class="subtitle is-2">Port listener configurations</h2>
+<form action="" method="POST">
+    {% csrf_token %}
+
+    <div class="field">
+        <label class="label">Name</label>
+        <div class="control">
+            {{ form.port_listener_name }}
+        </div>
+    </div>
+
+    <div class="field">
+        <label class="label">payload</label>
+        <div class="select">
+            {{ form.payload }}
+        </div>
+    </div>
+
+    <div class="field">
+        <label class="label">port</label>
+        <div class="control">
+            {{ form.port }}
+        </div>
+    </div>
+
+
+    <div style="display: flex; justify-content: flex-end;">
+    <input class="button is-dark" type="submit" value="Start">
+    </div>
+
+</form>
+</div>
+</div>
+
+
+{% endblock %}
