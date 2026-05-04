@@ -71,6 +71,8 @@ export interface AePayload {
   recon_error?: number;
   anomaly_score?: number;
   label?: Label;
+  mitre_tactics?: string[];
+  mitre_techniques?: string[];
   [k: string]: unknown;
 }
 
@@ -81,6 +83,8 @@ export interface VaePayload {
   malicious_prob?: number;
   uncertainty?: number;
   label?: Label;
+  mitre_tactics?: string[];
+  mitre_techniques?: string[];
   [k: string]: unknown;
 }
 

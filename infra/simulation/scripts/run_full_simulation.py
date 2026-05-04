@@ -31,6 +31,7 @@ import sys
 import time
 import urllib.error
 import urllib.request
+from datetime import datetime
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -201,6 +202,7 @@ class Snapshot:
     pg_max_ckc: int
     pg_dqn: int
     wazuh_alert_lines: int
+    pg_now: str = ""  # ISO timestamp from PG, used to scope FINAL REPORT to this run
 
 def _psql_int(sql: str) -> int:
     out = docker_exec(PG_CONTAINER, "psql", "-U", PG_USER, "-d", PG_DB, "-Atc", sql, check=False)
@@ -224,6 +226,9 @@ def take_snapshot() -> Snapshot:
                                   f"wc -l < {ALERTS_PATH} 2>/dev/null || echo 0", check=False)
     try: wazuh_lines = int(wazuh_lines_out.strip() or 0)
     except ValueError: wazuh_lines = 0
+    pg_now_out = docker_exec(PG_CONTAINER, "psql", "-U", PG_USER, "-d", PG_DB,
+                             "-Atc", "SELECT NOW();", check=False)
+    pg_now = (pg_now_out.strip().splitlines() or [""])[0]
     return Snapshot(
         wall_ts=time.time(),
         redis_xlen=xlen,
@@ -234,6 +239,7 @@ def take_snapshot() -> Snapshot:
         pg_chains_open=_psql_int("SELECT COUNT(*) FROM attack_chains WHERE status='open';"),
         pg_max_ckc=_psql_int("SELECT COALESCE(MAX(max_ckc_stage), 0) FROM attack_chains;"),
         pg_dqn=_psql_int("SELECT COUNT(*) FROM dqn_actions;"),
+        pg_now=pg_now,
     )
 
 def diff_table(before: Snapshot, after: Snapshot) -> str:
@@ -507,12 +513,36 @@ class TacticResult:
     duration_s: float
     error: str | None = None
 
+def _write_current_tactic(label: str | None) -> None:
+    """Stamp the active tactic into topology.json for downstream watchers
+    (monitor_demo.py + playwright_check.py per-tactic screenshot triggers)."""
+    run_dir = os.environ.get("STRIX_RUN_DIR", "")
+    if not run_dir:
+        return
+    try:
+        topo_path = os.path.join(run_dir, "topology.json")
+        if not os.path.exists(topo_path):
+            return
+        with open(topo_path) as fh:
+            existing = json.load(fh)
+        if label is None:
+            existing.pop("current_tactic", None)
+        else:
+            existing["current_tactic"] = label
+        existing["current_tactic_updated_at"] = datetime.utcnow().isoformat() + "Z"
+        with open(topo_path, "w") as fh:
+            json.dump(existing, fh, indent=2)
+    except Exception:  # noqa: BLE001
+        pass  # never let topology IO break the sim
+
+
 def run_tactic(cal: Caldera, t: Tactic, planner_id: str, group: str,
                budget_s: int, dwell_s: int, obfuscator_override: str | None,
                dry_run: bool) -> TacticResult:
     section(f"TACTIC: {t.label}  ({t.paper_tactic_id})")
     print(f"  techniques: {', '.join(t.technique_ids)}")
     if t.notes: print(f"  notes:      {t.notes}")
+    _write_current_tactic(t.label)
 
     obfuscator = obfuscator_override or t.obfuscator
 
@@ -632,25 +662,31 @@ def final_report(results: list[TacticResult], grand_before: Snapshot, grand_afte
                     f"{r.op_links:>6d} {d_det:>+8d} {d_ckc:>+6d} {r.duration_s:>4.0f}s")
         print(line)
 
-    # DQN action distribution
-    print(f"\n{C.BLD}DQN action mix (final):{C.X}")
-    rows = _psql_rows("SELECT action_name, COUNT(*) FROM dqn_actions "
+    # Baseline for run-scoped queries — falls back to "all time" if the
+    # snapshot didn't capture a PG timestamp (e.g. PG was unreachable).
+    since = grand_before.pg_now or ""
+    since_clause = f"WHERE decided_at > '{since}'" if since else ""
+    chain_since   = f"WHERE created_at > '{since}'" if since else ""
+
+    # DQN action distribution — scoped to THIS run.
+    print(f"\n{C.BLD}DQN action mix (this run):{C.X}")
+    rows = _psql_rows(f"SELECT action_name, COUNT(*) FROM dqn_actions {since_clause} "
                       "GROUP BY action_name ORDER BY COUNT(*) DESC;")
     if rows:
         for name, cnt in rows:
             print(f"  {name:<22s} {int(cnt):>6d}")
     else:
-        warn("no dqn_actions rows yet")
+        warn("no dqn_actions rows in this run window")
 
-    # CKC stage histogram
-    print(f"\n{C.BLD}Attack-chain CKC stage histogram:{C.X}")
-    rows = _psql_rows("SELECT max_ckc_stage, COUNT(*) FROM attack_chains "
+    # CKC stage histogram — only chains opened during this run.
+    print(f"\n{C.BLD}Attack-chain CKC stage histogram (this run):{C.X}")
+    rows = _psql_rows(f"SELECT max_ckc_stage, COUNT(*) FROM attack_chains {chain_since} "
                       "GROUP BY max_ckc_stage ORDER BY max_ckc_stage;")
     if rows:
         for stage, cnt in rows:
             print(f"  stage {int(stage)}: {int(cnt):>5d} chains")
     else:
-        warn("no attack_chains rows yet")
+        warn("no attack_chains rows in this run window")
 
     # top rule.id producers (last 10 min)
     print(f"\n{C.BLD}Top Wazuh rule_id (last 10 min):{C.X}")
@@ -820,6 +856,12 @@ def main() -> int:
                 with open(topo_path) as fh:
                     existing = json.load(fh)
             existing["tactics_planned"] = [t.label for t in plan]
+            # Per-tactic technique catalogue so monitor_demo.py can
+            # cross-check observed alerts against the planned techniques
+            # and report match-rate per tactic.
+            existing["tactic_techniques"] = {
+                t.label: list(t.technique_ids) for t in plan
+            }
             if args.apt:
                 existing["apt_group"] = args.apt
             with open(topo_path, "w") as fh:

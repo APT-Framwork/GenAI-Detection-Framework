@@ -46,13 +46,22 @@ const STAGE_LABELS = ["Recon", "Weapon", "Delivery", "Exploit", "Install", "C2",
 function matchPredetection(
   v: TopologyVictim,
   preds: ReadonlyMap<string, Predetection>,
+  hostToAgent: ReadonlyMap<string, string>,
 ): Predetection | undefined {
-  // The RL frame's host_id is the inference worker's `msg.agent_id` —
-  // match it against the victim's listed agents/hostname/name/ip. This
-  // is the same ID space the existing `victimKey` uses.
+  // Two ID spaces in play:
+  //   * topology.json carries victims by hostname/ip ("victim1", "172.20.0.5").
+  //   * RL frames key by `msg.agent_id` — the *wazuh* numeric agent id
+  //     ("008") on lab data, not the hostname.
+  // We try the direct candidates first, then fall back to the runtime
+  // host-agent bridge (`host-agent-map.ts`) which learns the mapping from
+  // raw_log frames. Without this, predetections never match a topology
+  // node and the BLOCKED edge never renders.
   const candidates = [v.agent_id, v.hostname, v.name, v.ip, ...(v.agents ?? [])];
   for (const c of candidates) {
-    if (c && preds.has(c)) return preds.get(c);
+    if (!c) continue;
+    if (preds.has(c)) return preds.get(c);
+    const bridged = hostToAgent.get(c);
+    if (bridged && preds.has(bridged)) return preds.get(bridged);
   }
   return undefined;
 }
@@ -276,7 +285,7 @@ function TopologySvg({
         const path = `M ${ATTACKER_X} ${ay} L ${VICTIM_X} ${vy}`;
         const key = victimNodeKey(v);
         const pulse = key ? pulses[key] : undefined;
-        const pred = matchPredetection(v, predetections);
+        const pred = matchPredetection(v, predetections, hostToAgent);
         // Predetected victim → freeze the dot animation, swap to dashed
         // emerald edge labelled BLOCKED. The asymmetry between blocked and
         // still-flowing edges is the credibility hook: the jury sees one
@@ -352,7 +361,7 @@ function TopologySvg({
         const key = victimNodeKey(v) ?? `v${i}`;
         const pulse = pulses[key];
         const isMal = pulse?.kind === "malicious";
-        const pred = matchPredetection(v, predetections);
+        const pred = matchPredetection(v, predetections, hostToAgent);
         const ringColor = pred ? "#10B981" : isMal ? severityColors.critical.fg : "#00F2FF";
         return (
           <g key={key}>

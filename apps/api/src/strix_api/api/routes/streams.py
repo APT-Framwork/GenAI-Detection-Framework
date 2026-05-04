@@ -33,9 +33,16 @@ from strix_api.services.live_feed import (
     STREAM_GNN_CHANNEL,
     STREAM_RL_CHANNEL,
     STREAM_VAE_CHANNEL,
+    build_live_feed_event,
     chain_log_channel,
 )
 from strix_api.settings import get_settings
+
+# Same key the inference worker XADDs verdicts to. Kept private to that
+# module historically; we read from it here for the live-feed backfill
+# endpoint so the dashboard can show recent inferences when a client
+# arrives mid-run (or after a sim ended).
+_VERDICTS_STREAM = "strix:verdicts"
 
 router = APIRouter(prefix="/streams", tags=["streams"])
 
@@ -138,6 +145,71 @@ async def live_feed(request: Request) -> EventSourceResponse:
             hello_payload={"channel": LIVE_FEED_CHANNEL},
         )
     )
+
+
+@router.get(
+    "/live-feed/recent",
+    summary="Recent live-feed verdicts (backfill for late-joining clients)",
+)
+async def live_feed_recent(limit: int = 200) -> dict[str, Any]:
+    """Return the last `limit` verdicts XADDed by the inference worker to
+    `strix:verdicts`, projected through `build_live_feed_event` so the
+    wire shape matches the SSE channel exactly.
+
+    Use case: the dashboard's Live Inference Stream is empty after a page
+    reload because SSE is future-only. Calling this once on mount lets the
+    UI seed a real history before the live stream starts. The Redis Stream
+    is capped at 1M entries by the inference worker so this is bounded.
+    """
+    from redis.asyncio import Redis  # lazy import — keep route module importable in tests
+
+    limit = max(1, min(int(limit), 5_000))
+    settings = get_settings()
+    redis = Redis.from_url(
+        settings.redis.url,
+        max_connections=settings.redis.max_connections,
+        decode_responses=False,
+    )
+    try:
+        # XREVRANGE returns newest-first.
+        rows = await redis.xrevrange(_VERDICTS_STREAM, "+", "-", count=limit)
+    finally:
+        try:
+            await redis.aclose()
+        except Exception:  # noqa: BLE001
+            pass
+
+    events: list[dict[str, Any]] = []
+    for stream_id, fields in rows:
+        # Each XADD value is a single field whose value is a JSON-encoded
+        # verdict dict. The verdicts writer publishes via redis-py
+        # streams; the field name is "data" by convention used elsewhere
+        # in the codebase. Fall back to the first non-empty field.
+        try:
+            payload_bytes: bytes | None = None
+            for k, v in fields.items():
+                key = k.decode("utf-8") if isinstance(k, bytes) else str(k)
+                if key in ("data", "verdict", "payload"):
+                    payload_bytes = v if isinstance(v, bytes) else str(v).encode()
+                    break
+            if payload_bytes is None and fields:
+                first = next(iter(fields.values()))
+                payload_bytes = first if isinstance(first, bytes) else str(first).encode()
+            if payload_bytes is None:
+                continue
+            verdict = json.loads(payload_bytes.decode("utf-8"))
+        except Exception:  # noqa: BLE001
+            continue
+        try:
+            ev = build_live_feed_event(verdict)
+        except Exception:  # noqa: BLE001
+            continue
+        sid = stream_id.decode("utf-8") if isinstance(stream_id, bytes) else str(stream_id)
+        events.append({"id": sid, "data": ev})
+
+    # Newest-first → oldest-first so frontend can append in chronological order.
+    events.reverse()
+    return {"channel": LIVE_FEED_CHANNEL, "count": len(events), "events": events}
 
 
 @router.get(

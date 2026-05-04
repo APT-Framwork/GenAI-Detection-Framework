@@ -25,8 +25,17 @@ CHAIN_OPEN_GNN_THRESHOLD: Final[float] = float(
 CHAIN_OPEN_VAE_THRESHOLD: Final[float] = 0.5  # informational / anomaly diagnostic
 CHAIN_OPEN_AE_THRESHOLD: Final[float] = 1.0  # informational / anomaly diagnostic
 
-CHAIN_IDLE_TIMEOUT_MINUTES: Final[int] = 120  # §12 Q5 (was 30, revised)
-CHAIN_MAX_STEPS: Final[int] = 50  # mirrors APTEnvironment.max_steps
+# Demo-tunable: with only 2 victims and high-rate auditd traffic, the
+# default 50-step / 120-min binding causes every alert in a run to coalesce
+# into one chain per host. Lowering both via env yields a fresh chain per
+# tactic, so the FINAL REPORT histogram and the dashboard "rl" stream
+# reflect the actual MITRE phases instead of one giant rolled-over session.
+CHAIN_IDLE_TIMEOUT_MINUTES: Final[int] = int(
+    os.environ.get("STRIX_CHAIN_IDLE_TIMEOUT_MIN", "120")
+)
+CHAIN_MAX_STEPS: Final[int] = int(
+    os.environ.get("STRIX_CHAIN_MAX_STEPS", "50")
+)
 
 # ---- Infection + risk (§6.3) ----------------------------------------
 INFECTION_VAE_PROB_THRESHOLD: Final[float] = 0.7
@@ -87,10 +96,26 @@ DQN_Q_MARGIN_MIN: Final[float] = float(
     os.environ.get("STRIX_DQN_Q_MARGIN_MIN", "0.4")
 )
 
-# Stage-7 force-escalate: regardless of DQN output, if THIS event lands
+# Stage-7 force-escalate: regardless of DQN output, if the chain lands
 # on CKC stage 7 (Action — kill-chain endpoint) and the GNN has any
 # meaningful node risk, force ESCALATE. Reverses the negative-Q learned
 # behaviour from Story 2.
 DQN_STAGE7_FORCE_ESCALATE_GNN_MIN: Final[float] = float(
     os.environ.get("STRIX_DQN_STAGE7_GNN_MIN", "0.5")
+)
+
+# Stage-5/6 predetection: the dashboard's whole pitch is "agent intervenes
+# BEFORE the chain reaches stage 7". The DQN as trained almost never
+# escalates at Install (5) or C2 (6) on this lab — observed 2/2473
+# escalates over a 7-min run, both at stage 7. Empirical GNN audit:
+#   stage 5 chains: 671/1007 detections have gnn_node_risk >= 0.7743
+#   stage 6 chains: similar floor; the lab GNN sits at exactly 0.7743 for
+#   >50% of all events, so 0.7743 is the true signal cutoff.
+# Default both at CHAIN_OPEN_GNN_THRESHOLD (0.7743). Raise the env var to
+# tighten if FP rate is too high.
+DQN_STAGE5_PREDETECT_GNN_MIN: Final[float] = float(
+    os.environ.get("STRIX_DQN_STAGE5_GNN_MIN", "0.7743")
+)
+DQN_STAGE6_PREDETECT_GNN_MIN: Final[float] = float(
+    os.environ.get("STRIX_DQN_STAGE6_GNN_MIN", "0.7743")
 )

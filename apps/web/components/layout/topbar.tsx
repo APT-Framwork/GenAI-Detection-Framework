@@ -13,7 +13,7 @@ import {
   User,
   ChevronRight,
 } from "lucide-react"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import Link from "next/link"
 import { ConnectionStatusBar } from "@/components/layout/connection-status-bar"
 import { useNotifications } from "@/lib/api/analysis"
@@ -64,7 +64,9 @@ export function TopBar() {
   const pathname = usePathname()
   const router = useRouter()
   const { isCollapsed } = useSidebarStore()
-  const { theme, setTheme } = useTheme()
+  const { theme, setTheme, resolvedTheme } = useTheme()
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => setMounted(true), [])
   const [searchFocused, setSearchFocused] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
   // Live-ish notification count (refetches every 30s).
@@ -176,13 +178,19 @@ export function TopBar() {
 
         {/* Theme Toggle */}
         <button
-          onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+          onClick={() => setTheme((resolvedTheme ?? theme) === "dark" ? "light" : "dark")}
           className="flex h-8 w-8 items-center justify-center rounded-lg text-[var(--strix-text-muted)] hover:text-[var(--strix-text)] hover:bg-[var(--strix-bg-surface)] transition-colors"
+          suppressHydrationWarning
+          aria-label="Toggle theme"
         >
-          {theme === "dark" ? (
-            <Sun className="h-4 w-4" />
+          {mounted ? (
+            (resolvedTheme ?? theme) === "dark" ? (
+              <Sun className="h-4 w-4" />
+            ) : (
+              <Moon className="h-4 w-4" />
+            )
           ) : (
-            <Moon className="h-4 w-4" />
+            <span className="h-4 w-4" />
           )}
         </button>
 

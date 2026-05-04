@@ -81,15 +81,35 @@ export STRIX_APT="${APT:-}"
 attacker_ip="$(docker inspect strix_caldera \
   --format '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{"\n"}}{{end}}' \
   2>/dev/null | head -1 || true)"
-victim1_ip="$(docker inspect strix_victim1 \
-  --format '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{"\n"}}{{end}}' \
-  2>/dev/null | head -1 || true)"
-victim2_ip="$(docker inspect strix_victim2 \
-  --format '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{"\n"}}{{end}}' \
-  2>/dev/null | head -1 || true)"
 export STRIX_ATTACKER_IP="${attacker_ip:-}"
-export STRIX_VICTIM1_IP="${victim1_ip:-}"
-export STRIX_VICTIM2_IP="${victim2_ip:-}"
+
+# Discover RUNNING victim containers and build the topology.victims array
+# dynamically. Stopped victims (e.g. via jury_demo_single.sh) are omitted —
+# the dashboard's topology widget polls topology.json every 5 s and will
+# show only the hosts that are actually being attacked.
+victim_containers=()
+while IFS= read -r _name; do
+  [[ -n "$_name" ]] && victim_containers+=("$_name")
+done < <(docker ps --format '{{.Names}}' 2>/dev/null | grep -E '^strix_victim' | sort)
+
+if [[ ${#victim_containers[@]} -eq 0 ]]; then
+  echo "[lab_simulate] WARN: no strix_victim* containers running — topology.victims will be empty" >&2
+fi
+
+victims_json=""
+sep=""
+for _c in "${victim_containers[@]}"; do
+  _host="${_c#strix_}"
+  _ip="$(docker inspect --format '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{"\n"}}{{end}}' "$_c" 2>/dev/null | head -1 || true)"
+  victims_json+="${sep}{\"ip\": \"${_ip:-$_host}\", \"hostname\": \"$_host\", \"agents\": [\"wazuh\", \"sandcat\", \"auditd\"]}"
+  sep=", "
+  # Best-effort BC exports for victim1/victim2 only — older callers may
+  # still read these. New code should walk topology.json.
+  case "$_host" in
+    victim1) export STRIX_VICTIM1_IP="${_ip:-}" ;;
+    victim2) export STRIX_VICTIM2_IP="${_ip:-}" ;;
+  esac
+done
 
 started_at="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 cat > "$RUN_DIR/topology.json" <<JSON
@@ -97,10 +117,7 @@ cat > "$RUN_DIR/topology.json" <<JSON
   "run_id": "$RUN_ID",
   "started_at": "$started_at",
   "attacker_ip": "${attacker_ip:-caldera}",
-  "victims": [
-    {"ip": "${victim1_ip:-victim1}", "hostname": "victim1", "agents": ["wazuh", "sandcat", "auditd"]},
-    {"ip": "${victim2_ip:-victim2}", "hostname": "victim2", "agents": ["wazuh", "sandcat", "auditd"]}
-  ],
+  "victims": [$victims_json],
   "apt_group": "${APT:-}",
   "tactics_planned": [
     "Discovery", "Defense Evasion", "Persistence", "Privilege Escalation",
@@ -109,7 +126,7 @@ cat > "$RUN_DIR/topology.json" <<JSON
   ]
 }
 JSON
-echo "[lab_simulate] wrote $RUN_DIR/topology.json"
+echo "[lab_simulate] wrote $RUN_DIR/topology.json (${#victim_containers[@]} victim(s), apt=${APT:-<none>})"
 
 # ---- benign generator (parallel, non-blocking) ------------------------------
 BENIGN_PIDS=()

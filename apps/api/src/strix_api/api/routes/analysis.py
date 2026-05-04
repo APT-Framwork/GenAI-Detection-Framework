@@ -8,6 +8,7 @@ graceful-degradation pattern from Phase 4).
 from __future__ import annotations
 
 from collections.abc import Awaitable, Callable
+from datetime import datetime
 from typing import Annotated, TypeVar
 from uuid import UUID
 
@@ -211,3 +212,24 @@ async def notifications(
         log.warning("notifications_db_error", exc_info=exc)
         return {"items": []}
     return {"items": items}
+
+
+# ---- RL Intervention Timeline backfill (dashboard widget) ----
+
+
+@router.get(
+    "/rl-timeline",
+    summary="Predetected + post-detected chains for the RL Intervention Timeline widget",
+)
+async def rl_timeline(
+    since: datetime | None = Query(None, description="ISO8601; filter by chain.created_at"),
+    limit: int = Query(200, ge=1, le=500),
+    session: Annotated[AsyncSession | None, Depends(get_db_session)] = None,
+):
+    if session is None:
+        return {"predetected": [], "post_detected": []}
+    try:
+        return await AnalysisService(session).list_rl_timeline(since=since, limit=limit)
+    except Exception as exc:  # noqa: BLE001
+        log.warning("rl_timeline_db_error", exc_info=exc)
+        return {"predetected": [], "post_detected": []}

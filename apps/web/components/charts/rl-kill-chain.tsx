@@ -25,6 +25,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import { useLogStream, type RlPayload } from "@/lib/api/ws";
+import { useRlTimelineBackfill } from "@/lib/api/analysis";
 import { severityColors } from "@/lib/design-tokens";
 import { recordPredetection, usePredetections } from "@/lib/predetection-store";
 
@@ -116,6 +117,70 @@ export function RlKillChain({ className }: RlKillChainProps) {
   const sessionsRef = useRef<Map<string, RlSession>>(new Map());
   const lastSeqRef = useRef(0);
   const [, setTick] = useState(0);
+
+  // Backfill from PG so chains that completed before this widget mounted
+  // (or before the WS reconnected) still surface. Live frames remain
+  // authoritative — the backfill writes are idempotent and never clobber
+  // a richer in-memory session.
+  const backfill = useRlTimelineBackfill();
+  useEffect(() => {
+    if (!backfill.data) return;
+
+    for (const p of backfill.data.predetected) {
+      // Key on agent_name so backfill rows merge with live frames (which
+      // carry agent_name in `host_id`, not the UUID). Fall back to UUID
+      // only when the LEFT JOIN couldn't resolve a host name.
+      const hostKey = p.agentName ?? p.hostId;
+      const latchedAt = new Date(p.interventionAt).getTime();
+      const startedAt = new Date(p.openedAt).getTime();
+      recordPredetection({
+        hostId: hostKey,
+        victimLabel: p.agentName ?? p.hostId,
+        stage: p.stageAtDecision || p.maxCkcStage,
+        isCritical:
+          (p.stageAtDecision || p.maxCkcStage) >= PREDETECTION_CRITICAL_MIN,
+        elapsedMs: Math.max(0, latchedAt - startedAt),
+        technique: null,
+        tactic: null,
+        action: ACTION_INTERVENTION_THRESHOLD,
+        actionName: p.actionName,
+        confidence: 0,
+        latchedAt,
+      });
+    }
+
+    for (const c of backfill.data.post_detected) {
+      const id = c.agentName ?? c.hostId;
+      const existing = sessionsRef.current.get(id);
+      // Don't clobber a session already at terminal — live frames carry
+      // richer data (action, confidence, technique). Only fill the gap.
+      if (existing && existing.maxStage >= COMPLETED_STAGE) continue;
+      const closedAtMs = c.closedAt ? new Date(c.closedAt).getTime() : Date.now();
+      sessionsRef.current.set(id, {
+        sessionId: id,
+        hostId: id,
+        srcip: existing?.srcip ?? null,
+        currentStage: c.maxCkcStage,
+        maxStage: c.maxCkcStage,
+        action: existing?.action ?? 0,
+        actionName: existing?.actionName ?? "",
+        confidence: existing?.confidence ?? 0,
+        lastUpdate: closedAtMs,
+        startedAt: new Date(c.openedAt).getTime(),
+        mitigated: existing?.mitigated ?? false,
+        completed: true,
+        terminalAt: null,
+        predetectionStage: null,
+        predetectionTechnique: existing?.predetectionTechnique ?? null,
+        predetectionTactic: existing?.predetectionTactic ?? null,
+        predetectionElapsedMs: existing?.predetectionElapsedMs ?? null,
+        postDetection: true,
+        lastSeenTechnique: existing?.lastSeenTechnique ?? null,
+        lastSeenTactic: existing?.lastSeenTactic ?? null,
+      });
+    }
+    setTick((n) => n + 1);
+  }, [backfill.data]);
 
   // Drain RL frames into per-session accumulator.
   useEffect(() => {

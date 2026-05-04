@@ -13,6 +13,7 @@ import {
   useChainDwellTime,
   useChainInfection,
   useChainList,
+  useChainLiveRefresh,
   useChainPredictions,
   useCkcProgression,
 } from "@/lib/api/analysis"
@@ -99,6 +100,11 @@ export default function AttackAnalysisDetailPage({ params }: PageProps) {
   const predictions = useChainPredictions(resolvedId)
   const infection = useChainInfection(resolvedId)
   const dwell = useChainDwellTime(resolvedId)
+
+  // Live-refresh: SSE-driven invalidation of all panels above whenever a
+  // new alert lands on this chain. Without this the page would poll on a
+  // 5 s interval and feel laggy during a simulation.
+  useChainLiveRefresh(resolvedId)
 
   if (isLatest) {
     const noChainsYet = chainList.isFetched && !resolvedId

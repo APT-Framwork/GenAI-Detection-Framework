@@ -44,6 +44,8 @@ interface ScoredEvent {
   ts: number;
   score: number;
   gt: GroundTruth;
+  tactics: string[];
+  techniques: string[];
 }
 
 interface Quality {
@@ -54,6 +56,14 @@ interface Quality {
   precision: number;
   recall: number;
   f1: number;
+  // Detection RATES — what the new panel surfaces in big % cards instead
+  // of raw counts. tpr=recall (recovered for completeness); tnr is the
+  // benign-respect rate; fpr is the alarm-fatigue indicator; fnr is the
+  // miss rate.
+  tpr: number;
+  tnr: number;
+  fpr: number;
+  fnr: number;
 }
 
 interface BucketCounts {
@@ -114,7 +124,54 @@ function classify(events: ReadonlyArray<ScoredEvent>, threshold: number): Qualit
   const precision = tp + fp > 0 ? tp / (tp + fp) : 0;
   const recall = tp + fn > 0 ? tp / (tp + fn) : 0;
   const f1 = precision + recall > 0 ? (2 * precision * recall) / (precision + recall) : 0;
-  return { tp, fp, tn, fn, precision, recall, f1 };
+  // Rate denominators are the ground-truth class counts, not the predicted
+  // class counts (precision/recall already cover those).
+  const tpr = tp + fn > 0 ? tp / (tp + fn) : 0;            // = recall
+  const tnr = tn + fp > 0 ? tn / (tn + fp) : 0;            // = specificity
+  const fpr = tn + fp > 0 ? fp / (tn + fp) : 0;            // = 1 - tnr
+  const fnr = tp + fn > 0 ? fn / (tp + fn) : 0;            // = 1 - tpr
+  return { tp, fp, tn, fn, precision, recall, f1, tpr, tnr, fpr, fnr };
+}
+
+interface TacticBreakdown {
+  // Per-tactic aggregate of labelled events (gt ≠ unknown).
+  tactic: string;
+  total: number;       // count of events tagged with this tactic in window
+  detected: number;    // of those, count where predPos & gt malicious (TP)
+  missed: number;      // of those, count where !predPos & gt malicious (FN)
+  rate: number;        // detected / (detected + missed) — per-tactic recall
+}
+
+function tacticBreakdown(
+  events: ReadonlyArray<ScoredEvent>,
+  threshold: number,
+): TacticBreakdown[] {
+  // tactic -> {detected, missed, total}
+  const acc: Record<string, { detected: number; missed: number; total: number }> = {};
+  for (const e of events) {
+    if (!e.tactics || e.tactics.length === 0) continue;
+    const predPos = e.score >= threshold;
+    const actualPos = e.gt === "malicious";
+    for (const t of e.tactics) {
+      const slot = (acc[t] ||= { detected: 0, missed: 0, total: 0 });
+      slot.total += 1;
+      if (actualPos && predPos) slot.detected += 1;
+      else if (actualPos && !predPos) slot.missed += 1;
+    }
+  }
+  const out: TacticBreakdown[] = Object.entries(acc).map(([tactic, v]) => {
+    const denom = v.detected + v.missed;
+    return {
+      tactic,
+      total: v.total,
+      detected: v.detected,
+      missed: v.missed,
+      rate: denom > 0 ? v.detected / denom : 0,
+    };
+  });
+  // Most-impacted first.
+  out.sort((a, b) => b.total - a.total);
+  return out;
 }
 
 function bucketize(
@@ -181,7 +238,13 @@ export function DetectionQualityPanel({ className }: DetectionQualityPanelProps)
     for (const env of fresh) {
       const score = scoreFromAe(env.payload);
       if (score == null) continue;
-      dst.push({ ts: now, score, gt: gtFromLabel(env.payload.label) });
+      dst.push({
+        ts: now,
+        score,
+        gt: gtFromLabel(env.payload.label),
+        tactics: pickStringArray(env.payload, "mitre_tactics"),
+        techniques: pickStringArray(env.payload, "mitre_techniques"),
+      });
     }
     pruneWindow(dst, now);
     if (dst.length > PER_MODEL_CAP) dst.splice(0, dst.length - PER_MODEL_CAP);
@@ -198,7 +261,13 @@ export function DetectionQualityPanel({ className }: DetectionQualityPanelProps)
     for (const env of fresh) {
       const score = scoreFromVae(env.payload);
       if (score == null) continue;
-      dst.push({ ts: now, score, gt: gtFromLabel(env.payload.label) });
+      dst.push({
+        ts: now,
+        score,
+        gt: gtFromLabel(env.payload.label),
+        tactics: pickStringArray(env.payload, "mitre_tactics"),
+        techniques: pickStringArray(env.payload, "mitre_techniques"),
+      });
     }
     pruneWindow(dst, now);
     if (dst.length > PER_MODEL_CAP) dst.splice(0, dst.length - PER_MODEL_CAP);
@@ -241,6 +310,19 @@ export function DetectionQualityPanel({ className }: DetectionQualityPanelProps)
     [vaeSeq, vaeThreshold],
   );
 
+  // Per-model tactic breakdown — used by the shared tactic-distribution
+  // section below the two sub-panels.
+  const aeTactics = useMemo(
+    () => tacticBreakdown(aeRef.current, aeThreshold),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [aeSeq, aeThreshold],
+  );
+  const vaeTactics = useMemo(
+    () => tacticBreakdown(vaeRef.current, vaeThreshold),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [vaeSeq, vaeThreshold],
+  );
+
   const f1Delta = vaeQuality.f1 - aeQuality.f1;
 
   return (
@@ -271,6 +353,12 @@ export function DetectionQualityPanel({ className }: DetectionQualityPanelProps)
           onThresholdChange={setVaeThreshold}
           totalCached={vaeRef.current.length}
         />
+      </div>
+
+      {/* MITRE tactic distribution — pie + per-tactic recall, side-by-side AE/VAE */}
+      <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+        <TacticSection title="AE — Tactic distribution" rows={aeTactics} />
+        <TacticSection title="VAE — Tactic distribution" rows={vaeTactics} />
       </div>
 
       {/* F1 comparison strip */}
@@ -334,17 +422,20 @@ function ModelSubPanel({
         </div>
       </div>
 
-      {/* Stacked bar */}
+      {/* Stacked bar — keeps the time-series story */}
       <StackedBar buckets={buckets} />
 
-      {/* Confusion matrix + cards */}
-      <div className="grid grid-cols-2 gap-3 mt-3">
-        <ConfusionMatrix q={quality} />
-        <div className="grid grid-cols-3 gap-2">
-          <Card label="P" value={quality.precision} />
-          <Card label="R" value={quality.recall} />
-          <Card label="F1" value={quality.f1} accent />
-        </div>
+      {/* Donut (TP/FP/TN/FN ratio) + Rate cards (TPR/TNR/FPR/FNR) */}
+      <div className="grid grid-cols-[auto_1fr] gap-3 mt-3 items-center">
+        <Donut q={quality} />
+        <RateGrid q={quality} />
+      </div>
+
+      {/* Per-class precision/recall/F1 — kept compact */}
+      <div className="grid grid-cols-3 gap-2 mt-3">
+        <Card label="P" value={quality.precision} />
+        <Card label="R" value={quality.recall} />
+        <Card label="F1" value={quality.f1} accent />
       </div>
 
       {/* Threshold slider */}
@@ -498,4 +589,241 @@ function pruneWindow(arr: ScoredEvent[], now: number): void {
   let i = 0;
   while (i < arr.length && arr[i].ts < cutoff) i += 1;
   if (i > 0) arr.splice(0, i);
+}
+
+function pickStringArray(p: Record<string, unknown>, key: string): string[] {
+  const v = p[key];
+  if (!Array.isArray(v)) return [];
+  return v.filter((x): x is string => typeof x === "string");
+}
+
+// SVG donut: renders a stacked-segment donut for TP/FP/TN/FN. Used in
+// place of the old 2×2 ConfusionMatrix grid — shows ratios at a glance.
+function Donut({ q, size = 96 }: { q: Quality; size?: number }) {
+  const total = q.tp + q.fp + q.tn + q.fn;
+  const r = size / 2 - 8;
+  const cx = size / 2;
+  const cy = size / 2;
+  const C = 2 * Math.PI * r;
+  // Segment order (clockwise): tp → fp → fn → tn — green/orange/red/gray.
+  const order: Array<keyof BucketCounts> = ["tp", "fp", "fn", "tn"];
+  let cursor = 0;
+  return (
+    <div className="relative" style={{ width: size, height: size }}>
+      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+        {/* track */}
+        <circle
+          cx={cx}
+          cy={cy}
+          r={r}
+          fill="none"
+          stroke="rgba(128,182,195,0.18)"
+          strokeWidth={10}
+        />
+        {total > 0 && order.map((k) => {
+          const v = q[k];
+          if (v === 0) return null;
+          const frac = v / total;
+          const len = frac * C;
+          const seg = (
+            <circle
+              key={k}
+              cx={cx}
+              cy={cy}
+              r={r}
+              fill="none"
+              stroke={COLORS[k]}
+              strokeWidth={10}
+              strokeDasharray={`${len} ${C}`}
+              strokeDashoffset={-cursor}
+              transform={`rotate(-90 ${cx} ${cy})`}
+            />
+          );
+          cursor += len;
+          return seg;
+        })}
+      </svg>
+      <div className="absolute inset-0 flex flex-col items-center justify-center">
+        <span className="text-[18px] font-bold font-mono text-[#00343d] dark:text-[var(--strix-text)] leading-none">
+          {total}
+        </span>
+        <span className="text-[8px] uppercase tracking-wider text-[#497f8b] dark:text-[var(--strix-text-muted)] mt-0.5">
+          labelled
+        </span>
+      </div>
+    </div>
+  );
+}
+
+function RateGrid({ q }: { q: Quality }) {
+  // Each rate gets a colour cue: TPR + TNR are "good" (green), FPR + FNR
+  // are "cost" (orange/red). The bar fill width visualises magnitude;
+  // the percent in the corner is the precise value.
+  const items: Array<{ label: string; long: string; pct: number; color: string; good: boolean }> = [
+    { label: "TPR", long: "attacks caught", pct: q.tpr, color: COLORS.tp, good: true },
+    { label: "TNR", long: "benign respected", pct: q.tnr, color: "#0EA5E9", good: true },
+    { label: "FPR", long: "false alarms", pct: q.fpr, color: COLORS.fp, good: false },
+    { label: "FNR", long: "attacks missed", pct: q.fnr, color: COLORS.fn, good: false },
+  ];
+  return (
+    <div className="grid grid-cols-2 gap-1.5">
+      {items.map((it) => {
+        const pct = Math.round(Math.max(0, Math.min(1, it.pct)) * 100);
+        return (
+          <div
+            key={it.label}
+            className="rounded-md border px-2 py-1.5"
+            style={{ borderColor: `${it.color}55`, background: `${it.color}10` }}
+          >
+            <div className="flex items-baseline justify-between">
+              <span
+                className="text-[9px] font-bold uppercase tracking-wider"
+                style={{ color: it.color }}
+              >
+                {it.label}
+              </span>
+              <span className="text-[12px] font-bold font-mono text-[#00343d] dark:text-[var(--strix-text)]">
+                {pct}%
+              </span>
+            </div>
+            <div className="text-[8px] text-[#497f8b] dark:text-[var(--strix-text-muted)] mb-1 truncate">
+              {it.long}
+            </div>
+            <div className="relative h-1 rounded-full bg-[rgba(128,182,195,0.2)] overflow-hidden">
+              <div
+                className="absolute inset-y-0 left-0 rounded-full"
+                style={{
+                  width: `${pct}%`,
+                  background: it.color,
+                  transition: "width 300ms ease",
+                }}
+              />
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+// Pie chart: renders top-N tactics by *labelled-event count* (denominator
+// = events with that tactic AND ground-truth ≠ unknown). Slices coloured
+// by an HSL hash of the tactic ID so adjacent ones stay distinguishable.
+const TACTIC_PIE_COLORS = [
+  "#0EA5E9", "#22C55E", "#F97316", "#A855F7", "#EAB308",
+  "#EF4444", "#14B8A6", "#8B5CF6", "#06B6D4", "#84CC16",
+] as const;
+
+function TacticPie({ rows, size = 140 }: { rows: TacticBreakdown[]; size?: number }) {
+  const top = rows.slice(0, 8);
+  const grandTotal = top.reduce((s, r) => s + r.total, 0);
+  const r = size / 2 - 4;
+  const cx = size / 2;
+  const cy = size / 2;
+  if (grandTotal === 0) {
+    return (
+      <div
+        className="flex items-center justify-center text-[10px] text-[#497f8b] dark:text-[var(--strix-text-muted)]"
+        style={{ width: size, height: size }}
+      >
+        no MITRE-tagged
+        <br />
+        events yet
+      </div>
+    );
+  }
+  let cursor = -Math.PI / 2; // 12 o'clock
+  return (
+    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+      {top.map((row, i) => {
+        const frac = row.total / grandTotal;
+        const start = cursor;
+        const end = cursor + frac * 2 * Math.PI;
+        cursor = end;
+        const x1 = cx + r * Math.cos(start);
+        const y1 = cy + r * Math.sin(start);
+        const x2 = cx + r * Math.cos(end);
+        const y2 = cy + r * Math.sin(end);
+        const largeArc = end - start > Math.PI ? 1 : 0;
+        const d = `M ${cx} ${cy} L ${x1} ${y1} A ${r} ${r} 0 ${largeArc} 1 ${x2} ${y2} Z`;
+        return (
+          <path
+            key={row.tactic}
+            d={d}
+            fill={TACTIC_PIE_COLORS[i % TACTIC_PIE_COLORS.length]}
+            opacity={0.85}
+            stroke="rgba(255,255,255,0.4)"
+            strokeWidth={0.5}
+          />
+        );
+      })}
+    </svg>
+  );
+}
+
+function TacticSection({
+  title,
+  rows,
+}: {
+  title: string;
+  rows: TacticBreakdown[];
+}) {
+  return (
+    <div className="rounded-xl border border-[rgba(128,182,195,0.2)] dark:border-[var(--strix-border)] bg-[var(--strix-bg-card)] dark:bg-[var(--strix-bg-surface)] p-4">
+      <div className="flex items-center justify-between mb-3">
+        <span className="text-[11px] font-bold uppercase tracking-wider text-[#00343d] dark:text-[var(--strix-text)]">
+          {title}
+        </span>
+        <span className="text-[9px] uppercase tracking-wider text-[#497f8b] dark:text-[var(--strix-text-muted)]">
+          {rows.length} tactic{rows.length === 1 ? "" : "s"} · top 8
+        </span>
+      </div>
+      <div className="grid grid-cols-[auto_1fr] gap-3 items-center">
+        <TacticPie rows={rows} />
+        <TacticTable rows={rows} />
+      </div>
+    </div>
+  );
+}
+
+function TacticTable({ rows }: { rows: TacticBreakdown[] }) {
+  const top = rows.slice(0, 8);
+  if (top.length === 0) {
+    return (
+      <div className="text-[10px] text-[#497f8b] dark:text-[var(--strix-text-muted)] py-2">
+        Waiting for MITRE-tagged events…
+      </div>
+    );
+  }
+  return (
+    <div className="space-y-1">
+      {top.map((row, i) => {
+        const pct = Math.round(row.rate * 100);
+        const color = TACTIC_PIE_COLORS[i % TACTIC_PIE_COLORS.length];
+        return (
+          <div key={row.tactic} className="flex items-center gap-2 text-[10px]">
+            <span
+              className="inline-block w-2 h-2 rounded-full shrink-0"
+              style={{ background: color }}
+            />
+            <span className="font-mono text-[#00343d] dark:text-[var(--strix-text)] flex-1 truncate">
+              {row.tactic}
+            </span>
+            <span className="text-[#497f8b] dark:text-[var(--strix-text-muted)] tabular-nums w-10 text-right">
+              {row.total}
+            </span>
+            <div className="relative w-16 h-1 rounded-full bg-[rgba(128,182,195,0.2)] overflow-hidden">
+              <div
+                className="absolute inset-y-0 left-0 rounded-full"
+                style={{ width: `${pct}%`, background: color }}
+              />
+            </div>
+            <span className="font-mono tabular-nums text-[#00343d] dark:text-[var(--strix-text)] w-8 text-right">
+              {pct}%
+            </span>
+          </div>
+        );
+      })}
+    </div>
+  );
 }

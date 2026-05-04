@@ -1,14 +1,17 @@
 // -----------------------------------------------------------------------------
 // Analysis-tab hooks (Phase 5).
 //
-// All chain-detail hooks accept a `chainId` (UUID string) and short-poll
-// every 30 s except `useChainLogs` which is paged on demand and gets live
-// updates via the SSE companion `useChainLogStream`.
+// Chain-detail hooks accept a `chainId` (UUID string). Metric panels poll
+// every 5 s as a baseline and additionally invalidate on the SSE
+// `chain.alert.new` channel via `useChainLiveRefresh` for sub-second
+// updates during a live simulation. `useChainList` and notifications
+// stay on the cheaper 30 s cadence.
 // -----------------------------------------------------------------------------
 
 "use client";
 
-import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
+import { useEffect, useRef } from "react";
+import { useInfiniteQuery, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { apiFetch } from "./client";
 import { useSseStream } from "./sse";
@@ -111,6 +114,11 @@ export interface DwellTimeResponse {
 // ---- hooks -------------------------------------------------------------
 
 const POLL_30S = 30_000;
+// Chain-detail panels (predictions, ckc-progression, dwell) need to feel
+// live during a simulation; 30 s makes the page look frozen. The SSE
+// `chain.alert.new` channel piggybacks on top of this for sub-second
+// invalidation — see useChainLiveRefresh below.
+const POLL_5S = 5_000;
 
 export function useChainList(opts: { onlyOpen?: boolean; limit?: number } = {}) {
   const params = new URLSearchParams();
@@ -147,7 +155,7 @@ export function useCkcProgression(chainId: string | null) {
     queryKey: ["analysis", "ckc-progression", chainId],
     queryFn: () =>
       apiFetch<CkcProgressionResponse>(`/analysis/chains/${chainId}/ckc-progression`),
-    refetchInterval: POLL_30S,
+    refetchInterval: POLL_5S,
   });
 }
 
@@ -157,7 +165,7 @@ export function useChainPredictions(chainId: string | null) {
     queryKey: ["analysis", "predictions", chainId],
     queryFn: () =>
       apiFetch<PredictionsResponse>(`/analysis/chains/${chainId}/predictions`),
-    refetchInterval: POLL_30S,
+    refetchInterval: POLL_5S,
   });
 }
 
@@ -177,7 +185,7 @@ export function useChainDwellTime(chainId: string | null) {
     queryKey: ["analysis", "dwell-time", chainId],
     queryFn: () =>
       apiFetch<DwellTimeResponse>(`/analysis/chains/${chainId}/dwell-time`),
-    refetchInterval: POLL_30S,
+    refetchInterval: POLL_5S,
   });
 }
 
@@ -228,10 +236,95 @@ export function useNotifications(limit = 50) {
 }
 
 
+// ---- RL Intervention Timeline backfill ---------------------------------
+
+export interface RlTimelinePredetected {
+  chainId: string;
+  hostId: string;
+  agentName: string | null;
+  maxCkcStage: number;
+  openedAt: string;
+  closedAt: string | null;
+  status: string;
+  interventionAt: string;
+  actionName: string;
+  stageAtDecision: number;
+  stageAtDecisionName: string;
+}
+
+export interface RlTimelinePostDetected {
+  chainId: string;
+  hostId: string;
+  agentName: string | null;
+  maxCkcStage: number;
+  openedAt: string;
+  closedAt: string | null;
+  status: string;
+  firstMaliciousAt: string | null;
+}
+
+export interface RlTimelineResponse {
+  predetected: RlTimelinePredetected[];
+  // backend uses snake_case; preserved as-is for honesty about the wire shape.
+  post_detected: RlTimelinePostDetected[];
+}
+
+/** Backfill source for the dashboard's RL Intervention Timeline widget.
+ *  Reads `attack_chains` + `dqn_actions` directly so chains that completed
+ *  before the WS connected still show up. Live `chain.alert.new` SSE frames
+ *  on top of this remain authoritative for in-flight chains. */
+export function useRlTimelineBackfill(sinceISO?: string | null) {
+  const since = sinceISO ?? null;
+  return useQuery({
+    queryKey: ["analysis", "rl-timeline", since],
+    queryFn: () => {
+      const params = new URLSearchParams();
+      if (since) params.set("since", since);
+      params.set("limit", "200");
+      return apiFetch<RlTimelineResponse>(`/analysis/rl-timeline?${params.toString()}`);
+    },
+    refetchInterval: POLL_5S,
+  });
+}
+
 /** Live-tail SSE companion for `useChainLogs` — push events on top of the page. */
 export function useChainLogStream(chainId: string | null) {
   return useSseStream<{ alertId: string; agentId?: string; occurredAt: string }>(
     chainId ? `/streams/chains/${chainId}/logs` : "/streams/chains/_/logs",
     { enabled: !!chainId, eventName: "chain.alert.new", maxEvents: 200 },
   );
+}
+
+/**
+ * Sub-second refresh for the chain-detail panels.
+ *
+ * The metric hooks above poll on a 5 s interval as a baseline, but during
+ * a live simulation that still feels laggy. This hook subscribes to the
+ * existing `chain.alert.new` SSE channel and invalidates the chain's
+ * React Query caches the moment a new alert lands on the chain — so the
+ * predictions / ckc-progression / dwell / infection / logs / graph
+ * panels all update within the SSE event itself.
+ *
+ * Intentionally a thin wrapper over useChainLogStream so we don't open a
+ * second EventSource per page.
+ */
+export function useChainLiveRefresh(chainId: string | null): void {
+  const qc = useQueryClient();
+  const stream = useChainLogStream(chainId);
+  const seenRef = useRef(0);
+
+  useEffect(() => {
+    if (!chainId) return;
+    if (stream.events.length === seenRef.current) return;
+    seenRef.current = stream.events.length;
+
+    // Invalidate everything keyed by this chain. React Query will refetch
+    // any *active* (mounted) query and skip the rest, so this is cheap.
+    qc.invalidateQueries({ queryKey: ["analysis", "ckc-progression", chainId] });
+    qc.invalidateQueries({ queryKey: ["analysis", "predictions", chainId] });
+    qc.invalidateQueries({ queryKey: ["analysis", "dwell-time", chainId] });
+    qc.invalidateQueries({ queryKey: ["analysis", "infection", chainId] });
+    qc.invalidateQueries({ queryKey: ["analysis", "graph-evolution", chainId] });
+    qc.invalidateQueries({ queryKey: ["analysis", "logs", chainId] });
+  }, [chainId, stream.events.length, qc]);
 }

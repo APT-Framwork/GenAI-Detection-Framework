@@ -21,13 +21,21 @@ const API_BASE: string =
 
 export type SseStatus = "connecting" | "open" | "closed" | "error";
 
-export interface SseStreamOptions {
+export interface SseStreamOptions<T = unknown> {
   /** Cap on retained events. Defaults to 100. */
   maxEvents?: number;
   /** Disable the hook (e.g. when user is unauthenticated). */
   enabled?: boolean;
   /** Filter to a single SSE event name. Defaults to all messages. */
   eventName?: string;
+  /**
+   * Optional async backfill called once on mount BEFORE the SSE connects.
+   * Returned events are inserted as oldest-last (so newest-first ordering
+   * is preserved when live frames arrive). Useful when the SSE channel is
+   * future-only and the panel would otherwise show "Waiting…" on a fresh
+   * page load. Errors are swallowed — backfill is best-effort.
+   */
+  backfill?: () => Promise<Array<{ id: string; data: T }>>;
 }
 
 export interface SseStreamResult<T> {
@@ -38,15 +46,17 @@ export interface SseStreamResult<T> {
 
 export function useSseStream<T = unknown>(
   path: string,
-  options: SseStreamOptions = {},
+  options: SseStreamOptions<T> = {},
 ): SseStreamResult<T> {
-  const { maxEvents = 100, enabled = true, eventName } = options;
+  const { maxEvents = 100, enabled = true, eventName, backfill } = options;
 
   const [status, setStatus] = useState<SseStatus>("connecting");
   const [events, setEvents] = useState<SseStreamResult<T>["events"]>([]);
   const sourceRef = useRef<EventSource | null>(null);
   const retriesRef = useRef(0);
   const restartTokenRef = useRef(0);
+  const backfillRef = useRef(backfill);
+  backfillRef.current = backfill;
 
   useEffect(() => {
     if (!enabled) {
@@ -56,6 +66,35 @@ export function useSseStream<T = unknown>(
     let cancelled = false;
     let backoffTimer: ReturnType<typeof setTimeout> | null = null;
     const url = path.startsWith("http") ? path : `${API_BASE}${path}`;
+
+    // Best-effort historical backfill before the live connection opens.
+    // Result is appended OLDEST-LAST (so subsequent live frames keep the
+    // newest-first ordering on the front of the array).
+    const fn = backfillRef.current;
+    if (fn) {
+      void (async () => {
+        try {
+          const seeded = await fn();
+          if (cancelled || seeded.length === 0) return;
+          setEvents((prev) => {
+            const ids = new Set(prev.map((e) => e.id));
+            const newOnes = seeded
+              .filter((e) => !ids.has(e.id))
+              .map((e) => ({
+                id: e.id,
+                data: e.data,
+                receivedAt: Date.now(),
+              }));
+            // Backfill arrives oldest-first; reverse so the resulting
+            // array remains newest-first like the live insert above.
+            const merged = [...prev, ...newOnes.slice().reverse()];
+            return merged.length > maxEvents ? merged.slice(0, maxEvents) : merged;
+          });
+        } catch {
+          // Best-effort — silent.
+        }
+      })();
+    }
 
     const open = () => {
       if (cancelled) return;

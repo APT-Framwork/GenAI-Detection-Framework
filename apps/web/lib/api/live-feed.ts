@@ -7,6 +7,7 @@
 
 "use client";
 
+import { apiFetch } from "./client";
 import { useSseStream } from "./sse";
 
 export interface LiveFeedEvent {
@@ -23,10 +24,33 @@ export interface LiveFeedEvent {
   mitreTechniques: string[];
 }
 
-export function useLiveFeed(opts: { enabled?: boolean; maxEvents?: number } = {}) {
+interface RecentResponse {
+  channel: string;
+  count: number;
+  events: Array<{ id: string; data: LiveFeedEvent }>;
+}
+
+export function useLiveFeed(
+  opts: { enabled?: boolean; maxEvents?: number; backfillLimit?: number } = {},
+) {
+  const max = opts.maxEvents ?? 200;
+  const seedLimit = opts.backfillLimit ?? Math.min(max, 200);
   return useSseStream<LiveFeedEvent>("/streams/live-feed", {
     enabled: opts.enabled,
-    maxEvents: opts.maxEvents ?? 100,
+    maxEvents: max,
     eventName: "alert.new",
+    // Seed from the verdict stream's recent history so a fresh page
+    // load doesn't show "Waiting for verdicts…" when prior inferences
+    // already happened. Best-effort — silent on failure.
+    backfill: async () => {
+      try {
+        const res = await apiFetch<RecentResponse>(
+          `/streams/live-feed/recent?limit=${seedLimit}`,
+        );
+        return res.events ?? [];
+      } catch {
+        return [];
+      }
+    },
   });
 }

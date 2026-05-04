@@ -75,6 +75,8 @@ from strix_api.core.constants import (
     CHAIN_OPEN_GNN_THRESHOLD,
     DQN_OOD_AE_RECON_THRESHOLD,
     DQN_Q_MARGIN_MIN,
+    DQN_STAGE5_PREDETECT_GNN_MIN,
+    DQN_STAGE6_PREDETECT_GNN_MIN,
     DQN_STAGE7_FORCE_ESCALATE_GNN_MIN,
     GNN_SNAPSHOT_INTERVAL_SECONDS,
 )
@@ -448,6 +450,7 @@ class InferenceWorker:
                     # ground truth even when srcip isn't the attacker IP
                     # (Caldera attacks run locally on the victim).
                     "mitre_tactics": msg.mitre_tactics,
+                    "mitre_techniques": msg.mitre_techniques,
                 },
                 self._log,
             )
@@ -461,6 +464,7 @@ class InferenceWorker:
                     "malicious_prob": float(mal_prob),
                     "uncertainty": float(uncertainty),
                     "mitre_tactics": msg.mitre_tactics,
+                    "mitre_techniques": msg.mitre_techniques,
                 },
                 self._log,
             )
@@ -633,18 +637,53 @@ class InferenceWorker:
         gate_reason: str | None = None
         gated_action = original_action
 
+        # `effective_stage` = chain's running max, not just THIS event's
+        # mitre tag. The DQN's per-event ckc only fires the stage-7 gate
+        # on the one alert whose technique mapped to S7 (e.g. Data
+        # Destruction); every other alert on a stage-7 chain slipped
+        # past unchanged. Using the chain max means once a chain has
+        # walked into Install/C2/Action, all subsequent decisions on
+        # that chain are gated correctly. Mirrors the `chain_max_ckc`
+        # computation used by the dashboard publisher below.
+        effective_stage = max(
+            int(msg.current_ckc_stage),
+            int(session.max_ckc_stage if session is not None else 0),
+        )
+
         # Priority 1 — stage 7 force-escalate. The trained policy
         # reliably picks LOW_ALERT here because Q(ESCALATE | stage=7)
         # is negative; SOC-wise that's wrong.
         if (
-            int(msg.current_ckc_stage) >= 7
+            effective_stage >= 7
             and float(gnn_node_risk) >= DQN_STAGE7_FORCE_ESCALATE_GNN_MIN
             and original_action.value < DqnAction.ESCALATE.value
         ):
             gated_action = DqnAction.ESCALATE
             gate_reason = "stage7_force_escalate"
 
-        # Priority 2 — OOD gate. AE recon explosion saturates the VAE
+        # Priority 2 — stage 6 predetection. C2 reached without prior
+        # intervention; with meaningful GNN risk, force ESCALATE so the
+        # dashboard's "predetected" pile populates *before* stage 7.
+        elif (
+            effective_stage >= 6
+            and float(gnn_node_risk) >= DQN_STAGE6_PREDETECT_GNN_MIN
+            and original_action.value < DqnAction.ESCALATE.value
+        ):
+            gated_action = DqnAction.ESCALATE
+            gate_reason = "stage6_predetect"
+
+        # Priority 3 — stage 5 predetection. Install reached; if the GNN
+        # is above the open-chain threshold (the empirical signal floor
+        # on this lab — see core/constants.py audit comment), intervene.
+        elif (
+            effective_stage >= 5
+            and float(gnn_node_risk) >= DQN_STAGE5_PREDETECT_GNN_MIN
+            and original_action.value < DqnAction.ESCALATE.value
+        ):
+            gated_action = DqnAction.ESCALATE
+            gate_reason = "stage5_predetect"
+
+        # Priority 4 — OOD gate. AE recon explosion saturates the VAE
         # calibrator on lab data; the DQN reads "VAE near 1.0" as
         # "attack" and ISOLATEs benign noise. Override on GNN-only.
         elif float(recon_err) > DQN_OOD_AE_RECON_THRESHOLD:
@@ -655,7 +694,7 @@ class InferenceWorker:
                 gated_action = DqnAction.MONITOR
                 gate_reason = "ood_gnn_says_benign"
 
-        # Priority 3 — Q-margin abstention. If max(Q) − second(Q) is
+        # Priority 5 — Q-margin abstention. If max(Q) − second(Q) is
         # below the configured floor, the choice is essentially noise.
         elif original_action.value >= DqnAction.ESCALATE.value:
             qs = np.asarray(dqn_decision.q_values, dtype=np.float64)
@@ -672,6 +711,7 @@ class InferenceWorker:
                 alert_id=msg.alert_id,
                 host_id=msg.agent_id,
                 ckc_stage=int(msg.current_ckc_stage),
+                effective_stage=int(effective_stage),
                 ae_recon_error=float(recon_err),
                 vae_malicious_prob=float(mal_prob),
                 gnn_node_risk=float(gnn_node_risk),

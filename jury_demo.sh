@@ -23,7 +23,9 @@
 set -euo pipefail
 
 # ---- styling ---------------------------------------------------------------
-GREEN='\033[32m'; RED='\033[31m'; YELLOW='\033[33m'; CYAN='\033[36m'; DIM='\033[2m'; BOLD='\033[1m'; RESET='\033[0m'
+# ANSI-C $'…' quoting so each var holds the real ESC byte, not literal "\033".
+# Otherwise embedding ${BOLD} inside a printf %s argument prints "\033[1m" verbatim.
+GREEN=$'\033[32m'; RED=$'\033[31m'; YELLOW=$'\033[33m'; CYAN=$'\033[36m'; DIM=$'\033[2m'; BOLD=$'\033[1m'; RESET=$'\033[0m'
 ok()    { printf "${GREEN}✓${RESET} %s\n" "$*"; }
 fail()  { printf "${RED}✗${RESET} %s\n" "$*"; exit 1; }
 warn()  { printf "${YELLOW}⚠${RESET} %s\n" "$*"; }
@@ -47,6 +49,154 @@ DURATION="180s"
 BENIGN_RATE="100/min"
 STOP=0
 SKIP_SIM=0
+CLEAN_STATE=1   # default ON: wipe prior chains/detections/alerts so the run is observable
+
+print_help() {
+  cat <<'EOF'
+NAME
+    jury_demo.sh — one-shot end-to-end STRIX dashboard demo against TWO victims.
+
+SYNOPSIS
+    bash jury_demo.sh [--apt APT29|APT41|...]
+                      [--duration 180s] [--benign-rate 100/min]
+                      [--keep-state] [--skip-sim]
+    bash jury_demo.sh stop
+    bash jury_demo.sh -h | --help
+
+DESCRIPTION
+    Brings the full STRIX stack up locally and drives Caldera through a
+    real APT tactic chain against TWO sandcat-enrolled victims:
+
+        wazuh.manager ◀── 1514/1515 ── victim1 ── sandcat ──▶ caldera
+              │                       victim2 ── sandcat ──▶
+              ▼
+          filebeat ──▶ redis ──▶ normalizer ──▶ inference (AE/VAE/TXR/GNN/DQN)
+                                       │
+                                       ▼
+                                 postgres + ws/sse
+                                       │
+                                       ▼
+                       dashboard at http://localhost:5600
+
+    Designed so the RL agent visibly intervenes (ESCALATE / ISOLATE_HOST)
+    BEFORE chains reach stage 7 (Actions on Objectives) — the
+    "predetection" the jury should see on the dashboard.
+
+    For a one-victim variant (cleaner narrative for first-time juries),
+    use jury_demo_single.sh.
+
+PREREQUISITES
+    * Docker + docker compose v2
+    * pipx-installed honcho        (pipx install honcho)
+    * Node + pnpm on PATH          (broken /usr/bin/pnpm symlink? see notes)
+    * apps/api/.venv with project + alembic installed
+    * apps/api/.env present        (DB_PASSWORD, AUTH_JWT_SECRET, …)
+
+OPTIONS
+    --apt NAME            APT profile to emulate. Default: APT29.
+                          Implemented chains live in
+                          infra/simulation/scripts/run_full_simulation.py
+                          (--list-apts to enumerate).
+
+    --duration TIME       Total simulation runtime (e.g. 60s, 4m, 240s).
+                          Default: 180s.
+
+    --benign-rate RATE    Background benign-traffic rate per victim, e.g.
+                          50/min, 200/min. Default: 100/min.
+
+    --keep-state          Skip the clean-state step. PG (attack_chains,
+                          detections, alerts, dqn_actions) and Redis
+                          streams keep their prior contents. Useful when
+                          comparing runs; off by default because stale
+                          chains pollute the live "rl" stream and the
+                          FINAL REPORT deltas.
+
+    --skip-sim            Bring the stack up but do NOT run lab_simulate.
+                          Run it manually with the printed command.
+
+    stop | --stop         Tear everything down: kills honcho + workers,
+                          docker compose down for both compose files.
+                          Volumes are preserved so PG keeps its data.
+
+    -h, --help            Show this help and exit.
+
+ENV VARS APPLIED IDEMPOTENTLY TO apps/api/.env
+    STRIX_STREAM_PER_MODEL=1            per-model WS fan-out for the dashboard
+    STRIX_CHAIN_MAX_STEPS=15            chain rollover after 15 steps (was 50)
+    STRIX_CHAIN_IDLE_TIMEOUT_MIN=10     close idle chains after 10 min (was 120)
+
+    Removed if present:
+    STRIX_GNN_OPEN_THRESHOLD            synthetic-test override; production
+                                        uses the trained 0.7743 default
+
+EXECUTION FLOW
+    0)   Restore production GNN threshold + apply chain-binding env vars
+    1)   Stop any prior host stack (honcho/uvicorn/workers)
+    2)   docker compose up the simulation lab (wazuh + caldera + 2 victims),
+         wait for wazuh healthy, run wazuh-control reload to apply
+         infra/lab-provisioning/wazuh/local_rules.xml (mutes parent
+         rules 80789/80784/80785 so children 100100+ can shine through)
+    3)   docker compose up platform deps (postgres + redis + filebeat)
+    4)   alembic upgrade head (via apps/api/.venv)
+    4.5) Clean state (unless --keep-state) — TRUNCATE chains/detections/
+         alerts/dqn_actions + wipe Redis streams/sessions/queues
+    5)   honcho start — api + web + 5 workers, log → /tmp/strix_honcho.log
+    6)   Wait for /health and dashboard, then prompt the operator
+    7)   bash infra/scripts/lab_simulate.sh — drives Caldera through the
+         chosen APT chain with paced benign traffic in parallel
+
+WHAT TO WATCH ON THE DASHBOARD
+    * Topology              attacker → 2 victims, red pulses on each tactic
+    * APT Attack Timeline   live chain progression — paced 6 s/stage
+    * RL Intervention       cards land here once the agent intervenes or
+      Timeline              the chain hits stage 7
+    * Detection Quality     TP/FP/TN/FN populating once labels resolve
+    * Forensic Logs         real Wazuh/auditd lines flowing
+
+OUTPUTS
+    /tmp/strix_honcho.log                     stdout/stderr of the host stack
+    /tmp/strix_honcho.pid                     honcho pid for the stop path
+    infra/simulation/runs/<RUN_ID>/           topology.json + per-tactic logs
+    Postgres tables                           alerts, detections,
+                                              attack_chains, dqn_actions
+    FINAL REPORT (run-scoped)                 printed by lab_simulate at end
+
+TROUBLESHOOTING
+    pnpm: command not found
+        Broken corepack symlink. Fix:
+            sudo rm -f /usr/bin/pnpm /usr/bin/pnpx
+            sudo npm install -g pnpm
+
+    honcho stops immediately, web.1 rc=127
+        Same root cause as above (pnpm missing).
+
+    api /health does not respond
+        tail -f /tmp/strix_honcho.log — usually a missing env var, a port
+        already in use (8000), or alembic migration fail.
+
+    "0 PREDETECTED / 0 POST-DETECTED" in RL Intervention Timeline
+        Backfill from PG should hydrate this. If it stays empty, the API
+        may be running stale code — restart with:
+            bash jury_demo.sh stop && bash jury_demo.sh
+
+    FINAL REPORT shows ckc Δ +0 for every tactic
+        Fixed in May 2026. If still seen, ensure the script being run is
+        the latest (run_full_simulation.py uses pg_now baseline).
+
+EXAMPLES
+    bash jury_demo.sh
+    bash jury_demo.sh --apt APT41 --duration 240
+    bash jury_demo.sh --benign-rate 50/min
+    bash jury_demo.sh --keep-state              # debug, no clean state
+    bash jury_demo.sh --skip-sim                # bring stack up only
+    bash jury_demo.sh stop                      # tear down
+
+SEE ALSO
+    jury_demo_single.sh                         single-victim variant
+    infra/scripts/lab_simulate.sh               the underlying sim runner
+    docs/LAB_BRINGUP.md                         one-time setup
+EOF
+}
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -54,11 +204,10 @@ while [[ $# -gt 0 ]]; do
     --apt)           APT="$2"; shift 2 ;;
     --duration)      DURATION="$2"; shift 2 ;;
     --benign-rate)   BENIGN_RATE="$2"; shift 2 ;;
+    --keep-state)    CLEAN_STATE=0; shift ;;  # preserve PG/redis history (debug only)
     --skip-sim)      SKIP_SIM=1; shift ;;  # bring stack up but don't run lab_simulate
-    -h|--help)
-      sed -n '2,20p' "$0" | sed 's/^# \?//'
-      exit 0 ;;
-    *) fail "unknown arg: $1" ;;
+    -h|--help)       print_help; exit 0 ;;
+    *) fail "unknown arg: $1   (try: bash $0 --help)" ;;
   esac
 done
 
@@ -114,6 +263,32 @@ else
   ok "STRIX_STREAM_PER_MODEL=1 already set"
 fi
 
+# Tighter chain binding for demo runs. Default constants (50 steps / 120 min)
+# coalesce a whole simulation into one chain per host; demo values produce a
+# new chain per tactic so the dashboard + histogram reflect actual phases.
+if ! grep -q "^STRIX_CHAIN_MAX_STEPS=" "$ENV_FILE"; then
+  printf 'STRIX_CHAIN_MAX_STEPS=15\n' >> "$ENV_FILE"
+  ok "set STRIX_CHAIN_MAX_STEPS=15 (was 50)"
+else
+  ok "STRIX_CHAIN_MAX_STEPS already set"
+fi
+if ! grep -q "^STRIX_CHAIN_IDLE_TIMEOUT_MIN=" "$ENV_FILE"; then
+  printf 'STRIX_CHAIN_IDLE_TIMEOUT_MIN=10\n' >> "$ENV_FILE"
+  ok "set STRIX_CHAIN_IDLE_TIMEOUT_MIN=10 (was 120)"
+else
+  ok "STRIX_CHAIN_IDLE_TIMEOUT_MIN already set"
+fi
+
+# Demo-only auto-isolation: kill sandcat on the predetected victim so the
+# jury sees the attack visibly stop. Hard-off in production (1.0 SOC-policy
+# is advisory-only). Worker module: apps/api/.../workers/demo_isolation.py.
+if ! grep -q "^STRIX_DEMO_AUTO_ISOLATE=" "$ENV_FILE"; then
+  printf 'STRIX_DEMO_AUTO_ISOLATE=1\n' >> "$ENV_FILE"
+  ok "set STRIX_DEMO_AUTO_ISOLATE=1 (severs sandcat on first ESCALATE+)"
+else
+  ok "STRIX_DEMO_AUTO_ISOLATE already set"
+fi
+
 # ---- 1) tear down any prior host processes -------------------------------
 step "stopping any prior host processes"
 if [[ -f "$HONCHO_PID_FILE" ]]; then
@@ -146,6 +321,16 @@ if [[ "${status:-missing}" != "healthy" ]]; then
   warn "wazuh.manager did not report healthy — proceeding anyway (sandcat agents may still enroll)"
 fi
 
+# Reload Wazuh rules so edits to local_rules.xml (e.g. 80789 mute) take
+# effect even when the container was already running from a previous run.
+# The file is bind-mounted ro from infra/lab-provisioning/wazuh/.
+if docker exec strix_wazuh_manager /var/ossec/bin/wazuh-control reload >/dev/null 2>&1; then
+  ok "wazuh: ruleset reloaded (custom local_rules.xml applied)"
+else
+  warn "wazuh-control reload failed — restarting container"
+  docker compose -f infra/compose.simulation.yml restart strix_wazuh_manager >/dev/null
+fi
+
 # ---- 3) bring up platform deps (postgres + redis + filebeat) --------------
 step "bringing up platform deps (postgres + redis + filebeat)"
 docker compose -f infra/compose.platform-deps.yml --env-file "$ENV_FILE" up -d
@@ -161,6 +346,42 @@ done
 step "running alembic upgrade head (via project venv)"
 ( cd apps/api && set -a && source ./.env && set +a && "$VENV/bin/alembic" upgrade head ) >/dev/null
 ok "schema at head"
+
+# ---- 4.5) clean prior state so the demo run is observable -----------------
+# Pass --keep-state to skip (debug only). The platform accumulates ~100k open
+# chains across runs; without this step the live "rl" stream surfaces stale
+# chains from old runs and the FINAL REPORT deltas are dominated by history.
+if [[ "$CLEAN_STATE" -eq 1 ]]; then
+  step "clean state — wiping chains/detections/alerts + redis streams"
+  ( cd apps/api && set -a && source ./.env && set +a && \
+    PGPASSWORD="${DB_PASSWORD:?DB_PASSWORD missing in .env}" \
+    psql -h "${DB_HOST:-127.0.0.1}" -p "${DB_PORT:-5432}" \
+         -U "${DB_USER:-strix}"     -d "${DB_NAME:-strix}" -v ON_ERROR_STOP=1 <<'SQL' >/dev/null
+TRUNCATE TABLE
+  attack_chains,
+  detections,
+  alerts,
+  dqn_actions
+RESTART IDENTITY CASCADE;
+SQL
+  ) || fail "psql truncate failed — check apps/api/.env DB_* vars"
+  ok "postgres: chains/detections/alerts/dqn_actions truncated"
+
+  # Wipe live streams, alert queue, verdicts, SSE channels, per-agent sessions,
+  # and feature shards. Preserves arq:* (worker queue) and strix:auto_response:*
+  # (kill-switch). Key prefixes verified against:
+  #   apps/api/src/strix_api/api/routes/streams.py    (strix:stream:*, strix:sse:*)
+  #   apps/api/src/strix_api/adapters/session_store.py (session:*)
+  docker exec strix_redis sh -lc '
+    for pat in "strix:stream:*" "strix:sse:*" "strix:features:*" "session:*"; do
+      redis-cli --scan --pattern "$pat" | xargs -r redis-cli DEL >/dev/null
+    done
+    redis-cli DEL strix:alerts:raw strix:alerts:raw:list strix:verdicts >/dev/null
+  ' >/dev/null && ok "redis: streams + sessions + queues cleared" \
+                 || warn "redis clean partial — inspect with: docker exec strix_redis redis-cli keys 'strix:*'"
+else
+  warn "clean-state SKIPPED (--keep-state) — FINAL REPORT deltas will include prior-run history"
+fi
 
 # ---- 5) start the host stack (api + web + 5 workers) via honcho -----------
 step "starting host stack via honcho (logs → $HONCHO_LOG)"

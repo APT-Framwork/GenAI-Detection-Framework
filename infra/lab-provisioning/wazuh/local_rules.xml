@@ -11,6 +11,58 @@
 -->
 <group name="strix,caldera,">
 
+  <!-- ================= Parent rule mute =================
+       80789/80784/80785 are Wazuh stock auditd parents. They fire on
+       *every* execve/write/read in the audited keys, generating thousands
+       of level-3 alerts per minute (e.g. 1,993 hits in 10 min from sandcat
+       heartbeats and shell builtins). Custom rules 100100+ chain off them
+       via <if_sid>, so muting the parents (level=0) silences the noise
+       without breaking the children. -->
+  <rule id="80789" level="0" overwrite="yes">
+    <decoded_as>auditd</decoded_as>
+    <field name="audit.key">audit-wazuh-x</field>
+    <description>STRIX: muted parent execve rule (children inherit via if_sid)</description>
+  </rule>
+  <rule id="80784" level="0" overwrite="yes">
+    <decoded_as>auditd</decoded_as>
+    <field name="audit.key">audit-wazuh-w</field>
+    <description>STRIX: muted parent write rule (children inherit via if_sid)</description>
+  </rule>
+  <rule id="80785" level="0" overwrite="yes">
+    <decoded_as>auditd</decoded_as>
+    <field name="audit.key">audit-wazuh-r</field>
+    <description>STRIX: muted parent read rule (children inherit via if_sid)</description>
+  </rule>
+
+  <!-- ================= FIM noise mute =================
+       Wazuh stock rules 550/553/554 are FIM (file integrity monitoring)
+       events with no attacker context. They are HARD-CODED to MITRE
+       techniques that mitre_to_ckc.json maps to high CKC stages:
+         550 (integrity changed) → T1565.001 → S7 (Stored Data Manip)
+         553 (file deleted)      → T1070     → S5 (Indicator Removal)
+         554 (new file)          → no mitre  → benign
+       Observed false-positive: sandcat enrollment writes
+       /usr/local/bin/sandcat → rule 550 fires → chain_max_ckc=7 →
+       DQN_STAGE7_FORCE_ESCALATE → demo_isolation pkills sandcat →
+       all subsequent Caldera tactics get 0 links.
+       Mute level=0 so the events still flow into Wazuh logs but don't
+       raise alerts that pollute attack-chain stage attribution. -->
+  <rule id="550" level="0" overwrite="yes">
+    <category>ossec</category>
+    <decoded_as>syscheck_integrity_changed</decoded_as>
+    <description>STRIX: muted FIM checksum-changed rule (FP-prone, no attacker context)</description>
+  </rule>
+  <rule id="553" level="0" overwrite="yes">
+    <category>ossec</category>
+    <decoded_as>syscheck_deleted</decoded_as>
+    <description>STRIX: muted FIM file-deleted rule (FP-prone, no attacker context)</description>
+  </rule>
+  <rule id="592" level="0" overwrite="yes">
+    <if_sid>500</if_sid>
+    <match>^ossec: File size reduced</match>
+    <description>STRIX: muted log-file-shrunk rule (routine log rotation, tagged T1565.001 → S7)</description>
+  </rule>
+
   <!-- ================= Discovery (TA0007) ================= -->
   <rule id="100100" level="6">
     <if_sid>80789</if_sid>

@@ -3,7 +3,8 @@
   "source": {
     "notebook": "apps/notebooks/preprocessing_dataset.ipynb",
     "loader": "RL_agent/synthetic/data_loader.py (lines 97-133)",
-    "extracted_on": "2026-04-17"
+    "extracted_on": "2026-04-17",
+    "revised_on": "2026-05-03"
   },
   "ckc_stages": {
     "0": "Benign",
@@ -33,10 +34,11 @@
     "TA0003": { "name": "Persistence",            "ckc": 5 },
     "TA0004": { "name": "Privilege Escalation",   "ckc": 4 },
     "TA0005": { "name": "Defense Evasion",        "ckc": 5 },
-    "TA0006": { "name": "Credential Access",      "ckc": 7 },
-    "TA0007": { "name": "Discovery",              "ckc": 7 },
+    "TA0006": { "name": "Credential Access",      "ckc": 5 },
+    "TA0007": { "name": "Discovery",              "ckc": 4 },
     "TA0008": { "name": "Lateral Movement",       "ckc": 5 },
     "TA0009": { "name": "Collection",             "ckc": 7 },
+    "TA0010": { "name": "Exfiltration",           "ckc": 7 },
     "TA0011": { "name": "Command and Control",    "ckc": 6 },
     "TA0040": { "name": "Impact",                 "ckc": 7 }
   },
@@ -57,20 +59,20 @@
     "T1068":      { "name": "Exploitation for Privilege Escalation",                 "ckc": 4 },
     "T1548.003":  { "name": "Abuse Elevation Control Mechanism: Sudo and Sudo Caching", "ckc": 4 },
     "T1106":      { "name": "Native API",                                            "ckc": 4 },
-    "T1083":      { "name": "File and Directory Discovery",                          "ckc": 7 },
-    "T1057":      { "name": "Process Discovery",                                     "ckc": 7 },
-    "T1082":      { "name": "System Information Discovery",                          "ckc": 7 },
-    "T1049":      { "name": "System Network Connections Discovery",                  "ckc": 7 },
-    "T1033":      { "name": "System Owner/User Discovery",                           "ckc": 7 },
-    "T1040":      { "name": "Network Sniffing",                                      "ckc": 7 },
+    "T1083":      { "name": "File and Directory Discovery",                          "ckc": 4 },
+    "T1057":      { "name": "Process Discovery",                                     "ckc": 4 },
+    "T1082":      { "name": "System Information Discovery",                          "ckc": 4 },
+    "T1049":      { "name": "System Network Connections Discovery",                  "ckc": 4 },
+    "T1033":      { "name": "System Owner/User Discovery",                           "ckc": 4 },
+    "T1040":      { "name": "Network Sniffing",                                      "ckc": 4 },
     "T1021":      { "name": "Remote Services",                                       "ckc": 5 },
     "T1021.004":  { "name": "Remote Services: SSH",                                  "ckc": 5 },
     "T1005":      { "name": "Data from Local System",                                "ckc": 7 },
     "T1565.001":  { "name": "Data Manipulation: Stored Data Manipulation",           "ckc": 7 },
     "T1485":      { "name": "Data Destruction",                                      "ckc": 7 },
     "T1562.001":  { "name": "Impair Defenses: Disable or Modify Tools",              "ckc": 5 },
-    "T1070.004":  { "name": "Indicator Removal on Host: File Deletion",              "ckc": 7 },
-    "T1070.006":  { "name": "Indicator Removal on Host: Timestomp",                  "ckc": 7 }
+    "T1070.004":  { "name": "Indicator Removal on Host: File Deletion",              "ckc": 5 },
+    "T1070.006":  { "name": "Indicator Removal on Host: Timestomp",                  "ckc": 5 }
   },
   "tactic_name_to_ckc": {
     "comment": "Used when the raw alert carries MITRE fields as human-readable names (lowercase, exact match). Applied to _source.rule.mitre.tactic.",
@@ -80,10 +82,11 @@
     "persistence":          5,
     "privilege escalation": 4,
     "defense evasion":      5,
-    "credential access":    7,
-    "discovery":            7,
+    "credential access":    5,
+    "discovery":            4,
     "lateral movement":     5,
     "collection":           7,
+    "exfiltration":         7,
     "command and control":  6,
     "impact":               7
   },
@@ -110,7 +113,14 @@
       "exploitation for privilege escalation",
       "sudo and sudo caching",
       "abuse elevation control mechanism: sudo and sudo caching",
-      "native api"
+      "native api",
+      "file and directory discovery",
+      "process discovery",
+      "system information discovery",
+      "system network connections discovery",
+      "system owner/user discovery",
+      "system owner or user discovery",
+      "network sniffing"
     ],
     "S5": [
       "create account",
@@ -124,25 +134,18 @@
       "ssh",
       "remote services: ssh",
       "disable or modify tools",
-      "impair defenses: disable or modify tools"
-    ],
-    "S7": [
-      "file and directory discovery",
-      "process discovery",
-      "system information discovery",
-      "system network connections discovery",
-      "system owner/user discovery",
-      "system owner or user discovery",
-      "network sniffing",
-      "data from local system",
-      "stored data manipulation",
-      "data manipulation: stored data manipulation",
+      "impair defenses: disable or modify tools",
       "file deletion",
       "indicator removal on host: file deletion",
       "indicator removal",
       "indicator removal on host",
       "timestomp",
-      "indicator removal on host: timestomp",
+      "indicator removal on host: timestomp"
+    ],
+    "S7": [
+      "data from local system",
+      "stored data manipulation",
+      "data manipulation: stored data manipulation",
       "data destruction"
     ]
   },
@@ -153,12 +156,21 @@
     "4_summary_column":        "The cyber_kill_chain_summary column is min(phase_priority) across the 4 derived columns (tactic_id, technique_id, tactic_name, technique_name).",
     "5_no_match_is_benign":    "Rows with NO matching MITRE information are treated as Benign (stage 0)."
   },
+  "revision_2026_05_03": {
+    "summary": "Demoted 8 entries away from S7 after histogram showed 38k chains piling at stage 7 from cheap Discovery alerts (whoami/ps/netstat/find).",
+    "moved_from_S7": {
+      "TA0007 Discovery": "7 -> 4 (post-exploit recon, not Actions on Objectives)",
+      "TA0006 Credential Access": "7 -> 5 (post-install activity, not terminal)",
+      "T1083 / T1057 / T1082 / T1049 / T1033 / T1040": "7 -> 4 (Discovery techniques)",
+      "T1070.004 / T1070.006": "7 -> 5 (Defense Evasion sub-techniques; align with parent TA0005 = 5)"
+    },
+    "added": "TA0010 Exfiltration -> 7 (was missing, causing exfil alerts to fall to Benign)"
+  },
   "known_gaps": {
+    "stage_S2_unreachable": "No rule ever outputs S2 Weaponization. The downstream models will never see this label from real data.",
     "missing_tactics": {
-      "TA0010": "Exfiltration — not mapped; rows carrying only TA0010 fall through to Benign. Likely a bug; future work should assign to S7.",
       "TA0042": "Resource Development — not mapped; likely belongs to S2 Weaponization."
     },
-    "stage_S2_unreachable": "No rule ever outputs S2 Weaponization. The downstream models will never see this label from real data.",
     "loader_missing_features": {
       "comment": "RL_agent/synthetic/data_loader.py:97-133 only ports the ID-based dicts. The name-based mappings, substring fallback, technique-over-tactic precedence, and earliest-phase summary reduction are NOT present in the loader and must be re-implemented server-side for full parity with the notebook.",
       "not_ported": [

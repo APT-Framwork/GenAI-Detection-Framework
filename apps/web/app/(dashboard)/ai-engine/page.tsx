@@ -56,7 +56,10 @@ export default function AiEnginePage() {
     queryFn: () => apiFetch<ConfidenceTrendResponse>("/monitoring/confidence-trend?window=7d"),
     refetchInterval: 60_000,
   })
-  const liveFeed = useLiveFeed({ maxEvents: 12 })
+  // Bump retained events so the panel can show real history (backfilled
+  // from `/streams/live-feed/recent` on mount) and serve the Export buttons.
+  const liveFeed = useLiveFeed({ maxEvents: 500, backfillLimit: 200 })
+  const [showAll, setShowAll] = useState(false)
   const [expandedModel, setExpandedModel] = useState<string | null>(null)
 
   // Composite metrics come from the registry — these are training-time
@@ -313,13 +316,42 @@ export default function AiEnginePage() {
           <h3 className="text-sm font-bold text-[var(--strix-text)]">
             Live Inference Stream
           </h3>
-          <span className={cn(
-            "ml-auto text-[9px] font-semibold uppercase tracking-wider flex items-center gap-1",
-            liveFeed.status === "open" ? "text-emerald-500" : "text-amber-500"
-          )}>
-            <Activity className="h-3 w-3" />
-            {liveFeed.status}
+          <span className="text-[10px] text-[var(--strix-text-muted)] tabular-nums">
+            · {liveFeed.events.length} verdict{liveFeed.events.length === 1 ? "" : "s"} retained
           </span>
+          <div className="ml-auto flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setShowAll((v) => !v)}
+              disabled={liveFeed.events.length === 0}
+              className="text-[10px] uppercase tracking-wider px-2 py-1 rounded border border-[var(--strix-border)] hover:bg-[var(--strix-bg-surface)] disabled:opacity-40 disabled:cursor-not-allowed text-[var(--strix-text-muted)]"
+            >
+              {showAll ? "Collapse" : "View all"}
+            </button>
+            <button
+              type="button"
+              onClick={() => downloadInferenceJson(liveFeed.events)}
+              disabled={liveFeed.events.length === 0}
+              className="text-[10px] uppercase tracking-wider px-2 py-1 rounded border border-[var(--strix-border)] hover:bg-[var(--strix-bg-surface)] disabled:opacity-40 disabled:cursor-not-allowed text-[var(--strix-text-muted)]"
+            >
+              Export JSON
+            </button>
+            <button
+              type="button"
+              onClick={() => downloadInferenceCsv(liveFeed.events)}
+              disabled={liveFeed.events.length === 0}
+              className="text-[10px] uppercase tracking-wider px-2 py-1 rounded border border-[var(--strix-border)] hover:bg-[var(--strix-bg-surface)] disabled:opacity-40 disabled:cursor-not-allowed text-[var(--strix-text-muted)]"
+            >
+              Export CSV
+            </button>
+            <span className={cn(
+              "text-[9px] font-semibold uppercase tracking-wider flex items-center gap-1 ml-2",
+              liveFeed.status === "open" ? "text-emerald-500" : "text-amber-500"
+            )}>
+              <Activity className="h-3 w-3" />
+              {liveFeed.status}
+            </span>
+          </div>
         </div>
 
         <div className="bg-[#0D1117] dark:bg-[#080C14] rounded-xl border border-[#1E293B] overflow-hidden">
@@ -329,7 +361,12 @@ export default function AiEnginePage() {
             <div className="h-2.5 w-2.5 rounded-full bg-emerald-500/70" />
             <span className="text-[9px] text-gray-500 ml-2 font-mono">strix:sse:live-feed</span>
           </div>
-          <div className="p-4 max-h-[280px] overflow-y-auto scrollbar-thin font-mono text-[11px] leading-6 space-y-0.5">
+          <div
+            className={cn(
+              "p-4 overflow-y-auto scrollbar-thin font-mono text-[11px] leading-6 space-y-0.5",
+              showAll ? "max-h-[640px]" : "max-h-[280px]",
+            )}
+          >
             {liveFeed.events.length === 0 ? (
               <div className="px-2 py-1 text-gray-500">
                 Waiting for verdicts… (SSE: {liveFeed.status})
@@ -350,7 +387,9 @@ export default function AiEnginePage() {
                     </span>
                     <span className="text-gray-300">
                       {e.data.ckcStageName} · agent {e.data.agentId ?? "—"} ·
-                      {" "}VAE {e.data.vaeMaliciousProb != null ? (e.data.vaeMaliciousProb * 100).toFixed(0) : "—"}%
+                      {" "}AE {e.data.aeAnomalyScore != null ? e.data.aeAnomalyScore.toFixed(3) : "—"}
+                      {" "}· VAE {e.data.vaeMaliciousProb != null ? (e.data.vaeMaliciousProb * 100).toFixed(0) : "—"}%
+                      {" "}· GNN {e.data.gnnNodeRisk != null ? e.data.gnnNodeRisk.toFixed(3) : "—"}
                       {" "}· {e.data.dqnActionName ?? "MONITOR"}
                     </span>
                   </div>
@@ -362,6 +401,79 @@ export default function AiEnginePage() {
       </div>
     </div>
   )
+}
+
+// ----------------------------------------------------------------------------
+// Export helpers — proof-of-real-inference for the demo. Each row is the
+// FULL verdict envelope (timestamp, agent, AE/VAE/GNN scores, DQN action,
+// MITRE techniques) so you can replay exactly what the dashboard saw.
+// ----------------------------------------------------------------------------
+
+function downloadInferenceJson(
+  events: ReadonlyArray<{ id: string; data: import("@/lib/api/live-feed").LiveFeedEvent; receivedAt: number }>,
+) {
+  const payload = {
+    exportedAt: new Date().toISOString(),
+    count: events.length,
+    schema: "strix.live-feed.v1",
+    events: events.map((e) => ({
+      id: e.id,
+      receivedAt: new Date(e.receivedAt).toISOString(),
+      ...e.data,
+    })),
+  }
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" })
+  triggerDownload(blob, `strix-live-inference-${stamp()}.json`)
+}
+
+function downloadInferenceCsv(
+  events: ReadonlyArray<{ id: string; data: import("@/lib/api/live-feed").LiveFeedEvent; receivedAt: number }>,
+) {
+  const headers = [
+    "received_at", "occurred_at", "alert_id", "agent_id",
+    "ckc_stage", "ckc_stage_name",
+    "ae_anomaly_score", "vae_malicious_prob", "gnn_node_risk",
+    "dqn_action", "dqn_action_name", "mitre_techniques",
+  ]
+  const rows = events.map((e) => [
+    new Date(e.receivedAt).toISOString(),
+    e.data.occurredAt,
+    e.data.alertId,
+    e.data.agentId ?? "",
+    String(e.data.ckcStage),
+    e.data.ckcStageName,
+    e.data.aeAnomalyScore != null ? e.data.aeAnomalyScore.toFixed(6) : "",
+    e.data.vaeMaliciousProb != null ? e.data.vaeMaliciousProb.toFixed(6) : "",
+    e.data.gnnNodeRisk != null ? e.data.gnnNodeRisk.toFixed(6) : "",
+    e.data.dqnAction != null ? String(e.data.dqnAction) : "",
+    e.data.dqnActionName ?? "",
+    (e.data.mitreTechniques ?? []).join(";"),
+  ])
+  const csv = [headers, ...rows].map((r) => r.map(csvCell).join(",")).join("\n")
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8" })
+  triggerDownload(blob, `strix-live-inference-${stamp()}.csv`)
+}
+
+function csvCell(v: string): string {
+  if (/[,"\n]/.test(v)) return `"${v.replace(/"/g, '""')}"`
+  return v
+}
+
+function stamp(): string {
+  const d = new Date()
+  const pad = (n: number) => String(n).padStart(2, "0")
+  return `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}-${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}`
+}
+
+function triggerDownload(blob: Blob, filename: string): void {
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement("a")
+  a.href = url
+  a.download = filename
+  document.body.appendChild(a)
+  a.click()
+  document.body.removeChild(a)
+  setTimeout(() => URL.revokeObjectURL(url), 1000)
 }
 
 function pct(v: number | undefined): string {

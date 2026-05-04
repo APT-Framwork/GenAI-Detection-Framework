@@ -164,6 +164,131 @@ class AnalysisService:
             for r in result.all()
         ]
 
+    # ---- RL Intervention Timeline backfill -----------------------
+
+    async def list_rl_timeline(
+        self,
+        *,
+        since: datetime | None = None,
+        limit: int = 200,
+    ) -> dict[str, list[dict[str, Any]]]:
+        """Backfill state for the dashboard's "RL Intervention Timeline".
+
+        The widget consumes a transient WS stream (`strix:stream:rl`) which
+        only carries frames published while the dashboard is connected.
+        Chains that completed before the page mounted are invisible to
+        that stream — even though Postgres knows about them. This method
+        reconstructs the same two buckets directly from `attack_chains`
+        + `dqn_actions`:
+
+          * `predetected`   — chain has an ESCALATE-or-stronger action and
+                              its terminal stage is below 7. The
+                              `interventionAt` timestamp is the FIRST such
+                              action (the moment the agent committed).
+          * `post_detected` — chain reached stage 7. We don't filter by
+                              "had no intervention" because a late
+                              ESCALATE on a chain that already hit 7 is
+                              still a post-detection.
+
+        `since` filters by `attack_chains.created_at` so callers can scope
+        to the current run. `None` returns the full history.
+        """
+        params: dict[str, Any] = {
+            "limit": limit,
+            "since": since,
+            "escalate": int(DqnAction.ESCALATE),
+        }
+
+        pre = await self._s.execute(
+            text(
+                """
+                SELECT
+                    ac.chain_id,
+                    ac.host_id,
+                    ac.max_ckc_stage,
+                    ac.opened_at,
+                    ac.closed_at,
+                    ac.status,
+                    act.decided_at        AS intervention_at,
+                    act.action_name       AS action_name,
+                    act.ckc_stage_at_decision AS stage_at_decision,
+                    h.agent_name
+                FROM attack_chains ac
+                JOIN LATERAL (
+                    SELECT decided_at, action_name, ckc_stage_at_decision
+                    FROM dqn_actions
+                    WHERE chain_id = ac.chain_id AND action >= :escalate
+                    ORDER BY decided_at ASC
+                    LIMIT 1
+                ) act ON TRUE
+                LEFT JOIN hosts h ON h.host_id = ac.host_id
+                WHERE ac.max_ckc_stage < 7
+                  AND (CAST(:since AS timestamptz) IS NULL
+                       OR ac.created_at > CAST(:since AS timestamptz))
+                ORDER BY act.decided_at DESC
+                LIMIT :limit
+                """
+            ),
+            params,
+        )
+        predetected = [
+            {
+                "chainId": str(r.chain_id),
+                "hostId": str(r.host_id),
+                "agentName": r.agent_name,
+                "maxCkcStage": int(r.max_ckc_stage),
+                "openedAt": _iso(r.opened_at),
+                "closedAt": _iso(r.closed_at) if r.closed_at else None,
+                "status": r.status,
+                "interventionAt": _iso(r.intervention_at),
+                "actionName": r.action_name,
+                "stageAtDecision": int(r.stage_at_decision),
+                "stageAtDecisionName": _stage_name(r.stage_at_decision) or "BENIGN",
+            }
+            for r in pre.all()
+        ]
+
+        post = await self._s.execute(
+            text(
+                """
+                SELECT
+                    ac.chain_id,
+                    ac.host_id,
+                    ac.max_ckc_stage,
+                    ac.opened_at,
+                    ac.closed_at,
+                    ac.status,
+                    ac.first_malicious_at,
+                    h.agent_name
+                FROM attack_chains ac
+                LEFT JOIN hosts h ON h.host_id = ac.host_id
+                WHERE ac.max_ckc_stage >= 7
+                  AND (CAST(:since AS timestamptz) IS NULL
+                       OR ac.created_at > CAST(:since AS timestamptz))
+                ORDER BY ac.opened_at DESC
+                LIMIT :limit
+                """
+            ),
+            {k: v for k, v in params.items() if k != "escalate"},
+        )
+        post_detected = [
+            {
+                "chainId": str(r.chain_id),
+                "hostId": str(r.host_id),
+                "agentName": r.agent_name,
+                "maxCkcStage": int(r.max_ckc_stage),
+                "openedAt": _iso(r.opened_at),
+                "closedAt": _iso(r.closed_at) if r.closed_at else None,
+                "status": r.status,
+                "firstMaliciousAt": _iso(r.first_malicious_at)
+                if r.first_malicious_at
+                else None,
+            }
+            for r in post.all()
+        ]
+
+        return {"predetected": predetected, "post_detected": post_detected}
+
     # ---- chain list (sidebar) ------------------------------------
 
     async def list_chains(
