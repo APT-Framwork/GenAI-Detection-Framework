@@ -1,0 +1,85 @@
+This is BibTeX, Version 0.99d
+Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
+The top-level auxiliary file: main.aux
+Reallocating 'name_of_file' (item size: 1) to 6 items.
+The style file: unsrt.bst
+Reallocating 'name_of_file' (item size: 1) to 11 items.
+Database file #1: references.bib
+Warning--entry type for "socradar2024" isn't style-file defined
+--line 53 of file references.bib
+Warning--entry type for "crowdstrike2024" isn't style-file defined
+--line 78 of file references.bib
+Warning--entry type for "google2025" isn't style-file defined
+--line 95 of file references.bib
+Warning--entry type for "deepinstinct2025" isn't style-file defined
+--line 103 of file references.bib
+Warning--entry type for "brandefense2025" isn't style-file defined
+--line 111 of file references.bib
+Warning--entry type for "deepstrike2025" isn't style-file defined
+--line 119 of file references.bib
+Warning--entry type for "reddit2025" isn't style-file defined
+--line 127 of file references.bib
+Warning--entry type for "scadafence2024" isn't style-file defined
+--line 135 of file references.bib
+Warning--entry type for "eftsure2025" isn't style-file defined
+--line 143 of file references.bib
+Warning--entry type for "darkllms2023" isn't style-file defined
+--line 151 of file references.bib
+Warning--entry type for "barracuda2024" isn't style-file defined
+--line 159 of file references.bib
+Warning--entry type for "hyas2023" isn't style-file defined
+--line 167 of file references.bib
+Warning--entry type for "zerothreat2025" isn't style-file defined
+--line 175 of file references.bib
+Warning--entry type for "blackcloak2025" isn't style-file defined
+--line 183 of file references.bib
+Warning--entry type for "anthropic2025" isn't style-file defined
+--line 191 of file references.bib
+Warning--entry type for "brightdefense2025" isn't style-file defined
+--line 199 of file references.bib
+Warning--entry type for "industrialcyber2025" isn't style-file defined
+--line 207 of file references.bib
+Warning--entry type for "veeam2025" isn't style-file defined
+--line 215 of file references.bib
+You've used 30 entries,
+            1791 wiz_defined-function locations,
+            558 strings with 7061 characters,
+and the built_in function-call counts, 4231 in all, are:
+= -- 305
+> -- 199
+< -- 0
++ -- 84
+- -- 54
+* -- 168
+:= -- 690
+add.period$ -- 72
+call.type$ -- 30
+change.case$ -- 33
+chr.to.int$ -- 0
+cite$ -- 30
+duplicate$ -- 176
+empty$ -- 515
+format.name$ -- 54
+if$ -- 940
+int.to.chr$ -- 0
+int.to.str$ -- 30
+missing$ -- 7
+newline$ -- 135
+num.names$ -- 30
+pop$ -- 162
+preamble$ -- 1
+purify$ -- 0
+quote$ -- 0
+skip$ -- 104
+stack$ -- 0
+substring$ -- 49
+swap$ -- 27
+text.length$ -- 0
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 0
+warning$ -- 0
+while$ -- 33
+width$ -- 32
+write$ -- 271
+(There were 18 warnings)

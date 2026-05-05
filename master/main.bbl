@@ -1,0 +1,155 @@
+\begin{thebibliography}{10}
+
+\bibitem{aag2024stats}
+{AAG IT Services}.
+\newblock The latest cyber crime statistics, 2024.
+
+\bibitem{singh2016comprehensive}
+Saurabh Singh, Pradip~Kumar Sharma, Seo~Yeon Moon, Daesung Moon, and Jong~Hyuk
+  Park.
+\newblock A comprehensive study on apt attacks and countermeasures for future
+  networks and communications: challenges and solutions.
+\newblock {\em The Journal of Supercomputing}, 2016.
+
+\bibitem{krishnapriya2024comprehensive}
+S.~Krishnapriya and S.~Singh.
+\newblock A comprehensive survey on advanced persistent threat (apt) detection
+  techniques.
+\newblock {\em Computer Modeling in Engineering \& Sciences}, 80(2):2675--2716,
+  2024.
+
+\bibitem{tatam2021review}
+M.~Tatam, B.~Shanmugam, S.~Azam, and K.~Kannoorpatti.
+\newblock A review of threat modelling approaches for {APT}-style attacks.
+\newblock {\em Heliyon}, 7:e05969, 2021.
+
+\bibitem{huang2024security}
+Huang et~al.
+\newblock Security modelling for cyber-physical systems: A systematic
+  literature review.
+\newblock {\em arXiv preprint arXiv:2404.07527}, 2024.
+
+\bibitem{jiang2025mitre}
+Yuning Jiang, Qiaoran Meng, Feiyang Shang, Nay Oo, Le~Thi~Hong Minh, Hoon~Wei
+  Lim, and Biplab Sikdar.
+\newblock Mitre att\&ck applications in cybersecurity and the way forward.
+\newblock {\em arXiv preprint arXiv:2502.10825}, 2025.
+
+\bibitem{ouaissa2025smartcity}
+M.~Ouaissa, M.~Ouaissa, Z.~Njah, S.~Hourani, and Y.~Mahmoud.
+\newblock A framework for cyber threat modeling and risk assessment in smart
+  city infrastructure.
+\newblock {\em Frontiers in Computer Science}, 2025.
+
+\bibitem{owasp2024threatmodeling}
+{OWASP Foundation}.
+\newblock Threat modeling process, 2024.
+\newblock [Accessed: May 2026].
+
+\bibitem{trellix2025}
+{Trellix Advanced Research Center}.
+\newblock The cyberthreat report: {October} 2025.
+\newblock Technical report, Trellix, November 2025.
+
+\bibitem{socradar2024}
+{SOCRadar Cyber Intelligence Inc.}
+\newblock Top 10 advanced persistent threat ({APT}) groups that dominated 2024,
+  February 2024.
+
+\bibitem{brandefense2025}
+{Brandefense}.
+\newblock Operation {C-Major (APT36)}: {A} persistent pakistan-linked threat,
+  November 2025.
+
+\bibitem{eset2025q2q3}
+{ESET Research}.
+\newblock {ESET APT} activity report {Q2} 2025--{Q3} 2025.
+\newblock Technical report, ESET, November 2025.
+
+\bibitem{cetas2024}
+{Centre for Emerging Technology and Security}.
+\newblock Generative {AI} in cybersecurity.
+\newblock Technical report, The Alan Turing Institute, June 2024.
+
+\bibitem{google2025}
+{Google Threat Intelligence Group}.
+\newblock Adversarial misuse of generative {AI}, January 2025.
+
+\bibitem{deepinstinct2025}
+{Deep Instinct}.
+\newblock The rise of {AI}-driven cyber attacks: {How LLMs} are reshaping the
+  threat landscape, March 2025.
+
+\bibitem{deepstrike2025}
+{DeepStrike}.
+\newblock {AI} cybersecurity threats 2025: {\$25.6M} deepfake, August 2025.
+
+\bibitem{reddit2025}
+{Reddit r/ComputerSecurity}.
+\newblock The rise of {AI}-powered phishing attacks: {It's} a new frontier in
+  cybersecurity threats, June 2025.
+
+\bibitem{scadafence2024}
+{SCADAfence}.
+\newblock {GenAI} phishing: {The} rise of {GenAI}-generated malware, May 2024.
+
+\bibitem{eftsure2025}
+{EFTsure}.
+\newblock {WormGPT}: how hackers are exploiting the dark side of {AI}, November
+  2025.
+
+\bibitem{darkllms2023}
+{LinkedIn}.
+\newblock Malicious {AI} tools: {FraudGPT} and {WormGPT}, August 2023.
+
+\bibitem{barracuda2024}
+{Barracuda Networks}.
+\newblock 5 ways cybercriminals are using {AI}: {Malware} generation, April
+  2024.
+
+\bibitem{hyas2023}
+{HYAS Labs}.
+\newblock {BlackMamba}: {Using AI} to generate polymorphic malware, July 2023.
+
+\bibitem{zerothreat2025}
+{ZeroThreat.ai}.
+\newblock Deepfake attacks \& {AI}-generated phishing: 2025 statistics, August
+  2025.
+
+\bibitem{blackcloak2025}
+{BlackCloak}.
+\newblock Understanding and countering deepfakes in 2025, October 2025.
+
+\bibitem{anthropic2025}
+{Anthropic}.
+\newblock Disrupting the first reported {AI}-orchestrated cyber espionage
+  campaign, November 2025.
+
+\bibitem{crowdstrike2024}
+{CrowdStrike}.
+\newblock Cyber threats in 2024 shift to {AI}-driven attacks and cloud
+  exploits, March 2024.
+
+\bibitem{brightdefense2025}
+{Bright Defense}.
+\newblock 500+ ransomware statistics ({October} 2025), November 2025.
+
+\bibitem{industrialcyber2025}
+{Industrial Cyber}.
+\newblock Half of 2025 ransomware attacks hit critical sectors as
+  manufacturing, healthcare, and energy targeted, October 2025.
+
+\bibitem{veeam2025}
+{Veeam}.
+\newblock Evolution of ransomware threats 2025: {Trends} \& key insights,
+  September 2025.
+
+\bibitem{ankalaki2025cyber}
+Shilpa Ankalaki, Aparna Rajesh~A, Pallavi M, Geetabai~S. Hukkeri, Tony Jan, and
+  Ganesh~R. Naik.
+\newblock Cyber attack prediction from traditional machine learning to
+  generative artificial intelligence.
+\newblock {\em IEEE Access}, 2025.
+\newblock Early Access.
+
+\end{thebibliography}

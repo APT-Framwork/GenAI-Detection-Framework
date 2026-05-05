@@ -1,0 +1,108 @@
+\documentclass[11pt,a4paper]{report}
+\usepackage[pdftex]{graphicx}
+\usepackage{enumitem} 
+\usepackage[normalem]{ulem}
+\usepackage{url} 
+\usepackage{indentfirst}
+\usepackage{titlesec}
+\usepackage{tikz-qtree}
+\usepackage{mathtools}
+\usetikzlibrary{positioning}
+\usepackage{makecell}
+\usepackage{amsmath}
+\usepackage{array}
+\usepackage{makecell}  % Pour gérer les sauts de ligne dans une cellule
+\usepackage{geometry}  % Ajuster les marges si besoin
+\usepackage{algpseudocode}
+\usepackage[edges]{forest}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage[edges]{forest}
+\usepackage{tikz}
+\usetikzlibrary{trees}
+\usepackage[ruled,lined]{algorithm2e}
+\usepackage[francais]{babel}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{tikz}
+\usetikzlibrary{shapes,arrows,positioning}
+\usepackage{tabularx}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{multirow}
+\usepackage[bookmarks, colorlinks=false, pdfborder={0 0 0}, pdftitle={<pdf title here>}, pdfauthor={<author's name here>}, pdfsubject={<subject here>}, pdfkeywords={<keywords here>}]{hyperref}
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric, arrows}
+\usepackage{eurosym}
+\usepackage{fancyhdr}
+
+% Configuring the header to only show the chapter number with a line
+\pagestyle{fancy}
+\fancyhf{} 
+\fancyhead[L]{Chapter \thechapter} 
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+% Custom components for warnings, explications, and notes
+\newcommand{\customexplication}[1]{
+\vspace{1em}
+\noindent\begin{minipage}{\textwidth}
+\noindent\textcolor{gray!50}{\rule{\textwidth}{0.5pt}}\par\vspace{0.2em}
+\noindent\textcolor{green!60!black}{\hskip 0.2cm \small\textbf{\uppercase{Explication}}}\par\vspace{0.2em}
+\noindent\hskip 0.2cm #1\par\vspace{0.2em}
+\noindent\textcolor{gray!50}{\rule{\textwidth}{0.5pt}}
+\end{minipage}
+\vspace{1em}
+}
+
+\newcommand{\customnote}[1]{
+\vspace{1em}
+\noindent\begin{minipage}{\textwidth}
+\noindent\textcolor{gray!50}{\rule{\textwidth}{0.5pt}}\par\vspace{0.2em}
+\noindent\textcolor{blue!70!white}{\hskip 0.2cm \small\textbf{\uppercase{Note}}}\par\vspace{0.2em}
+\noindent\hskip 0.2cm #1\par\vspace{0.2em}
+\noindent\textcolor{gray!50}{\rule{\textwidth}{0.5pt}}
+\end{minipage}
+\vspace{1em}
+}
+
+\newcommand{\customwarning}[1]{
+\vspace{1em}
+\noindent\begin{minipage}{\textwidth}
+\noindent\textcolor{gray!50}{\rule{\textwidth}{0.5pt}}\par\vspace{0.2em}
+\noindent\textcolor{orange!80!yellow}{\hskip 0.2cm \small\textbf{\uppercase{Warning}}}\par\vspace{0.2em}
+\noindent\hskip 0.2cm #1\par\vspace{0.2em}
+\noindent\textcolor{gray!50}{\rule{\textwidth}{0.5pt}}
+\end{minipage}
+\vspace{1em}
+}
+
+\begin{document}
+\renewcommand\bibname{References} 
+
+\pagenumbering{roman}
+\input{title}
+
+\tableofcontents
+\newpage
+\pagenumbering{arabic} 
+
+\chapter*{General Introduction}
+\addcontentsline{toc}{chapter}{General Introduction}
+
+This document uses the following formatting styles to convey supplementary information, following the Explication, Note, and Warning conventions:
+
+\customexplication{This element signifies an explication or suggestion.}
+
+\customnote{This element signifies a general note.}
+
+\customwarning{This element indicates a warning or caution.}
+
+\newpage
+
+\input{presentation}
+
+
+
+\end{document}
+  
