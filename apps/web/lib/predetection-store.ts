@@ -24,8 +24,15 @@ export interface Predetection {
   stage: number;
   /** stages 5–6 are the paper's "critical max" — catching at ≤ 4 is even better. */
   isCritical: boolean;
-  /** ms since first RL frame for this host until intervention. */
+  /** Event-time TTI: gap between two Wazuh `occurred_at` timestamps —
+   *  the alert that opened the chain and the alert that triggered ESCALATE.
+   *  Tells you "how deep into the chain" the agent fired. Not affected by
+   *  pipeline latency (both endpoints are event-time). */
   elapsedMs: number;
+  /** Wall-clock TTI: server clock at decide-time minus server clock at
+   *  chain-open. Captures end-to-end pipeline latency (Filebeat → OpenSearch
+   *  → ingest → inference). May be null for backfilled/older sessions. */
+  wallElapsedMs: number | null;
   /** Last MITRE technique observed before intervention (e.g., "T1059.004"). */
   technique: string | null;
   /** Last MITRE tactic observed before intervention (e.g., "TA0002"). */
@@ -41,8 +48,21 @@ export interface Predetection {
 
 type Store = Map<string, Predetection>;
 
-const _store: Store = new Map();
-const _listeners = new Set<() => void>();
+// Pin the store + listener set to `globalThis` so they survive module
+// re-evaluation. Without this, Next.js HMR can leave the page holding two
+// copies of this module (e.g. rl-kill-chain ends up bound to a fresh module
+// after edit, while predetection-receipt is still bound to the original).
+// The two modules each have their own `_store`, so writes on one side are
+// invisible to the other — symptom: the RL timeline shows N predetected
+// rows while the receipt panel renders the empty "Awaiting predetection"
+// state. Anchoring on globalThis collapses both instances onto a single Map.
+interface PredetectionGlobal {
+  __strixPredetectionStore?: Store;
+  __strixPredetectionListeners?: Set<() => void>;
+}
+const _g = globalThis as unknown as PredetectionGlobal;
+const _store: Store = (_g.__strixPredetectionStore ??= new Map());
+const _listeners: Set<() => void> = (_g.__strixPredetectionListeners ??= new Set());
 
 function _emit(): void {
   _listeners.forEach((fn) => fn());

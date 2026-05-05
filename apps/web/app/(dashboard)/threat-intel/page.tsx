@@ -1,13 +1,17 @@
 "use client"
 
-import { useMemo, useState } from "react"
-import { useRouter } from "next/navigation"
+import { useEffect, useMemo, useState } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
+import { useQueryClient } from "@tanstack/react-query"
 
 import {
   useCompromisedAssets,
   useFileScan,
   useIocSearch,
+  useJobResult,
 } from "@/lib/api/threat-intel"
+import { MitreCoverageMatrix } from "@/components/threat-intel/mitre-coverage-matrix"
+import { UserRiskPanel } from "@/components/threat-intel/user-risk-panel"
 import { downloadCsv } from "@/lib/download"
 import { toast } from "@/lib/toast"
 import {
@@ -63,49 +67,41 @@ function timeAgo(iso: string | null): string {
   return `${Math.floor(seconds / 86400)}d ago`
 }
 
-// Each entry maps to a real backend adapter under
-// apps/api/src/strix_api/adapters/. We don't have a dedicated
-// /monitoring/adapters health endpoint yet, so the per-feed status is
-// derived from observable signals at runtime (see useFeedStatuses
-// inside the page component). The metadata below is intrinsic to the
-// adapter (rate limits, source kind) and doesn't change between runs.
-const FEED_REGISTRY = [
-  {
-    name: "XposedOrNot",
-    adapterPath: "apps/api/src/strix_api/adapters/xposedornot_adapter.py",
-    rate: "1 lookup / 1s",
-    kind: "live",
-    description: "Free email breach lookups for IOC enrichment (no API key).",
-  },
-  {
-    name: "VirusTotal",
-    adapterPath: "apps/api/src/strix_api/adapters/virustotal_adapter.py",
-    rate: "4 lookups / min",
-    kind: "live",
-    description: "File hash + URL scan via /threat-intel/virustotal/scan.",
-  },
-  {
-    name: "MITRE ATT&CK",
-    adapterPath: "static reference set",
-    rate: "static",
-    kind: "static",
-    description: "Tactic/technique catalogue loaded at boot.",
-  },
-  {
-    name: "Anthropic LLM",
-    adapterPath: "apps/api/src/strix_api/adapters/llm_adapter.py",
-    rate: "Opus + Haiku",
-    kind: "live",
-    description: "LLM-assisted IOC summarisation (Anthropic Messages API).",
-  },
-] as const
+type TabId = "ioc" | "mitre"
 
 export default function ThreatIntelPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const tabParam = searchParams?.get("tab")
+  const initialTab: TabId = tabParam === "mitre" ? "mitre" : "ioc"
+  const [tab, setTab] = useState<TabId>(initialTab)
+  const onTabChange = (next: TabId) => {
+    setTab(next)
+    const sp = new URLSearchParams(searchParams?.toString() ?? "")
+    if (next === "ioc") sp.delete("tab")
+    else sp.set("tab", next)
+    const qs = sp.toString()
+    router.replace(qs ? `?${qs}` : "?", { scroll: false })
+  }
+
   const [iocQuery, setIocQuery] = useState("")
   const iocs = useIocSearch({ q: iocQuery || undefined, limit: 20 })
   const compromised = useCompromisedAssets(20)
   const fileScan = useFileScan()
+  const queryClient = useQueryClient()
+  // SSE for the file-scan worker. The route returns the scan_id and we
+  // also use it as the Arq job id, so it doubles as the SSE channel
+  // suffix (`/streams/jobs/{scan_id}`). The latest event becomes the
+  // authoritative banner status; on completion we invalidate the IOC
+  // search so the new hash row appears in the table without a refresh.
+  const fileScanJobId = fileScan.data?.scanId ?? null
+  const fileScanResult = useJobResult(fileScanJobId)
+  const fileScanLiveEvent = fileScanResult.events[0]?.data ?? null
+  useEffect(() => {
+    if (fileScanLiveEvent?.status === "complete") {
+      queryClient.invalidateQueries({ queryKey: ["threat-intel", "iocs"] })
+    }
+  }, [fileScanLiveEvent?.status, queryClient])
   // Reputation filter — multi-select. Empty = show all.
   const [filterOpen, setFilterOpen] = useState(false)
   const [reputationFilter, setReputationFilter] = useState<Set<string>>(new Set())
@@ -243,6 +239,36 @@ export default function ThreatIntelPage() {
         </div>
       </div>
 
+      {/* Tabs — IOC registry vs. ATT&CK Coverage Matrix. Default = IOC. */}
+      <div className="flex items-center gap-1 border-b border-[var(--strix-border)]">
+        {(["ioc", "mitre"] as const).map((t) => {
+          const active = tab === t
+          const label = t === "ioc" ? "IOC Registry" : "ATT&CK Coverage"
+          return (
+            <button
+              key={t}
+              type="button"
+              onClick={() => onTabChange(t)}
+              className={
+                "relative px-4 py-2 text-[11px] uppercase tracking-wider font-semibold transition-colors " +
+                (active
+                  ? "text-[var(--strix-text)]"
+                  : "text-[var(--strix-text-muted)] hover:text-[var(--strix-text)]")
+              }
+            >
+              {label}
+              {active && (
+                <span className="absolute left-2 right-2 -bottom-px h-0.5 bg-strix-primary dark:bg-strix-cyan rounded-t" />
+              )}
+            </button>
+          )
+        })}
+      </div>
+
+      {tab === "mitre" ? (
+        <MitreCoverageMatrix />
+      ) : (
+      <>
       {/* Reputation Core - IOC Table */}
       <div className="bg-[var(--strix-bg-card)] border border-[var(--strix-border)] rounded-xl p-5">
         <div className="flex items-center justify-between mb-4">
@@ -274,13 +300,52 @@ export default function ThreatIntelPage() {
             </label>
           </div>
         </div>
-        {fileScan.data && (
-          <div className="mb-3 px-3 py-2 rounded-lg bg-[var(--strix-bg-surface)] border border-[var(--strix-border)] text-[10px] text-[var(--strix-text-muted)]">
-            <span className="font-bold text-[var(--strix-text)]">{fileScan.data.filename}</span>
-            {" · "}sha256 {fileScan.data.sha256.slice(0, 12)}…
-            {" · "}status {fileScan.data.status}
-          </div>
-        )}
+        {fileScan.data && (() => {
+          const liveStatus = fileScanLiveEvent?.status
+          const status = liveStatus ?? fileScan.data.status
+          const reputation = fileScanLiveEvent?.reputation
+          const isError = status === "error"
+          const isComplete = status === "complete"
+          const dotCls = isError
+            ? "bg-red-500"
+            : isComplete
+              ? "bg-emerald-500"
+              : "bg-amber-400 animate-pulse"
+          return (
+            <div className="mb-3 px-3 py-2 rounded-lg bg-[var(--strix-bg-surface)] border border-[var(--strix-border)] text-[10px] text-[var(--strix-text-muted)] flex items-center gap-2 flex-wrap">
+              <span className={cn("h-1.5 w-1.5 rounded-full", dotCls)} />
+              <span className="font-bold text-[var(--strix-text)]">{fileScan.data.filename}</span>
+              <span>· sha256 {fileScan.data.sha256.slice(0, 12)}…</span>
+              <span>
+                · status{" "}
+                <span className={cn(
+                  "font-semibold uppercase",
+                  isError && "text-red-500",
+                  isComplete && "text-emerald-500",
+                  !isError && !isComplete && "text-amber-500",
+                )}>
+                  {status}
+                </span>
+              </span>
+              {reputation && (
+                <span>
+                  · reputation{" "}
+                  <span className={cn(
+                    "font-semibold uppercase",
+                    reputation === "malicious" && "text-red-500",
+                    reputation === "suspicious" && "text-amber-500",
+                    reputation === "clean" && "text-emerald-500",
+                  )}>
+                    {reputation}
+                  </span>
+                </span>
+              )}
+              {fileScanLiveEvent?.error && (
+                <span className="text-red-400">· {fileScanLiveEvent.error}</span>
+              )}
+            </div>
+          )
+        })()}
 
         <div className="overflow-hidden rounded-lg border border-[var(--strix-border)]">
           <table className="w-full text-xs">
@@ -340,118 +405,67 @@ export default function ThreatIntelPage() {
         </div>
       </div>
 
-      {/* Middle Row: Compromised Assets + Breach Feeds */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-        {/* Compromised Assets */}
-        <div className="lg:col-span-7 bg-[var(--strix-bg-card)] border border-[var(--strix-border)] rounded-xl p-5">
-          <div className="flex items-center gap-2 mb-4">
-            <AlertTriangle className="h-4 w-4 text-red-500" />
-            <h3 className="text-sm font-bold text-[var(--strix-text)]">
-              Compromised Assets
-            </h3>
-            <span className="ml-auto text-[9px] text-[var(--strix-text-muted)] uppercase tracking-wider">
-              Live · Auto-refresh
-            </span>
-          </div>
-
-          <div className="space-y-2">
-            {compromisedAssets.map((asset, i) => (
-              <div
-                key={i}
-                className={cn(
-                  "flex items-center gap-4 p-3 rounded-lg border transition-colors",
-                  asset.severity === "critical"
-                    ? "bg-red-500/5 border-red-500/20"
-                    : asset.severity === "high"
-                    ? "bg-amber-500/5 border-amber-500/20"
-                    : "bg-[var(--strix-bg-surface)] border-[var(--strix-border)]"
-                )}
-              >
-                <div className={cn(
-                  "h-2 w-2 rounded-full flex-shrink-0",
-                  asset.severity === "critical" && "bg-red-500 animate-pulse",
-                  asset.severity === "high" && "bg-amber-500",
-                  asset.severity === "medium" && "bg-yellow-500"
-                )} />
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-xs font-bold text-[var(--strix-text)]">{asset.hostname}</span>
-                    <span className="text-[10px] font-mono text-[var(--strix-text-muted)]">{asset.ip}</span>
-                  </div>
-                  <span className="text-[10px] text-[var(--strix-text-muted)]">{asset.vector}</span>
-                </div>
-                <span className={cn(
-                  "text-[9px] font-bold uppercase px-2 py-0.5 rounded-full",
-                  asset.severity === "critical" && "bg-red-500/10 text-red-500",
-                  asset.severity === "high" && "bg-amber-500/10 text-amber-500",
-                  asset.severity === "medium" && "bg-yellow-500/10 text-yellow-500"
-                )}>
-                  {asset.severity}
-                </span>
-                <span className="text-[10px] text-[var(--strix-text-muted)] flex-shrink-0">{asset.lastSeen}</span>
-              </div>
-            ))}
-          </div>
+      {/* Compromised Assets — full-width row. The "Breach Feed Integrations"
+          panel that used to sit beside it was removed: it surfaced
+          third-party adapter health (XON / VT reachability), which is
+          ops/sysadmin concern — not a story about what threats the
+          platform found. The threat-intel page is now scoped to
+          attribution + impact, with adapter ops moving to /admin if
+          ever needed. */}
+      <div className="bg-[var(--strix-bg-card)] border border-[var(--strix-border)] rounded-xl p-5">
+        <div className="flex items-center gap-2 mb-4">
+          <AlertTriangle className="h-4 w-4 text-red-500" />
+          <h3 className="text-sm font-bold text-[var(--strix-text)]">
+            Compromised Assets
+          </h3>
+          <span className="ml-auto text-[9px] text-[var(--strix-text-muted)] uppercase tracking-wider">
+            Live · Auto-refresh
+          </span>
         </div>
 
-        {/* Breach Feed Integrations */}
-        <div className="lg:col-span-5 bg-[var(--strix-bg-card)] border border-[var(--strix-border)] rounded-xl p-5">
-          <div className="flex items-center gap-2 mb-4">
-            <Globe className="h-4 w-4 text-strix-primary dark:text-strix-cyan" />
-            <h3 className="text-sm font-bold text-[var(--strix-text)]">
-              Breach Feed Integrations
-            </h3>
-          </div>
-
-          <div className="space-y-3">
-            {FEED_REGISTRY.map((feed) => {
-              // We mark a feed "online" when:
-              //   * static adapter (MITRE) — always online once loaded
-              //   * IOC search query has returned for XposedOrNot/VT
-              //     (their results contribute to the IOC table)
-              //   * file scan has succeeded for VT
-              // If iocs.isError we fall back to "degraded" so the
-              // pill is honest about connection problems.
-              const usedByIocSearch = feed.name === "XposedOrNot" || feed.name === "VirusTotal"
-              const status: "online" | "static" | "degraded" | "idle" =
-                feed.kind === "static"
-                  ? "static"
-                  : iocs.isError
-                  ? "degraded"
-                  : usedByIocSearch && iocs.isFetched
-                  ? "online"
-                  : "idle"
-              const dotCls =
-                status === "online"   ? "bg-emerald-500" :
-                status === "static"   ? "bg-cyan-500"    :
-                status === "degraded" ? "bg-rose-500"    : "bg-[#497f8b]"
-              const labelCls =
-                status === "online"   ? "text-emerald-500" :
-                status === "static"   ? "text-cyan-500"    :
-                status === "degraded" ? "text-rose-500"    : "text-[#497f8b]"
-              return (
-                <div key={feed.name} className="flex items-center gap-3 p-3 rounded-lg bg-[var(--strix-bg-surface)] border border-[var(--strix-border)]" title={feed.description}>
-                  <div className={cn("h-2 w-2 rounded-full flex-shrink-0", dotCls)} />
-                  <div className="flex-1">
-                    <div className="flex items-baseline justify-between">
-                      <span className="text-xs font-bold text-[var(--strix-text)]">{feed.name}</span>
-                      <span className="text-[10px] font-mono text-[var(--strix-text-muted)]">{feed.rate}</span>
-                    </div>
-                    <div className="flex items-center justify-between mt-0.5 gap-2">
-                      <span className={cn("text-[9px] font-semibold uppercase", labelCls)}>
-                        {status}
-                      </span>
-                      <span className="text-[10px] text-[var(--strix-text-muted)] font-mono truncate">
-                        {feed.adapterPath}
-                      </span>
-                    </div>
-                  </div>
+        <div className="space-y-2">
+          {compromisedAssets.map((asset, i) => (
+            <div
+              key={i}
+              className={cn(
+                "flex items-center gap-4 p-3 rounded-lg border transition-colors",
+                asset.severity === "critical"
+                  ? "bg-red-500/5 border-red-500/20"
+                  : asset.severity === "high"
+                  ? "bg-amber-500/5 border-amber-500/20"
+                  : "bg-[var(--strix-bg-surface)] border-[var(--strix-border)]"
+              )}
+            >
+              <div className={cn(
+                "h-2 w-2 rounded-full flex-shrink-0",
+                asset.severity === "critical" && "bg-red-500 animate-pulse",
+                asset.severity === "high" && "bg-amber-500",
+                asset.severity === "medium" && "bg-yellow-500"
+              )} />
+              <div className="flex-1 min-w-0">
+                <div className="flex items-baseline gap-2">
+                  <span className="text-xs font-bold text-[var(--strix-text)]">{asset.hostname}</span>
+                  <span className="text-[10px] font-mono text-[var(--strix-text-muted)]">{asset.ip}</span>
                 </div>
-              )
-            })}
-          </div>
+                <span className="text-[10px] text-[var(--strix-text-muted)]">{asset.vector}</span>
+              </div>
+              <span className={cn(
+                "text-[9px] font-bold uppercase px-2 py-0.5 rounded-full",
+                asset.severity === "critical" && "bg-red-500/10 text-red-500",
+                asset.severity === "high" && "bg-amber-500/10 text-amber-500",
+                asset.severity === "medium" && "bg-yellow-500/10 text-yellow-500"
+              )}>
+                {asset.severity}
+              </span>
+              <span className="text-[10px] text-[var(--strix-text-muted)] flex-shrink-0">{asset.lastSeen}</span>
+            </div>
+          ))}
         </div>
       </div>
+
+      {/* User-risk panel — Phase 9 UEBA. Sits between compromised-asset
+          rollup and the regional intensity block. */}
+      <UserRiskPanel />
 
       {/* Threat Intensity by Region */}
       <div className="bg-[var(--strix-bg-card)] border border-[var(--strix-border)] rounded-xl p-5">
@@ -489,6 +503,8 @@ export default function ThreatIntelPage() {
           ))}
         </div>
       </div>
+      </>
+      )}
     </div>
   )
 }

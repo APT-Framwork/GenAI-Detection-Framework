@@ -120,6 +120,18 @@ export interface RlPayload {
   confidence?: number;
   mitre_tactics?: string[];
   mitre_techniques?: string[];
+  // Backend-authoritative timing for the RL Intervention Timeline. Both
+  // ISO timestamps come from Wazuh occurred_at, so the dashboard can show
+  // a true time-to-intervene without relying on browser-side `Date.now()`.
+  chain_opened_at?: string | null;
+  event_occurred_at?: string | null;
+  time_to_intervene_ms?: number | null;
+  // Wall-clock TTI — server clock at decide-time minus server clock at
+  // chain-open. Captures end-to-end pipeline latency (Filebeat → OpenSearch
+  // → ingest → inference) which the event-time `time_to_intervene_ms`
+  // collapses to ~zero on Caldera bursts. Pair both in the UI for the
+  // "two stories" view: how-deep-into-the-chain vs. real wall-clock.
+  wall_time_to_intervene_ms?: number | null;
   [k: string]: unknown;
 }
 

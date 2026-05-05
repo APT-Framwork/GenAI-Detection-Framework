@@ -15,11 +15,17 @@ import {
   ChevronLeft,
   ChevronRight,
   Radar,
+  Inbox,
+  Crosshair,
+  ListChecks,
 } from "lucide-react"
 
 const navItems = [
   { label: "DASHBOARD", href: "/", icon: LayoutDashboard, id: "dashboard" },
+  { label: "CASES", href: "/cases", icon: Inbox, id: "cases" },
+  { label: "HUNT", href: "/hunt", icon: Crosshair, id: "hunt" },
   { label: "ANALYSIS", href: "/attack-analysis/latest", icon: Search, id: "analysis" },
+  { label: "ACTIONS", href: "/actions", icon: ListChecks, id: "actions" },
   { label: "THREAT INTEL", href: "/threat-intel", icon: Shield, id: "threat-intel" },
   { label: "MODEL MONITORING", href: "/ai-engine", icon: Brain, id: "ai-engine" },
   { label: "SIMULATION", href: "/topology", icon: Activity, id: "simulation" },

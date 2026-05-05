@@ -76,7 +76,15 @@ interface PacedSession {
   startedAt: number;
   lastTechnique: string | null;
   lastTactic: string | null;
+  /** Ring buffer of the last N per-event stage tags for this host —
+   *  NOT clamped to the running max, so backward motion is preserved.
+   *  Powers the stage-trail sparkline below the main row, which is the
+   *  one place in the UI where a juror can SEE the forward/backward
+   *  motion the Transformer was trained on. Newest entry at the end. */
+  recentStages: number[];
 }
+
+const STAGE_TRAIL_LIMIT = 30;
 
 function numOr(v: unknown, fallback: number): number {
   return typeof v === "number" && Number.isFinite(v) ? v : fallback;
@@ -163,6 +171,17 @@ export function AptAttackTimeline({ className }: AptAttackTimelineProps) {
 
       const observedMaxStage = Math.max(existing?.observedMaxStage ?? 0, stage);
 
+      // Append THIS frame's per-event stage to the trail — NOT clamped
+      // to observedMaxStage. The sparkline reads this verbatim, so a
+      // stage=3 frame arriving after a stage=4 frame shows up as a real
+      // dip in the visualisation. Untagged frames (stage=0) DO get
+      // appended too — they're meaningful signal: the adversary doing
+      // benign-looking activity between attack tactics.
+      const recentStages = [
+        ...(existing?.recentStages ?? []),
+        stage,
+      ].slice(-STAGE_TRAIL_LIMIT);
+
       map.set(id, {
         hostId: id,
         srcip: (typeof p.srcip === "string" ? p.srcip : existing?.srcip) ?? null,
@@ -175,6 +194,7 @@ export function AptAttackTimeline({ className }: AptAttackTimelineProps) {
         startedAt: existing?.startedAt ?? now,
         lastTechnique: lastTechnique ?? existing?.lastTechnique ?? null,
         lastTactic: lastTactic ?? existing?.lastTactic ?? null,
+        recentStages,
       });
     }
     setTick((n) => n + 1);
@@ -318,13 +338,16 @@ function AttackRow({ session: s }: { session: PacedSession }) {
       </div>
 
       <AttackStages stage={s.pacedStage} />
+      <StageTrail stages={s.recentStages} />
     </div>
   );
 }
 
 /** Live attacker progress — past stages amber→red gradient, current stage
     pulses cyan, future stages ghost gray. No mitigation overlays here:
-    this panel deliberately shows the attacker's view, not the agent's. */
+    this panel deliberately shows the attacker's view, not the agent's.
+    Per-event forward/backward motion is rendered separately by the
+    StageTrail sparkline below this row. */
 function AttackStages({ stage }: { stage: number }) {
   const W = 560;
   const H = 44;
@@ -380,11 +403,11 @@ function AttackStages({ stage }: { stage: number }) {
           const t = stageIdx / 7;
           fill = lerpHex("#F59E0B", "#EF4444", t);
           stroke = fill;
-          textColor = "#0b1416";
+          textColor = "#EF4444";
         } else if (isCurrent) {
           fill = "#0EA5E9";
           stroke = "#00F2FF";
-          textColor = "#0b1416";
+          textColor = "#F59E0B";
         }
 
         return (
@@ -437,6 +460,97 @@ function AttackStages({ stage }: { stage: number }) {
         );
       })}
     </svg>
+  );
+}
+
+/** Per-event stage trail — the only place in this panel where backward
+    motion is visible. Renders the last `STAGE_TRAIL_LIMIT` per-event
+    stage tags as a row of color-coded blocks (oldest → newest, left →
+    right). Each block height encodes the stage value (0 = thin gray,
+    7 = full red); colour gradient mirrors AttackStages' amber→red so
+    the eye reads it as "same scale, different view." When the adversary
+    cycles back through earlier stages (Discovery → Persistence →
+    Discovery → …) the trail visibly drops mid-sequence, then climbs
+    back — that's the non-monotonic walk the Transformer was trained on. */
+function StageTrail({ stages }: { stages: number[] }) {
+  // Empty trail (host just appeared) → render placeholder so the row
+  // height stays stable. Otherwise rows would shift vertically as the
+  // first frames arrive.
+  if (stages.length === 0) {
+    return (
+      <div className="mt-2 flex items-center gap-2">
+        <span className="text-[8px] uppercase tracking-wider text-[#497f8b]/60 dark:text-[var(--strix-text-muted)]/60 font-mono shrink-0 w-[42px]">
+          trail
+        </span>
+        <div className="flex-1 h-[18px] rounded-sm border border-dashed border-[rgba(128,182,195,0.18)] dark:border-[var(--strix-border)]" />
+      </div>
+    );
+  }
+
+  // Track if there's at least one backward step in the visible window —
+  // used for the legend pill ("3↓ back") so a juror at-a-glance knows
+  // they're looking at non-monotonic motion vs a clean monotonic walk.
+  let backCount = 0;
+  for (let i = 1; i < stages.length; i++) {
+    if (stages[i] > 0 && stages[i] < stages[i - 1]) backCount += 1;
+  }
+
+  return (
+    <div className="mt-2 flex items-center gap-2">
+      <span className="text-[8px] uppercase tracking-wider text-[#497f8b] dark:text-[var(--strix-text-muted)] font-mono shrink-0 w-[42px]">
+        trail
+      </span>
+      <div
+        className="flex-1 flex items-end gap-[1px] h-[18px] rounded-sm bg-[rgba(128,182,195,0.06)] dark:bg-[var(--strix-bg-card)] px-[2px] py-[1px]"
+        title={`per-event ckc_stage walk · ${stages.length} events shown · ${backCount} backward step${backCount === 1 ? "" : "s"}`}
+      >
+        {stages.map((s, i) => {
+          const clamped = Math.max(0, Math.min(7, s));
+          // Bar height by stage — stage 0 (no MITRE tag) shows as a
+          // thin baseline so it's distinguishable from "no data" but
+          // doesn't dominate the visual.
+          const heightPct = clamped === 0 ? 12 : 12 + (clamped / 7) * 88;
+          // Colour: stage 0 muted gray; 1–7 amber→red gradient matching
+          // the main row's progress fill.
+          const bg =
+            clamped === 0
+              ? "rgba(128,182,195,0.35)"
+              : lerpHex("#F59E0B", "#EF4444", clamped / 7);
+          const isBack =
+            i > 0 && clamped > 0 && stages[i] < stages[i - 1];
+          return (
+            <div
+              key={i}
+              className={cn(
+                "flex-1 rounded-[1px]",
+                isBack && "ring-1 ring-amber-300/60",
+              )}
+              style={{
+                height: `${heightPct}%`,
+                background: bg,
+                minWidth: 2,
+                transition: "height 200ms ease",
+              }}
+              title={
+                clamped === 0
+                  ? `t-${stages.length - 1 - i}: untagged event`
+                  : `t-${stages.length - 1 - i}: ${STAGE_LABELS[clamped - 1]} (stage ${clamped})${
+                      isBack ? " — backward step" : ""
+                    }`
+              }
+            />
+          );
+        })}
+      </div>
+      {backCount > 0 && (
+        <span
+          className="text-[8px] font-mono font-semibold text-amber-500 shrink-0"
+          title="backward stage transitions in the visible window"
+        >
+          {backCount}↓
+        </span>
+      )}
+    </div>
   );
 }
 

@@ -9,6 +9,7 @@ import { ChainStageTimeline } from "@/components/charts/chain-stage-timeline"
 import { AffectedHostsTable } from "@/components/charts/affected-hosts-table"
 import { StageProbabilityBars } from "@/components/charts/stage-probability-bars"
 import { OperatorNotes } from "@/components/charts/operator-notes"
+import { PlaybookViewer } from "@/components/playbooks/playbook-viewer"
 import {
   useChainDwellTime,
   useChainInfection,
@@ -151,7 +152,8 @@ export default function AttackAnalysisDetailPage({ params }: PageProps) {
     null
 
   return (
-    <div className="space-y-6">
+    <div className="flex gap-5">
+      <div className="flex-1 min-w-0 space-y-6">
       {/* Header */}
       <div className="flex items-start justify-between">
         <div>
@@ -329,6 +331,16 @@ export default function AttackAnalysisDetailPage({ params }: PageProps) {
           </button>
         </div>
       </div>
+      </div>
+
+      {/* Right rail — playbook viewer (hidden below xl). */}
+      <aside className="w-[320px] shrink-0 hidden xl:block">
+        <PlaybookViewer
+          chainId={resolvedId}
+          stage={Math.max(currentStage, maxStageReached)}
+          technique={null}
+        />
+      </aside>
     </div>
   )
 }

@@ -13,6 +13,7 @@ import { useSseStream } from "./sse";
 export interface LiveFeedEvent {
   alertId: string;
   agentId: string | null;
+  chainId: string | null;
   occurredAt: string;
   ckcStage: number;          // 0=BENIGN, 1..7 attack stages
   ckcStageName: string;

@@ -25,6 +25,16 @@
 #   bash infra/scripts/lab_simulate.sh \
 #         --benign-rate 100/min --duration 60s --apt APT29
 #
+#   # Non-monotonic stage sequences (for the Transformer + DQN — they were
+#   # trained on attacks that move forwards AND backwards through the kill
+#   # chain). Each entry fires a fresh Caldera op; the chain matcher
+#   # appends them all to one attack_chain so the per-event ckc_stage walk
+#   # is exactly what you asked for. Pre-baked demo + custom forms:
+#   bash infra/scripts/lab_simulate.sh --non-monotonic            # curated demo
+#   bash infra/scripts/lab_simulate.sh --ckc-stages "1,3,4,1,3,4,1,4"
+#   bash infra/scripts/lab_simulate.sh \
+#         --sequence "Discovery,Persistence,Discovery,Defense Evasion,Persistence"
+#
 # Pre-reqs:
 #   1. lab is up:                bash infra/scripts/lab_up.sh
 #   2. host auditd has rules:    sudo auditctl -l | grep audit-wazuh-x

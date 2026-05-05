@@ -22,6 +22,7 @@ import { useMemo } from "react";
 import { ShieldCheck, Zap, Clock, Crosshair, Brain, type LucideIcon } from "lucide-react";
 
 import { usePredetections, type Predetection } from "@/lib/predetection-store";
+import { HoverHelp } from "@/components/ui/hover-help";
 import { cn } from "@/lib/utils";
 
 const STAGE_LABELS = [
@@ -95,13 +96,38 @@ function InlineVariant({
           <h3 className="text-base font-bold font-heading text-[#00343d] dark:text-[var(--strix-text)]">
             Predetection Receipts
           </h3>
-          <span className="text-[10px] uppercase tracking-wider text-emerald-600 dark:text-emerald-400 font-semibold">
-            {list.length} caught
-          </span>
+          <HoverHelp
+            title="What's a receipt?"
+            body={
+              <>
+                One row per host where the agent fired{" "}
+                <strong>ESCALATE</strong> before the chain hit stage 7.
+                Sticky — does not auto-dismiss; the panel exists to be a
+                persistent, jury-facing proof.
+              </>
+            }
+          >
+            <span className="text-[10px] uppercase tracking-wider text-emerald-600 dark:text-emerald-400 font-semibold">
+              {list.length} caught
+            </span>
+          </HoverHelp>
         </div>
-        <span className="text-[10px] uppercase tracking-wider text-[#497f8b] dark:text-[var(--strix-text-muted)]">
-          stage ≤ 6 = success
-        </span>
+        <HoverHelp
+          title="Success criterion"
+          body={
+            <>
+              The paper&apos;s <em>predetection success</em> threshold:
+              caught at stage ≤ 6. Stages 5–6 (<code>Install</code> /{" "}
+              <code>C2</code>) are the <em>critical max</em> — anywhere
+              earlier is even better.
+            </>
+          }
+          align="end"
+        >
+          <span className="text-[10px] uppercase tracking-wider text-[#497f8b] dark:text-[var(--strix-text-muted)]">
+            stage ≤ 6 = success
+          </span>
+        </HoverHelp>
       </div>
 
       <div className="grid grid-cols-1 gap-3">
@@ -116,6 +142,12 @@ function InlineVariant({
 function InlineRow({ p }: { p: Predetection }) {
   const stageLabel = STAGE_LABELS[Math.max(0, p.stage - 1)] ?? "?";
   const elapsedSec = (p.elapsedMs / 1000).toFixed(2);
+  const wallElapsedLabel =
+    p.wallElapsedMs != null
+      ? p.wallElapsedMs < 1000
+        ? `${Math.round(p.wallElapsedMs)}ms`
+        : `${(p.wallElapsedMs / 1000).toFixed(1)}s`
+      : null;
   const tier = p.isCritical ? "CRITICAL CATCH" : "EARLY CATCH";
   const tierColor = p.isCritical ? "text-amber-500" : "text-emerald-500";
 
@@ -126,13 +158,48 @@ function InlineRow({ p }: { p: Predetection }) {
           <span className="font-mono text-[12px] font-bold text-[#00343d] dark:text-[var(--strix-text)] truncate">
             {p.victimLabel ?? p.hostId}
           </span>
-          <span className={cn("text-[9px] font-semibold uppercase tracking-wider", tierColor)}>
-            · {tier}
-          </span>
+          <HoverHelp
+            title={tier === "CRITICAL CATCH" ? "Critical catch" : "Early catch"}
+            body={
+              tier === "CRITICAL CATCH" ? (
+                <>
+                  The agent intervened at stage{" "}
+                  <strong>{p.stage}</strong> — within the paper&apos;s
+                  &quot;critical max&quot; (5–6: <code>Install</code> /{" "}
+                  <code>C2</code>). The window to prevent stage 7 was
+                  narrow but the agent caught it.
+                </>
+              ) : (
+                <>
+                  Intervened at stage <strong>{p.stage}</strong> — well
+                  before the critical band (Install/C2). The earliest
+                  catches are the cleanest.
+                </>
+              )
+            }
+          >
+            <span className={cn("text-[9px] font-semibold uppercase tracking-wider", tierColor)}>
+              · {tier}
+            </span>
+          </HoverHelp>
         </div>
-        <span className="px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider border border-emerald-500/40 text-emerald-600 dark:text-emerald-400 bg-emerald-500/10">
-          ⛨ {p.actionName || "INTERVENED"}
-        </span>
+        <HoverHelp
+          title="Agent action"
+          body={
+            <>
+              The DQN&apos;s recommended action at the moment of latch (
+              <strong>{p.actionName || `action ${p.action}`}</strong>).
+              Anything ≥ <code>ESCALATE</code> (action 2) qualifies as an
+              intervention. In the lab this is a recommendation only —
+              nothing is actually executed against the host.
+            </>
+          }
+          align="end"
+        >
+          <span className="px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider border border-emerald-500/40 text-emerald-600 dark:text-emerald-400 bg-emerald-500/10">
+            ⛨ {p.actionName || "INTERVENED"}
+          </span>
+        </HoverHelp>
       </div>
 
       {/* Mini-stat grid */}
@@ -142,55 +209,123 @@ function InlineRow({ p }: { p: Predetection }) {
           label="Caught at"
           value={`${stageLabel}`}
           sub={`stage ${p.stage}/7`}
+          help={
+            <>
+              Deepest CKC stage observed before the agent latched. Comes
+              from the running max of three signals: the Transformer&apos;s
+              own prediction, the Wazuh→MITRE→CKC mapping for each event,
+              and the chain&apos;s prior max stage.
+            </>
+          }
         />
         <Stat
           icon={Clock}
           label="Time to detect"
           value={`${elapsedSec}s`}
-          sub="from first frame"
+          sub={wallElapsedLabel ? `wall ${wallElapsedLabel}` : "event-time"}
+          help={
+            <>
+              <strong>Event-time TTI</strong> ({elapsedSec}s) — gap between
+              two Wazuh <code>occurred_at</code> timestamps: the alert that
+              opened the chain → the alert that triggered ESCALATE.
+              {wallElapsedLabel != null && (
+                <>
+                  <br />
+                  <strong>Wall-clock TTI</strong> ({wallElapsedLabel}) —
+                  server clock at decide minus server clock at chain-open.
+                  Captures pipeline latency end-to-end.
+                </>
+              )}
+            </>
+          }
         />
         <Stat
           icon={Brain}
-          label="DQN confidence"
+          label="Transformer conf."
           value={`${(p.confidence * 100).toFixed(0)}%`}
-          sub={`action ${p.action}`}
+          sub={`DQN action ${p.action}`}
+          help={
+            <>
+              Transformer softmax max over the 8-class CKC head at latch.
+              <br />
+              <em>Note:</em> this is the upstream classifier&apos;s
+              confidence, <strong>not</strong> the DQN&apos;s — the DQN
+              outputs Q-values, not probabilities. Action{" "}
+              <code>{p.action}</code> = <code>{p.actionName}</code>.
+            </>
+          }
         />
         <Stat
           icon={Zap}
           label="Last technique"
           value={p.technique ?? "—"}
           sub={p.tactic ?? "no tactic tag"}
+          help={
+            <>
+              Most recent MITRE technique observed for this host before
+              latch. The latch frame itself often has no MITRE tag (DQN
+              fires on a non-tagged downstream event), so we backfill from
+              the last tagged frame in the chain.
+            </>
+          }
         />
       </div>
 
       {/* Stage strip — emerald up to caught, strikethrough red beyond */}
-      <div className="flex items-center gap-1">
-        {STAGE_LABELS.map((label, i) => {
-          const stageIdx = i + 1;
-          const isCaught = stageIdx === p.stage;
-          const isReached = stageIdx <= p.stage;
-          const isPrevented = stageIdx > p.stage;
-          return (
-            <div
-              key={label}
-              className={cn(
-                "flex-1 rounded-md py-1.5 text-center text-[9px] font-mono font-semibold",
-                isCaught && "bg-emerald-500 text-white shadow-[0_0_0_2px_rgba(16,185,129,0.3)]",
-                isReached && !isCaught && "bg-emerald-500/30 text-emerald-700 dark:text-emerald-300",
-                isPrevented && "bg-rose-500/[0.08] text-rose-500/55 line-through border border-dashed border-rose-500/30",
-              )}
-            >
-              {label}
-            </div>
-          );
-        })}
-      </div>
+      <HoverHelp
+        title="Kill-chain stage strip"
+        body={
+          <>
+            <strong>Filled emerald</strong>: stages reached before the
+            agent intervened. <strong>Bright emerald</strong>: the latch
+            stage. <strong>Dashed red strikethrough</strong>: stages the
+            chain would have walked through next, prevented by the
+            ESCALATE.
+          </>
+        }
+        block
+      >
+        <div className="flex items-center gap-1 w-full">
+          {STAGE_LABELS.map((label, i) => {
+            const stageIdx = i + 1;
+            const isCaught = stageIdx === p.stage;
+            const isReached = stageIdx <= p.stage;
+            const isPrevented = stageIdx > p.stage;
+            return (
+              <div
+                key={label}
+                className={cn(
+                  "flex-1 rounded-md py-1.5 text-center text-[9px] font-mono font-semibold",
+                  isCaught && "bg-emerald-500 text-white shadow-[0_0_0_2px_rgba(16,185,129,0.3)]",
+                  isReached && !isCaught && "bg-emerald-500/30 text-emerald-700 dark:text-emerald-300",
+                  isPrevented && "bg-rose-500/[0.08] text-rose-500/55 line-through border border-dashed border-rose-500/30",
+                )}
+              >
+                {label}
+              </div>
+            );
+          })}
+        </div>
+      </HoverHelp>
 
       <div className="mt-2 text-[9px] font-mono text-[#497f8b] dark:text-[var(--strix-text-muted)] flex items-center justify-between">
         <span>
           Agent recommendation: <strong className="text-emerald-600 dark:text-emerald-400">{p.actionName || `action ${p.action}`}</strong> — chain frozen client-side.
         </span>
-        <span className="text-rose-500/70">stages {p.stage + 1}-7 prevented</span>
+        <HoverHelp
+          title="Stages prevented"
+          body={
+            <>
+              Counterfactual stages <code>{p.stage + 1}</code>–<code>7</code>{" "}
+              never occurred because the agent latched at stage{" "}
+              <strong>{p.stage}</strong>. In a real engagement those would
+              have been C2 establishment and final actions on objective.
+            </>
+          }
+          align="end"
+        >
+          <span className="text-rose-500/70">stages {p.stage + 1}-7 prevented</span>
+        </HoverHelp>
       </div>
     </div>
   );
@@ -201,14 +336,18 @@ function Stat({
   label,
   value,
   sub,
+  help,
 }: {
   icon: LucideIcon;
   label: string;
   value: string;
   sub: string;
+  /** Optional rich body shown on hover. When provided, the whole tile is
+   *  interactive (cursor-help) and tabbable. */
+  help?: React.ReactNode;
 }) {
-  return (
-    <div className="rounded-lg border border-[rgba(128,182,195,0.18)] dark:border-[var(--strix-border)] px-2 py-1.5">
+  const tile = (
+    <div className="rounded-lg border border-[rgba(128,182,195,0.18)] dark:border-[var(--strix-border)] px-2 py-1.5 w-full">
       <div className="flex items-center gap-1 text-[8px] uppercase tracking-wider text-[#497f8b] dark:text-[var(--strix-text-muted)] mb-0.5">
         <Icon size={9} />
         {label}
@@ -220,6 +359,12 @@ function Stat({
         {sub}
       </div>
     </div>
+  );
+  if (!help) return tile;
+  return (
+    <HoverHelp title={label} body={help} block>
+      {tile}
+    </HoverHelp>
   );
 }
 

@@ -54,6 +54,7 @@ API_URL="http://localhost:8000"
 APT="APT29"
 DURATION="180s"
 BENIGN_RATE="100/min"
+NON_MONOTONIC=0  # see --non-monotonic flag below
 STOP=0
 SKIP_SIM=0
 CLEAN_STATE=1
@@ -101,6 +102,10 @@ OPTIONS
                           done.
 
     --apt NAME            APT profile to emulate. Default: APT29.
+
+    --non-monotonic       Curated forward/backward kill-chain demo built to
+                          trip the DQN's ESCALATE threshold. Mutually
+                          exclusive with --apt; when set, --apt is ignored.
 
     --duration TIME       Total simulation runtime (e.g. 60s, 4m, 240s).
                           Default: 180s.
@@ -174,6 +179,7 @@ while [[ $# -gt 0 ]]; do
     --benign-rate)   BENIGN_RATE="$2"; shift 2 ;;
     --keep-state)    CLEAN_STATE=0; shift ;;
     --skip-sim)      SKIP_SIM=1; shift ;;
+    --non-monotonic) NON_MONOTONIC=1; APT=""; shift ;;
     --victim)        VICTIM="$2"; shift 2 ;;
     -h|--help)       print_help; exit 0 ;;
     *) fail "unknown arg: $1   (try: bash $0 --help)" ;;
@@ -418,7 +424,11 @@ read -r -p "Press ENTER once the dashboard is open and LIVE…"
 
 if [[ "$SKIP_SIM" -eq 1 ]]; then
   ok "stack up; --skip-sim set, not running lab_simulate.sh"
-  echo "Run the sim manually:  bash infra/scripts/lab_simulate.sh --apt $APT --benign-rate $BENIGN_RATE --duration $DURATION"
+  if [[ "$NON_MONOTONIC" -eq 1 ]]; then
+    echo "Run the sim manually:  bash infra/scripts/lab_simulate.sh --non-monotonic --benign-rate $BENIGN_RATE --duration $DURATION"
+  else
+    echo "Run the sim manually:  bash infra/scripts/lab_simulate.sh --apt $APT --benign-rate $BENIGN_RATE --duration $DURATION"
+  fi
   exit 0
 fi
 
@@ -426,11 +436,19 @@ fi
 # lab_simulate.sh already gracefully skips victims that aren't running
 # (it does a `docker ps` check before spawning the benign generator) so no
 # changes needed there — the sim just operates on the one live victim.
-step "running lab_simulate.sh (apt=$APT  benign=$BENIGN_RATE  duration=$DURATION)"
-bash infra/scripts/lab_simulate.sh \
-  --apt "$APT" \
-  --benign-rate "$BENIGN_RATE" \
-  --duration "$DURATION"
+if [[ "$NON_MONOTONIC" -eq 1 ]]; then
+  step "running lab_simulate.sh (non-monotonic kill-chain demo  benign=$BENIGN_RATE  duration=$DURATION)"
+  bash infra/scripts/lab_simulate.sh \
+    --non-monotonic \
+    --benign-rate "$BENIGN_RATE" \
+    --duration "$DURATION"
+else
+  step "running lab_simulate.sh (apt=$APT  benign=$BENIGN_RATE  duration=$DURATION)"
+  bash infra/scripts/lab_simulate.sh \
+    --apt "$APT" \
+    --benign-rate "$BENIGN_RATE" \
+    --duration "$DURATION"
+fi
 
 ok "simulation complete — leave the dashboard up for review"
 echo

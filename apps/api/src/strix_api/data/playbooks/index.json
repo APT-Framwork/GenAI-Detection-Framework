@@ -1,0 +1,129 @@
+{
+  "description": "Bundled response playbooks. The Playbook viewer on the Attack Analysis page queries /api/v1/playbooks?stage=...&technique=... and renders matched + fallback. Each playbook has steps; steps with kind != 'manual' carry a payload that the UI POSTs to /api/v1/actions endpoints.",
+  "version": "1.0.0",
+  "playbooks": [
+    {
+      "playbook_id": "pb.exec.scripting",
+      "title": "Contain shell-execution chain",
+      "description": "Attacker is running shell commands on a host. Halt the shell, capture audit context, escalate.",
+      "severity": "high",
+      "match_techniques": ["T1059", "T1106"],
+      "match_stages": [4],
+      "steps": [
+        { "step_id": "1", "title": "Capture process tree on host",
+          "rationale": "Snapshot ps + open files before containment so the post-incident report has the executing tree.",
+          "kind": "manual" },
+        { "step_id": "2", "title": "Approve next DQN action",
+          "rationale": "Let the policy escalate when CKC ≥ 4 — review the q-values, then Approve in the Action Log.",
+          "kind": "dqn_override" },
+        { "step_id": "3", "title": "Isolate host (network)",
+          "rationale": "Cut north-south flow while you investigate. Audit-only — un-isolate via Wazuh console after.",
+          "kind": "isolate_host",
+          "payload": { "action": "ISOLATE_HOST", "chain_id_required": true } },
+        { "step_id": "4", "title": "Open host page → Audit tab",
+          "rationale": "Walk the auditd events around the trigger time; correlate with Defense Evasion if the operator cleared logs.",
+          "kind": "manual" }
+      ]
+    },
+    {
+      "playbook_id": "pb.discovery",
+      "title": "Discovery-tactic Q&A",
+      "description": "Attacker is enumerating users/processes/network — Discovery doesn't itself harm but signals stage progression.",
+      "severity": "medium",
+      "match_techniques": ["T1057", "T1083", "T1082", "T1049", "T1033", "T1040"],
+      "match_stages": [4, 7],
+      "steps": [
+        { "step_id": "1", "title": "Confirm chain not legitimate sysadmin",
+          "rationale": "Discovery commands look identical to admin work; check the chain's origin host and time-of-day pattern.",
+          "kind": "manual" },
+        { "step_id": "2", "title": "Block source IP if external",
+          "rationale": "If the chain originated outside the trusted segment, block at the perimeter.",
+          "kind": "block_ip",
+          "payload": { "action": "BLOCK_USER_IP", "chain_id_required": true } },
+        { "step_id": "3", "title": "Watch for lateral move",
+          "rationale": "Pivot to Topology — if neighboring hosts open new chains within 30 min, escalate.",
+          "kind": "manual" }
+      ]
+    },
+    {
+      "playbook_id": "pb.privesc",
+      "title": "Privilege escalation containment",
+      "description": "Sudo abuse, kernel exploit, or other PrivEsc technique. High urgency.",
+      "severity": "critical",
+      "match_techniques": ["T1068", "T1548"],
+      "match_stages": [4],
+      "steps": [
+        { "step_id": "1", "title": "Isolate host immediately",
+          "rationale": "PrivEsc → root. Cut network before lateral move.",
+          "kind": "isolate_host",
+          "payload": { "action": "ISOLATE_HOST", "chain_id_required": true } },
+        { "step_id": "2", "title": "Approve all pending DQN actions on this chain",
+          "rationale": "Don't second-guess the policy at CKC 4+; review afterwards.",
+          "kind": "dqn_override" },
+        { "step_id": "3", "title": "Pull /etc/sudoers + audit log artefact",
+          "rationale": "Forensics-quality copy before re-imaging.",
+          "kind": "manual" }
+      ]
+    },
+    {
+      "playbook_id": "pb.persistence",
+      "title": "Persistence — clean account artefacts",
+      "description": "Attacker created or modified accounts to survive reboot.",
+      "severity": "high",
+      "match_techniques": ["T1136", "T1098"],
+      "match_stages": [5],
+      "steps": [
+        { "step_id": "1", "title": "Enumerate user/group changes since opened_at",
+          "rationale": "Get the diff between baseline /etc/passwd and current state.",
+          "kind": "manual" },
+        { "step_id": "2", "title": "Block user IP for chain originator",
+          "rationale": "Stop fresh logins under the new identity while you remediate.",
+          "kind": "block_ip",
+          "payload": { "action": "BLOCK_USER_IP", "chain_id_required": true } },
+        { "step_id": "3", "title": "Disable created accounts in IDP / local",
+          "rationale": "Audit-only here — actually disable in Wazuh / system console.",
+          "kind": "manual" }
+      ]
+    },
+    {
+      "playbook_id": "pb.c2",
+      "title": "Command-and-control — block egress",
+      "description": "Outbound C2 traffic detected. Block the destination, capture traffic.",
+      "severity": "critical",
+      "match_techniques": ["T1105"],
+      "match_stages": [6],
+      "steps": [
+        { "step_id": "1", "title": "Block destination IP",
+          "rationale": "Stop the channel.",
+          "kind": "block_ip",
+          "payload": { "action": "BLOCK_USER_IP", "chain_id_required": true } },
+        { "step_id": "2", "title": "Capture pcap on egress interface",
+          "rationale": "Adversary infrastructure intel.",
+          "kind": "manual" },
+        { "step_id": "3", "title": "Approve ESCALATE on the chain",
+          "rationale": "Trigger downstream automation.",
+          "kind": "dqn_override" }
+      ]
+    },
+    {
+      "playbook_id": "pb.fallback",
+      "title": "Generic incident triage",
+      "description": "No technique-specific playbook applies — work the chain top-down.",
+      "severity": "medium",
+      "match_techniques": [],
+      "match_stages": [0, 1, 2, 3, 4, 5, 6, 7],
+      "is_fallback": true,
+      "steps": [
+        { "step_id": "1", "title": "Open the host page",
+          "rationale": "See the full alert stream around opened_at on this chain.",
+          "kind": "manual" },
+        { "step_id": "2", "title": "Review pending DQN actions",
+          "rationale": "Approve/decline anything stuck in proposed.",
+          "kind": "dqn_override" },
+        { "step_id": "3", "title": "Mark case status",
+          "rationale": "Move the chain to investigating in the Cases queue once you start work.",
+          "kind": "manual" }
+      ]
+    }
+  ]
+}

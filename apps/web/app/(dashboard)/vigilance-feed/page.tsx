@@ -208,68 +208,6 @@ export default function VigilanceFeedPage() {
             Filter Feed
           </button>
           <button
-            onClick={acknowledgeAll}
-            disabled={alerts.length === 0}
-            className="flex items-center gap-[8px] rounded-[9999px] bg-[#00666d] px-[24px] py-[10px] text-[12px] font-semibold uppercase tracking-[0.6px] text-[#cffbff] hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
-          >
-            <CheckCheck className="h-[14px] w-[14px]" />
-            Acknowledge All
-          </button>
-        </div>
-      </div>
-
-      {/* ── Main Grid ──────────────────────────────────────── */}
-      <div className="grid grid-cols-12 gap-[24px]">
-        {/* ── Left Column (col 1-3) ──────────────────────── */}
-        <div className="col-span-12 lg:col-span-3 space-y-[24px]">
-          {/* Live Status Card */}
-          <div className="bg-white dark:bg-[var(--strix-bg-card)] border border-[rgba(128,182,195,0.15)] dark:border-[var(--strix-border)] rounded-[48px] p-[24px]">
-            <h3 className="text-[13px] font-bold uppercase tracking-[1px] text-[#00343d] dark:text-[var(--strix-text)] mb-[20px]">
-              LIVE STATUS
-            </h3>
-            <div className="space-y-[16px]">
-              {/* Critical */}
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-[10px]">
-                  <div className="h-[6px] w-[32px] rounded-full bg-[#b31b25]" />
-                  <span className="text-[14px] text-[#00343d] dark:text-[var(--strix-text)]">
-                    Critical
-                  </span>
-                </div>
-                <span className="rounded-[9999px] bg-[#b31b25] px-[12px] py-[3px] text-[12px] font-bold text-white">
-                  {String(criticalCount).padStart(2, "0")}
-                </span>
-              </div>
-              {/* Warnings */}
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-[10px]">
-                  <div className="h-[6px] w-[32px] rounded-full bg-amber-500" />
-                  <span className="text-[14px] text-[#00343d] dark:text-[var(--strix-text)]">
-                    Warnings
-                  </span>
-                </div>
-                <span className="rounded-[9999px] bg-amber-500 px-[12px] py-[3px] text-[12px] font-bold text-white">
-                  {String(warningCount).padStart(2, "0")}
-                </span>
-              </div>
-              {/* Updates */}
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-[10px]">
-                  <div className="h-[6px] w-[32px] rounded-full bg-[#00666d]" />
-                  <span className="text-[14px] text-[#00343d] dark:text-[var(--strix-text)]">
-                    Updates
-                  </span>
-                </div>
-                <span className="rounded-[9999px] bg-[#00666d] px-[12px] py-[3px] text-[12px] font-bold text-[#cffbff]">
-                  {String(updateCount).padStart(2, "0")}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* Generate Threat Report — downloads a JSON snapshot of the
-              currently visible feed. No backend report generator yet. */}
-          <button
             onClick={() => {
               if (alerts.length === 0) {
                 toast.warning("No alerts in the current feed window.")
@@ -289,29 +227,24 @@ export default function VigilanceFeedPage() {
               })
               toast.success(`Threat report exported (${alerts.length} alerts).`)
             }}
-            className="relative h-[200px] rounded-[48px] overflow-clip text-left group hover:scale-[1.01] transition-transform"
+            className="flex items-center gap-[8px] rounded-[9999px] border border-[rgba(128,182,195,0.15)] dark:border-[var(--strix-border)] bg-white dark:bg-[var(--strix-bg-card)] px-[24px] py-[10px] text-[12px] font-semibold uppercase tracking-[0.6px] text-[#00343d] dark:text-[var(--strix-text)] hover:bg-gray-50 dark:hover:bg-[var(--strix-bg-surface)] transition-colors"
           >
-            <div className="absolute inset-0 bg-gradient-to-br from-[#1a2e3a] to-[#0d1a20] group-hover:from-[#22404f] group-hover:to-[#0d1a20] transition-colors" />
-            <div className="absolute inset-0 opacity-[0.08]">
-              <div className="absolute top-[20%] left-[10%] h-[120px] w-[120px] rounded-full border border-white/20" />
-              <div className="absolute top-[40%] right-[5%] h-[80px] w-[80px] rounded-full border border-white/30" />
-              <div className="absolute bottom-[10%] left-[30%] h-[60px] w-[1px] bg-white/40 rotate-45" />
-            </div>
-            <div className="relative flex flex-col justify-end h-full p-[28px]">
-              <h4 className="text-[18px] font-bold text-white leading-tight">
-                Generate Threat
-                <br />
-                Report
-              </h4>
-              <p className="text-[11px] font-medium uppercase tracking-[0.8px] text-white/60 mt-[8px]">
-                Export {alerts.length} alert{alerts.length === 1 ? "" : "s"} → JSON
-              </p>
-            </div>
+            Export Report
+          </button>
+          <button
+            onClick={acknowledgeAll}
+            disabled={alerts.length === 0}
+            className="flex items-center gap-[8px] rounded-[9999px] bg-[#00666d] px-[24px] py-[10px] text-[12px] font-semibold uppercase tracking-[0.6px] text-[#cffbff] hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            <CheckCheck className="h-[14px] w-[14px]" />
+            Acknowledge All
           </button>
         </div>
+      </div>
 
-        {/* ── Right Column (col 4-12) ────────────────────── */}
-        <div className="col-span-12 lg:col-span-9 space-y-[20px]">
+      {/* ── Feed ─────────────────────────────────────────────── */}
+      <div className="grid grid-cols-12 gap-[24px]">
+        <div className="col-span-12 space-y-[20px]">
           {alerts.map((alert) => {
             const badge = badgeConfig[alert.severity] ?? badgeConfig.info
             const isResolved = alert.severity === "low"

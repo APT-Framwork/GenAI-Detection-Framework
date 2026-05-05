@@ -25,6 +25,13 @@ class SessionState:
     last_action: int | None
     max_vae_prob: float
     max_ckc_stage: int
+    # Server wall-clock at the moment the worker opened this chain (i.e. the
+    # moment the chain-opening alert was *processed*, not when it occurred at
+    # the source). Pairs with `opened_at` (event-time) so the dashboard can
+    # show two stories: event-time gap (how deep into the chain the agent
+    # fired) and wall-clock gap (real latency our pipeline added). May be
+    # None for sessions written by older code that predates this field.
+    pipeline_opened_at: datetime | None = None
 
     @property
     def next_step(self) -> int:

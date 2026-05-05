@@ -47,6 +47,10 @@ API_URL="http://localhost:8000"
 APT="APT29"
 DURATION="180s"
 BENIGN_RATE="100/min"
+# Non-monotonic mode: the curated forward/backward kill-chain demo built to
+# trip the DQN's ESCALATE threshold so the RL Intervention Timeline lights up
+# during the jury demo. See run_full_simulation.py:DEFAULT_NONMONO_STAGES.
+NON_MONOTONIC=0
 STOP=0
 SKIP_SIM=0
 CLEAN_STATE=1   # default ON: wipe prior chains/detections/alerts so the run is observable
@@ -97,6 +101,13 @@ OPTIONS
                           Implemented chains live in
                           infra/simulation/scripts/run_full_simulation.py
                           (--list-apts to enumerate).
+
+    --non-monotonic       Curated forward/backward kill-chain demo built to
+                          trip the DQN's ESCALATE threshold so the dashboard's
+                          RL Intervention Timeline lights up during the demo.
+                          Sequence: Discovery → Defense Evasion → PrivEsc →
+                          Persistence → (repeat) → Impact. Mutually exclusive
+                          with --apt; when set, --apt is ignored.
 
     --duration TIME       Total simulation runtime (e.g. 60s, 4m, 240s).
                           Default: 180s.
@@ -206,6 +217,7 @@ while [[ $# -gt 0 ]]; do
     --benign-rate)   BENIGN_RATE="$2"; shift 2 ;;
     --keep-state)    CLEAN_STATE=0; shift ;;  # preserve PG/redis history (debug only)
     --skip-sim)      SKIP_SIM=1; shift ;;  # bring stack up but don't run lab_simulate
+    --non-monotonic) NON_MONOTONIC=1; APT=""; shift ;;  # forward/backward kill-chain demo
     -h|--help)       print_help; exit 0 ;;
     *) fail "unknown arg: $1   (try: bash $0 --help)" ;;
   esac
@@ -417,16 +429,31 @@ read -r -p "Press ENTER once the dashboard is open and LIVE…"
 
 if [[ "$SKIP_SIM" -eq 1 ]]; then
   ok "stack up; --skip-sim set, not running lab_simulate.sh"
-  echo "Run the sim manually:  bash infra/scripts/lab_simulate.sh --apt $APT --benign-rate $BENIGN_RATE --duration $DURATION"
+  if [[ "$NON_MONOTONIC" -eq 1 ]]; then
+    echo "Run the sim manually:  bash infra/scripts/lab_simulate.sh --non-monotonic --benign-rate $BENIGN_RATE --duration $DURATION"
+  else
+    echo "Run the sim manually:  bash infra/scripts/lab_simulate.sh --apt $APT --benign-rate $BENIGN_RATE --duration $DURATION"
+  fi
   exit 0
 fi
 
 # ---- 7) drive the simulation ----------------------------------------------
-step "running lab_simulate.sh (apt=$APT  benign=$BENIGN_RATE  duration=$DURATION)"
-bash infra/scripts/lab_simulate.sh \
-  --apt "$APT" \
-  --benign-rate "$BENIGN_RATE" \
-  --duration "$DURATION"
+# Pick the right driver flag — APT chain (default) vs the curated
+# non-monotonic kill-chain demo. Both go through lab_simulate.sh which
+# forwards everything verbatim to run_full_simulation.py.
+if [[ "$NON_MONOTONIC" -eq 1 ]]; then
+  step "running lab_simulate.sh (non-monotonic kill-chain demo  benign=$BENIGN_RATE  duration=$DURATION)"
+  bash infra/scripts/lab_simulate.sh \
+    --non-monotonic \
+    --benign-rate "$BENIGN_RATE" \
+    --duration "$DURATION"
+else
+  step "running lab_simulate.sh (apt=$APT  benign=$BENIGN_RATE  duration=$DURATION)"
+  bash infra/scripts/lab_simulate.sh \
+    --apt "$APT" \
+    --benign-rate "$BENIGN_RATE" \
+    --duration "$DURATION"
+fi
 
 ok "simulation complete — leave the dashboard up for review"
 echo

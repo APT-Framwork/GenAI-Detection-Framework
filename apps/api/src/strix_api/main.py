@@ -21,17 +21,24 @@ from strix_api import __version__
 from strix_api.api.errors import register_exception_handlers
 from strix_api.api.middleware import install_middleware
 from strix_api.api.routes import (
+    actions,
     admin,
     alerts,
     analysis,
     auth,
+    cases,
     dashboard,
     health,
+    hosts,
+    hunt,
+    mitre,
     monitoring,
+    playbooks,
     simulation,
     streams,
     threat_intel,
     topology,
+    ueba,
 )
 from strix_api.observability import configure_logging, get_logger, metrics_app
 from strix_api.settings import get_settings
@@ -97,6 +104,13 @@ def create_app() -> FastAPI:
     app.include_router(auth.router, prefix=_API_PREFIX)
     app.include_router(dashboard.router, prefix=_API_PREFIX)
     app.include_router(analysis.router, prefix=_API_PREFIX)
+    app.include_router(cases.router, prefix=_API_PREFIX)
+    app.include_router(hosts.router, prefix=_API_PREFIX)
+    app.include_router(mitre.router, prefix=_API_PREFIX)
+    app.include_router(hunt.router, prefix=_API_PREFIX)
+    app.include_router(actions.router, prefix=_API_PREFIX)
+    app.include_router(ueba.router, prefix=_API_PREFIX)
+    app.include_router(playbooks.router, prefix=_API_PREFIX)
     app.include_router(threat_intel.router, prefix=_API_PREFIX)
     app.include_router(monitoring.router, prefix=_API_PREFIX)
     app.include_router(alerts.router, prefix=_API_PREFIX)

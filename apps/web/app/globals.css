@@ -110,6 +110,15 @@
   animation: slide-up-in 220ms ease-out;
 }
 
+@keyframes tooltip-in {
+  from { transform: translateY(4px); opacity: 0; }
+  to   { transform: translateY(0);   opacity: 1; }
+}
+
+.animate-tooltip-in {
+  animation: tooltip-in 120ms ease-out;
+}
+
 @keyframes live-pulse {
   0%, 100% { opacity: 1; }
   50%      { opacity: 0.35; }

@@ -103,8 +103,85 @@ class AttackChain(Base):
         PG_UUID(as_uuid=True), nullable=True
     )
     step_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    # Lifecycle state — owned by the inference engine ("open" | "closed").
     status: Mapped[str] = mapped_column(Text, nullable=False, default="open")
+    # Triage workflow state — owned by the SOC operator via the Cases UI.
+    # Orthogonal to `status`: an "open" chain can be "contained" by an
+    # analyst before the engine closes it. See migration 0006.
+    triage_status: Mapped[str] = mapped_column(
+        Text, nullable=False, server_default="new", default="new"
+    )
+    assignee_user_id: Mapped[UUID | None] = mapped_column(
+        PG_UUID(as_uuid=True), ForeignKey("users.user_id"), nullable=True
+    )
     created_at: Mapped[datetime] = mapped_column(
+        TIMESTAMP(timezone=True), nullable=False, server_default=func.now()
+    )
+
+
+class DqnActionRollback(Base):
+    """Operator-recorded rollback of a previously-applied DQN action.
+
+    Audit-only: STRIX does not currently issue reverse calls to Wazuh /
+    firewalls. The operator must manually un-isolate / un-block. This row
+    declares "we undid X at time T because Y" for compliance + replay.
+    """
+
+    __tablename__ = "dqn_action_rollbacks"
+
+    rollback_id: Mapped[UUID] = mapped_column(PG_UUID(as_uuid=True), primary_key=True)
+    action_id: Mapped[UUID] = mapped_column(
+        PG_UUID(as_uuid=True),
+        ForeignKey("dqn_actions.action_id"),
+        nullable=False,
+        unique=True,
+    )
+    rolled_back_by: Mapped[UUID | None] = mapped_column(
+        PG_UUID(as_uuid=True), ForeignKey("users.user_id"), nullable=True
+    )
+    rolled_back_at: Mapped[datetime] = mapped_column(
+        TIMESTAMP(timezone=True), nullable=False, server_default=func.now()
+    )
+    reason: Mapped[str] = mapped_column(Text, nullable=False)
+
+
+class HuntSavedQuery(Base):
+    """Per-user saved Hunt query. `(user_id, name)` is unique — saving with
+    the same name overwrites in the service layer."""
+
+    __tablename__ = "hunt_saved_queries"
+
+    saved_id: Mapped[UUID] = mapped_column(PG_UUID(as_uuid=True), primary_key=True)
+    user_id: Mapped[UUID] = mapped_column(
+        PG_UUID(as_uuid=True),
+        ForeignKey("users.user_id"),
+        nullable=False,
+    )
+    name: Mapped[str] = mapped_column(Text, nullable=False)
+    q: Mapped[str] = mapped_column(Text, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        TIMESTAMP(timezone=True), nullable=False, server_default=func.now()
+    )
+
+
+class CaseAuditLog(Base):
+    """Append-only ledger of triage state transitions for compliance + replay."""
+
+    __tablename__ = "case_audit_log"
+
+    audit_id: Mapped[UUID] = mapped_column(PG_UUID(as_uuid=True), primary_key=True)
+    chain_id: Mapped[UUID] = mapped_column(
+        PG_UUID(as_uuid=True),
+        ForeignKey("attack_chains.chain_id"),
+        nullable=False,
+    )
+    user_id: Mapped[UUID | None] = mapped_column(
+        PG_UUID(as_uuid=True), ForeignKey("users.user_id"), nullable=True
+    )
+    from_status: Mapped[str | None] = mapped_column(Text, nullable=True)
+    to_status: Mapped[str] = mapped_column(Text, nullable=False)
+    note: Mapped[str | None] = mapped_column(Text, nullable=True)
+    at: Mapped[datetime] = mapped_column(
         TIMESTAMP(timezone=True), nullable=False, server_default=func.now()
     )
 
@@ -295,11 +372,14 @@ __all__ = [
     "Alert",
     "AttackChain",
     "Base",
+    "CaseAuditLog",
     "Detection",
+    "DqnActionRollback",
     "DqnActionRow",
     "FileScan",
     "GnnGraphSnapshot",
     "Host",
+    "HuntSavedQuery",
     "IocLookupCache",
     "LlmInsightCache",
     "PushDevice",

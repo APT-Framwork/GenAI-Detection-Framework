@@ -63,7 +63,13 @@ export async function apiFetch<T = unknown>(
   const url = path.startsWith("http") ? path : `${API_BASE}${path}`;
 
   const finalHeaders = new Headers(headers);
-  if (body !== undefined && !finalHeaders.has("Content-Type")) {
+  // Do NOT set Content-Type for FormData bodies — the browser must be
+  // allowed to set `multipart/form-data; boundary=…` itself, otherwise the
+  // server can't find the boundary and the request 422s. Strip any
+  // accidentally-supplied Content-Type for the same reason.
+  if (body instanceof FormData) {
+    finalHeaders.delete("Content-Type");
+  } else if (body !== undefined && !finalHeaders.has("Content-Type")) {
     finalHeaders.set("Content-Type", "application/json");
   }
   if (MUTATING.has(method)) {

@@ -9,6 +9,7 @@ Wire shape (JSON-encoded utf-8 bytes on the channel):
     {
       "alertId":          str,
       "agentId":          str,
+      "chainId":          str | null,    # UUID of the AttackChain this alert belongs to
       "occurredAt":       ISO-8601,
       "ckcStage":         int (0..7),
       "ckcStageName":     str,

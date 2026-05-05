@@ -40,6 +40,38 @@ def job_channel(job_id: str) -> str:
     return f"strix:sse:job:{job_id}"
 
 
+def job_result_key(job_id: str) -> str:
+    """Persistent record of the last completion payload for this job_id.
+
+    Companion to `job_channel`: the channel is fire-and-forget pubsub, so a
+    subscriber that connects after the worker publishes never sees the
+    event. We also `SET` the same payload here with a short TTL so the SSE
+    endpoint can serve a late-joining client out of this key — the dashboard
+    typically opens its EventSource ~50–500 ms after kicking the job, and
+    free-tier VT lookups can return faster than that.
+    """
+    return f"strix:sse:job:{job_id}:result"
+
+
+_JOB_RESULT_TTL_SECONDS = 300  # 5 min — bounded by max plausible "late client" window
+
+
+async def _publish_job_event(redis: Any, job_id: str, payload: dict[str, Any]) -> None:
+    """Publish to the live channel AND store as a recoverable result key.
+
+    Both writes use the same JSON encoding so the SSE endpoint can yield
+    either source through the `job.complete` event with no transformation.
+    """
+    encoded = json.dumps(payload).encode("utf-8")
+    await redis.publish(job_channel(job_id), encoded)
+    try:
+        await redis.set(job_result_key(job_id), encoded, ex=_JOB_RESULT_TTL_SECONDS)
+    except Exception:  # noqa: BLE001
+        # Best-effort: pubsub already fired; missing the persisted result
+        # only degrades to the original race-condition behaviour.
+        pass
+
+
 # ---- task implementations --------------------------------------------
 
 
@@ -67,7 +99,7 @@ async def on_demand_vt_scan(
         else:
             log.warning("vt_scan_unsupported_type", indicator_type=sniffed)
             payload = {"jobId": job_id, "status": "error", "error": f"unsupported type {sniffed!r}"}
-            await redis.publish(job_channel(job_id), json.dumps(payload).encode("utf-8"))
+            await _publish_job_event(redis, job_id, payload)
             return payload
 
         # Cache the result the same way the synchronous path would.
@@ -93,14 +125,14 @@ async def on_demand_vt_scan(
             "counts": result.counts.__dict__,
             "engines": result.engines,
         }
-        await redis.publish(job_channel(job_id), json.dumps(payload).encode("utf-8"))
+        await _publish_job_event(redis, job_id, payload)
         log.info("vt_scan_complete", indicator=indicator, reputation=result.reputation)
         return payload
 
     except VirusTotalError as exc:
         external_api_errors_total.labels(api="virustotal", error_kind="task_failed").inc()
         payload = {"jobId": job_id, "status": "error", "error": exc.detail or "vt_failed"}
-        await redis.publish(job_channel(job_id), json.dumps(payload).encode("utf-8"))
+        await _publish_job_event(redis, job_id, payload)
         log.error("vt_scan_failed", indicator=indicator, exc_info=exc)
         return payload
 
@@ -134,7 +166,7 @@ async def generate_sentinel_insight(
                     "status": "error",
                     "error": exc.detail or "llm_failed",
                 }
-                await redis.publish(job_channel(job_id), json.dumps(payload).encode("utf-8"))
+                await _publish_job_event(redis, job_id, payload)
                 log.error("sentinel_insight_failed", exc_info=exc)
                 return payload
 
@@ -148,7 +180,7 @@ async def generate_sentinel_insight(
             "generatedAt": result.generated_at.isoformat(),
             "stale": result.stale,
         }
-        await redis.publish(job_channel(job_id), json.dumps(payload).encode("utf-8"))
+        await _publish_job_event(redis, job_id, payload)
         log.info("sentinel_insight_complete", model=result.model_version)
         return payload
     finally:
@@ -199,7 +231,7 @@ async def file_scan(
             "reputation": result.reputation,
             "counts": result.counts.__dict__,
         }
-        await redis.publish(job_channel(job_id), json.dumps(payload).encode("utf-8"))
+        await _publish_job_event(redis, job_id, payload)
         log.info("file_scan_complete", reputation=result.reputation)
         return payload
 
@@ -219,7 +251,7 @@ async def file_scan(
             "status": "error",
             "error": exc.detail or "vt_failed",
         }
-        await redis.publish(job_channel(job_id), json.dumps(payload).encode("utf-8"))
+        await _publish_job_event(redis, job_id, payload)
         log.error("file_scan_failed", exc_info=exc)
         return payload
 

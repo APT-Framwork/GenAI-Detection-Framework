@@ -179,17 +179,18 @@ async def live_feed_recent(limit: int = 200) -> dict[str, Any]:
         except Exception:  # noqa: BLE001
             pass
 
+    # The inference worker XADDs verdicts with msgpack encoding under the
+    # field name b"payload" (see RedisStreamsClient.publish). We try msgpack
+    # first and fall back to JSON for forward-compat / synthetic test rows.
+    import msgpack  # local import — avoid cost when this endpoint is unused
+
     events: list[dict[str, Any]] = []
     for stream_id, fields in rows:
-        # Each XADD value is a single field whose value is a JSON-encoded
-        # verdict dict. The verdicts writer publishes via redis-py
-        # streams; the field name is "data" by convention used elsewhere
-        # in the codebase. Fall back to the first non-empty field.
         try:
             payload_bytes: bytes | None = None
             for k, v in fields.items():
                 key = k.decode("utf-8") if isinstance(k, bytes) else str(k)
-                if key in ("data", "verdict", "payload"):
+                if key in ("payload", "data", "verdict"):
                     payload_bytes = v if isinstance(v, bytes) else str(v).encode()
                     break
             if payload_bytes is None and fields:
@@ -197,7 +198,10 @@ async def live_feed_recent(limit: int = 200) -> dict[str, Any]:
                 payload_bytes = first if isinstance(first, bytes) else str(first).encode()
             if payload_bytes is None:
                 continue
-            verdict = json.loads(payload_bytes.decode("utf-8"))
+            try:
+                verdict = msgpack.unpackb(payload_bytes, raw=False)
+            except Exception:  # noqa: BLE001
+                verdict = json.loads(payload_bytes.decode("utf-8"))
         except Exception:  # noqa: BLE001
             continue
         try:
@@ -235,21 +239,61 @@ async def chain_logs(chain_id: UUID, request: Request) -> EventSourceResponse:
 )
 async def job_result(job_id: UUID, request: Request) -> EventSourceResponse:
     """Subscribes to `strix:sse:job:{job_id}` — Arq tasks publish completion
-    events here. The connection auto-closes after the first `job.complete`
-    event arrives via an explicit close from the client.
+    events here.
+
+    Race-condition guard: VT free-tier responses can land in <100 ms, often
+    before the browser's EventSource has finished connecting. Pubsub doesn't
+    replay past messages, so we'd miss the result. The worker mirrors every
+    completion to a TTL'd Redis key (see `_publish_job_event`); on connect
+    we GET that key and emit it as a synthetic `job.complete` event before
+    the live subscriber loop begins.
     """
-    from strix_api.workers.arq_tasks import job_channel
+    from strix_api.workers.arq_tasks import job_channel, job_result_key
 
     channel = job_channel(str(job_id))
-    return EventSourceResponse(
-        _pubsub_iterator(
+    backfill_key = job_result_key(str(job_id))
+    hello_payload = {"jobId": str(job_id), "channel": channel}
+
+    async def _stream() -> AsyncIterator[dict[str, Any]]:
+        # Try to drain a persisted result first, then attach to live pubsub
+        # for any later updates (e.g. status:scanning → status:complete).
+        from redis.asyncio import Redis
+
+        settings = get_settings()
+        redis = Redis.from_url(
+            settings.redis.url,
+            max_connections=settings.redis.max_connections,
+            decode_responses=False,
+        )
+        try:
+            cached = await redis.get(backfill_key)
+        except Exception:  # noqa: BLE001
+            cached = None
+        finally:
+            try:
+                await redis.aclose()
+            except Exception:  # noqa: BLE001
+                pass
+
+        yield {"event": "hello", "data": json.dumps(hello_payload)}
+        if cached:
+            data = cached.decode("utf-8") if isinstance(cached, bytes) else str(cached)
+            yield {"event": "job.complete", "data": data}
+
+        # Continue with the live channel — _pubsub_iterator emits its own
+        # hello, which the client's EventSource ignores (different event
+        # name from "job.complete"). Cheap and consistent with the other
+        # SSE routes.
+        async for msg in _pubsub_iterator(
             request,
             channel=channel,
             metric_label="jobs",
             event_name="job.complete",
-            hello_payload={"jobId": str(job_id), "channel": channel},
-        )
-    )
+            hello_payload=hello_payload,
+        ):
+            yield msg
+
+    return EventSourceResponse(_stream())
 
 
 # ============================================================================

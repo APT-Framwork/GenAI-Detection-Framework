@@ -25,55 +25,6 @@ interface EditableProfile {
   site: string
 }
 
-const activityLogEntries = [
-  {
-    time: "14:22:01",
-    type: "AUTH_SUCCESS",
-    message: "Biometric validation confirmed at Terminal_Node_4.",
-    color: "#00666d",
-  },
-  {
-    time: "14:35:12",
-    type: "SEC_AUDIT",
-    message: "Deep packet inspection initiated on inbound segment 0x3F.",
-    color: "#005ea0",
-  },
-  {
-    time: "15:01:44",
-    type: "SYS_CHECK",
-    message: "Kernel heartbeat stable. Sentinel_Core_01 active status updated.",
-    color: "#006574",
-  },
-  {
-    time: "15:12:09",
-    type: "ALERT_MITIGATED",
-    message: "Unauthorized script execution blocked on DB_Cluster_7.",
-    color: "#b31b25",
-  },
-  {
-    time: "15:45:30",
-    type: "SYSLOG_EXPORT",
-    message: "Metadata archive compressed and sent to Vault_B.",
-    color: "#00666d",
-  },
-  {
-    time: "16:00:00",
-    type: "SHIFT_SYNC",
-    message: "Handover protocols initiated for Sector 7G.",
-    color: "#006574",
-  },
-]
-
-const threatBars = [
-  { day: "Mon", height: 60 },
-  { day: "Tue", height: 85 },
-  { day: "Wed", height: 45 },
-  { day: "Thu", height: 95 },
-  { day: "Fri", height: 70 },
-  { day: "Sat", height: 30 },
-  { day: "Sun", height: 50 },
-]
-
 export default function ProfilePage() {
   const user = useAuthStore((s) => s.user)
   const [overrides, setOverrides] = useState<Partial<EditableProfile>>({})
@@ -103,11 +54,10 @@ export default function ProfilePage() {
       operator: profile.name,
       role: profile.role,
       site: profile.site,
-      activity: activityLogEntries,
     }
     const stamp = new Date().toISOString().replace(/[:.]/g, "-")
     downloadJson(`strix-profile-${profile.name}-${stamp}.json`, payload)
-    toast.success("Profile activity log exported.")
+    toast.success("Profile exported.")
   }
 
   const onSaveProfile = (next: EditableProfile) => {
@@ -245,40 +195,6 @@ export default function ProfilePage() {
             ))}
           </div>
 
-          {/* --- Activity Log Terminal --- */}
-          <div className="bg-white dark:bg-[var(--strix-bg-card)] rounded-[48px] shadow-md border border-[rgba(128,182,195,0.15)] dark:border-[var(--strix-border)] overflow-clip p-[5px]">
-            {/* Terminal Header */}
-            <div className="bg-[#d6f6ff] dark:bg-[var(--strix-bg-surface)] rounded-t-[44px] px-6 py-3 flex items-center gap-3">
-              <div className="flex items-center gap-1.5">
-                <div className="h-[10px] w-[10px] rounded-full bg-[#b31b25]" />
-                <div className="h-[10px] w-[10px] rounded-full bg-[#006574] opacity-40" />
-                <div className="h-[10px] w-[10px] rounded-full bg-[#006574] opacity-40" />
-              </div>
-              <span className="text-[10px] uppercase tracking-widest text-[#497f8b] dark:text-[var(--strix-text-muted)] font-semibold">
-                System_Activity_Log.sys
-              </span>
-            </div>
-
-            {/* Terminal Body */}
-            <div className="bg-white dark:bg-[var(--strix-bg-card)] rounded-b-[44px] p-6 font-mono text-[13px] leading-relaxed space-y-1" style={{ fontFamily: "'Liberation Mono', 'Courier New', monospace" }}>
-              {activityLogEntries.map((entry, i) => (
-                <div key={i} className="flex gap-2">
-                  <span className="text-[#497f8b] dark:text-[var(--strix-text-muted)] flex-shrink-0">
-                    [{entry.time}]
-                  </span>
-                  <span
-                    className="font-bold flex-shrink-0"
-                    style={{ color: entry.color }}
-                  >
-                    {entry.type}
-                  </span>
-                  <span className="text-[#00343d] dark:text-[var(--strix-text)]">
-                    {entry.message}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
         </div>
 
         {/* ========== RIGHT COLUMN (col 9-12) ========== */}
@@ -346,68 +262,7 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          {/* --- Threat Resolution History --- */}
-          <div className="bg-white dark:bg-[var(--strix-bg-card)] rounded-[48px] p-[33px] border border-[rgba(128,182,195,0.15)] dark:border-[var(--strix-border)] shadow-md">
-            <h3 className="text-[20px] font-bold text-[#00343d] dark:text-[var(--strix-text)] mb-6 font-[family-name:var(--font-space-grotesk),_'Space_Grotesk',_sans-serif]">
-              Threat Resolution History
-            </h3>
 
-            {/* Bar Chart */}
-            <div className="flex items-end justify-between gap-2 h-[140px]">
-              {threatBars.map((bar, i) => (
-                <div key={i} className="flex flex-col items-center gap-2 flex-1">
-                  <div
-                    className="w-full bg-[rgba(0,102,109,0.2)] dark:bg-[rgba(135,237,246,0.2)] rounded-tl-[32px] rounded-tr-[32px] transition-all"
-                    style={{ height: `${bar.height}%` }}
-                  />
-                </div>
-              ))}
-            </div>
-            {/* Day Labels */}
-            <div className="flex justify-between mt-3">
-              {threatBars.map((bar, i) => (
-                <span
-                  key={i}
-                  className="text-[10px] uppercase font-bold text-[#497f8b] dark:text-[var(--strix-text-muted)] flex-1 text-center"
-                >
-                  {bar.day}
-                </span>
-              ))}
-            </div>
-          </div>
-
-          {/* --- Assigned Assets --- */}
-          <div className="h-[192px] rounded-[48px] overflow-clip relative">
-            {/* Background gradient as map placeholder */}
-            <div className="absolute inset-0 bg-gradient-to-br from-[#006574] via-[#00666d] to-[#005ea0] dark:from-[#0a2a30] dark:via-[#0d3339] dark:to-[#0a2540]">
-              {/* Subtle grid pattern to suggest a map */}
-              <div
-                className="absolute inset-0 opacity-10"
-                style={{
-                  backgroundImage:
-                    "linear-gradient(rgba(255,255,255,0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.3) 1px, transparent 1px)",
-                  backgroundSize: "40px 40px",
-                }}
-              />
-              {/* Scattered dots to suggest endpoints */}
-              <div className="absolute top-[30%] left-[20%] h-2 w-2 rounded-full bg-[#87edf6] opacity-60 animate-pulse" />
-              <div className="absolute top-[50%] left-[45%] h-1.5 w-1.5 rounded-full bg-[#87edf6] opacity-40" />
-              <div className="absolute top-[25%] left-[65%] h-2 w-2 rounded-full bg-[#87edf6] opacity-50 animate-pulse" />
-              <div className="absolute top-[60%] left-[75%] h-1.5 w-1.5 rounded-full bg-[#87edf6] opacity-60" />
-              <div className="absolute top-[40%] left-[35%] h-1 w-1 rounded-full bg-[#87edf6] opacity-30" />
-            </div>
-            {/* Gradient overlay */}
-            <div className="absolute inset-0 bg-gradient-to-t from-[rgba(0,102,109,0.8)] to-transparent" />
-            {/* Text content */}
-            <div className="absolute bottom-0 left-0 right-0 p-8">
-              <h3 className="text-[18px] font-bold text-white font-[family-name:var(--font-space-grotesk),_'Space_Grotesk',_sans-serif]">
-                Assigned Assets
-              </h3>
-              <p className="text-[12px] uppercase tracking-wider text-[rgba(207,251,255,0.8)]">
-                124 Global Endpoints Monitored
-              </p>
-            </div>
-          </div>
         </div>
       </div>
 

@@ -6,6 +6,8 @@ import { useTopology } from "@/lib/api/topology"
 import { useLiveFeed } from "@/lib/api/live-feed"
 import { downloadJson } from "@/lib/download"
 import { toast } from "@/lib/toast"
+import { SimulationTopologyPanel } from "@/components/topology/simulation-topology-panel"
+import { GraphEvolution } from "@/components/charts/graph-evolution"
 import {
   RefreshCw,
   Download,
@@ -457,15 +459,33 @@ export default function TopologyPage() {
                   </div>
                 )}
 
-                <a
-                  href={`/threat-intel?q=${encodeURIComponent(selectedNode.label)}`}
-                  className="inline-block text-[11px] text-[#00666d] dark:text-[#87edf6] hover:underline font-semibold"
-                >
-                  Investigate in Threat Intel →
-                </a>
+                <div className="flex flex-col gap-1.5">
+                  <a
+                    href={`/host/${encodeURIComponent(selectedNode.id)}`}
+                    className="inline-block text-[11px] text-[#00666d] dark:text-[#87edf6] hover:underline font-semibold"
+                  >
+                    Open Host →
+                  </a>
+                  <a
+                    href={`/threat-intel?q=${encodeURIComponent(selectedNode.label)}`}
+                    className="inline-block text-[11px] text-[#00666d] dark:text-[#87edf6] hover:underline font-semibold"
+                  >
+                    Investigate in Threat Intel →
+                  </a>
+                </div>
               </>
             )}
           </div>
+        </div>
+      </div>
+
+      {/* ── Simulation Topology + GNN Graph Evolution — moved from Dashboard. */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        <div className="bg-white dark:bg-[var(--strix-bg-card)] border border-[rgba(128,182,195,0.15)] dark:border-[var(--strix-border)] rounded-[48px] p-6">
+          <SimulationTopologyPanel />
+        </div>
+        <div className="bg-white dark:bg-[var(--strix-bg-card)] border border-[rgba(128,182,195,0.15)] dark:border-[var(--strix-border)] rounded-[48px] p-6">
+          <GraphEvolution />
         </div>
       </div>
 

@@ -99,6 +99,24 @@ services:
       strix_lab_net:
         aliases: [victim1]
 
+  # ── attacker — pre-implant recon source (CKC stage 1) ─────────────────────
+  # Dedicated source IP for early-kill-chain telemetry. NOT a Caldera/Sandcat
+  # box; just nmap + ssh-client + curl. The simulator drives it via:
+  #     docker exec strix_attacker /opt/recon_burst.sh victim1 victim2
+  # See infra/simulation/attacker/Dockerfile for the rationale and
+  # local_rules.xml rules 100050/100051 for how the resulting events get
+  # tagged T1595 (Reconnaissance → CKC stage 1).
+  attacker:
+    build:
+      context: ./simulation/attacker
+    image: strix/attacker:lab
+    container_name: strix_attacker
+    hostname: attacker
+    restart: unless-stopped
+    networks:
+      strix_lab_net:
+        aliases: [attacker]
+
   victim2:
     build:
       context: ./simulation/victim

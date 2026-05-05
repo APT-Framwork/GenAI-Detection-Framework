@@ -21,6 +21,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
       curl gnupg ca-certificates lsb-release procps iproute2 sudo \
       net-tools iputils-ping xmlstarlet \
       auditd audispd-plugins rsyslog \
+      openssh-server \
       python3 python3-minimal netcat-openbsd \
  && curl -fsSL https://packages.wazuh.com/key/GPG-KEY-WAZUH \
       | gpg --dearmor -o /usr/share/keyrings/wazuh.gpg \
@@ -33,8 +34,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Agent-side localfiles / syscheck / sca fragment — merged into ossec.conf at
 # boot so the training-schema features (data.audit.*, syscheck.*, data.sca.*,
 # data.srcip, data.command, dpkg decoder) all populate.
-COPY localfiles.xml /opt/strix/localfiles.xml
-COPY entrypoint.sh  /entrypoint.sh
-RUN chmod +x /entrypoint.sh
+COPY localfiles.xml         /opt/strix/localfiles.xml
+COPY reformat_sshd_log.py   /opt/strix/reformat_sshd_log.py
+COPY entrypoint.sh          /entrypoint.sh
+RUN chmod +x /entrypoint.sh /opt/strix/reformat_sshd_log.py
 
 ENTRYPOINT ["/entrypoint.sh"]

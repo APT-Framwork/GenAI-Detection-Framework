@@ -3,7 +3,6 @@
 import { useMemo, useState } from "react"
 import {
   Filter,
-  Shield,
   Diamond,
   AlertTriangle,
   ChevronDown,
@@ -222,58 +221,9 @@ export default function NotificationsPage() {
         </div>
       </div>
 
-      {/* ====== Main Grid ====== */}
+      {/* ====== Feed ====== */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-[24px]">
-        {/* ---- Left sidebar (col 1-3) ---- */}
-        <div className="lg:col-span-3 space-y-[24px]">
-          {/* System Integrity Card */}
-          <div className="relative bg-[#9ae9fc] dark:bg-cyan-800 rounded-[48px] rounded-tr-[64px] h-[400px] p-[32px] flex flex-col justify-between overflow-hidden">
-            {/* decorative glow */}
-            <div className="absolute -top-16 -right-16 h-48 w-48 rounded-full bg-white/20 blur-3xl pointer-events-none" />
-
-            <div className="space-y-[16px]">
-              <Shield className="h-8 w-8 text-[#00343d] dark:text-cyan-100" />
-              <h2 className="text-[24px] font-bold text-[#00343d] dark:text-white leading-tight">
-                System
-                <br />
-                Integrity
-              </h2>
-            </div>
-
-            <div className="space-y-[12px]">
-              <span className="text-[12px] font-medium uppercase tracking-[1.2px] text-[#2b636f] dark:text-cyan-200">
-                Criticals
-              </span>
-              <div className="text-[36px] font-bold text-[#b31b25] dark:text-red-400 leading-none">
-                04
-              </div>
-              {/* progress bar */}
-              <div className="h-[6px] rounded-full bg-[rgba(255,255,255,0.3)]">
-                <div className="h-full w-[25%] rounded-full bg-[#b31b25] dark:bg-red-500" />
-              </div>
-              <p className="text-[12px] text-[#2b636f] dark:text-cyan-200 leading-relaxed">
-                System load is within normal clinical parameters. No active
-                breaches detected.
-              </p>
-            </div>
-          </div>
-
-          {/* Sentinel Status Card */}
-          <div className="bg-[#d6f6ff] dark:bg-white/5 rounded-[48px] p-[24px] space-y-[12px]">
-            <span className="text-[10px] font-bold uppercase tracking-[2px] text-[#00343d] dark:text-slate-300">
-              Sentinel Status
-            </span>
-            <div className="relative h-[6px] rounded-full bg-[rgba(0,102,109,0.15)] dark:bg-white/10 overflow-hidden">
-              <div className="absolute inset-0 rounded-full bg-[#00666d] dark:bg-cyan-500" />
-            </div>
-            <span className="text-[12px] font-bold text-[#00666d] dark:text-cyan-400">
-              ACTIVE
-            </span>
-          </div>
-        </div>
-
-        {/* ---- Right content (col 4-12) ---- */}
-        <div className="lg:col-span-9 space-y-[24px]">
+        <div className="lg:col-span-12 space-y-[24px]">
           {notifications.map((n) => (
             <NotificationCard key={n.id} notification={n} />
           ))}

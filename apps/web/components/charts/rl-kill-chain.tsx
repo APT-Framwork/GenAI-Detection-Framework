@@ -28,6 +28,7 @@ import { useLogStream, type RlPayload } from "@/lib/api/ws";
 import { useRlTimelineBackfill } from "@/lib/api/analysis";
 import { severityColors } from "@/lib/design-tokens";
 import { recordPredetection, usePredetections } from "@/lib/predetection-store";
+import { HoverHelp } from "@/components/ui/hover-help";
 
 // CKC stage 1..7 — index 0 is "no stage yet" / pre-Recon.
 const STAGE_LABELS = [
@@ -77,6 +78,9 @@ interface RlSession {
   predetectionTechnique: string | null;
   predetectionTactic: string | null;
   predetectionElapsedMs: number | null;
+  // Wall-clock TTI — backend-computed (now() at decide minus
+  // pipeline_opened_at). Captures the latency our pipeline added.
+  predetectionWallElapsedMs: number | null;
   postDetection: boolean; // true if maxStage hit 7 before any intervention
   // Last MITRE tactic / technique observed on ANY frame for this host.
   // Carried across frames so the predetection latch can backfill from
@@ -140,6 +144,9 @@ export function RlKillChain({ className }: RlKillChainProps) {
         isCritical:
           (p.stageAtDecision || p.maxCkcStage) >= PREDETECTION_CRITICAL_MIN,
         elapsedMs: Math.max(0, latchedAt - startedAt),
+        // Wall TTI not derivable from PG backfill (we only persist event-time
+        // boundaries on attack_chains). Live frames carry the real value.
+        wallElapsedMs: null,
         technique: null,
         tactic: null,
         action: ACTION_INTERVENTION_THRESHOLD,
@@ -174,6 +181,7 @@ export function RlKillChain({ className }: RlKillChainProps) {
         predetectionTechnique: existing?.predetectionTechnique ?? null,
         predetectionTactic: existing?.predetectionTactic ?? null,
         predetectionElapsedMs: existing?.predetectionElapsedMs ?? null,
+        predetectionWallElapsedMs: existing?.predetectionWallElapsedMs ?? null,
         postDetection: true,
         lastSeenTechnique: existing?.lastSeenTechnique ?? null,
         lastSeenTactic: existing?.lastSeenTactic ?? null,
@@ -239,7 +247,25 @@ export function RlKillChain({ className }: RlKillChainProps) {
       let predetectionTechnique = existing?.predetectionTechnique ?? null;
       let predetectionTactic = existing?.predetectionTactic ?? null;
       let predetectionElapsedMs = existing?.predetectionElapsedMs ?? null;
+      let predetectionWallElapsedMs = existing?.predetectionWallElapsedMs ?? null;
       let postDetection = existing?.postDetection ?? false;
+      // Prefer backend-derived timing over browser-side wall-clock so a
+      // chain whose first RL frame is already ESCALATE doesn't report 0 ms
+      // (it just means we hadn't seen the session before — not that the
+      // agent reacted instantly).
+      const backendTtiMs =
+        typeof p.time_to_intervene_ms === "number" && p.time_to_intervene_ms >= 0
+          ? p.time_to_intervene_ms
+          : null;
+      const backendWallTtiMs =
+        typeof p.wall_time_to_intervene_ms === "number" &&
+        p.wall_time_to_intervene_ms >= 0
+          ? p.wall_time_to_intervene_ms
+          : null;
+      const backendOpenedAtMs =
+        typeof p.chain_opened_at === "string" && p.chain_opened_at
+          ? new Date(p.chain_opened_at).getTime()
+          : null;
       if (!wasPredetected) {
         const candidateMax = observedMax;
         if (intervened && candidateMax > 0 && candidateMax <= PREDETECTION_MAX_STAGE) {
@@ -250,8 +276,21 @@ export function RlKillChain({ className }: RlKillChainProps) {
           predetectionStage = candidateMax;
           predetectionTechnique = lastSeenTechnique;
           predetectionTactic = lastSeenTactic;
-          const startedAt = existing?.startedAt ?? now;
-          predetectionElapsedMs = Math.max(0, now - startedAt);
+          if (backendTtiMs != null) {
+            // Authoritative: backend computed delta of two Wazuh
+            // occurred_at timestamps. No clock skew, no browser fallback.
+            predetectionElapsedMs = backendTtiMs;
+          } else {
+            // Last-resort fallback when the worker hasn't shipped the
+            // backend timing yet (older payloads or pre-restart sessions).
+            const startedAt = existing?.startedAt ?? now;
+            predetectionElapsedMs = Math.max(0, now - startedAt);
+          }
+          // Wall TTI is only authoritative if the backend supplied it.
+          // No browser fallback — `Date.now()` here would be the time we
+          // first saw an RL frame for this host, which has nothing to do
+          // with when the worker actually opened the chain.
+          predetectionWallElapsedMs = backendWallTtiMs;
 
           const hostKey = (typeof p.host_id === "string" && p.host_id) || id;
           const victimLabel =
@@ -264,6 +303,7 @@ export function RlKillChain({ className }: RlKillChainProps) {
             stage: candidateMax,
             isCritical: candidateMax >= PREDETECTION_CRITICAL_MIN,
             elapsedMs: predetectionElapsedMs,
+            wallElapsedMs: predetectionWallElapsedMs,
             technique: lastSeenTechnique,
             tactic: lastSeenTactic,
             action,
@@ -298,7 +338,10 @@ export function RlKillChain({ className }: RlKillChainProps) {
         actionName: wasPredetected ? existing!.actionName : actionName,
         confidence: wasPredetected ? existing!.confidence : confidence,
         lastUpdate: now,
-        startedAt: existing?.startedAt ?? now,
+        // Prefer the backend chain-open timestamp for the same reason as
+        // the elapsed calculation above — Wazuh occurred_at is the only
+        // reference that's stable across browser clocks.
+        startedAt: existing?.startedAt ?? backendOpenedAtMs ?? now,
         mitigated,
         completed,
         terminalAt,
@@ -306,6 +349,7 @@ export function RlKillChain({ className }: RlKillChainProps) {
         predetectionTechnique,
         predetectionTactic,
         predetectionElapsedMs,
+        predetectionWallElapsedMs,
         postDetection,
         lastSeenTechnique,
         lastSeenTactic,
@@ -361,6 +405,7 @@ export function RlKillChain({ className }: RlKillChainProps) {
         predetectionTechnique: p.technique,
         predetectionTactic: p.tactic,
         predetectionElapsedMs: p.elapsedMs,
+        predetectionWallElapsedMs: p.wallElapsedMs,
         postDetection: false,
         lastSeenTechnique: p.technique,
         lastSeenTactic: p.tactic,
@@ -405,12 +450,38 @@ export function RlKillChain({ className }: RlKillChainProps) {
           </p>
         </div>
         <div className="flex items-center gap-3 text-[10px] uppercase tracking-wider">
-          <span className="text-emerald-600 dark:text-emerald-400 font-semibold">
-            {predetectionCount} predetected
-          </span>
-          <span className="text-rose-500 font-semibold">
-            {postDetectionCount} post-detected
-          </span>
+          <HoverHelp
+            title="Predetected"
+            body={
+              <>
+                Chains where the agent fired <strong>ESCALATE</strong>{" "}
+                (DQN action ≥ 2) while the chain&apos;s deepest stage was ≤
+                6. The intervention happened <em>before</em> stage 7
+                (Action) — the success case.
+              </>
+            }
+            align="end"
+          >
+            <span className="text-emerald-600 dark:text-emerald-400 font-semibold">
+              {predetectionCount} predetected
+            </span>
+          </HoverHelp>
+          <HoverHelp
+            title="Post-detected"
+            body={
+              <>
+                Chains that ran the full kill-chain to stage{" "}
+                <strong>7 (Action)</strong> without an intervention. The
+                agent caught it too late — these are the failures the
+                predetection metric is designed to drive down.
+              </>
+            }
+            align="end"
+          >
+            <span className="text-rose-500 font-semibold">
+              {postDetectionCount} post-detected
+            </span>
+          </HoverHelp>
         </div>
       </div>
 
@@ -444,9 +515,18 @@ function SessionRow({ session: s }: { session: RlSession }) {
   const isFading = s.terminalAt != null && Date.now() >= s.terminalAt;
   const label = s.hostId ?? s.srcip ?? s.sessionId;
   const predetected = s.predetectionStage != null;
-  const elapsed = predetected
-    ? Math.max(0, Math.round((s.predetectionElapsedMs ?? 0) / 100) / 10)
-    : Math.max(0, Math.round((Date.now() - s.startedAt) / 1000));
+  // Event-time TTI (predetected) or time-since-start (live). Sub-second
+  // values were rounding to "0s" before — show ms when < 1s so the panel
+  // can demonstrate the agent reacted in tens of milliseconds.
+  const elapsedMs = predetected
+    ? Math.max(0, s.predetectionElapsedMs ?? 0)
+    : Math.max(0, Date.now() - s.startedAt);
+  const elapsedLabel = formatTtiLabel(elapsedMs);
+  // Wall-clock TTI — only meaningful when backend supplied it (live frames).
+  // PG-backfilled rows have wallElapsedMs = null and we hide that badge.
+  const wallElapsedMs = predetected ? s.predetectionWallElapsedMs : null;
+  const wallElapsedLabel =
+    wallElapsedMs != null ? formatTtiLabel(wallElapsedMs) : null;
 
   // State label priority: predetection > post-detection failure > generic.
   const stateLabel = predetected
@@ -493,25 +573,125 @@ function SessionRow({ session: s }: { session: RlSession }) {
             </span>
           )}
           {predetected && (
-            <span className="text-[9px] font-mono text-emerald-600 dark:text-emerald-400">
-              ⛨ chain frozen
-            </span>
+            <HoverHelp
+              title="Chain frozen"
+              body={
+                <>
+                  Once the agent fired <strong>ESCALATE</strong> we stop
+                  advancing this row&apos;s stage progression — the row is the
+                  proof. Any further attacker noise on the same host is
+                  ignored client-side.
+                </>
+              }
+              footnote="dashboard-only freeze; Caldera continues running in the lab"
+              align="start"
+            >
+              <span className="text-[9px] font-mono text-emerald-600 dark:text-emerald-400">
+                ⛨ chain frozen
+              </span>
+            </HoverHelp>
           )}
         </div>
         <div className="flex items-center gap-2 shrink-0">
-          <span
-            className="px-2 py-0.5 rounded-full text-[9px] font-semibold uppercase tracking-wider border"
-            style={{
-              color: stateColors.fg,
-              background: stateColors.bg,
-              borderColor: stateColors.border,
-            }}
+          <HoverHelp
+            title="Verdict"
+            body={
+              predetected ? (
+                <>
+                  Agent intervened at stage{" "}
+                  <strong>{s.predetectionStage}</strong> (
+                  {STAGE_LABELS[s.predetectionStage! - 1]}). Stages 1–
+                  {s.predetectionStage} were observed; stages{" "}
+                  {(s.predetectionStage as number) + 1}–7 prevented.
+                </>
+              ) : s.postDetection ? (
+                <>
+                  Chain reached stage <strong>7 (Action)</strong> before any
+                  ESCALATE — the agent caught it too late. This is the
+                  failure case the predetection metric is designed to avoid.
+                </>
+              ) : (
+                <>
+                  Active chain at stage{" "}
+                  <strong>{s.currentStage || "—"}</strong>. Will land here as
+                  PREDETECTED or POST-DETECTION once the agent decides or
+                  the chain hits stage 7.
+                </>
+              )
+            }
           >
-            {stateLabel}
-          </span>
-          <span className="text-[9px] font-mono text-[#497f8b] dark:text-[var(--strix-text-muted)]">
-            {(s.confidence * 100).toFixed(0)}% · {predetected ? `${elapsed}s caught` : `${elapsed}s`}
-          </span>
+            <span
+              className="px-2 py-0.5 rounded-full text-[9px] font-semibold uppercase tracking-wider border"
+              style={{
+                color: stateColors.fg,
+                background: stateColors.bg,
+                borderColor: stateColors.border,
+              }}
+            >
+              {stateLabel}
+            </span>
+          </HoverHelp>
+          <HoverHelp
+            title="Transformer confidence"
+            body={
+              <>
+                Softmax max over the 8-class CKC head at the moment of
+                latch. <strong>Not</strong> the DQN&apos;s confidence — the
+                DQN emits Q-values, not probabilities. Useful as a signal
+                quality proxy on the upstream classifier.
+              </>
+            }
+          >
+            <span className="text-[9px] font-mono text-[#497f8b] dark:text-[var(--strix-text-muted)]">
+              {(s.confidence * 100).toFixed(0)}%
+            </span>
+          </HoverHelp>
+          {predetected ? (
+            <>
+              <HoverHelp
+                title="Event-time TTI"
+                body={
+                  <>
+                    Gap between two Wazuh <code>occurred_at</code>{" "}
+                    timestamps: the alert that <em>opened</em> the chain →
+                    the alert that triggered <strong>ESCALATE</strong>. Tells
+                    you <em>how deep into the chain</em> the agent fired.
+                    Not affected by pipeline latency.
+                  </>
+                }
+                footnote="ms when < 1s · pure event-time"
+                align="end"
+              >
+                <span className="px-2 py-0.5 rounded-md text-[10px] font-mono font-bold border border-emerald-500/40 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 tabular-nums">
+                  ⏱ evt {elapsedLabel}
+                </span>
+              </HoverHelp>
+              {wallElapsedLabel != null && (
+                <HoverHelp
+                  title="Wall-clock TTI"
+                  body={
+                    <>
+                      Server clock at decide-time minus server clock when we
+                      opened the chain. Captures end-to-end pipeline
+                      latency: <code>Filebeat → OpenSearch → ingest →
+                      inference</code>. This is the &quot;real time the
+                      system took to stop it&quot; metric.
+                    </>
+                  }
+                  footnote="not available on PG-backfilled rows"
+                  align="end"
+                >
+                  <span className="px-2 py-0.5 rounded-md text-[10px] font-mono font-bold border border-strix-cyan/40 bg-strix-cyan/10 text-strix-cyan tabular-nums">
+                    ⏱ wall {wallElapsedLabel}
+                  </span>
+                </HoverHelp>
+              )}
+            </>
+          ) : (
+            <span className="text-[9px] font-mono text-[#497f8b] dark:text-[var(--strix-text-muted)]">
+              {elapsedLabel} live
+            </span>
+          )}
         </div>
       </div>
 
@@ -520,19 +700,49 @@ function SessionRow({ session: s }: { session: RlSession }) {
       {predetected && (
         <div className="mt-2 flex items-center gap-2 text-[9px] font-mono text-[#497f8b] dark:text-[var(--strix-text-muted)]">
           <span className="text-emerald-600 dark:text-emerald-400 font-semibold">
-            agent intervened →
+            agent intervened in {elapsedLabel}
+            {wallElapsedLabel != null ? ` (wall ${wallElapsedLabel})` : ""} →
           </span>
           {s.predetectionTechnique && (
-            <span className="text-[#00343d] dark:text-[var(--strix-text)]">
-              {s.predetectionTechnique}
-            </span>
+            <HoverHelp
+              title="Last MITRE technique"
+              body={
+                <>
+                  The most recent MITRE-ATT&amp;CK technique tag observed on
+                  this host before the agent latched. Frames at the latch
+                  moment often carry no MITRE tag (DQN fires on a non-tagged
+                  downstream event), so we backfill from the last tagged
+                  frame in the chain.
+                </>
+              }
+            >
+              <span className="text-[#00343d] dark:text-[var(--strix-text)]">
+                {s.predetectionTechnique}
+              </span>
+            </HoverHelp>
           )}
           {s.predetectionTactic && (
             <span className="opacity-70">[{s.predetectionTactic}]</span>
           )}
-          <span className="ml-auto text-rose-500/80">
-            stage 7 (Action) prevented
-          </span>
+          <HoverHelp
+            title="Stages prevented"
+            body={
+              <>
+                Because the agent intervened at stage{" "}
+                <strong>{s.predetectionStage}</strong>, stages{" "}
+                {(s.predetectionStage as number) + 1}–7 were never reached
+                in this chain — counterfactually, those would have been{" "}
+                <code>C2</code> / <code>Action</code> activity. This is the
+                paper&apos;s &quot;predetection success&quot; case.
+              </>
+            }
+            align="end"
+            className="ml-auto"
+          >
+            <span className="text-emerald-500/80">
+              stage 7 (Action) prevented
+            </span>
+          </HoverHelp>
         </div>
       )}
     </div>
@@ -570,8 +780,9 @@ function StageBar({ session: s }: { session: RlSession }) {
         strokeWidth={3}
         strokeLinecap="round"
       />
-      {/* Progress fill — stops at predetection stage when latched (emerald);
-          otherwise extends to reached (amber/red). */}
+      {/* Progress fill — pre-latch portion is RED (attacker traversed
+          these stages unimpeded; agent missed); switches at the latch
+          stage; post-latch ghost line below is GREEN (prevented). */}
       {reached > 0 && (
         <line
           x1={padX}
@@ -583,7 +794,7 @@ function StageBar({ session: s }: { session: RlSession }) {
           y2={cy}
           stroke={
             s.predetectionStage != null
-              ? "#10B981"
+              ? "#EF4444"
               : s.mitigated
                 ? severityColors.low.fg
                 : "#F59E0B"
@@ -593,14 +804,15 @@ function StageBar({ session: s }: { session: RlSession }) {
           style={{ transition: "x2 300ms ease, stroke 300ms ease" }}
         />
       )}
-      {/* Ghost track from latch → end (the "prevented" portion). */}
+      {/* Ghost track from latch → end (the "prevented" portion — defender
+          wins, never actually happened). */}
       {s.predetectionStage != null && s.predetectionStage < 7 && (
         <line
           x1={padX + (s.predetectionStage - 1) * slotWidth}
           y1={cy}
           x2={W - padX}
           y2={cy}
-          stroke="rgba(239,68,68,0.35)"
+          stroke="rgba(16,185,129,0.4)"
           strokeWidth={2}
           strokeDasharray="4 3"
           strokeLinecap="round"
@@ -625,19 +837,24 @@ function StageBar({ session: s }: { session: RlSession }) {
         let textColor = "#497f8b";
         let dashed = false;
         if (isPrevented) {
-          fill = "rgba(239,68,68,0.06)";
-          stroke = "rgba(239,68,68,0.45)";
-          textColor = "rgba(239,68,68,0.55)";
+          // Stages AFTER the latch — never happened. Defender wins.
+          // Ghosted green + dashed border conveys "prevented, didn't occur".
+          fill = "rgba(16,185,129,0.08)";
+          stroke = "rgba(16,185,129,0.5)";
+          textColor = "rgba(16,185,129,0.75)";
           dashed = true;
         } else if (isLatchStage) {
           fill = "#10B981";
           stroke = "#34D399";
-          textColor = "#062017";
+          textColor = "#10B981";
         } else if (predetected && stageIndex < s.predetectionStage!) {
-          // pre-latch stages — lab-yellow-ish, completed but not the catch.
-          fill = "rgba(16,185,129,0.55)";
-          stroke = "#10B981";
-          textColor = "#062017";
+          // Pre-latch stages — attacker traversed unimpeded, agent missed.
+          // Render same amber→red gradient as a post-detection chain so the
+          // visual matches the truth: these stages happened on the host.
+          const t = stageIndex / 7;
+          fill = lerpHex("#F59E0B", "#EF4444", t);
+          stroke = fill;
+          textColor = "#EF4444";
         } else if (s.mitigated && stageIndex <= reached && !s.completed) {
           // Mid-chain mitigation (action ≥ ESCALATE before stage 7).
           // Post-detection (chain hit stage 7) falls through to the
@@ -684,8 +901,8 @@ function StageBar({ session: s }: { session: RlSession }) {
               </text>
             )}
             {!isLatchStage && predetected && stageIndex < s.predetectionStage! && (
-              <text x={cx} y={cy + 3} textAnchor="middle" fontSize="9" fontWeight={700} fill="#fff">
-                ✓
+              <text x={cx} y={cy + 3} textAnchor="middle" fontSize="9" fontWeight={700} fill="#0b1416">
+                {stageIndex}
               </text>
             )}
             {isPrevented && (
@@ -695,10 +912,9 @@ function StageBar({ session: s }: { session: RlSession }) {
                 textAnchor="middle"
                 fontSize="9"
                 fontWeight={700}
-                fill="rgba(239,68,68,0.55)"
-                textDecoration="line-through"
+                fill="rgba(16,185,129,0.85)"
               >
-                {stageIndex}
+                ✓
               </text>
             )}
             {/* Mid-chain mitigation gets a green check; post-detection
@@ -720,7 +936,6 @@ function StageBar({ session: s }: { session: RlSession }) {
               fontSize="8"
               fill={textColor}
               fontFamily="ui-monospace, SFMono-Regular, monospace"
-              style={isPrevented ? { textDecoration: "line-through" } : undefined}
             >
               {label}
             </text>
@@ -746,6 +961,13 @@ function StageBar({ session: s }: { session: RlSession }) {
 }
 
 // ---- Helpers ----------------------------------------------------------------
+
+// "2.0s" / "58s" / "412ms" — keeps sub-second values legible without
+// rounding away the agent's reaction speed.
+function formatTtiLabel(ms: number): string {
+  if (ms < 1000) return `${Math.max(1, Math.round(ms))}ms`;
+  return `${(ms / 1000).toFixed(ms < 10_000 ? 1 : 0)}s`;
+}
 
 function stageSeverity(stage: number) {
   if (stage >= 6) return "critical" as const;

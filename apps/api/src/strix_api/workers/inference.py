@@ -564,11 +564,17 @@ class InferenceWorker:
             return
 
         if decision.action is ChainAction.OPEN_NEW:
+            # Capture server wall-clock at the moment we processed the
+            # chain-opening alert. Pairs with `occurred_at` (event-time):
+            # event-time TTI tells you how deep into the chain the agent
+            # fired; wall-clock TTI tells you the latency our pipeline added.
+            pipeline_open_now = datetime.now(UTC)
             await self._sessions.open_session(
                 agent_id=msg.agent_id,
                 chain_id=decision.chain_id,  # type: ignore[arg-type]
                 opened_at=occurred_at,
                 first_malicious_at=occurred_at,
+                pipeline_opened_at=pipeline_open_now,
             )
             session = SessionState(
                 chain_id=decision.chain_id,  # type: ignore[arg-type]
@@ -580,6 +586,7 @@ class InferenceWorker:
                 last_action=None,
                 max_vae_prob=0.0,
                 max_ckc_stage=0,
+                pipeline_opened_at=pipeline_open_now,
             )
 
         assert session is not None
@@ -763,6 +770,45 @@ class InferenceWorker:
                 int(msg.current_ckc_stage),
                 chain_max_ckc,
             )
+            # Authoritative time-to-intervene for the dashboard. Both endpoints
+            # come from Wazuh `occurred_at` timestamps so there's no browser
+            # clock skew; the dashboard's previous fallback of `Date.now()` at
+            # session-create produced a misleading 0 ms when the very first RL
+            # frame already carried ESCALATE (the common case — chain matcher
+            # opens and decides on the same alert). The delta here is "how
+            # many alerts deep into the chain did the agent fire", in real
+            # event time.
+            chain_opened_at_iso = (
+                session.opened_at.isoformat()
+                if session.opened_at is not None
+                else None
+            )
+            try:
+                event_dt = (
+                    occurred_at
+                    if hasattr(occurred_at, "isoformat")
+                    else datetime.fromisoformat(str(occurred_at).replace("Z", "+00:00"))
+                )
+                opened_dt = session.opened_at
+                tti_ms = max(0, int((event_dt - opened_dt).total_seconds() * 1000.0))
+            except Exception:  # noqa: BLE001
+                tti_ms = None
+            # Wall-clock TTI — server clock at decide-time minus server clock
+            # at chain-open. Captures end-to-end pipeline latency (Filebeat →
+            # OpenSearch → ingest → inference), which the event-time TTI
+            # collapses to zero. Falls back to None for sessions opened by
+            # workers that predate the `pipeline_opened_at` field.
+            wall_tti_ms: int | None
+            if session.pipeline_opened_at is not None:
+                wall_tti_ms = max(
+                    0,
+                    int(
+                        (datetime.now(UTC) - session.pipeline_opened_at).total_seconds()
+                        * 1000.0
+                    ),
+                )
+            else:
+                wall_tti_ms = None
             await _publish_stream(
                 self._redis.client,
                 STREAM_RL_CHANNEL,
@@ -780,6 +826,18 @@ class InferenceWorker:
                     "confidence": float(transformer_out.confidence),
                     "mitre_tactics": msg.mitre_tactics,
                     "mitre_techniques": msg.mitre_techniques,
+                    # Backend-authoritative timing for the RL Intervention Timeline.
+                    "chain_opened_at": chain_opened_at_iso,
+                    "event_occurred_at": (
+                        occurred_at.isoformat()
+                        if hasattr(occurred_at, "isoformat")
+                        else str(occurred_at)
+                    ),
+                    "time_to_intervene_ms": tti_ms,
+                    # Wall-clock TTI — captures pipeline latency. Pair with
+                    # `time_to_intervene_ms` (event-time) for the dashboard's
+                    # "two stories" metric.
+                    "wall_time_to_intervene_ms": wall_tti_ms,
                 },
                 self._log,
             )

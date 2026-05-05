@@ -63,6 +63,26 @@
     <description>STRIX: muted log-file-shrunk rule (routine log rotation, tagged T1565.001 → S7)</description>
   </rule>
 
+  <!-- ================= Reconnaissance (TA0043) — pre-implant proxy =================
+       Filling the kill-chain gap that Caldera (post-implant by design)
+       can't cover. The attacker container `strix_attacker` runs nmap +
+       SSH invalid-user enumeration via /opt/recon_burst.sh; the activity
+       is visible to the victims' sshd, which Wazuh's stock rules 5710
+       (sshd: invalid user) and 5712 (sshd: brute force burst) match.
+       We chain off both to attach T1595 / T1595.002 — those map to
+       Reconnaissance → CKC stage 1 in mitre_to_ckc.json, so the
+       inference worker tags the resulting alerts at the earliest stage. -->
+  <rule id="100050" level="6">
+    <if_sid>5710</if_sid>
+    <description>STRIX: external SSH invalid-user enumeration [recon]</description>
+    <mitre><id>T1595.002</id></mitre>
+  </rule>
+  <rule id="100051" level="7">
+    <if_sid>5712</if_sid>
+    <description>STRIX: external SSH brute-force burst [recon]</description>
+    <mitre><id>T1595</id></mitre>
+  </rule>
+
   <!-- ================= Discovery (TA0007) ================= -->
   <rule id="100100" level="6">
     <if_sid>80789</if_sid>

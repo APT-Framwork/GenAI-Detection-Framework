@@ -41,6 +41,11 @@ CALDERA_URL = os.environ.get("CALDERA_URL", "http://localhost:8888")
 CALDERA_API_KEY = os.environ.get("CALDERA_API_KEY", "")
 CALDERA_GROUP = os.environ.get("CALDERA_GROUP", "red")
 CALDERA_CONTAINER = os.environ.get("CALDERA_CONTAINER", "strix_caldera")
+ATTACKER_CONTAINER = os.environ.get("ATTACKER_CONTAINER", "strix_attacker")
+RECON_BURST_PATH = os.environ.get("RECON_BURST_PATH", "/opt/recon_burst.sh")
+# Victim hosts the recon burst targets. The default matches the lab compose
+# (victim1, victim2). Override via env when running against a custom topology.
+RECON_TARGETS = os.environ.get("RECON_TARGETS", "victim1,victim2").split(",")
 
 PG_CONTAINER = os.environ.get("PG_CONTAINER", "strix_postgres")
 PG_USER = os.environ.get("DB_USER", "strix")
@@ -344,8 +349,26 @@ class Tactic:
     stockpile_names: list[str]   # accepted stockpile adversary names (case-insensitive, ordered preference)
     obfuscator: str = "plain-text"
     notes: str = ""
+    # When set, this tactic does NOT route through Caldera. The runner
+    # dispatches to the named handler (see run_tactic) and the resulting
+    # activity is attributed to a non-Caldera source — used for the
+    # pre-implant Reconnaissance phase, which needs a separate attacker
+    # IP and toolset (nmap / ssh) that Caldera/Sandcat can't provide.
+    custom_executor: str | None = None
 
 PLAN: list[Tactic] = [
+    # ── Pre-implant reconnaissance (CKC stage 1) ─────────────────────────
+    # Fired from strix_attacker via /opt/recon_burst.sh — NOT through
+    # Caldera. The recon burst makes the victims' sshd log invalid-user
+    # bursts that Wazuh's stock rules 5710/5712 match; STRIX rules
+    # 100050/100051 chain off those to attach T1595 (Active Scanning),
+    # which `mitre_to_ckc.json` maps to CKC stage 1.
+    Tactic("Reconnaissance",     "TA0043",
+           ["T1595", "T1595.002"],
+           [],  # no Caldera stockpile — uses custom executor
+           obfuscator="plain-text",
+           custom_executor="recon_burst",
+           notes="external SSH probe burst from strix_attacker → tagged T1595"),
     Tactic("Discovery",          "TA0007",
            ["T1033", "T1057", "T1083", "T1087.001", "T1069.001"],
            ["Discovery", "Enumerator", "Terminal"],
@@ -435,15 +458,69 @@ APT_GROUPS: dict[str, APTGroup] = {
         notes="dropped: T1078 valid-accounts initial access (would need pre-seeded SSH creds)"),
 }
 
+# --------------------------------------------------------------------- CKC-stage → tactic mapping
+#
+# The Transformer + DQN were trained on sequences where the CKC stage
+# moves *non-monotonically* — e.g. an adversary cycling Recon → Delivery
+# → Exploit → Recon → Delivery → Exploit → Recon → Exploit. To exercise
+# that behaviour from the lab we need to express stage sequences that
+# repeat. Caldera operates at the tactic level (not stage), so each stage
+# maps to a representative auto-runnable tactic.
+#
+# The mapping is intentionally a *lab convention*, not a 1:1 ATT&CK
+# definition: stages 2 (Weaponisation) and 6 (C2) have no auto-runnable
+# Caldera analogue (the Sandcat agent IS C2; weaponisation is pre-implant),
+# so they're approximated by the closest tactic that produces telemetry of
+# similar shape on the host.
+#
+# Use --sequence with explicit tactic labels for full control. Use
+# --ckc-stages when you want to think in stage numbers directly.
+STAGE_TO_TACTIC: dict[int, str] = {
+    1: "Reconnaissance",       # real T1595 alerts via strix_attacker recon_burst
+    2: "Defense Evasion",      # weaponisation has no analogue; closest is early-stage hiding
+    3: "Defense Evasion",      # delivery — also no analogue post-implant; reuse the early-stage proxy
+    4: "Privilege Escalation",
+    5: "Persistence",
+    6: "Persistence",          # C2 is implicit in Caldera; Persistence keeps the channel warm
+    7: "Impact",
+}
+
+
+# Default non-monotonic demo sequence. Picked to:
+#   * exercise the forward/backward stage walk the Transformer was trained on
+#   * hit ckc=5 (Persistence) twice so the DQN actually crosses its ESCALATE
+#     threshold and the dashboard shows real predetections
+#   * end on ckc=7 (Impact) so the kill-chain visualisation lights up the
+#     "stages 5–7 prevented" badge on the predetection receipt card
+# Use --ckc-stages to override.
+DEFAULT_NONMONO_STAGES: list[int] = [1, 3, 4, 5, 1, 3, 4, 5, 7]
+
+
+def stages_to_labels(stages: list[int]) -> list[str]:
+    """Translate a CKC stage sequence to tactic labels via STAGE_TO_TACTIC.
+
+    Unknown stages are dropped with a warning (the caller decides how to
+    surface that). Repeats are preserved — that's the whole point.
+    """
+    out: list[str] = []
+    for s in stages:
+        label = STAGE_TO_TACTIC.get(s)
+        if label is None:
+            warn(f"--ckc-stages: stage {s} has no auto-runnable tactic — skipped")
+            continue
+        out.append(label)
+    return out
+
+
 # --------------------------------------------------------------------- not auto-runnable
 
-# Tactics not auto-runnable (need extra setup):
+# Tactics not auto-runnable (need extra setup). Reconnaissance used to live
+# here — it now fires from strix_attacker via the recon_burst executor and
+# is auto-runnable (see the "Reconnaissance" entry in PLAN above).
 NOT_AUTOMATED = [
     ("Initial Access (TA0001 / T1190 Apache Struts)",
      "Requires a vulnerable target container (vulhub) — see "
      "docs/CALDERA_MITRE_SIMULATION_GUIDE.md §5.2"),
-    ("Reconnaissance (TA0043)",
-     "Pre-implant phase. Caldera is post-implant by design — out of scope here."),
     ("Command & Control (TA0011)",
      "Sandcat IS the C2 channel — every op exercises it implicitly."),
 ]
@@ -536,6 +613,81 @@ def _write_current_tactic(label: str | None) -> None:
         pass  # never let topology IO break the sim
 
 
+def _run_recon_burst(t: Tactic, dwell_s: int, dry_run: bool) -> TacticResult:
+    """Pre-implant Reconnaissance executor — bypasses Caldera.
+
+    Shells into strix_attacker and runs /opt/recon_burst.sh against the
+    configured victim list. The resulting nmap + sshd-invalid-user activity
+    is what STRIX rules 100050/100051 chain off to attribute T1595.
+
+    Mirrors the bookkeeping `run_tactic`'s Caldera path does — same
+    Snapshot before/after, same dwell wait — so the final report's
+    per-tactic delta is meaningful.
+    """
+    targets = [v.strip() for v in RECON_TARGETS if v.strip()]
+    if not targets:
+        warn(f"{t.label}: RECON_TARGETS is empty — nothing to scan")
+        return TacticResult(t, "skipped:no-recon-targets", None, 0, {}, None, None, 0.0)
+
+    if dry_run:
+        info(f"DRY-RUN — would exec {RECON_BURST_PATH} {' '.join(targets)}")
+        return TacticResult(t, "recon:would-fire", None, 0, {}, None, None, 0.0)
+
+    # Verify the attacker container is reachable. If not, fail soft —
+    # better to skip the recon phase than to abort the whole sim.
+    chk = subprocess.run(
+        ["docker", "ps", "--format", "{{.Names}}"],
+        capture_output=True, text=True, timeout=10,
+    )
+    if ATTACKER_CONTAINER not in (chk.stdout or "").splitlines():
+        warn(f"{t.label}: container '{ATTACKER_CONTAINER}' not running — skipping. "
+             f"Bring up the lab via `docker compose -f infra/compose.simulation.yml up -d`.")
+        return TacticResult(t, f"skipped:no-{ATTACKER_CONTAINER}", None, 0, {}, None, None, 0.0)
+
+    before = take_snapshot()
+    info(f"baseline:  alerts={before.pg_alerts}  detections={before.pg_detections}  "
+         f"chains={before.pg_chains}  max_ckc={before.pg_max_ckc}  xlen={before.redis_xlen}")
+
+    op_name = f"recon-burst-{int(time.time())}"
+    t0 = time.time()
+    info(f"firing recon burst from {ATTACKER_CONTAINER} → {', '.join(targets)}")
+    try:
+        # Stream stdout so the burst's progress lines interleave with the
+        # main runner's logs — same UX as Caldera's poll loop.
+        proc = subprocess.Popen(
+            ["docker", "exec", ATTACKER_CONTAINER, "bash", RECON_BURST_PATH, *targets],
+            stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True,
+        )
+        if proc.stdout is not None:
+            for line in proc.stdout:
+                line = line.rstrip()
+                if line:
+                    info(line)
+        rc = proc.wait()
+        if rc != 0:
+            warn(f"recon burst exited rc={rc}")
+    except Exception as exc:  # noqa: BLE001
+        warn(f"recon burst failed: {exc}")
+        return TacticResult(t, "recon:failed", None, 0, {}, before, take_snapshot(),
+                            time.time() - t0, error=str(exc))
+
+    info(f"dwell {dwell_s}s for pipeline drain")
+    time.sleep(dwell_s)
+
+    after = take_snapshot()
+    duration = time.time() - t0
+    print(f"\n  {C.BLD}delta over {duration:.0f}s:{C.X}")
+    print(diff_table(before, after))
+    return TacticResult(
+        t, f"recon:burst({op_name})", None,
+        # `links` field reused as "probe count fired" — the burst doesn't
+        # have Caldera links, but the metric slot is still useful.
+        len(targets),
+        {},
+        before, after, duration,
+    )
+
+
 def run_tactic(cal: Caldera, t: Tactic, planner_id: str, group: str,
                budget_s: int, dwell_s: int, obfuscator_override: str | None,
                dry_run: bool) -> TacticResult:
@@ -543,6 +695,11 @@ def run_tactic(cal: Caldera, t: Tactic, planner_id: str, group: str,
     print(f"  techniques: {', '.join(t.technique_ids)}")
     if t.notes: print(f"  notes:      {t.notes}")
     _write_current_tactic(t.label)
+
+    # Custom executor: bypass Caldera entirely. Used for Reconnaissance
+    # which fires from strix_attacker rather than from a Sandcat agent.
+    if t.custom_executor == "recon_burst":
+        return _run_recon_burst(t, dwell_s, dry_run)
 
     obfuscator = obfuscator_override or t.obfuscator
 
@@ -724,6 +881,26 @@ def main() -> int:
     p.add_argument("--apt",         type=str, default="",
                    help=f"emulate one APT group's tactic chain "
                         f"(choices: {','.join(APT_GROUPS)},all). Overrides --only/--skip ordering.")
+    p.add_argument("--sequence",    type=str, default="",
+                   help="Custom non-monotonic tactic sequence — comma-separated tactic "
+                        "labels in any order, repeats allowed. Example: "
+                        "'Discovery,Persistence,Discovery,Defense Evasion,Persistence,"
+                        "Lateral Movement'. Each entry fires a fresh Caldera op; the "
+                        "chain matcher appends to the same attack_chain so the "
+                        "Transformer sees the full non-monotonic stage walk. "
+                        "Mutually exclusive with --apt.")
+    p.add_argument("--ckc-stages",  type=str, default="",
+                   help="Custom CKC stage sequence — comma-separated stage integers "
+                        "(1..7), repeats allowed. Example: '1,3,4,1,3,4,1,4'. Each "
+                        "stage maps to a representative auto-runnable tactic via "
+                        "STAGE_TO_TACTIC; see the module docstring for the mapping. "
+                        "Mutually exclusive with --apt, --sequence, and --non-monotonic.")
+    p.add_argument("--non-monotonic", action="store_true",
+                   help=f"Curated forward/backward kill-chain demo. Equivalent to "
+                        f"--ckc-stages '{','.join(str(s) for s in DEFAULT_NONMONO_STAGES)}' — "
+                        f"exercises the non-monotonic stage walk the Transformer was "
+                        f"trained on AND crosses the DQN's ESCALATE threshold so the "
+                        f"dashboard's RL Intervention Timeline lights up.")
     p.add_argument("--only",        type=str, default="", help="comma-sep tactic labels to include")
     p.add_argument("--skip",        type=str, default="", help="comma-sep tactic labels to skip")
     p.add_argument("--budget",      type=int, default=90,  help="per-tactic op budget in seconds (default 90)")
@@ -790,10 +967,67 @@ def main() -> int:
     planner_id = resolve_planner(cal, args.planner)
     info(f"planner: {args.planner}  id={planner_id}")
 
-    # tactic filtering — APT mode reorders the plan; --only/--skip subsets it
+    # tactic filtering — APT mode reorders the plan; --only/--skip subsets it.
+    # Mutual exclusion: --apt | --sequence | --ckc-stages | --non-monotonic
+    # are four different ways to drive the plan; pick at most one.
+    mode_count = sum(
+        bool(x)
+        for x in (args.apt, args.sequence, args.ckc_stages, args.non_monotonic)
+    )
+    if mode_count > 1:
+        fail("--apt, --sequence, --ckc-stages, and --non-monotonic are mutually "
+             "exclusive — pick one.")
+
+    # `--non-monotonic` is just a curated default for `--ckc-stages`; promote
+    # it before the dispatcher so downstream code only sees one path.
+    if args.non_monotonic:
+        args.ckc_stages = ",".join(str(s) for s in DEFAULT_NONMONO_STAGES)
+
     by_label = {t.label.lower(): t for t in PLAN}
     apt_runs: list[APTGroup]
-    if args.apt:
+    plan: list[Tactic]
+
+    if args.sequence or args.ckc_stages:
+        # Custom non-monotonic sequence. Repetition is the whole point —
+        # bypass the dedup that the named-APT path applies. Each entry in
+        # the sequence becomes a separate Caldera op; the chain matcher
+        # appends them all to one attack_chain (within idle timeout) so
+        # the Transformer sees a non-monotonic per-event ckc_stage walk.
+        if args.ckc_stages:
+            try:
+                stages = [int(s.strip()) for s in args.ckc_stages.split(",") if s.strip()]
+            except ValueError:
+                fail(f"--ckc-stages: expected comma-separated integers, got {args.ckc_stages!r}")
+            labels = stages_to_labels(stages)
+            sequence_source = f"ckc-stages={','.join(str(s) for s in stages)}"
+        else:
+            labels = [s.strip() for s in args.sequence.split(",") if s.strip()]
+            sequence_source = f"sequence={','.join(labels)}"
+
+        if not labels:
+            fail("custom sequence resolved to zero runnable tactics — nothing to do.")
+
+        plan = []
+        for label in labels:
+            t = by_label.get(label.lower())
+            if not t:
+                warn(f"sequence: tactic '{label}' not in PLAN — skipped "
+                     f"(available: {[x.label for x in PLAN]})")
+                continue
+            plan.append(t)
+        if not plan:
+            fail("none of the requested tactics matched PLAN.")
+
+        apt_runs = [APTGroup(
+            name="custom",
+            paper_note=f"non-monotonic sequence ({sequence_source})",
+            tactic_chain=[t.label for t in plan],
+            obfuscator=args.obfuscator or "plain-text",
+            notes="custom sequence — repeats preserved; chain matcher will append "
+                  "all firings to the same attack_chain within idle timeout.",
+        )]
+
+    elif args.apt:
         if args.apt.lower() == "all":
             apt_runs = list(APT_GROUPS.values())
         else:
@@ -803,7 +1037,7 @@ def main() -> int:
                      f"Choices: {','.join(APT_GROUPS)},all")
             apt_runs = [grp]
         # build the plan as the union of the chains, in order, deduped
-        plan: list[Tactic] = []
+        plan = []
         seen: set[str] = set()
         for g in apt_runs:
             for label in g.tactic_chain:

@@ -67,6 +67,41 @@ if command -v rsyslogd >/dev/null 2>&1; then
   rsyslogd || echo "[victim] rsyslogd failed to start (continuing)"
 fi
 
+# ---- 2b. sshd (target for the strix_attacker recon burst) --------------
+# The pre-implant Reconnaissance phase (run_full_simulation.py: Tactic
+# "Reconnaissance" with custom_executor=recon_burst) shells into
+# strix_attacker and fires invalid-user SSH attempts at us. sshd writes
+# "Invalid user X from 1.2.3.4" → rsyslog → /var/log/auth.log → Wazuh
+# stock rule 5710 fires → STRIX rule 100050 chains → tagged T1595.002.
+# Without sshd listening, the recon burst connects to nothing and
+# Reconnaissance produces zero stage-1 alerts.
+if command -v sshd >/dev/null 2>&1; then
+  # Ensure password auth is on so sshd actually reaches the
+  # "Invalid user" code path on bogus usernames (with PasswordAuth=no
+  # the daemon short-circuits before logging the user).
+  sed -i \
+    -e 's/^#\?\s*PasswordAuthentication.*/PasswordAuthentication yes/' \
+    -e 's/^#\?\s*PermitRootLogin.*/PermitRootLogin no/' \
+    -e 's/^#\?\s*UsePAM.*/UsePAM yes/' \
+    /etc/ssh/sshd_config
+  # The privilege-separation directory must exist or sshd fails to start.
+  mkdir -p /run/sshd
+  # Generate host keys if this is a fresh container.
+  ssh-keygen -A >/dev/null 2>&1 || true
+
+  # sshd → /var/log/sshd-bare.log → Python reformatter → /var/log/auth.log.
+  # rsyslog's imuxsock binding silently drops messages in this container
+  # env. The Python reformatter (see reformat_sshd_log.py for rationale)
+  # tails the bare `-E` output and prepends the syslog prefix Wazuh's
+  # sshd decoder + stock rules 5710 (Invalid user) / 5712 (brute force)
+  # require.
+  : > /var/log/sshd-bare.log
+  python3 /opt/strix/reformat_sshd_log.py >/dev/null 2>&1 &
+  echo "[victim] starting sshd on :22 (auth.log via bare→syslog reformatter pid=$!)"
+  /usr/sbin/sshd -E /var/log/sshd-bare.log || \
+    echo "[victim] sshd failed to start (continuing — recon phase will produce no T1595 alerts)"
+fi
+
 # ---- 3. auditd (best-effort) -------------------------------------------
 if command -v auditd >/dev/null 2>&1; then
   echo "[victim] starting auditd (may fail silently inside unprivileged containers)"

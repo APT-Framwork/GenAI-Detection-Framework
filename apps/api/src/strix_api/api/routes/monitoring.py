@@ -217,3 +217,5 @@ async def retrain_models() -> RetrainResponse:
             "alerts.raw_jsonb data, bump registry.json version, rolling-restart workers."
         ),
     )
+
+

@@ -29,6 +29,30 @@ import {
 import { cn } from "@/lib/utils";
 import type { LogEntry } from "@/types";
 
+// Full forensic envelope passed to Export JSON / CSV — keeps the raw
+// payload alongside the rendered fields so the artefact a jury or auditor
+// downloads is the *exact* WS frame the dashboard saw, not a UI-projected
+// summary.
+interface ForensicExportRow {
+  receivedAt: string;
+  occurredAt: string;
+  alertId: string;
+  agentId: string;
+  chainId: string;
+  ruleId: string;
+  ckcStage: string;
+  ckcStageName: string;
+  aeAnomalyScore: string;
+  vaeMaliciousProb: string;
+  gnnNodeRisk: string;
+  dqnAction: string;
+  dqnActionName: string;
+  mitreTactics: string;
+  mitreTechniques: string;
+  description: string;
+  fullLog: string;
+}
+
 interface ForensicLogViewerProps {
   /**
    * Optional static logs. When provided, the viewer renders these (legacy
@@ -135,6 +159,7 @@ export function ForensicLogViewer({ logs, tailLines = 10, className }: ForensicL
   const live = useLogStream(["raw_log"]);
   const conn = useLogStreamConnection();
   const [paused, setPaused] = useState(false);
+  const [showAll, setShowAll] = useState(false);
 
   // When paused, freeze the snapshot reference so re-renders triggered by
   // unrelated state (parent re-renders, the 1Hz tick from the status hook)
@@ -145,13 +170,18 @@ export function ForensicLogViewer({ logs, tailLines = 10, className }: ForensicL
     if (!isLive) return [];
     if (paused && frozenRef.current) return frozenRef.current;
     const buf = live.frames.raw_log ?? [];
-    const tail = buf.slice(-tailLines).reverse(); // newest first
+    // showAll: surface the entire retained ring buffer (up to ~500 frames)
+    // collapsed: keep the original tail-N behaviour for the dashboard view.
+    const tail = (showAll ? buf.slice() : buf.slice(-tailLines)).reverse();
     const lines = tail.map((f) => payloadToLine(f.payload, f.ts));
     frozenRef.current = lines;
     return lines;
     // live.seq.raw_log advances on every new frame — that's our render trigger.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isLive, paused, tailLines, live.seq.raw_log]);
+  }, [isLive, paused, tailLines, showAll, live.seq.raw_log]);
+
+  // Buffer count (newest-first, full ring) used by Export buttons.
+  const retainedCount = isLive ? (live.frames.raw_log?.length ?? 0) : 0;
 
   // Capture the snapshot at the moment of pause so resume picks up cleanly.
   useEffect(() => {
@@ -191,20 +221,55 @@ export function ForensicLogViewer({ logs, tailLines = 10, className }: ForensicL
           </p>
         </div>
         {isLive && (
-          <button
-            onClick={() => setPaused((p) => !p)}
-            className={cn(
-              "inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider transition-colors",
-              paused
-                ? "bg-amber-500/15 text-amber-400 border border-amber-500/40 hover:bg-amber-500/25"
-                : "border border-[rgba(128,182,195,0.25)] dark:border-[var(--strix-border)] text-[#497f8b] dark:text-[var(--strix-text-muted)] hover:bg-gray-50 dark:hover:bg-gray-800",
-            )}
-            aria-pressed={paused}
-            title={paused ? "Resume rendering — stream is still buffering" : "Pause rendering — stream keeps buffering"}
-          >
-            {paused ? <Play size={11} /> : <Pause size={11} />}
-            {paused ? "Resume" : "Pause"}
-          </button>
+          <div className="flex items-center gap-2">
+            <span
+              className="text-[10px] tabular-nums text-[#497f8b] dark:text-[var(--strix-text-muted)]"
+              title="Frames retained in the WS ring buffer (cap = 500)"
+            >
+              {retainedCount} frame{retainedCount === 1 ? "" : "s"} retained
+            </span>
+            <button
+              type="button"
+              onClick={() => setShowAll((v) => !v)}
+              disabled={retainedCount === 0}
+              className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border border-[rgba(128,182,195,0.25)] dark:border-[var(--strix-border)] text-[#497f8b] dark:text-[var(--strix-text-muted)] hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-40 disabled:cursor-not-allowed"
+              title={showAll ? "Collapse to last 5 events" : "Show every retained frame"}
+            >
+              {showAll ? "Collapse" : "View all"}
+            </button>
+            <button
+              type="button"
+              onClick={() => downloadForensicJson(live.frames.raw_log ?? [])}
+              disabled={retainedCount === 0}
+              className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border border-[rgba(128,182,195,0.25)] dark:border-[var(--strix-border)] text-[#497f8b] dark:text-[var(--strix-text-muted)] hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-40 disabled:cursor-not-allowed"
+              title="Download all retained raw_log frames as JSON"
+            >
+              JSON
+            </button>
+            <button
+              type="button"
+              onClick={() => downloadForensicCsv(live.frames.raw_log ?? [])}
+              disabled={retainedCount === 0}
+              className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border border-[rgba(128,182,195,0.25)] dark:border-[var(--strix-border)] text-[#497f8b] dark:text-[var(--strix-text-muted)] hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-40 disabled:cursor-not-allowed"
+              title="Download all retained raw_log frames as CSV"
+            >
+              CSV
+            </button>
+            <button
+              onClick={() => setPaused((p) => !p)}
+              className={cn(
+                "inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider transition-colors",
+                paused
+                  ? "bg-amber-500/15 text-amber-400 border border-amber-500/40 hover:bg-amber-500/25"
+                  : "border border-[rgba(128,182,195,0.25)] dark:border-[var(--strix-border)] text-[#497f8b] dark:text-[var(--strix-text-muted)] hover:bg-gray-50 dark:hover:bg-gray-800",
+              )}
+              aria-pressed={paused}
+              title={paused ? "Resume rendering — stream is still buffering" : "Pause rendering — stream keeps buffering"}
+            >
+              {paused ? <Play size={11} /> : <Pause size={11} />}
+              {paused ? "Resume" : "Pause"}
+            </button>
+          </div>
         )}
       </div>
 
@@ -221,7 +286,12 @@ export function ForensicLogViewer({ logs, tailLines = 10, className }: ForensicL
         </div>
 
         {/* Log lines */}
-        <div className="p-5 font-mono text-[11px] leading-7 min-h-[180px]">
+        <div
+          className={cn(
+            "p-5 font-mono text-[11px] leading-7 min-h-[180px] overflow-y-auto scrollbar-thin",
+            showAll && "max-h-[640px]",
+          )}
+        >
           {display.length === 0 && (
             <div className="text-gray-500 italic px-3">
               {isLive ? "waiting for events…" : "no entries"}
@@ -285,6 +355,102 @@ function LiveBadge({ state, paused }: { state: string; paused: boolean }) {
       {paused ? "PAUSED" : live ? "LIVE" : state.toUpperCase()}
     </span>
   );
+}
+
+// ---- export helpers ---------------------------------------------------------
+// Forensic raw_log export — the artefact a SOC analyst or jury reviewer
+// downloads as proof of every event the dashboard rendered. Pulls from the
+// in-memory ring buffer (cap 500), preserves the FULL payload (alert id,
+// rule id, MITRE tags, dqn action + score, full_log text), and stamps each
+// row with the wallclock receive time so frames can be replayed in order.
+
+interface RawLogFrame {
+  type: string;
+  ts: string;
+  payload: RawLogPayload;
+}
+
+function projectExportRow(f: RawLogFrame): ForensicExportRow {
+  const p = f.payload;
+  const arr = (v: unknown): string =>
+    Array.isArray(v) ? (v as string[]).filter((x) => typeof x === "string").join(";") : "";
+  const num = (v: unknown): string =>
+    typeof v === "number" ? Number(v).toFixed(6) : "";
+  return {
+    receivedAt: f.ts,
+    occurredAt: (p.occurredAt as string) ?? "",
+    alertId: (p.alertId as string) ?? (p.alert_id as string) ?? "",
+    agentId: (p.agentId as string) ?? (p.agent_id as string) ?? "",
+    chainId: (p.chainId as string) ?? "",
+    ruleId: p.rule_id != null ? String(p.rule_id) : "",
+    ckcStage: p.ckcStage != null ? String(p.ckcStage) : "",
+    ckcStageName: (p.ckcStageName as string) ?? "",
+    aeAnomalyScore: num(p.aeAnomalyScore),
+    vaeMaliciousProb: num(p.vaeMaliciousProb),
+    gnnNodeRisk: num(p.gnnNodeRisk),
+    dqnAction: p.dqnAction != null ? String(p.dqnAction) : "",
+    dqnActionName: (p.dqnActionName as string) ?? "",
+    mitreTactics: arr(p.mitre_tactics),
+    mitreTechniques: arr(p.mitreTechniques),
+    description: (p.description as string) ?? "",
+    fullLog: (p.full_log as string) ?? "",
+  };
+}
+
+function downloadForensicJson(frames: ReadonlyArray<RawLogFrame>): void {
+  const payload = {
+    exportedAt: new Date().toISOString(),
+    schema: "strix.raw-log.v1",
+    count: frames.length,
+    frames: frames.map((f) => ({
+      receivedAt: f.ts,
+      payload: f.payload,
+    })),
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], {
+    type: "application/json",
+  });
+  triggerDownload(blob, `strix-forensic-logs-${stamp()}.json`);
+}
+
+function downloadForensicCsv(frames: ReadonlyArray<RawLogFrame>): void {
+  const rows = frames.map(projectExportRow);
+  const headers: Array<keyof ForensicExportRow> = [
+    "receivedAt", "occurredAt", "alertId", "agentId", "chainId", "ruleId",
+    "ckcStage", "ckcStageName",
+    "aeAnomalyScore", "vaeMaliciousProb", "gnnNodeRisk",
+    "dqnAction", "dqnActionName",
+    "mitreTactics", "mitreTechniques",
+    "description", "fullLog",
+  ];
+  const lines = [
+    headers.join(","),
+    ...rows.map((r) => headers.map((h) => csvCell(r[h])).join(",")),
+  ];
+  const blob = new Blob([lines.join("\n")], { type: "text/csv;charset=utf-8" });
+  triggerDownload(blob, `strix-forensic-logs-${stamp()}.csv`);
+}
+
+function csvCell(v: string): string {
+  if (/[,"\n]/.test(v)) return `"${v.replace(/"/g, '""')}"`;
+  return v;
+}
+
+function stamp(): string {
+  const d = new Date();
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}-${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}`;
+}
+
+function triggerDownload(blob: Blob, filename: string): void {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
 function levelToSeverity(level: LogEntry["level"]): Severity {

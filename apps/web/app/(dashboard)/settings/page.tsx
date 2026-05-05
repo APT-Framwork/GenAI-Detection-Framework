@@ -447,23 +447,13 @@ export default function SettingsPage() {
           {/* ------ AI Alert Thresholds ------ */}
           <div className="bg-[#d6f6ff] dark:bg-[var(--strix-bg-card)] rounded-[48px] p-[32px]">
             {/* Header row */}
-            <div className="flex items-start justify-between mb-[28px]">
-              <div>
-                <h2 className="text-[24px] font-bold text-[#00343d] dark:text-[var(--strix-text)] font-[family-name:var(--font-space-grotesk),_'Space_Grotesk',_sans-serif]">
-                  AI Alert Thresholds
-                </h2>
-                <p className="text-[12px] text-[#497f8b] dark:text-[var(--strix-text-muted)] mt-[4px]">
-                  Fine-tune detection sensitivity and response escalation
-                </p>
-              </div>
-              <div className="text-right">
-                <p className="text-[30px] font-bold text-[#00666d] dark:text-[#87edf6] leading-none font-[family-name:var(--font-space-grotesk),_'Space_Grotesk',_sans-serif]">
-                  82%
-                </p>
-                <p className="text-[11px] text-[#497f8b] dark:text-[var(--strix-text-muted)] mt-[2px]">
-                  Global Accuracy
-                </p>
-              </div>
+            <div className="mb-[28px]">
+              <h2 className="text-[24px] font-bold text-[#00343d] dark:text-[var(--strix-text)] font-[family-name:var(--font-space-grotesk),_'Space_Grotesk',_sans-serif]">
+                AI Alert Thresholds
+              </h2>
+              <p className="text-[12px] text-[#497f8b] dark:text-[var(--strix-text-muted)] mt-[4px]">
+                Fine-tune detection sensitivity and response escalation
+              </p>
             </div>
 
             {/* Anomaly Detection Sensitivity */}

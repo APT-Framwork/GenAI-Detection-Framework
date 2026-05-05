@@ -3,7 +3,8 @@
 Schema:
     session:{agent_id}              Hash    chain_id, opened_at, last_seen_at,
                                             step_count, last_ckc_stage, last_action,
-                                            episode_start_at, max_vae_prob, max_ckc_stage
+                                            episode_start_at, max_vae_prob, max_ckc_stage,
+                                            pipeline_opened_at
     session:{agent_id}:latents      List    AE mu vectors (msgpack-encoded float32[64]),
                                             LPUSH then LTRIM 0 49 to keep last 50
 
@@ -105,9 +106,17 @@ class SessionStore:
         chain_id: UUID,
         opened_at: datetime,
         first_malicious_at: datetime,
+        pipeline_opened_at: datetime | None = None,
     ) -> None:
-        """Idempotent. Overwrites any prior session for this agent."""
+        """Idempotent. Overwrites any prior session for this agent.
+
+        `opened_at` is event-time (the alert's `occurred_at`). `pipeline_opened_at`
+        is server wall-clock at the moment we processed that alert — used to
+        compute wall-clock TTI on the dashboard. Defaults to `now()` when the
+        caller omits it.
+        """
         key = _session_key(agent_id)
+        wall_open = pipeline_opened_at or datetime.now(UTC)
         # Wipe latents from any previous chain for the same agent.
         async with self._r.pipeline(transaction=False) as pipe:
             await pipe.delete(_latents_key(agent_id))
@@ -119,6 +128,7 @@ class SessionStore:
                     "episode_start_at": first_malicious_at.isoformat(),
                     "opened_at": opened_at.isoformat(),
                     "last_seen_at": opened_at.isoformat(),
+                    "pipeline_opened_at": wall_open.isoformat(),
                     "step_count": "0",
                     "last_ckc_stage": "",
                     "last_action": "",
@@ -199,6 +209,7 @@ def _decode_session(raw: dict[bytes, bytes]) -> SessionState:
         s = _s(k)
         return None if not s else int(s)
 
+    pipeline_opened_raw = _s("pipeline_opened_at")
     return SessionState(
         chain_id=UUID(_s("chain_id")),
         episode_start_at=_parse_iso(_s("episode_start_at")),
@@ -209,6 +220,9 @@ def _decode_session(raw: dict[bytes, bytes]) -> SessionState:
         last_action=_opt_i("last_action"),
         max_vae_prob=_f("max_vae_prob", 0.0),
         max_ckc_stage=_i("max_ckc_stage", 0),
+        # Older sessions written before this field existed will have ""; treat
+        # as None and the inference worker will fall back to event-time.
+        pipeline_opened_at=_parse_iso(pipeline_opened_raw) if pipeline_opened_raw else None,
     )
 
 

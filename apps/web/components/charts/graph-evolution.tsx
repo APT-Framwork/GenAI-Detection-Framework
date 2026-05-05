@@ -514,37 +514,51 @@ function Sparkline({
 }
 
 function ConfidenceGauge({ value }: { value: number }) {
-  // Half-arc 0→1.
+  // Small donut (full ring, partial fill) instead of a half-arc. The
+  // donut's bounding box is symmetric in BOTH axes, so `flex items-center`
+  // centres it perfectly against text or pills next to it — half-arcs
+  // had a visual bias toward the top (the arc's "ink centroid" sits
+  // above the SVG's geometric centre) and looked misaligned.
   const v = Math.max(0, Math.min(1, value));
   const sev = severityFromRisk(v);
   const color = severityColors[sev].fg;
-  const r = 14;
-  const cx = 18;
-  const cy = 18;
-  const start = Math.PI; // left
-  const end = start + Math.PI * v; // sweep right
-  const x0 = cx + Math.cos(start) * r;
-  const y0 = cy + Math.sin(start) * r;
-  const x1 = cx + Math.cos(end) * r;
-  const y1 = cy + Math.sin(end) * r;
-  const largeArc = v > 0.5 ? 1 : 0;
+  const sw = 2.5;
+  const r = 7;
+  const cx = 9;
+  const cy = 9;
+  const size = 18;
+  const C = 2 * Math.PI * r;
   return (
-    <div className="flex items-center gap-2">
-      <svg width={36} height={22} viewBox="0 0 36 22">
-        <path
-          d={`M ${cx - r} ${cy} A ${r} ${r} 0 0 1 ${cx + r} ${cy}`}
+    <div className="inline-flex items-center gap-1.5 leading-none">
+      <svg
+        width={size}
+        height={size}
+        viewBox={`0 0 ${size} ${size}`}
+        className="block shrink-0"
+      >
+        {/* Track */}
+        <circle
+          cx={cx}
+          cy={cy}
+          r={r}
           stroke="rgba(128,182,195,0.25)"
-          strokeWidth={3}
+          strokeWidth={sw}
           fill="none"
         />
+        {/* Fill — start at 12 o'clock, sweep clockwise, length proportional to v */}
         {v > 0 && (
-          <path
-            d={`M ${x0.toFixed(2)} ${y0.toFixed(2)} A ${r} ${r} 0 ${largeArc} 1 ${x1.toFixed(2)} ${y1.toFixed(2)}`}
+          <circle
+            cx={cx}
+            cy={cy}
+            r={r}
             stroke={color}
-            strokeWidth={3}
+            strokeWidth={sw}
             fill="none"
             strokeLinecap="round"
-            style={{ transition: "stroke 300ms ease" }}
+            strokeDasharray={`${(v * C).toFixed(2)} ${C.toFixed(2)}`}
+            strokeDashoffset={0}
+            transform={`rotate(-90 ${cx} ${cy})`}
+            style={{ transition: "stroke 300ms ease, stroke-dasharray 300ms ease" }}
           />
         )}
       </svg>

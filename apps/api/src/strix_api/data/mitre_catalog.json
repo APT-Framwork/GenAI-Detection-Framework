@@ -1,0 +1,267 @@
+{
+  "description": "Tactic-organised MITRE ATT&CK Enterprise catalog used by /api/v1/mitre/coverage. The 14 tactics define stable matrix columns (Kibana convention). Techniques listed under each tactic are those the STRIX pipeline observes — sourced from RL_agent/synthetic/data_loader.py:TECHNIQUE_MAPPING + apps/api/docs/mitre_to_ckc.json. Sub-techniques (e.g. T1059.004) are intentionally omitted; the service rolls them up to their parent at query time, matching MitreMapper.technique() in apps/api/src/strix_api/core/mitre.py.",
+  "tactics": [
+    {
+      "tactic_id": "TA0043",
+      "name": "Reconnaissance",
+      "ckc": 1,
+      "description": "The adversary is gathering information about the target — network topology, employees, exposed services — to plan future operations. Activity here is often passive and external; CKC stage 1.",
+      "techniques": [
+        {
+          "id": "T1595",
+          "name": "Active Scanning",
+          "aliases": ["Vulnerability Scanning", "Scanning IP Blocks", "Wordlist Scanning"],
+          "description": "Probing victim infrastructure (port scans, vulnerability scans, web-app sweeps) to enumerate exposed services and find weaknesses before initial access."
+        },
+        {
+          "id": "T1110",
+          "name": "Brute Force",
+          "description": "Iteratively guessing credentials when no valid pair is known. Includes password guessing, password spraying, and credential stuffing against authentication services."
+        }
+      ]
+    },
+    {
+      "tactic_id": "TA0042",
+      "name": "Resource Development",
+      "ckc": 2,
+      "description": "Adversary stands up infrastructure they'll use later — domains, accounts, capabilities (malware, exploits, certs). Often invisible to the victim; not normally observed in lab telemetry.",
+      "techniques": []
+    },
+    {
+      "tactic_id": "TA0001",
+      "name": "Initial Access",
+      "ckc": 3,
+      "description": "First foothold inside the target environment. Phishing, exploit of an internet-facing app, or use of valid credentials are the dominant entry vectors.",
+      "techniques": [
+        {
+          "id": "T1190",
+          "name": "Exploit Public-Facing Application",
+          "description": "Abusing a vulnerability in an internet-exposed service (web app, VPN, RDP gateway, etc.) to gain code execution on the host running it."
+        },
+        {
+          "id": "T1078",
+          "name": "Valid Accounts",
+          "description": "Using legitimate credentials — local, domain, cloud, or default — to access systems. Hard to detect because the activity rides authorised auth paths."
+        }
+      ]
+    },
+    {
+      "tactic_id": "TA0002",
+      "name": "Execution",
+      "ckc": 4,
+      "description": "Running adversary-controlled code on a local or remote system. Almost every intrusion routes through some form of execution at some point.",
+      "techniques": [
+        {
+          "id": "T1059",
+          "name": "Command and Scripting Interpreter",
+          "description": "Abusing a shell or scripting host (bash, PowerShell, cmd, Python) to run commands. Sub-techniques cover specific interpreters; T1059.004 is bash on Linux."
+        },
+        {
+          "id": "T1106",
+          "name": "Native API",
+          "description": "Calling OS-native functions directly (Win32 API, syscalls) instead of going through a higher-level interpreter — useful for evading command-line monitoring."
+        }
+      ]
+    },
+    {
+      "tactic_id": "TA0003",
+      "name": "Persistence",
+      "ckc": 5,
+      "description": "Maintaining a foothold across reboots, credential rotations, and the user logging out. The adversary doesn't want to re-do initial access every time.",
+      "techniques": [
+        {
+          "id": "T1136",
+          "name": "Create Account",
+          "description": "Creating a new local, domain, or cloud account to keep access — typically a backdoor user that the adversary controls and the legitimate admin doesn't track."
+        },
+        {
+          "id": "T1098",
+          "name": "Account Manipulation",
+          "description": "Modifying an existing account (group membership, credentials, SSH keys, MFA tokens) to keep or extend access without creating a new one."
+        }
+      ]
+    },
+    {
+      "tactic_id": "TA0004",
+      "name": "Privilege Escalation",
+      "ckc": 4,
+      "description": "Going from a low-privilege foothold (regular user) to higher rights (root, SYSTEM, domain admin) so the adversary can do things their current account can't.",
+      "techniques": [
+        {
+          "id": "T1068",
+          "name": "Exploitation for Privilege Escalation",
+          "description": "Abusing a vulnerability in the kernel, driver, or privileged service to gain elevated rights — classic local-privesc exploit chain."
+        },
+        {
+          "id": "T1548",
+          "name": "Abuse Elevation Control Mechanism",
+          "description": "Bypassing legitimate elevation controls (sudo, UAC, setuid binaries) to run code with higher privileges than the calling process."
+        }
+      ]
+    },
+    {
+      "tactic_id": "TA0005",
+      "name": "Defense Evasion",
+      "ckc": 5,
+      "description": "Avoiding being detected, blocked, or rolled back by defensive tooling. Spans disabling security agents, hiding artefacts, and masquerading as benign.",
+      "techniques": [
+        {
+          "id": "T1036",
+          "name": "Masquerading",
+          "description": "Making a malicious file or process look legitimate — by name (svch0st.exe), path, signing, or metadata — so users and tools mistake it for benign."
+        },
+        {
+          "id": "T1222",
+          "name": "File and Directory Permissions Modification",
+          "description": "Changing ACLs, ownership, or POSIX mode on files/directories to evade scanners or grant the adversary access they otherwise wouldn't have."
+        },
+        {
+          "id": "T1562",
+          "name": "Impair Defenses",
+          "description": "Disabling, modifying, or unloading security controls (AV, EDR, audit, firewall, logging) so the rest of the operation runs unobserved."
+        },
+        {
+          "id": "T1070",
+          "name": "Indicator Removal on Host",
+          "description": "Wiping evidence — clearing event logs, deleting bash history, removing dropped files — to slow incident response and hide the attack timeline."
+        },
+        {
+          "id": "T1027",
+          "name": "Obfuscated Files or Information",
+          "description": "Encoding, encrypting, packing, or otherwise obscuring code or data so static scanners and analysts can't easily understand what it does."
+        }
+      ]
+    },
+    {
+      "tactic_id": "TA0006",
+      "name": "Credential Access",
+      "ckc": 5,
+      "description": "Stealing credentials — passwords, hashes, tokens, keys — to expand access or impersonate users. Strong overlap with Persistence and Lateral Movement.",
+      "techniques": [
+        {
+          "id": "T1110",
+          "name": "Brute Force",
+          "description": "Same technique as in Reconnaissance, but used against an internal authentication surface (SSH, SMB, AD) once the adversary is already inside."
+        }
+      ]
+    },
+    {
+      "tactic_id": "TA0007",
+      "name": "Discovery",
+      "ckc": 4,
+      "description": "Mapping out the environment — what hosts exist, what software is running, what users are logged in, what's reachable. Almost every intrusion does this.",
+      "techniques": [
+        {
+          "id": "T1083",
+          "name": "File and Directory Discovery",
+          "description": "Listing files and folders to find configs, credentials, source code, or data of interest. ls -la, find, dir-style enumeration."
+        },
+        {
+          "id": "T1057",
+          "name": "Process Discovery",
+          "description": "Listing running processes (ps, tasklist) to understand what's on the host — defenders, dev tools, services worth targeting."
+        },
+        {
+          "id": "T1082",
+          "name": "System Information Discovery",
+          "description": "Reading host metadata — kernel/OS version, hostname, hardware, locale — to fingerprint the system and choose the right next move."
+        },
+        {
+          "id": "T1049",
+          "name": "System Network Connections Discovery",
+          "description": "Enumerating live TCP/UDP connections (netstat, ss) to map who's talking to whom and identify pivot targets or active sessions."
+        },
+        {
+          "id": "T1016",
+          "name": "System Network Configuration Discovery",
+          "description": "Reading network configuration — interfaces, routes, DNS, IP addresses (ifconfig, ip addr, route) — to understand reachability and segmentation."
+        },
+        {
+          "id": "T1033",
+          "name": "System Owner/User Discovery",
+          "description": "Finding out who owns the host or who's currently logged in (whoami, w, who) — crucial for picking the right credential to steal next."
+        },
+        {
+          "id": "T1040",
+          "name": "Network Sniffing",
+          "description": "Capturing network traffic on a host or segment to harvest credentials, tokens, or other sensitive data riding the wire."
+        }
+      ]
+    },
+    {
+      "tactic_id": "TA0008",
+      "name": "Lateral Movement",
+      "ckc": 5,
+      "description": "Moving from the initial foothold to other systems in the network — pivoting toward the eventual objective. Often uses stolen credentials and built-in admin tools.",
+      "techniques": [
+        {
+          "id": "T1021",
+          "name": "Remote Services",
+          "description": "Using legitimate remote access protocols (SSH, RDP, SMB, WinRM) with valid (often stolen) credentials to log into other hosts in the network."
+        }
+      ]
+    },
+    {
+      "tactic_id": "TA0009",
+      "name": "Collection",
+      "ckc": 7,
+      "description": "Gathering data of interest — files, screenshots, audio, keystrokes, mailboxes — and staging it locally before exfiltration.",
+      "techniques": [
+        {
+          "id": "T1005",
+          "name": "Data from Local System",
+          "description": "Reading files from the local filesystem of the compromised host — configs, source code, credentials, business documents — for later theft."
+        },
+        {
+          "id": "T1040",
+          "name": "Network Sniffing",
+          "description": "Same packet-capture technique listed under Discovery; in Collection the focus is harvesting payload data rather than mapping the network."
+        }
+      ]
+    },
+    {
+      "tactic_id": "TA0011",
+      "name": "Command and Control",
+      "ckc": 6,
+      "description": "The channel the adversary uses to talk to compromised hosts — issue commands, deliver tools, exfil data. Designed to blend in with normal traffic.",
+      "techniques": [
+        {
+          "id": "T1105",
+          "name": "Ingress Tool Transfer",
+          "description": "Pulling additional tools or payloads from adversary infrastructure onto the victim host — wget/curl, scp, BITS, PowerShell DownloadFile."
+        },
+        {
+          "id": "T1071",
+          "name": "Application Layer Protocol",
+          "aliases": ["Web Protocols"],
+          "description": "Hiding C2 traffic inside common application protocols (HTTP/S, DNS, mail) so it looks like normal user activity to network monitoring."
+        }
+      ]
+    },
+    {
+      "tactic_id": "TA0010",
+      "name": "Exfiltration",
+      "ckc": 7,
+      "description": "Stealing the data. Could be over the C2 channel, an alternate channel, or physical media — the goal is to get it out of the victim environment.",
+      "techniques": []
+    },
+    {
+      "tactic_id": "TA0040",
+      "name": "Impact",
+      "ckc": 7,
+      "description": "Disrupting, destroying, or manipulating the target — encrypting data for ransom, wiping disks, defacing services, denying access. The final \"actions on objective\".",
+      "techniques": [
+        {
+          "id": "T1565",
+          "name": "Data Manipulation",
+          "description": "Modifying data in place to influence business outcomes — falsifying records, tampering with stored data, altering data in transit."
+        },
+        {
+          "id": "T1485",
+          "name": "Data Destruction",
+          "description": "Permanently destroying data or systems to disrupt operations — overwriting files, wiping volumes, dropping tables. Recovery requires backups."
+        }
+      ]
+    }
+  ]
+}

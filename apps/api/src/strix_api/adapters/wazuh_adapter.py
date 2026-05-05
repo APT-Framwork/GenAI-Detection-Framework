@@ -27,6 +27,7 @@ from datetime import UTC, datetime
 from typing import Any
 
 from strix_api.api.errors import ValidationFailedError
+from strix_api.core.mitre_catalog import normalise_technique
 from strix_api.core.raw_alert import (
     AgentInfo,
     DataInfo,
@@ -75,16 +76,32 @@ def _parse_timestamp(ts: Any) -> datetime:
 
 
 def _mitre_list(rule: dict[str, Any], singular: str, plural: str) -> list[str]:
-    """Collect MITRE tactic/technique IDs from whichever Wazuh shape is present."""
+    """Collect MITRE tactic/technique IDs from whichever Wazuh shape is present.
+
+    Some Wazuh rulesets emit human-readable technique *names* in
+    `<mitre><technique>` (e.g. ``"Process Discovery"``) instead of ATT&CK
+    *IDs* (``"T1057"``). We translate names → IDs here so downstream
+    consumers (matrix, RL frame, hunt facets) can join on a single key.
+    Tactic values are pass-through — the catalog only indexes techniques
+    and the few tactic consumers we have already normalise both forms.
+    """
     mitre = rule.get("mitre")
-    if isinstance(mitre, dict):
-        for key in (plural, singular):
-            v = mitre.get(key)
-            if isinstance(v, list):
-                return [str(x) for x in v]
-            if isinstance(v, str):
-                return [v]
-    return []
+    if not isinstance(mitre, dict):
+        return []
+    raw: list[str] = []
+    for key in (plural, singular):
+        v = mitre.get(key)
+        if isinstance(v, list):
+            raw = [str(x) for x in v]
+            break
+        if isinstance(v, str):
+            raw = [v]
+            break
+    if not raw:
+        return []
+    if singular == "technique":
+        return [normalise_technique(x) for x in raw]
+    return raw
 
 
 def _rule_id(rule: dict[str, Any]) -> str | None:
