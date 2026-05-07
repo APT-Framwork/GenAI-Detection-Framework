@@ -1,40 +1,33 @@
 \documentclass[11pt,a4paper]{report}
+\usepackage{xcolor}
+\usepackage{array}
+\usepackage{makecell}
+\usepackage{multirow}
+\usepackage{tabularx}
+\usepackage{booktabs}
 \usepackage[pdftex]{graphicx}
 \usepackage{enumitem} 
 \usepackage[normalem]{ulem}
 \usepackage{url} 
 \usepackage{indentfirst}
 \usepackage{titlesec}
+\usepackage{tikz}
 \usepackage{tikz-qtree}
+\usetikzlibrary{trees, shapes, arrows, positioning, shapes.geometric}
 \usepackage{mathtools}
-\usetikzlibrary{positioning}
-\usepackage{makecell}
-\usepackage{amsmath}
-\usepackage{array}
-\usepackage{makecell}  % Pour gérer les sauts de ligne dans une cellule
-\usepackage{geometry}  % Ajuster les marges si besoin
-\usepackage{algpseudocode}
-\usepackage[edges]{forest}
 \usepackage{amsmath}
 \usepackage{amssymb}
+\usepackage{geometry}
+\usepackage{algpseudocode}
 \usepackage[edges]{forest}
-\usepackage{tikz}
-\usetikzlibrary{trees}
 \usepackage[ruled,lined]{algorithm2e}
 \usepackage[francais]{babel}
-\usepackage{xcolor}
-\usepackage{booktabs}
-\usepackage{tikz}
-\usetikzlibrary{shapes,arrows,positioning}
-\usepackage{tabularx}
-\usepackage{graphicx}
 \usepackage{float}
-\usepackage{multirow}
-\usepackage[bookmarks, colorlinks=false, pdfborder={0 0 0}, pdftitle={<pdf title here>}, pdfauthor={<author's name here>}, pdfsubject={<subject here>}, pdfkeywords={<keywords here>}]{hyperref}
-\usepackage{tikz}
-\usetikzlibrary{shapes.geometric, arrows}
+\usepackage[bookmarks, colorlinks=false, pdfborder={0 0 0}]{hyperref}
+\usepackage{apacite}
 \usepackage{eurosym}
 \usepackage{fancyhdr}
+\setlength{\headheight}{14pt}
 
 % Configuring the header to only show the chapter number with a line
 \pagestyle{fancy}
@@ -102,7 +95,7 @@ This document uses the following formatting styles to convey supplementary infor
 
 \input{presentation}
 
-
+\bibliographystyle{apacite}
+\bibliography{references}
 
 \end{document}
-  

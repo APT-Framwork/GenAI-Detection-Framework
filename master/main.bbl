@@ -1,155 +1,1327 @@
-\begin{thebibliography}{10}
+\begin{thebibliography}{}
 
-\bibitem{aag2024stats}
-{AAG IT Services}.
-\newblock The latest cyber crime statistics, 2024.
+\bibitem [\protect \citeauthoryear {%
+{AAG IT Services}%
+}{%
+{AAG IT Services}%
+}{%
+{\protect \APACyear {2024}}%
+}]{%
+aag2024stats}
+\APACinsertmetastar {%
+aag2024stats}%
+\begin{APACrefauthors}%
+{AAG IT Services}.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2024}{}{}.
+\newblock
+\APACrefbtitle {The Latest Cyber Crime Statistics.} {The latest cyber crime
+  statistics.}
+\newblock
+\begin{APACrefURL} \url{https://aag-it.com/the-latest-cyber-crime-statistics/}
+  \end{APACrefURL}
+\PrintBackRefs{\CurrentBib}
 
-\bibitem{singh2016comprehensive}
-Saurabh Singh, Pradip~Kumar Sharma, Seo~Yeon Moon, Daesung Moon, and Jong~Hyuk
-  Park.
-\newblock A comprehensive study on apt attacks and countermeasures for future
-  networks and communications: challenges and solutions.
-\newblock {\em The Journal of Supercomputing}, 2016.
+\bibitem [\protect \citeauthoryear {%
+Ahmed%
+, Asyhari%
+\BCBL {}\ \BBA {} Rahman%
+}{%
+Ahmed%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2021}}%
+}]{%
+ahmed2021cyber}
+\APACinsertmetastar {%
+ahmed2021cyber}%
+\begin{APACrefauthors}%
+Ahmed, Y.%
+, Asyhari, A\BPBI T.%
+\BCBL {}\ \BBA {} Rahman, M\BPBI A.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2021}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {A Cyber Kill Chain Approach for Detecting Advanced
+  Persistent Threats} {A cyber kill chain approach for detecting advanced
+  persistent threats}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{Computers, Materials \& Continua}{}{}{}.
+\newblock
+\begin{APACrefDOI} \doi{10.32604/cmc.2021.014223} \end{APACrefDOI}
+\PrintBackRefs{\CurrentBib}
 
-\bibitem{krishnapriya2024comprehensive}
-S.~Krishnapriya and S.~Singh.
-\newblock A comprehensive survey on advanced persistent threat (apt) detection
-  techniques.
-\newblock {\em Computer Modeling in Engineering \& Sciences}, 80(2):2675--2716,
-  2024.
+\bibitem [\protect \citeauthoryear {%
+Ankalaki%
+\ \protect \BOthers {.}}{%
+Ankalaki%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2025}}%
+}]{%
+ankalaki2025cyber}
+\APACinsertmetastar {%
+ankalaki2025cyber}%
+\begin{APACrefauthors}%
+Ankalaki, S.%
+, Rajesh~A, A.%
+, M, P.%
+, Hukkeri, G\BPBI S.%
+, Jan, T.%
+\BCBL {}\ \BBA {} Naik, G\BPBI R.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2025}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Cyber Attack Prediction From Traditional Machine
+  Learning to Generative Artificial Intelligence} {Cyber attack prediction from
+  traditional machine learning to generative artificial intelligence}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{IEEE Access}{}{}{}.
+\newblock
+\APACrefnote{Early Access}
+\newblock
+\begin{APACrefDOI} \doi{10.1109/ACCESS.2025.3547433} \end{APACrefDOI}
+\PrintBackRefs{\CurrentBib}
 
-\bibitem{tatam2021review}
-M.~Tatam, B.~Shanmugam, S.~Azam, and K.~Kannoorpatti.
-\newblock A review of threat modelling approaches for {APT}-style attacks.
-\newblock {\em Heliyon}, 7:e05969, 2021.
+\bibitem [\protect \citeauthoryear {%
+{Anthropic}%
+}{%
+{Anthropic}%
+}{%
+{\protect \APACyear {2025}}%
+}]{%
+anthropic2025}
+\APACinsertmetastar {%
+anthropic2025}%
+\begin{APACrefauthors}%
+{Anthropic}.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2025}{November}{}.
+\newblock
+\APACrefbtitle {Disrupting the first reported {AI}-orchestrated cyber espionage
+  campaign.} {Disrupting the first reported {AI}-orchestrated cyber espionage
+  campaign.}
+\newblock
+\begin{APACrefURL} \url{https://www.anthropic.com/news/disrupting-AI-espionage}
+  \end{APACrefURL}
+\PrintBackRefs{\CurrentBib}
 
-\bibitem{huang2024security}
-Huang et~al.
-\newblock Security modelling for cyber-physical systems: A systematic
-  literature review.
-\newblock {\em arXiv preprint arXiv:2404.07527}, 2024.
+\bibitem [\protect \citeauthoryear {%
+{Barracuda Networks}%
+}{%
+{Barracuda Networks}%
+}{%
+{\protect \APACyear {2024}}%
+}]{%
+barracuda2024}
+\APACinsertmetastar {%
+barracuda2024}%
+\begin{APACrefauthors}%
+{Barracuda Networks}.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2024}{April}{}.
+\newblock
+\APACrefbtitle {5 Ways cybercriminals are using {AI}: {Malware} generation.} {5
+  ways cybercriminals are using {AI}: {Malware} generation.}
+\newblock
+\begin{APACrefURL}
+  \url{https://blog.barracuda.com/2024/04/16/5-ways-cybercriminals-are-using-ai--malware-generation}
+  \end{APACrefURL}
+\PrintBackRefs{\CurrentBib}
 
-\bibitem{jiang2025mitre}
-Yuning Jiang, Qiaoran Meng, Feiyang Shang, Nay Oo, Le~Thi~Hong Minh, Hoon~Wei
-  Lim, and Biplab Sikdar.
-\newblock Mitre att\&ck applications in cybersecurity and the way forward.
-\newblock {\em arXiv preprint arXiv:2502.10825}, 2025.
+\bibitem [\protect \citeauthoryear {%
+{BlackCloak}%
+}{%
+{BlackCloak}%
+}{%
+{\protect \APACyear {2025}}%
+}]{%
+blackcloak2025}
+\APACinsertmetastar {%
+blackcloak2025}%
+\begin{APACrefauthors}%
+{BlackCloak}.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2025}{October}{}.
+\newblock
+\APACrefbtitle {Understanding and Countering Deepfakes in 2025.} {Understanding
+  and countering deepfakes in 2025.}
+\newblock
+\begin{APACrefURL}
+  \url{https://blackcloak.io/the-evolving-executive-threat-understanding-and-countering-deepfakes-in-2025/}
+  \end{APACrefURL}
+\PrintBackRefs{\CurrentBib}
 
-\bibitem{ouaissa2025smartcity}
-M.~Ouaissa, M.~Ouaissa, Z.~Njah, S.~Hourani, and Y.~Mahmoud.
-\newblock A framework for cyber threat modeling and risk assessment in smart
-  city infrastructure.
-\newblock {\em Frontiers in Computer Science}, 2025.
+\bibitem [\protect \citeauthoryear {%
+{Brandefense}%
+}{%
+{Brandefense}%
+}{%
+{\protect \APACyear {2025}}%
+}]{%
+brandefense2025}
+\APACinsertmetastar {%
+brandefense2025}%
+\begin{APACrefauthors}%
+{Brandefense}.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2025}{November}{}.
+\newblock
+\APACrefbtitle {Operation {C-Major (APT36)}: {A} Persistent Pakistan-Linked
+  Threat.} {Operation {C-Major (APT36)}: {A} persistent pakistan-linked
+  threat.}
+\newblock
+\begin{APACrefURL} \url{https://brandefense.io/blog/apt36-2025/}
+  \end{APACrefURL}
+\PrintBackRefs{\CurrentBib}
 
-\bibitem{owasp2024threatmodeling}
-{OWASP Foundation}.
-\newblock Threat modeling process, 2024.
-\newblock [Accessed: May 2026].
+\bibitem [\protect \citeauthoryear {%
+{Bright Defense}%
+}{%
+{Bright Defense}%
+}{%
+{\protect \APACyear {2025}}%
+}]{%
+brightdefense2025}
+\APACinsertmetastar {%
+brightdefense2025}%
+\begin{APACrefauthors}%
+{Bright Defense}.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2025}{November}{}.
+\newblock
+\APACrefbtitle {500+ Ransomware Statistics ({October} 2025).} {500+ ransomware
+  statistics ({October} 2025).}
+\newblock
+\begin{APACrefURL}
+  \url{https://www.brightdefense.com/resources/ransomware-statistics/}
+  \end{APACrefURL}
+\PrintBackRefs{\CurrentBib}
 
-\bibitem{trellix2025}
-{Trellix Advanced Research Center}.
-\newblock The cyberthreat report: {October} 2025.
-\newblock Technical report, Trellix, November 2025.
+\bibitem [\protect \citeauthoryear {%
+Cains%
+\ \protect \BOthers {.}}{%
+Cains%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2022}}%
+}]{%
+cains2022cybersecurity}
+\APACinsertmetastar {%
+cains2022cybersecurity}%
+\begin{APACrefauthors}%
+Cains, M\BPBI G.%
+\BCBT {}\ \BOthersPeriod {.}
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2022}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Cybersecurity definition; {CIA} triad; multidisciplinary
+  scope} {Cybersecurity definition; {CIA} triad; multidisciplinary
+  scope}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{Risk Analysis}{}{}{}.
+\PrintBackRefs{\CurrentBib}
 
-\bibitem{socradar2024}
-{SOCRadar Cyber Intelligence Inc.}
-\newblock Top 10 advanced persistent threat ({APT}) groups that dominated 2024,
-  February 2024.
+\bibitem [\protect \citeauthoryear {%
+{Centre for Emerging Technology and Security}%
+}{%
+{Centre for Emerging Technology and Security}%
+}{%
+{\protect \APACyear {2024}}%
+}]{%
+cetas2024}
+\APACinsertmetastar {%
+cetas2024}%
+\begin{APACrefauthors}%
+{Centre for Emerging Technology and Security}.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2024}{June}{}.
+\newblock
+\APACrefbtitle {Generative {AI} in Cybersecurity} {Generative {AI} in
+  cybersecurity}\ \APACbVolEdTR{}{\BTR{}}.
+\newblock
+\APACaddressInstitution{}{The Alan Turing Institute}.
+\newblock
+\begin{APACrefURL}
+  \url{https://cetas.turing.ac.uk/sites/default/files/2024-06/cetas_briefing_paper_-_generative_ai_in_cybersecurity.pdf}
+  \end{APACrefURL}
+\PrintBackRefs{\CurrentBib}
 
-\bibitem{brandefense2025}
-{Brandefense}.
-\newblock Operation {C-Major (APT36)}: {A} persistent pakistan-linked threat,
-  November 2025.
+\bibitem [\protect \citeauthoryear {%
+Chandel%
+\ \protect \BOthers {.}}{%
+Chandel%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2017}}%
+}]{%
+chandel2017social}
+\APACinsertmetastar {%
+chandel2017social}%
+\begin{APACrefauthors}%
+Chandel, S.%
+\BCBT {}\ \BOthersPeriod {.}
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2017}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Social engineering, insider threats (human factor)}
+  {Social engineering, insider threats (human factor)}.{\BBCQ}
+\newblock
+\BIn{} \APACrefbtitle {Proceedings of the IEEE CyberC.} {Proceedings of the
+  ieee cyberc.}
+\PrintBackRefs{\CurrentBib}
 
-\bibitem{eset2025q2q3}
-{ESET Research}.
-\newblock {ESET APT} activity report {Q2} 2025--{Q3} 2025.
-\newblock Technical report, ESET, November 2025.
+\bibitem [\protect \citeauthoryear {%
+{Cisco}%
+}{%
+{Cisco}%
+}{%
+{\protect \APACyear {2024}}%
+}]{%
+cisco2024cyber}
+\APACinsertmetastar {%
+cisco2024cyber}%
+\begin{APACrefauthors}%
+{Cisco}.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2024}{}{}.
+\newblock
+\APACrefbtitle {What is Cybersecurity?} {What is cybersecurity?}
+\newblock
+\APAChowpublished {\url{https://www.cisco.com}}.
+\PrintBackRefs{\CurrentBib}
 
-\bibitem{cetas2024}
-{Centre for Emerging Technology and Security}.
-\newblock Generative {AI} in cybersecurity.
-\newblock Technical report, The Alan Turing Institute, June 2024.
+\bibitem [\protect \citeauthoryear {%
+{Cloudflare}%
+}{%
+{Cloudflare}%
+}{%
+{\protect \APACyear {2024}}%
+{\protect \APACexlab {{\protect \BCnt {1}}}}}]{%
+cloudflare2024payload}
+\APACinsertmetastar {%
+cloudflare2024payload}%
+\begin{APACrefauthors}%
+{Cloudflare}.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2024{\protect \BCnt {1}}}{}{}.
+\newblock
+\APACrefbtitle {What is a Malicious Payload?} {What is a malicious payload?}
+\newblock
+\APAChowpublished {\url{https://www.cloudflare.com}}.
+\PrintBackRefs{\CurrentBib}
 
-\bibitem{google2025}
-{Google Threat Intelligence Group}.
-\newblock Adversarial misuse of generative {AI}, January 2025.
+\bibitem [\protect \citeauthoryear {%
+{Cloudflare}%
+}{%
+{Cloudflare}%
+}{%
+{\protect \APACyear {2024}}%
+{\protect \APACexlab {{\protect \BCnt {2}}}}}]{%
+cloudflare2024defense}
+\APACinsertmetastar {%
+cloudflare2024defense}%
+\begin{APACrefauthors}%
+{Cloudflare}.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2024{\protect \BCnt {2}}}{}{}.
+\newblock
+\APACrefbtitle {What is Defense in Depth?} {What is defense in depth?}
+\newblock
+\APAChowpublished {\url{https://www.cloudflare.com}}.
+\PrintBackRefs{\CurrentBib}
 
-\bibitem{deepinstinct2025}
-{Deep Instinct}.
-\newblock The rise of {AI}-driven cyber attacks: {How LLMs} are reshaping the
-  threat landscape, March 2025.
+\bibitem [\protect \citeauthoryear {%
+{CrowdStrike}%
+}{%
+{CrowdStrike}%
+}{%
+{\protect \APACyear {2024}}%
+{\protect \APACexlab {{\protect \BCnt {1}}}}}]{%
+crowdstrike2024}
+\APACinsertmetastar {%
+crowdstrike2024}%
+\begin{APACrefauthors}%
+{CrowdStrike}.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2024{\protect \BCnt {1}}}{March}{}.
+\newblock
+\APACrefbtitle {Cyber threats in 2024 shift to {AI}-driven attacks and cloud
+  exploits.} {Cyber threats in 2024 shift to {AI}-driven attacks and cloud
+  exploits.}
+\newblock
+\begin{APACrefURL}
+  \url{https://dig.watch/updates/cyber-threats-in-2024-shift-to-ai-driven-attacks-and-cloud-exploits-says-crowdstrike}
+  \end{APACrefURL}
+\PrintBackRefs{\CurrentBib}
 
-\bibitem{deepstrike2025}
-{DeepStrike}.
-\newblock {AI} cybersecurity threats 2025: {\$25.6M} deepfake, August 2025.
+\bibitem [\protect \citeauthoryear {%
+{CrowdStrike}%
+}{%
+{CrowdStrike}%
+}{%
+{\protect \APACyear {2024}}%
+{\protect \APACexlab {{\protect \BCnt {2}}}}}]{%
+crowdstrike2024ioa}
+\APACinsertmetastar {%
+crowdstrike2024ioa}%
+\begin{APACrefauthors}%
+{CrowdStrike}.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2024{\protect \BCnt {2}}}{}{}.
+\newblock
+\APACrefbtitle {{IOA} vs {IOC}: Understanding the Differences.} {{IOA} vs
+  {IOC}: Understanding the differences.}
+\newblock
+\APAChowpublished {\url{https://www.crowdstrike.com}}.
+\PrintBackRefs{\CurrentBib}
 
-\bibitem{reddit2025}
-{Reddit r/ComputerSecurity}.
-\newblock The rise of {AI}-powered phishing attacks: {It's} a new frontier in
-  cybersecurity threats, June 2025.
+\bibitem [\protect \citeauthoryear {%
+{CrowdStrike}%
+}{%
+{CrowdStrike}%
+}{%
+{\protect \APACyear {2024}}%
+{\protect \APACexlab {{\protect \BCnt {3}}}}}]{%
+crowdstrike2024apt}
+\APACinsertmetastar {%
+crowdstrike2024apt}%
+\begin{APACrefauthors}%
+{CrowdStrike}.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2024{\protect \BCnt {3}}}{}{}.
+\newblock
+\APACrefbtitle {What is an Advanced Persistent Threat ({APT})?} {What is an
+  advanced persistent threat ({APT})?}
+\newblock
+\APAChowpublished {\url{https://www.crowdstrike.com}}.
+\PrintBackRefs{\CurrentBib}
 
-\bibitem{scadafence2024}
-{SCADAfence}.
-\newblock {GenAI} phishing: {The} rise of {GenAI}-generated malware, May 2024.
+\bibitem [\protect \citeauthoryear {%
+{Cybersecurity and Infrastructure Security Agency (CISA)}%
+}{%
+{Cybersecurity and Infrastructure Security Agency (CISA)}%
+}{%
+{\protect \APACyear {{\protect \bibnodate {}}}}%
+}]{%
+cisa202x}
+\APACinsertmetastar {%
+cisa202x}%
+\begin{APACrefauthors}%
+{Cybersecurity and Infrastructure Security Agency (CISA)}.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{{\protect \bibnodate {}}}{}{}.
+\newblock
+\APACrefbtitle {Most Common MITRE ATT\&CK Tactics and Techniques: CISA Shares
+  Most Common RVAs.} {Most common mitre att\&ck tactics and techniques: Cisa
+  shares most common rvas.}
+\PrintBackRefs{\CurrentBib}
 
-\bibitem{eftsure2025}
-{EFTsure}.
-\newblock {WormGPT}: how hackers are exploiting the dark side of {AI}, November
-  2025.
+\bibitem [\protect \citeauthoryear {%
+{Cynet}%
+}{%
+{Cynet}%
+}{%
+{\protect \APACyear {2023}}%
+}]{%
+cynet2023basics}
+\APACinsertmetastar {%
+cynet2023basics}%
+\begin{APACrefauthors}%
+{Cynet}.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2023}{}{}.
+\newblock
+\APACrefbtitle {Cybersecurity Basics: Threats, Technologies, and Best
+  Practices.} {Cybersecurity basics: Threats, technologies, and best
+  practices.}
+\newblock
+\APAChowpublished {\url{https://www.cynet.com}}.
+\PrintBackRefs{\CurrentBib}
 
-\bibitem{darkllms2023}
-{LinkedIn}.
-\newblock Malicious {AI} tools: {FraudGPT} and {WormGPT}, August 2023.
+\bibitem [\protect \citeauthoryear {%
+{Deep Instinct}%
+}{%
+{Deep Instinct}%
+}{%
+{\protect \APACyear {2023}}%
+}]{%
+deepinstinct2023zeroday}
+\APACinsertmetastar {%
+deepinstinct2023zeroday}%
+\begin{APACrefauthors}%
+{Deep Instinct}.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2023}{}{}.
+\newblock
+\APACrefbtitle {Zero-Day Vulnerability Explained.} {Zero-day vulnerability
+  explained.}
+\newblock
+\APAChowpublished {\url{https://www.deepinstinct.com}}.
+\PrintBackRefs{\CurrentBib}
 
-\bibitem{barracuda2024}
-{Barracuda Networks}.
-\newblock 5 ways cybercriminals are using {AI}: {Malware} generation, April
-  2024.
+\bibitem [\protect \citeauthoryear {%
+{Deep Instinct}%
+}{%
+{Deep Instinct}%
+}{%
+{\protect \APACyear {2025}}%
+}]{%
+deepinstinct2025}
+\APACinsertmetastar {%
+deepinstinct2025}%
+\begin{APACrefauthors}%
+{Deep Instinct}.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2025}{March}{}.
+\newblock
+\APACrefbtitle {The Rise of {AI}-Driven Cyber Attacks: {How LLMs} Are Reshaping
+  the Threat Landscape.} {The rise of {AI}-driven cyber attacks: {How LLMs} are
+  reshaping the threat landscape.}
+\newblock
+\begin{APACrefURL}
+  \url{https://www.deepinstinct.com/blog/the-rise-of-ai-driven-cyber-attacks-how-llms-are-reshaping-the-threat-landscape}
+  \end{APACrefURL}
+\PrintBackRefs{\CurrentBib}
 
-\bibitem{hyas2023}
-{HYAS Labs}.
-\newblock {BlackMamba}: {Using AI} to generate polymorphic malware, July 2023.
+\bibitem [\protect \citeauthoryear {%
+{DeepStrike}%
+}{%
+{DeepStrike}%
+}{%
+{\protect \APACyear {2025}}%
+}]{%
+deepstrike2025}
+\APACinsertmetastar {%
+deepstrike2025}%
+\begin{APACrefauthors}%
+{DeepStrike}.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2025}{August}{}.
+\newblock
+\APACrefbtitle {{AI} Cybersecurity Threats 2025: {\$25.6M} Deepfake.} {{AI}
+  cybersecurity threats 2025: {\$25.6M} deepfake.}
+\newblock
+\begin{APACrefURL}
+  \url{https://deepstrike.io/blog/ai-cybersecurity-threats-2025}
+  \end{APACrefURL}
+\PrintBackRefs{\CurrentBib}
 
-\bibitem{zerothreat2025}
-{ZeroThreat.ai}.
-\newblock Deepfake attacks \& {AI}-generated phishing: 2025 statistics, August
-  2025.
+\bibitem [\protect \citeauthoryear {%
+{EFTsure}%
+}{%
+{EFTsure}%
+}{%
+{\protect \APACyear {2025}}%
+}]{%
+eftsure2025}
+\APACinsertmetastar {%
+eftsure2025}%
+\begin{APACrefauthors}%
+{EFTsure}.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2025}{November}{}.
+\newblock
+\APACrefbtitle {{WormGPT}: how hackers are exploiting the dark side of {AI}.}
+  {{WormGPT}: how hackers are exploiting the dark side of {AI}.}
+\newblock
+\begin{APACrefURL} \url{https://www.eftsure.com/blog/cyber-crime/wormgpt/}
+  \end{APACrefURL}
+\PrintBackRefs{\CurrentBib}
 
-\bibitem{blackcloak2025}
-{BlackCloak}.
-\newblock Understanding and countering deepfakes in 2025, October 2025.
+\bibitem [\protect \citeauthoryear {%
+{ENISA}%
+}{%
+{ENISA}%
+}{%
+{\protect \APACyear {2023}}%
+}]{%
+enisa2023threats}
+\APACinsertmetastar {%
+enisa2023threats}%
+\begin{APACrefauthors}%
+{ENISA}.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2023}{}{}.
+\newblock
+\APACrefbtitle {{ENISA} Threat Landscape: Seven Prime Threats.} {{ENISA} threat
+  landscape: Seven prime threats.}
+\newblock
+\APAChowpublished {\url{https://www.enisa.europa.eu}}.
+\PrintBackRefs{\CurrentBib}
 
-\bibitem{anthropic2025}
-{Anthropic}.
-\newblock Disrupting the first reported {AI}-orchestrated cyber espionage
-  campaign, November 2025.
+\bibitem [\protect \citeauthoryear {%
+{ESET Research}%
+}{%
+{ESET Research}%
+}{%
+{\protect \APACyear {2025}}%
+}]{%
+eset2025q2q3}
+\APACinsertmetastar {%
+eset2025q2q3}%
+\begin{APACrefauthors}%
+{ESET Research}.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2025}{November}{}.
+\newblock
+\APACrefbtitle {{ESET APT} Activity Report {Q2} 2025--{Q3} 2025} {{ESET APT}
+  activity report {Q2} 2025--{Q3} 2025}\ \APACbVolEdTR{}{\BTR{}}.
+\newblock
+\APACaddressInstitution{}{ESET}.
+\newblock
+\begin{APACrefURL}
+  \url{https://www.welivesecurity.com/en/eset-research/eset-apt-activity-report-q2-2025-q3-2025/}
+  \end{APACrefURL}
+\PrintBackRefs{\CurrentBib}
 
-\bibitem{crowdstrike2024}
-{CrowdStrike}.
-\newblock Cyber threats in 2024 shift to {AI}-driven attacks and cloud
-  exploits, March 2024.
+\bibitem [\protect \citeauthoryear {%
+{Google Threat Intelligence Group}%
+}{%
+{Google Threat Intelligence Group}%
+}{%
+{\protect \APACyear {2025}}%
+}]{%
+google2025}
+\APACinsertmetastar {%
+google2025}%
+\begin{APACrefauthors}%
+{Google Threat Intelligence Group}.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2025}{January}{}.
+\newblock
+\APACrefbtitle {Adversarial Misuse of Generative {AI}.} {Adversarial misuse of
+  generative {AI}.}
+\newblock
+\begin{APACrefURL}
+  \url{https://cloud.google.com/blog/topics/threat-intelligence/adversarial-misuse-generative-ai}
+  \end{APACrefURL}
+\PrintBackRefs{\CurrentBib}
 
-\bibitem{brightdefense2025}
-{Bright Defense}.
-\newblock 500+ ransomware statistics ({October} 2025), November 2025.
+\bibitem [\protect \citeauthoryear {%
+Hentea%
+\ \protect \BOthers {.}}{%
+Hentea%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2021}}%
+}]{%
+hentea2021risk}
+\APACinsertmetastar {%
+hentea2021risk}%
+\begin{APACrefauthors}%
+Hentea, M.%
+\BCBT {}\ \BOthersPeriod {.}
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2021}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Assets, threats, vulnerabilities, risk = T x V x Impact
+  (info-asset definitions)} {Assets, threats, vulnerabilities, risk = t x v x
+  impact (info-asset definitions)}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{Future Internet}{}{}{}.
+\PrintBackRefs{\CurrentBib}
 
-\bibitem{industrialcyber2025}
-{Industrial Cyber}.
-\newblock Half of 2025 ransomware attacks hit critical sectors as
-  manufacturing, healthcare, and energy targeted, October 2025.
+\bibitem [\protect \citeauthoryear {%
+Huang%
+\ \protect \BOthers {.}}{%
+Huang%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2024}}%
+}]{%
+huang2024security}
+\APACinsertmetastar {%
+huang2024security}%
+\begin{APACrefauthors}%
+Huang%
+\BCBT {}\ \BOthersPeriod {.}
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2024}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Security modelling for cyber-physical systems: A
+  systematic literature review} {Security modelling for cyber-physical systems:
+  A systematic literature review}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{arXiv preprint arXiv:2404.07527}{}{}{}.
+\PrintBackRefs{\CurrentBib}
 
-\bibitem{veeam2025}
-{Veeam}.
-\newblock Evolution of ransomware threats 2025: {Trends} \& key insights,
-  September 2025.
+\bibitem [\protect \citeauthoryear {%
+{Huntress}%
+}{%
+{Huntress}%
+}{%
+{\protect \APACyear {2024}}%
+}]{%
+huntress2024glossary}
+\APACinsertmetastar {%
+huntress2024glossary}%
+\begin{APACrefauthors}%
+{Huntress}.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2024}{}{}.
+\newblock
+\APACrefbtitle {Cybersecurity 101 Glossary.} {Cybersecurity 101 glossary.}
+\newblock
+\APAChowpublished {\url{https://www.huntress.com}}.
+\PrintBackRefs{\CurrentBib}
 
-\bibitem{ankalaki2025cyber}
-Shilpa Ankalaki, Aparna Rajesh~A, Pallavi M, Geetabai~S. Hukkeri, Tony Jan, and
-  Ganesh~R. Naik.
-\newblock Cyber attack prediction from traditional machine learning to
-  generative artificial intelligence.
-\newblock {\em IEEE Access}, 2025.
-\newblock Early Access.
+\bibitem [\protect \citeauthoryear {%
+Hussain%
+\ \BBA {} Talib%
+}{%
+Hussain%
+\ \BBA {} Talib%
+}{%
+{\protect \APACyear {2023}}%
+}]{%
+hussain2023mitm}
+\APACinsertmetastar {%
+hussain2023mitm}%
+\begin{APACrefauthors}%
+Hussain, A.%
+\BCBT {}\ \BBA {} Talib, S.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2023}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Man-in-the-middle attacks as example of an attack
+  vector} {Man-in-the-middle attacks as example of an attack vector}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{Journal of Computing and Artificial
+  Intelligence}{}{}{}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+{HYAS Labs}%
+}{%
+{HYAS Labs}%
+}{%
+{\protect \APACyear {2023}}%
+}]{%
+hyas2023}
+\APACinsertmetastar {%
+hyas2023}%
+\begin{APACrefauthors}%
+{HYAS Labs}.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2023}{July}{}.
+\newblock
+\APACrefbtitle {{BlackMamba}: {Using AI} to Generate Polymorphic Malware.}
+  {{BlackMamba}: {Using AI} to generate polymorphic malware.}
+\newblock
+\begin{APACrefURL}
+  \url{https://www.hyas.com/blog/blackmamba-using-ai-to-generate-polymorphic-malware}
+  \end{APACrefURL}
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+{Industrial Cyber}%
+}{%
+{Industrial Cyber}%
+}{%
+{\protect \APACyear {2025}}%
+}]{%
+industrialcyber2025}
+\APACinsertmetastar {%
+industrialcyber2025}%
+\begin{APACrefauthors}%
+{Industrial Cyber}.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2025}{October}{}.
+\newblock
+\APACrefbtitle {Half of 2025 ransomware attacks hit critical sectors as
+  manufacturing, healthcare, and energy targeted.} {Half of 2025 ransomware
+  attacks hit critical sectors as manufacturing, healthcare, and energy
+  targeted.}
+\newblock
+\begin{APACrefURL}
+  \url{https://industrialcyber.co/reports/half-of-2025-ransomware-attacks-hit-critical-sectors-as-manufacturing-healthcare-and-energy-t}
+  \end{APACrefURL}
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Jiang%
+\ \protect \BOthers {.}}{%
+Jiang%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2025}}%
+}]{%
+jiang2025mitre}
+\APACinsertmetastar {%
+jiang2025mitre}%
+\begin{APACrefauthors}%
+Jiang, Y.%
+, Meng, Q.%
+, Shang, F.%
+, Oo, N.%
+, Minh, L\BPBI T\BPBI H.%
+, Lim, H\BPBI W.%
+\BCBL {}\ \BBA {} Sikdar, B.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2025}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {MITRE ATT\&CK Applications in Cybersecurity and The Way
+  Forward} {Mitre att\&ck applications in cybersecurity and the way
+  forward}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{arXiv preprint arXiv:2502.10825}{}{}{}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Kang%
+\ \protect \BOthers {.}}{%
+Kang%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2023}}%
+}]{%
+kang2023zero}
+\APACinsertmetastar {%
+kang2023zero}%
+\begin{APACrefauthors}%
+Kang, J.%
+\BCBT {}\ \BOthersPeriod {.}
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2023}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Zero-trust survey: identity/auth, access, data, network,
+  application security} {Zero-trust survey: identity/auth, access, data,
+  network, application security}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{Entropy}{}{}{}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Krishnapriya%
+\ \BBA {} Singh%
+}{%
+Krishnapriya%
+\ \BBA {} Singh%
+}{%
+{\protect \APACyear {2024}}%
+}]{%
+krishnapriya2024comprehensive}
+\APACinsertmetastar {%
+krishnapriya2024comprehensive}%
+\begin{APACrefauthors}%
+Krishnapriya, S.%
+\BCBT {}\ \BBA {} Singh, S.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2024}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {A Comprehensive Survey on Advanced Persistent Threat
+  (APT) Detection Techniques} {A comprehensive survey on advanced persistent
+  threat (apt) detection techniques}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{Computer Modeling in Engineering \&
+  Sciences}{80}{2}{2675--2716}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+{LinkedIn}%
+}{%
+{LinkedIn}%
+}{%
+{\protect \APACyear {2023}}%
+}]{%
+darkllms2023}
+\APACinsertmetastar {%
+darkllms2023}%
+\begin{APACrefauthors}%
+{LinkedIn}.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2023}{August}{}.
+\newblock
+\APACrefbtitle {Malicious {AI} Tools: {FraudGPT} and {WormGPT}.} {Malicious
+  {AI} tools: {FraudGPT} and {WormGPT}.}
+\newblock
+\begin{APACrefURL}
+  \url{https://www.linkedin.com/top-content/artificial-intelligence/ai-in-cybersecurity/malicious-ai-tools-fraudgpt-and-wormgpt/}
+  \end{APACrefURL}
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+{National Institute of Standards and Technology (NIST)}%
+}{%
+{National Institute of Standards and Technology (NIST)}%
+}{%
+{\protect \APACyear {2023}}%
+}]{%
+nist2023cyber}
+\APACinsertmetastar {%
+nist2023cyber}%
+\begin{APACrefauthors}%
+{National Institute of Standards and Technology (NIST)}.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2023}{}{}.
+\newblock
+\APACrefbtitle {See Yourself in Cyber.} {See yourself in cyber.}
+\newblock
+\APAChowpublished {\url{https://www.nist.gov}}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Ouaissa%
+, Ouaissa%
+, Njah%
+, Hourani%
+\BCBL {}\ \BBA {} Mahmoud%
+}{%
+Ouaissa%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2025}}%
+}]{%
+ouaissa2025smartcity}
+\APACinsertmetastar {%
+ouaissa2025smartcity}%
+\begin{APACrefauthors}%
+Ouaissa, M.%
+, Ouaissa, M.%
+, Njah, Z.%
+, Hourani, S.%
+\BCBL {}\ \BBA {} Mahmoud, Y.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2025}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {A framework for cyber threat modeling and risk
+  assessment in smart city infrastructure} {A framework for cyber threat
+  modeling and risk assessment in smart city infrastructure}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{Frontiers in Computer Science}{}{}{}.
+\newblock
+\begin{APACrefURL} \url{https://doi.org/10.3389/fcomp.2025.1647179}
+  \end{APACrefURL}
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+{OWASP Foundation}%
+}{%
+{OWASP Foundation}%
+}{%
+{\protect \APACyear {2024}}%
+}]{%
+owasp2024threatmodeling}
+\APACinsertmetastar {%
+owasp2024threatmodeling}%
+\begin{APACrefauthors}%
+{OWASP Foundation}.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2024}{}{}.
+\newblock
+\APACrefbtitle {Threat Modeling Process.} {Threat modeling process.}
+\newblock
+\begin{APACrefURL}
+  \url{https://owasp.org/www-community/Threat_Modeling_Process}
+  \end{APACrefURL}
+\newblock
+\APACrefnote{[Accessed: May 2026]}
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+{Palo Alto Networks}%
+}{%
+{Palo Alto Networks}%
+}{%
+{\protect \APACyear {2024}}%
+}]{%
+paloalto2024dos}
+\APACinsertmetastar {%
+paloalto2024dos}%
+\begin{APACrefauthors}%
+{Palo Alto Networks}.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2024}{}{}.
+\newblock
+\APACrefbtitle {What is a Denial-of-Service ({DoS}) Attack?} {What is a
+  denial-of-service ({DoS}) attack?}
+\newblock
+\APAChowpublished {\url{https://www.paloaltonetworks.com}}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+{Rapid7}%
+}{%
+{Rapid7}%
+}{%
+{\protect \APACyear {2024}}%
+}]{%
+rapid72024mitm}
+\APACinsertmetastar {%
+rapid72024mitm}%
+\begin{APACrefauthors}%
+{Rapid7}.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2024}{}{}.
+\newblock
+\APACrefbtitle {What is a Man-in-the-Middle ({MITM}) Attack?} {What is a
+  man-in-the-middle ({MITM}) attack?}
+\newblock
+\APAChowpublished {\url{https://www.rapid7.com}}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Rathod%
+, Akram%
+\BCBL {}\ \protect \BOthers {.}}{%
+Rathod%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2025}}%
+}]{%
+akram2025social}
+\APACinsertmetastar {%
+akram2025social}%
+\begin{APACrefauthors}%
+Rathod, A.%
+, Akram, M.%
+\BCBL {}\ \BOthersPeriod {.}\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2025}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Social engineering attacks (phishing, vishing, etc.)}
+  {Social engineering attacks (phishing, vishing, etc.)}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{Information Processing \& Management}{}{}{}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+{Reddit r/ComputerSecurity}%
+}{%
+{Reddit r/ComputerSecurity}%
+}{%
+{\protect \APACyear {2025}}%
+}]{%
+reddit2025}
+\APACinsertmetastar {%
+reddit2025}%
+\begin{APACrefauthors}%
+{Reddit r/ComputerSecurity}.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2025}{June}{}.
+\newblock
+\APACrefbtitle {The Rise of {AI}-Powered Phishing Attacks: {It's} a New
+  Frontier in Cybersecurity Threats.} {The rise of {AI}-powered phishing
+  attacks: {It's} a new frontier in cybersecurity threats.}
+\newblock
+\begin{APACrefURL}
+  \url{https://www.reddit.com/r/ComputerSecurity/comments/1llsm44/the_rise_of_aipowered_phishing_attacks_its_a_new_w/}
+  \end{APACrefURL}
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+{SCADAfence}%
+}{%
+{SCADAfence}%
+}{%
+{\protect \APACyear {2024}}%
+}]{%
+scadafence2024}
+\APACinsertmetastar {%
+scadafence2024}%
+\begin{APACrefauthors}%
+{SCADAfence}.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2024}{May}{}.
+\newblock
+\APACrefbtitle {{GenAI} Phishing: {The} Rise of {GenAI}-Generated Malware.}
+  {{GenAI} phishing: {The} rise of {GenAI}-generated malware.}
+\newblock
+\begin{APACrefURL}
+  \url{https://blog.scadafence.com/rise-of-genai-generated-malware}
+  \end{APACrefURL}
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+{SentinelOne}%
+}{%
+{SentinelOne}%
+}{%
+{\protect \APACyear {2024}}%
+{\protect \APACexlab {{\protect \BCnt {1}}}}}]{%
+sentinelone2024social}
+\APACinsertmetastar {%
+sentinelone2024social}%
+\begin{APACrefauthors}%
+{SentinelOne}.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2024{\protect \BCnt {1}}}{}{}.
+\newblock
+\APACrefbtitle {Social Engineering Attacks Explained.} {Social engineering
+  attacks explained.}
+\newblock
+\APAChowpublished {\url{https://www.sentinelone.com}}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+{SentinelOne}%
+}{%
+{SentinelOne}%
+}{%
+{\protect \APACyear {2024}}%
+{\protect \APACexlab {{\protect \BCnt {2}}}}}]{%
+sentinelone2024vector}
+\APACinsertmetastar {%
+sentinelone2024vector}%
+\begin{APACrefauthors}%
+{SentinelOne}.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2024{\protect \BCnt {2}}}{}{}.
+\newblock
+\APACrefbtitle {What is an Attack Vector?} {What is an attack vector?}
+\newblock
+\APAChowpublished {\url{https://www.sentinelone.com}}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Singh%
+, Sharma%
+, Moon%
+, Moon%
+\BCBL {}\ \BBA {} Park%
+}{%
+Singh%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2016}}%
+}]{%
+singh2016comprehensive}
+\APACinsertmetastar {%
+singh2016comprehensive}%
+\begin{APACrefauthors}%
+Singh, S.%
+, Sharma, P\BPBI K.%
+, Moon, S\BPBI Y.%
+, Moon, D.%
+\BCBL {}\ \BBA {} Park, J\BPBI H.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2016}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {A comprehensive study on APT attacks and countermeasures
+  for future networks and communications: challenges and solutions} {A
+  comprehensive study on apt attacks and countermeasures for future networks
+  and communications: challenges and solutions}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{The Journal of Supercomputing}{}{}{}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+{SOCRadar Cyber Intelligence Inc.}%
+}{%
+{SOCRadar Cyber Intelligence Inc.}%
+}{%
+{\protect \APACyear {2024}}%
+}]{%
+socradar2024}
+\APACinsertmetastar {%
+socradar2024}%
+\begin{APACrefauthors}%
+{SOCRadar Cyber Intelligence Inc.}%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2024}{February}{}.
+\newblock
+\APACrefbtitle {Top 10 Advanced Persistent Threat ({APT}) Groups That Dominated
+  2024.} {Top 10 advanced persistent threat ({APT}) groups that dominated
+  2024.}
+\newblock
+\begin{APACrefURL}
+  \url{https://socradar.io/top-10-advanced-persistent-threat-apt-groups-2024/}
+  \end{APACrefURL}
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Tatam%
+, Shanmugam%
+, Azam%
+\BCBL {}\ \BBA {} Kannoorpatti%
+}{%
+Tatam%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2021}}%
+}]{%
+tatam2021review}
+\APACinsertmetastar {%
+tatam2021review}%
+\begin{APACrefauthors}%
+Tatam, M.%
+, Shanmugam, B.%
+, Azam, S.%
+\BCBL {}\ \BBA {} Kannoorpatti, K.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2021}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {A review of threat modelling approaches for {APT}-style
+  attacks} {A review of threat modelling approaches for {APT}-style
+  attacks}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{Heliyon}{7}{}{e05969}.
+\newblock
+\begin{APACrefURL} \url{https://doi.org/10.1016/j.heliyon.2021.e05969}
+  \end{APACrefURL}
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+{Trellix Advanced Research Center}%
+}{%
+{Trellix Advanced Research Center}%
+}{%
+{\protect \APACyear {2025}}%
+}]{%
+trellix2025}
+\APACinsertmetastar {%
+trellix2025}%
+\begin{APACrefauthors}%
+{Trellix Advanced Research Center}.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2025}{November}{}.
+\newblock
+\APACrefbtitle {The Cyberthreat Report: {October} 2025} {The cyberthreat
+  report: {October} 2025}\ \APACbVolEdTR{}{\BTR{}}.
+\newblock
+\APACaddressInstitution{}{Trellix}.
+\newblock
+\begin{APACrefURL}
+  \url{https://www.trellix.com/en-ca/advanced-research-center/threat-reports/october-2025/}
+  \end{APACrefURL}
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+{Veeam}%
+}{%
+{Veeam}%
+}{%
+{\protect \APACyear {2025}}%
+}]{%
+veeam2025}
+\APACinsertmetastar {%
+veeam2025}%
+\begin{APACrefauthors}%
+{Veeam}.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2025}{September}{}.
+\newblock
+\APACrefbtitle {Evolution of Ransomware Threats 2025: {Trends} \& Key
+  Insights.} {Evolution of ransomware threats 2025: {Trends} \& key insights.}
+\newblock
+\begin{APACrefURL}
+  \url{https://www.veeam.com/blog/evolution-ransomware-threats-2025.html}
+  \end{APACrefURL}
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+{ZeroThreat.ai}%
+}{%
+{ZeroThreat.ai}%
+}{%
+{\protect \APACyear {2025}}%
+}]{%
+zerothreat2025}
+\APACinsertmetastar {%
+zerothreat2025}%
+\begin{APACrefauthors}%
+{ZeroThreat.ai}.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2025}{August}{}.
+\newblock
+\APACrefbtitle {Deepfake Attacks \& {AI}-Generated Phishing: 2025 Statistics.}
+  {Deepfake attacks \& {AI}-generated phishing: 2025 statistics.}
+\newblock
+\begin{APACrefURL}
+  \url{https://zerothreat.ai/blog/deepfake-and-ai-phishing-statistics}
+  \end{APACrefURL}
+\PrintBackRefs{\CurrentBib}
 
 \end{thebibliography}

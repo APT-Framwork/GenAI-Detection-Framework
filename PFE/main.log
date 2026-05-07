@@ -1,0 +1,1789 @@
+This is pdfTeX, Version 3.141592653-2.6-1.40.25 (MiKTeX 24.1) (preloaded format=pdflatex 2025.12.9)  7 MAY 2026 12:32
+entering extended mode
+ restricted \write18 enabled.
+ file:line:error style messages enabled.
+ %&-line parsing enabled.
+**g:/pfe/rapport/PFE/main.tex
+(g:/pfe/rapport/PFE/main.tex
+LaTeX2e <2023-11-01> patch level 1
+L3 programming layer <2024-01-04>
+(G:\latex\tex/latex/base\report.cls
+Document Class: report 2023/05/17 v1.4n Standard LaTeX document class
+(G:\latex\tex/latex/base\size11.clo
+File: size11.clo 2023/05/17 v1.4n Standard LaTeX file (size option)
+)
+\c@part=\count187
+\c@chapter=\count188
+\c@section=\count189
+\c@subsection=\count190
+\c@subsubsection=\count191
+\c@paragraph=\count192
+\c@subparagraph=\count193
+\c@figure=\count194
+\c@table=\count195
+\abovecaptionskip=\skip48
+\belowcaptionskip=\skip49
+\bibindent=\dimen140
+) (G:\latex\tex/latex/xcolor\xcolor.sty
+Package: xcolor 2023/11/15 v3.01 LaTeX color extensions (UK)
+ (G:\latex\tex/latex/graphics-cfg\color.cfg
+File: color.cfg 2016/01/02 v1.6 sample color configuration
+)
+Package xcolor Info: Driver file: pdftex.def on input line 274.
+ (G:\latex\tex/latex/graphics-def\pdftex.def
+File: pdftex.def 2022/09/22 v1.2b Graphics/color driver for pdftex
+) (G:\latex\tex/latex/graphics\mathcolor.ltx)
+Package xcolor Info: Model `cmy' substituted by `cmy0' on input line 1350.
+Package xcolor Info: Model `hsb' substituted by `rgb' on input line 1354.
+Package xcolor Info: Model `RGB' extended on input line 1366.
+Package xcolor Info: Model `HTML' substituted by `rgb' on input line 1368.
+Package xcolor Info: Model `Hsb' substituted by `hsb' on input line 1369.
+Package xcolor Info: Model `tHsb' substituted by `hsb' on input line 1370.
+Package xcolor Info: Model `HSB' substituted by `hsb' on input line 1371.
+Package xcolor Info: Model `Gray' substituted by `gray' on input line 1372.
+Package xcolor Info: Model `wave' substituted by `hsb' on input line 1373.
+) (G:\latex\tex/latex/tools\array.sty
+Package: array 2023/10/16 v2.5g Tabular extension package (FMi)
+\col@sep=\dimen141
+\ar@mcellbox=\box51
+\extrarowheight=\dimen142
+\NC@list=\toks17
+\extratabsurround=\skip50
+\backup@length=\skip51
+\ar@cellbox=\box52
+) (G:\latex\tex/latex/makecell\makecell.sty
+Package: makecell 2009/08/03 V0.1e Managing of Tab Column Heads and Cells
+\rotheadsize=\dimen143
+\c@nlinenum=\count196
+\TeXr@lab=\toks18
+) (G:\latex\tex/latex/multirow\multirow.sty
+Package: multirow 2024/11/12 v2.9 Span multiple rows of a table
+\multirow@colwidth=\skip52
+\multirow@cntb=\count197
+\multirow@dima=\skip53
+\bigstrutjot=\dimen144
+) (G:\latex\tex/latex/tools\tabularx.sty
+Package: tabularx 2023/07/08 v2.11c `tabularx' package (DPC)
+\TX@col@width=\dimen145
+\TX@old@table=\dimen146
+\TX@old@col=\dimen147
+\TX@target=\dimen148
+\TX@delta=\dimen149
+\TX@cols=\count198
+\TX@ftn=\toks19
+) (G:\latex\tex/latex/booktabs\booktabs.sty
+Package: booktabs 2020/01/12 v1.61803398 Publication quality tables
+\heavyrulewidth=\dimen150
+\lightrulewidth=\dimen151
+\cmidrulewidth=\dimen152
+\belowrulesep=\dimen153
+\belowbottomsep=\dimen154
+\aboverulesep=\dimen155
+\abovetopsep=\dimen156
+\cmidrulesep=\dimen157
+\cmidrulekern=\dimen158
+\defaultaddspace=\dimen159
+\@cmidla=\count199
+\@cmidlb=\count266
+\@aboverulesep=\dimen160
+\@belowrulesep=\dimen161
+\@thisruleclass=\count267
+\@lastruleclass=\count268
+\@thisrulewidth=\dimen162
+) (G:\latex\tex/latex/graphics\graphicx.sty
+Package: graphicx 2021/09/16 v1.2d Enhanced LaTeX Graphics (DPC,SPQR)
+ (G:\latex\tex/latex/graphics\keyval.sty
+Package: keyval 2022/05/29 v1.15 key=value parser (DPC)
+\KV@toks@=\toks20
+) (G:\latex\tex/latex/graphics\graphics.sty
+Package: graphics 2022/03/10 v1.4e Standard LaTeX Graphics (DPC,SPQR)
+ (G:\latex\tex/latex/graphics\trig.sty
+Package: trig 2021/08/11 v1.11 sin cos tan (DPC)
+) (G:\latex\tex/latex/graphics-cfg\graphics.cfg
+File: graphics.cfg 2016/06/04 v1.11 sample graphics configuration
+)
+Package graphics Info: Driver file: pdftex.def on input line 107.
+)
+\Gin@req@height=\dimen163
+\Gin@req@width=\dimen164
+) (G:\latex\tex/latex/enumitem\enumitem.sty
+Package: enumitem 2025/02/06 v3.11 Customized lists
+\labelindent=\skip54
+\enit@outerparindent=\dimen165
+\enit@toks=\toks21
+\enit@inbox=\box53
+\enit@count@id=\count269
+\enitdp@description=\count270
+) (G:\latex\tex/latex/ulem\ulem.sty
+\UL@box=\box54
+\UL@hyphenbox=\box55
+\UL@skip=\skip55
+\UL@hook=\toks22
+\UL@height=\dimen166
+\UL@pe=\count271
+\UL@pixel=\dimen167
+\ULC@box=\box56
+Package: ulem 2019/11/18
+\ULdepth=\dimen168
+) (G:\latex\tex/latex/url\url.sty
+\Urlmuskip=\muskip16
+Package: url 2013/09/16  ver 3.4  Verb mode for urls, etc.
+) (G:\latex\tex/latex/tools\indentfirst.sty
+Package: indentfirst 2023/07/02 v1.03 Indent first paragraph (DPC)
+) (G:\latex\tex/latex/titlesec\titlesec.sty
+Package: titlesec 2025/01/04 v2.17 Sectioning titles
+\ttl@box=\box57
+\beforetitleunit=\skip56
+\aftertitleunit=\skip57
+\ttl@plus=\dimen169
+\ttl@minus=\dimen170
+\ttl@toksa=\toks23
+\titlewidth=\dimen171
+\titlewidthlast=\dimen172
+\titlewidthfirst=\dimen173
+) (G:\latex\tex/latex/pgf/frontendlayer\tikz.sty (G:\latex\tex/latex/pgf/basiclayer\pgf.sty (G:\latex\tex/latex/pgf/utilities\pgfrcs.sty (G:\latex\tex/generic/pgf/utilities\pgfutil-common.tex
+\pgfutil@everybye=\toks24
+\pgfutil@tempdima=\dimen174
+\pgfutil@tempdimb=\dimen175
+) (G:\latex\tex/generic/pgf/utilities\pgfutil-latex.def
+\pgfutil@abb=\box58
+) (G:\latex\tex/generic/pgf/utilities\pgfrcs.code.tex (G:\latex\tex/generic/pgf\pgf.revision.tex)
+Package: pgfrcs 2023-01-15 v3.1.10 (3.1.10)
+))
+Package: pgf 2023-01-15 v3.1.10 (3.1.10)
+ (G:\latex\tex/latex/pgf/basiclayer\pgfcore.sty (G:\latex\tex/latex/pgf/systemlayer\pgfsys.sty (G:\latex\tex/generic/pgf/systemlayer\pgfsys.code.tex
+Package: pgfsys 2023-01-15 v3.1.10 (3.1.10)
+ (G:\latex\tex/generic/pgf/utilities\pgfkeys.code.tex
+\pgfkeys@pathtoks=\toks25
+\pgfkeys@temptoks=\toks26
+ (G:\latex\tex/generic/pgf/utilities\pgfkeyslibraryfiltered.code.tex
+\pgfkeys@tmptoks=\toks27
+))
+\pgf@x=\dimen176
+\pgf@y=\dimen177
+\pgf@xa=\dimen178
+\pgf@ya=\dimen179
+\pgf@xb=\dimen180
+\pgf@yb=\dimen181
+\pgf@xc=\dimen182
+\pgf@yc=\dimen183
+\pgf@xd=\dimen184
+\pgf@yd=\dimen185
+\w@pgf@writea=\write3
+\r@pgf@reada=\read2
+\c@pgf@counta=\count272
+\c@pgf@countb=\count273
+\c@pgf@countc=\count274
+\c@pgf@countd=\count275
+\t@pgf@toka=\toks28
+\t@pgf@tokb=\toks29
+\t@pgf@tokc=\toks30
+\pgf@sys@id@count=\count276
+ (G:\latex\tex/generic/pgf/systemlayer\pgf.cfg
+File: pgf.cfg 2023-01-15 v3.1.10 (3.1.10)
+)
+Driver file for pgf: pgfsys-pdftex.def
+ (G:\latex\tex/generic/pgf/systemlayer\pgfsys-pdftex.def
+File: pgfsys-pdftex.def 2023-01-15 v3.1.10 (3.1.10)
+ (G:\latex\tex/generic/pgf/systemlayer\pgfsys-common-pdf.def
+File: pgfsys-common-pdf.def 2023-01-15 v3.1.10 (3.1.10)
+))) (G:\latex\tex/generic/pgf/systemlayer\pgfsyssoftpath.code.tex
+File: pgfsyssoftpath.code.tex 2023-01-15 v3.1.10 (3.1.10)
+\pgfsyssoftpath@smallbuffer@items=\count277
+\pgfsyssoftpath@bigbuffer@items=\count278
+) (G:\latex\tex/generic/pgf/systemlayer\pgfsysprotocol.code.tex
+File: pgfsysprotocol.code.tex 2023-01-15 v3.1.10 (3.1.10)
+)) (G:\latex\tex/generic/pgf/basiclayer\pgfcore.code.tex
+Package: pgfcore 2023-01-15 v3.1.10 (3.1.10)
+ (G:\latex\tex/generic/pgf/math\pgfmath.code.tex (G:\latex\tex/generic/pgf/math\pgfmathutil.code.tex) (G:\latex\tex/generic/pgf/math\pgfmathparser.code.tex
+\pgfmath@dimen=\dimen186
+\pgfmath@count=\count279
+\pgfmath@box=\box59
+\pgfmath@toks=\toks31
+\pgfmath@stack@operand=\toks32
+\pgfmath@stack@operation=\toks33
+) (G:\latex\tex/generic/pgf/math\pgfmathfunctions.code.tex) (G:\latex\tex/generic/pgf/math\pgfmathfunctions.basic.code.tex) (G:\latex\tex/generic/pgf/math\pgfmathfunctions.trigonometric.code.tex) (G:\latex\tex/generic/pgf/math\pgfmathfunctions.random.code.tex) (G:\latex\tex/generic/pgf/math\pgfmathfunctions.comparison.code.tex) (G:\latex\tex/generic/pgf/math\pgfmathfunctions.base.code.tex) (G:\latex\tex/generic/pgf/math\pgfmathfunctions.round.code.tex) (G:\latex\tex/generic/pgf/math\pgfmathfunctions.misc.code.tex) (G:\latex\tex/generic/pgf/math\pgfmathfunctions.integerarithmetics.code.tex) (G:\latex\tex/generic/pgf/math\pgfmathcalc.code.tex) (G:\latex\tex/generic/pgf/math\pgfmathfloat.code.tex
+\c@pgfmathroundto@lastzeros=\count280
+)) (G:\latex\tex/generic/pgf/math\pgfint.code.tex) (G:\latex\tex/generic/pgf/basiclayer\pgfcorepoints.code.tex
+File: pgfcorepoints.code.tex 2023-01-15 v3.1.10 (3.1.10)
+\pgf@picminx=\dimen187
+\pgf@picmaxx=\dimen188
+\pgf@picminy=\dimen189
+\pgf@picmaxy=\dimen190
+\pgf@pathminx=\dimen191
+\pgf@pathmaxx=\dimen192
+\pgf@pathminy=\dimen193
+\pgf@pathmaxy=\dimen194
+\pgf@xx=\dimen195
+\pgf@xy=\dimen196
+\pgf@yx=\dimen197
+\pgf@yy=\dimen198
+\pgf@zx=\dimen199
+\pgf@zy=\dimen256
+) (G:\latex\tex/generic/pgf/basiclayer\pgfcorepathconstruct.code.tex
+File: pgfcorepathconstruct.code.tex 2023-01-15 v3.1.10 (3.1.10)
+\pgf@path@lastx=\dimen257
+\pgf@path@lasty=\dimen258
+) (G:\latex\tex/generic/pgf/basiclayer\pgfcorepathusage.code.tex
+File: pgfcorepathusage.code.tex 2023-01-15 v3.1.10 (3.1.10)
+\pgf@shorten@end@additional=\dimen259
+\pgf@shorten@start@additional=\dimen260
+) (G:\latex\tex/generic/pgf/basiclayer\pgfcorescopes.code.tex
+File: pgfcorescopes.code.tex 2023-01-15 v3.1.10 (3.1.10)
+\pgfpic=\box60
+\pgf@hbox=\box61
+\pgf@layerbox@main=\box62
+\pgf@picture@serial@count=\count281
+) (G:\latex\tex/generic/pgf/basiclayer\pgfcoregraphicstate.code.tex
+File: pgfcoregraphicstate.code.tex 2023-01-15 v3.1.10 (3.1.10)
+\pgflinewidth=\dimen261
+) (G:\latex\tex/generic/pgf/basiclayer\pgfcoretransformations.code.tex
+File: pgfcoretransformations.code.tex 2023-01-15 v3.1.10 (3.1.10)
+\pgf@pt@x=\dimen262
+\pgf@pt@y=\dimen263
+\pgf@pt@temp=\dimen264
+) (G:\latex\tex/generic/pgf/basiclayer\pgfcorequick.code.tex
+File: pgfcorequick.code.tex 2023-01-15 v3.1.10 (3.1.10)
+) (G:\latex\tex/generic/pgf/basiclayer\pgfcoreobjects.code.tex
+File: pgfcoreobjects.code.tex 2023-01-15 v3.1.10 (3.1.10)
+) (G:\latex\tex/generic/pgf/basiclayer\pgfcorepathprocessing.code.tex
+File: pgfcorepathprocessing.code.tex 2023-01-15 v3.1.10 (3.1.10)
+) (G:\latex\tex/generic/pgf/basiclayer\pgfcorearrows.code.tex
+File: pgfcorearrows.code.tex 2023-01-15 v3.1.10 (3.1.10)
+\pgfarrowsep=\dimen265
+) (G:\latex\tex/generic/pgf/basiclayer\pgfcoreshade.code.tex
+File: pgfcoreshade.code.tex 2023-01-15 v3.1.10 (3.1.10)
+\pgf@max=\dimen266
+\pgf@sys@shading@range@num=\count282
+\pgf@shadingcount=\count283
+) (G:\latex\tex/generic/pgf/basiclayer\pgfcoreimage.code.tex
+File: pgfcoreimage.code.tex 2023-01-15 v3.1.10 (3.1.10)
+) (G:\latex\tex/generic/pgf/basiclayer\pgfcoreexternal.code.tex
+File: pgfcoreexternal.code.tex 2023-01-15 v3.1.10 (3.1.10)
+\pgfexternal@startupbox=\box63
+) (G:\latex\tex/generic/pgf/basiclayer\pgfcorelayers.code.tex
+File: pgfcorelayers.code.tex 2023-01-15 v3.1.10 (3.1.10)
+) (G:\latex\tex/generic/pgf/basiclayer\pgfcoretransparency.code.tex
+File: pgfcoretransparency.code.tex 2023-01-15 v3.1.10 (3.1.10)
+) (G:\latex\tex/generic/pgf/basiclayer\pgfcorepatterns.code.tex
+File: pgfcorepatterns.code.tex 2023-01-15 v3.1.10 (3.1.10)
+) (G:\latex\tex/generic/pgf/basiclayer\pgfcorerdf.code.tex
+File: pgfcorerdf.code.tex 2023-01-15 v3.1.10 (3.1.10)
+))) (G:\latex\tex/generic/pgf/modules\pgfmoduleshapes.code.tex
+File: pgfmoduleshapes.code.tex 2023-01-15 v3.1.10 (3.1.10)
+\pgfnodeparttextbox=\box64
+) (G:\latex\tex/generic/pgf/modules\pgfmoduleplot.code.tex
+File: pgfmoduleplot.code.tex 2023-01-15 v3.1.10 (3.1.10)
+) (G:\latex\tex/latex/pgf/compatibility\pgfcomp-version-0-65.sty
+Package: pgfcomp-version-0-65 2023-01-15 v3.1.10 (3.1.10)
+\pgf@nodesepstart=\dimen267
+\pgf@nodesepend=\dimen268
+) (G:\latex\tex/latex/pgf/compatibility\pgfcomp-version-1-18.sty
+Package: pgfcomp-version-1-18 2023-01-15 v3.1.10 (3.1.10)
+)) (G:\latex\tex/latex/pgf/utilities\pgffor.sty (G:\latex\tex/latex/pgf/utilities\pgfkeys.sty (G:\latex\tex/generic/pgf/utilities\pgfkeys.code.tex)) (G:\latex\tex/latex/pgf/math\pgfmath.sty (G:\latex\tex/generic/pgf/math\pgfmath.code.tex)) (G:\latex\tex/generic/pgf/utilities\pgffor.code.tex
+Package: pgffor 2023-01-15 v3.1.10 (3.1.10)
+\pgffor@iter=\dimen269
+\pgffor@skip=\dimen270
+\pgffor@stack=\toks34
+\pgffor@toks=\toks35
+)) (G:\latex\tex/generic/pgf/frontendlayer/tikz\tikz.code.tex
+Package: tikz 2023-01-15 v3.1.10 (3.1.10)
+ (G:\latex\tex/generic/pgf/libraries\pgflibraryplothandlers.code.tex
+File: pgflibraryplothandlers.code.tex 2023-01-15 v3.1.10 (3.1.10)
+\pgf@plot@mark@count=\count284
+\pgfplotmarksize=\dimen271
+)
+\tikz@lastx=\dimen272
+\tikz@lasty=\dimen273
+\tikz@lastxsaved=\dimen274
+\tikz@lastysaved=\dimen275
+\tikz@lastmovetox=\dimen276
+\tikz@lastmovetoy=\dimen277
+\tikzleveldistance=\dimen278
+\tikzsiblingdistance=\dimen279
+\tikz@figbox=\box65
+\tikz@figbox@bg=\box66
+\tikz@tempbox=\box67
+\tikz@tempbox@bg=\box68
+\tikztreelevel=\count285
+\tikznumberofchildren=\count286
+\tikznumberofcurrentchild=\count287
+\tikz@fig@count=\count288
+ (G:\latex\tex/generic/pgf/modules\pgfmodulematrix.code.tex
+File: pgfmodulematrix.code.tex 2023-01-15 v3.1.10 (3.1.10)
+\pgfmatrixcurrentrow=\count289
+\pgfmatrixcurrentcolumn=\count290
+\pgf@matrix@numberofcolumns=\count291
+)
+\tikz@expandcount=\count292
+ (G:\latex\tex/generic/pgf/frontendlayer/tikz/libraries\tikzlibrarytopaths.code.tex
+File: tikzlibrarytopaths.code.tex 2023-01-15 v3.1.10 (3.1.10)
+))) (G:\latex\tex/latex/tikz-qtree\tikz-qtree.sty (G:\latex\tex/latex/tikz-qtree\pgftree.sty (G:\latex\tex/latex/tikz-qtree\pgfsubpic.sty (G:\latex\tex/generic/tikz-qtree\pgfsubpic.tex
+\pgf@subpicminx=\dimen280
+\pgf@subpicminy=\dimen281
+\pgf@subpicmaxx=\dimen282
+\pgf@subpicmaxy=\dimen283
+)) (G:\latex\tex/generic/tikz-qtree\pgftree.tex
+\levelsep=\dimen284
+\subtreesep=\dimen285
+\smuggle@levelsep=\dimen286
+\smuggle@subtreesep=\dimen287
+\this@levelsep=\dimen288
+\this@subtreesep=\dimen289
+\pgftree@childx=\dimen290
+\pgftree@savechildx=\dimen291
+\pgftree@childy=\dimen292
+\pgftree@savechildy=\dimen293
+\pgftree@childi=\count293
+\pgftree@savechildi=\count294
+\pgftree@level=\count295
+\pgftree@depth=\dimen294
+\pgf@subpic@hbox@children=\box69
+\pgf@subpic@minx@children=\dimen295
+\pgf@subpic@miny@children=\dimen296
+\pgf@subpic@maxx@children=\dimen297
+\pgf@subpic@maxy@children=\dimen298
+\pgftree@lastchildx=\dimen299
+\pgftree@lastchildy=\dimen300
+)) (G:\latex\tex/generic/tikz-qtree\tikz-qtree.tex
+\@result=\toks36
+\child@list=\toks37
+\root@node=\toks38
+)) (G:\latex\tex/generic/pgf/frontendlayer/tikz/libraries\tikzlibrarytrees.code.tex
+File: tikzlibrarytrees.code.tex 2023-01-15 v3.1.10 (3.1.10)
+) (G:\latex\tex/generic/pgf/frontendlayer/tikz/libraries\tikzlibraryshapes.code.tex
+File: tikzlibraryshapes.code.tex 2023-01-15 v3.1.10 (3.1.10)
+ (G:\latex\tex/generic/pgf/frontendlayer/tikz/libraries\tikzlibraryshapes.geometric.code.tex
+File: tikzlibraryshapes.geometric.code.tex 2023-01-15 v3.1.10 (3.1.10)
+ (G:\latex\tex/generic/pgf/libraries/shapes\pgflibraryshapes.geometric.code.tex
+File: pgflibraryshapes.geometric.code.tex 2023-01-15 v3.1.10 (3.1.10)
+)) (G:\latex\tex/generic/pgf/frontendlayer/tikz/libraries\tikzlibraryshapes.misc.code.tex
+File: tikzlibraryshapes.misc.code.tex 2023-01-15 v3.1.10 (3.1.10)
+ (G:\latex\tex/generic/pgf/libraries/shapes\pgflibraryshapes.misc.code.tex
+File: pgflibraryshapes.misc.code.tex 2023-01-15 v3.1.10 (3.1.10)
+)) (G:\latex\tex/generic/pgf/frontendlayer/tikz/libraries\tikzlibraryshapes.symbols.code.tex
+File: tikzlibraryshapes.symbols.code.tex 2023-01-15 v3.1.10 (3.1.10)
+ (G:\latex\tex/generic/pgf/libraries/shapes\pgflibraryshapes.symbols.code.tex
+File: pgflibraryshapes.symbols.code.tex 2023-01-15 v3.1.10 (3.1.10)
+)) (G:\latex\tex/generic/pgf/frontendlayer/tikz/libraries\tikzlibraryshapes.arrows.code.tex
+File: tikzlibraryshapes.arrows.code.tex 2023-01-15 v3.1.10 (3.1.10)
+ (G:\latex\tex/generic/pgf/libraries/shapes\pgflibraryshapes.arrows.code.tex
+File: pgflibraryshapes.arrows.code.tex 2023-01-15 v3.1.10 (3.1.10)
+)) (G:\latex\tex/generic/pgf/frontendlayer/tikz/libraries\tikzlibraryshapes.callouts.code.tex (G:\latex\tex/generic/pgf/libraries/shapes\pgflibraryshapes.callouts.code.tex)) (G:\latex\tex/generic/pgf/frontendlayer/tikz/libraries\tikzlibraryshapes.multipart.code.tex
+File: tikzlibraryshapes.multipart.code.tex 2023-01-15 v3.1.10 (3.1.10)
+ (G:\latex\tex/generic/pgf/libraries/shapes\pgflibraryshapes.multipart.code.tex
+File: pgflibraryshapes.multipart.code.tex 2023-01-15 v3.1.10 (3.1.10)
+\pgfnodepartlowerbox=\box70
+\pgfnodeparttwobox=\box71
+\pgfnodepartthreebox=\box72
+\pgfnodepartfourbox=\box73
+\pgfnodeparttwentybox=\box74
+\pgfnodepartnineteenbox=\box75
+\pgfnodeparteighteenbox=\box76
+\pgfnodepartseventeenbox=\box77
+\pgfnodepartsixteenbox=\box78
+\pgfnodepartfifteenbox=\box79
+\pgfnodepartfourteenbox=\box80
+\pgfnodepartthirteenbox=\box81
+\pgfnodeparttwelvebox=\box82
+\pgfnodepartelevenbox=\box83
+\pgfnodeparttenbox=\box84
+\pgfnodepartninebox=\box85
+\pgfnodeparteightbox=\box86
+\pgfnodepartsevenbox=\box87
+\pgfnodepartsixbox=\box88
+\pgfnodepartfivebox=\box89
+))) (G:\latex\tex/generic/pgf/frontendlayer/tikz/libraries\tikzlibraryarrows.code.tex
+File: tikzlibraryarrows.code.tex 2023-01-15 v3.1.10 (3.1.10)
+ (G:\latex\tex/generic/pgf/libraries\pgflibraryarrows.code.tex
+File: pgflibraryarrows.code.tex 2023-01-15 v3.1.10 (3.1.10)
+\arrowsize=\dimen301
+)) (G:\latex\tex/generic/pgf/frontendlayer/tikz/libraries\tikzlibrarypositioning.code.tex
+File: tikzlibrarypositioning.code.tex 2023-01-15 v3.1.10 (3.1.10)
+) (G:\latex\tex/latex/mathtools\mathtools.sty
+Package: mathtools 2024/10/04 v1.31 mathematical typesetting tools
+ (G:\latex\tex/latex/tools\calc.sty
+Package: calc 2023/07/08 v4.3 Infix arithmetic (KKT,FJ)
+\calc@Acount=\count296
+\calc@Bcount=\count297
+\calc@Adimen=\dimen302
+\calc@Bdimen=\dimen303
+\calc@Askip=\skip58
+\calc@Bskip=\skip59
+LaTeX Info: Redefining \setlength on input line 80.
+LaTeX Info: Redefining \addtolength on input line 81.
+\calc@Ccount=\count298
+\calc@Cskip=\skip60
+) (G:\latex\tex/latex/mathtools\mhsetup.sty
+Package: mhsetup 2021/03/18 v1.4 programming setup (MH)
+) (G:\latex\tex/latex/amsmath\amsmath.sty
+Package: amsmath 2023/05/13 v2.17o AMS math features
+\@mathmargin=\skip61
+
+For additional information on amsmath, use the `?' option.
+(G:\latex\tex/latex/amsmath\amstext.sty
+Package: amstext 2021/08/26 v2.01 AMS text
+ (G:\latex\tex/latex/amsmath\amsgen.sty
+File: amsgen.sty 1999/11/30 v2.0 generic functions
+\@emptytoks=\toks39
+\ex@=\dimen304
+)) (G:\latex\tex/latex/amsmath\amsbsy.sty
+Package: amsbsy 1999/11/29 v1.2d Bold Symbols
+\pmbraise@=\dimen305
+) (G:\latex\tex/latex/amsmath\amsopn.sty
+Package: amsopn 2022/04/08 v2.04 operator names
+)
+\inf@bad=\count299
+LaTeX Info: Redefining \frac on input line 234.
+\uproot@=\count300
+\leftroot@=\count301
+LaTeX Info: Redefining \overline on input line 399.
+LaTeX Info: Redefining \colon on input line 410.
+\classnum@=\count302
+\DOTSCASE@=\count303
+LaTeX Info: Redefining \ldots on input line 496.
+LaTeX Info: Redefining \dots on input line 499.
+LaTeX Info: Redefining \cdots on input line 620.
+\Mathstrutbox@=\box90
+\strutbox@=\box91
+LaTeX Info: Redefining \big on input line 722.
+LaTeX Info: Redefining \Big on input line 723.
+LaTeX Info: Redefining \bigg on input line 724.
+LaTeX Info: Redefining \Bigg on input line 725.
+\big@size=\dimen306
+LaTeX Font Info:    Redeclaring font encoding OML on input line 743.
+LaTeX Font Info:    Redeclaring font encoding OMS on input line 744.
+\macc@depth=\count304
+LaTeX Info: Redefining \bmod on input line 905.
+LaTeX Info: Redefining \pmod on input line 910.
+LaTeX Info: Redefining \smash on input line 940.
+LaTeX Info: Redefining \relbar on input line 970.
+LaTeX Info: Redefining \Relbar on input line 971.
+\c@MaxMatrixCols=\count305
+\dotsspace@=\muskip17
+\c@parentequation=\count306
+\dspbrk@lvl=\count307
+\tag@help=\toks40
+\row@=\count308
+\column@=\count309
+\maxfields@=\count310
+\andhelp@=\toks41
+\eqnshift@=\dimen307
+\alignsep@=\dimen308
+\tagshift@=\dimen309
+\tagwidth@=\dimen310
+\totwidth@=\dimen311
+\lineht@=\dimen312
+\@envbody=\toks42
+\multlinegap=\skip62
+\multlinetaggap=\skip63
+\mathdisplay@stack=\toks43
+LaTeX Info: Redefining \[ on input line 2953.
+LaTeX Info: Redefining \] on input line 2954.
+)
+\g_MT_multlinerow_int=\count311
+\l_MT_multwidth_dim=\dimen313
+\origjot=\skip64
+\l_MT_shortvdotswithinadjustabove_dim=\dimen314
+\l_MT_shortvdotswithinadjustbelow_dim=\dimen315
+\l_MT_above_intertext_sep=\dimen316
+\l_MT_below_intertext_sep=\dimen317
+\l_MT_above_shortintertext_sep=\dimen318
+\l_MT_below_shortintertext_sep=\dimen319
+\xmathstrut@box=\box92
+\xmathstrut@dim=\dimen320
+) (G:\latex\tex/latex/amsfonts\amssymb.sty
+Package: amssymb 2013/01/14 v3.01 AMS font symbols
+ (G:\latex\tex/latex/amsfonts\amsfonts.sty
+Package: amsfonts 2013/01/14 v3.01 Basic AMSFonts support
+\symAMSa=\mathgroup4
+\symAMSb=\mathgroup5
+LaTeX Font Info:    Redeclaring math symbol \hbar on input line 98.
+LaTeX Font Info:    Overwriting math alphabet `\mathfrak' in version `bold'
+(Font)                  U/euf/m/n --> U/euf/b/n on input line 106.
+)) (G:\latex\tex/latex/geometry\geometry.sty
+Package: geometry 2026/03/07 v6.0 Page Geometry
+ (G:\latex\tex/generic/iftex\ifvtex.sty
+Package: ifvtex 2019/10/25 v1.7 ifvtex legacy package. Use iftex instead.
+ (G:\latex\tex/generic/iftex\iftex.sty
+Package: iftex 2022/02/03 v1.0f TeX engine tests
+))
+\Gm@cnth=\count312
+\Gm@cntv=\count313
+\c@Gm@tempcnt=\count314
+\Gm@bindingoffset=\dimen321
+\Gm@wd@mp=\dimen322
+\Gm@odd@mp=\dimen323
+\Gm@even@mp=\dimen324
+\Gm@layoutwidth=\dimen325
+\Gm@layoutheight=\dimen326
+\Gm@layouthoffset=\dimen327
+\Gm@layoutvoffset=\dimen328
+\Gm@dimlist=\toks44
+ (G:\latex\tex/latex/geometry\geometry.cfg)) (G:\latex\tex/latex/algorithmicx\algpseudocode.sty
+Package: algpseudocode 
+ (G:\latex\tex/latex/base\ifthen.sty
+Package: ifthen 2022/04/13 v1.1d Standard LaTeX ifthen package (DPC)
+) (G:\latex\tex/latex/algorithmicx\algorithmicx.sty
+Package: algorithmicx 2005/04/27 v1.2 Algorithmicx
+
+Document Style algorithmicx 1.2 - a greatly improved `algorithmic' style
+\c@ALG@line=\count315
+\c@ALG@rem=\count316
+\c@ALG@nested=\count317
+\ALG@tlm=\skip65
+\ALG@thistlm=\skip66
+\c@ALG@Lnr=\count318
+\c@ALG@blocknr=\count319
+\c@ALG@storecount=\count320
+\c@ALG@tmpcounter=\count321
+\ALG@tmplength=\skip67
+)
+Document Style - pseudocode environments for use with the `algorithmicx' style
+) (G:\latex\tex/latex/forest\forest.sty
+Package: forest 2017/07/14 v2.1.5 Drawing (linguistic) trees
+ (G:\latex\tex/generic/pgf/frontendlayer/tikz/libraries\tikzlibraryfit.code.tex
+File: tikzlibraryfit.code.tex 2023-01-15 v3.1.10 (3.1.10)
+) (G:\latex\tex/generic/pgf/frontendlayer/tikz/libraries\tikzlibrarycalc.code.tex
+File: tikzlibrarycalc.code.tex 2023-01-15 v3.1.10 (3.1.10)
+) (G:\latex\tex/generic/pgf/libraries\pgflibraryintersections.code.tex (G:\latex\tex/generic/pgf/libraries\pgflibraryfpu.code.tex)
+\pgf@intersect@solutions=\count322
+) (G:\latex\tex/latex/pgfopts\pgfopts.sty
+Package: pgfopts 2014/07/10 v2.1a LaTeX package options with pgfkeys
+\pgfopts@list@add@a@toks=\toks45
+\pgfopts@list@add@b@toks=\toks46
+) (G:\latex\tex/latex/etoolbox\etoolbox.sty
+Package: etoolbox 2020/10/05 v2.5k e-TeX tools for LaTeX (JAW)
+\etb@tempcnta=\count323
+) (G:\latex\tex/latex/elocalloc\elocalloc.sty
+Package: elocalloc 2016/12/15 v0.03 local allocation for LaTeX 2015+ (DPC)
+) (G:\latex\tex/latex/environ\environ.sty
+Package: environ 2014/05/04 v0.3 A new way to define environments
+ (G:\latex\tex/latex/trimspaces\trimspaces.sty
+Package: trimspaces 2009/09/17 v1.1 Trim spaces around a token list
+)) (G:\latex\tex/latex/l3packages/xparse\xparse.sty (G:\latex\tex/latex/l3kernel\expl3.sty
+Package: expl3 2024-01-04 L3 programming layer (loader) 
+ (G:\latex\tex/latex/l3backend\l3backend-pdftex.def
+File: l3backend-pdftex.def 2024-01-04 L3 backend support: PDF output (pdfTeX)
+\l__color_backend_stack_int=\count324
+\l__pdf_internal_box=\box93
+))
+Package: xparse 2023-10-10 L3 Experimental document command parser
+) (G:\latex\tex/latex/inlinedef\inlinedef.sty
+Package: inlinedef 2008/07/10 v1.0 Inlined expansions within definitions
+\ID@toks=\toks47
+\ID@count=\count325
+)
+\ID@usercommands=\toks48
+\safeloop@depth=\count326
+\safeRKloop@depth=\count327
+\forest@temp@dimen=\dimen329
+\forest@temp@count=\count328
+\forest@n=\count329
+\forest@temp@global@count=\count330
+\forest@temp@toks=\toks49
+\forest@temparray@M=\count331
+\forest@temparray@N=\count332
+\forest@global@temparray@M=\count333
+\forest@global@temparray@N=\count334
+\forest@isnum@count=\count335
+\forest@isdim@nonintpart=\count336
+\forest@isdim@dimen=\dimen330
+\forest@sort@m=\count337
+\forest@sort@k=\count338
+\forest@sort@p=\count339
+\bracket@content=\toks50
+\bracket@afterthought=\toks51
+\forest@node@maxid=\count340
+\forest@process@left@M=\count341
+\forest@process@left@N=\count342
+\forest@process@right@M=\count343
+\forest@process@right@N=\count344
+\forest@process@saved@M=\count345
+\forest@process@saved@N=\count346
+\forest@process@result@M=\count347
+\forest@process@result@N=\count348
+\forest@process@n=\count349
+\forest@nodewalk@branch@toks=\toks52
+\forest@nodewalk@shortsteps@resolution=\toks53
+\forest@do@dynamics=\toks54
+\forest@box=\box94
+\forest@xg=\dimen331
+\forest@yg=\dimen332
+\forest@xs=\dimen333
+\forest@ys=\dimen334
+\forest@pi@toks=\toks55
+\forest@segment@toks=\toks56
+\forest@PIi@toks=\toks57
+\forest@PIii@toks=\toks58
+\forest@copy@in=\read3
+\forest@copy@out=\write4
+\forest@externalize@max@outer@n=\count350
+\forest@externalize@inner@n=\count351
+) (G:\latex\tex/latex/forest\forest-lib-edges.sty
+Package: forest-lib-edges 2016/12/05 v0.1.1
+) (G:\latex\tex/latex/algorithm2e\algorithm2e.sty
+Package: algorithm2e 2017/07/18 v5.2 algorithms environments
+\c@AlgoLine=\count352
+\algocf@hangindent=\skip68
+ (G:\latex\tex/latex/ifoddpage\ifoddpage.sty
+Package: ifoddpage 2022/10/18 v1.2 Conditionals for odd/even page detection
+\c@checkoddpage=\count353
+) (G:\latex\tex/latex/tools\xspace.sty
+Package: xspace 2014/10/28 v1.13 Space after command names (DPC,MH)
+) (G:\latex\tex/latex/relsize\relsize.sty
+Package: relsize 2013/03/29 ver 4.1
+)
+\skiptotal=\skip69
+\skiplinenumber=\skip70
+\skiprule=\skip71
+\skiphlne=\skip72
+\skiptext=\skip73
+\skiplength=\skip74
+\algomargin=\skip75
+\skipalgocfslide=\skip76
+\algowidth=\dimen335
+\inoutsize=\dimen336
+\inoutindent=\dimen337
+\interspacetitleruled=\dimen338
+\interspacealgoruled=\dimen339
+\interspacetitleboxruled=\dimen340
+\algocf@ruledwidth=\skip77
+\algocf@inoutbox=\box95
+\algocf@inputbox=\box96
+\AlCapSkip=\skip78
+\AlCapHSkip=\skip79
+\algoskipindent=\skip80
+\algocf@nlbox=\box97
+\algocf@hangingbox=\box98
+\algocf@untilbox=\box99
+\algocf@skipuntil=\skip81
+\algocf@capbox=\box100
+\algocf@lcaptionbox=\skip82
+\algoheightruledefault=\skip83
+\algoheightrule=\skip84
+\algotitleheightruledefault=\skip85
+\algotitleheightrule=\skip86
+\c@algocfline=\count354
+\c@algocfproc=\count355
+\c@algocf=\count356
+\algocf@algoframe=\box101
+\algocf@algobox=\box102
+) (G:\latex\tex/generic/babel\babel.sty
+Package: babel 2024/01/07 v24.1 The Babel package
+\babel@savecnt=\count357
+\U@D=\dimen341
+\l@unhyphenated=\language79
+ (G:\latex\tex/generic/babel\txtbabel.def)
+\bbl@readstream=\read4
+\bbl@dirlevel=\count358
+
+*************************************
+* Local config file bblopts.cfg used
+*
+(G:\latex\tex/latex/arabi\bblopts.cfg
+File: bblopts.cfg 2005/09/08 v0.1 add Arabic and Farsi to "declared" options of babel
+) (G:\latex\tex/generic/babel-french\francais.ldf
+Language: francais 2025-08-15 v3.7e French support from the babel system
+
+
+Package francais.ldf Warning: Option 'francais' for Babel is *deprecated*,
+(francais.ldf)                it might be removed sooner or later. Please
+(francais.ldf)                use 'french' instead; reported on input line 31.
+
+)
+Package babel Info: You haven't specified a language as a class or package
+(babel)             option. I'll load 'nil'. Reported on input line 4342.
+ (G:\latex\tex/generic/babel\nil.ldf
+Language: nil 2024/01/07 v24.1 Nil language
+\l@nil=\language80
+)) (G:\latex\tex/latex/float\float.sty
+Package: float 2001/11/08 v1.3d Float enhancements (AL)
+\c@float@type=\count359
+\float@exts=\toks59
+\float@box=\box103
+\@float@everytoks=\toks60
+\@floatcapt=\box104
+) (G:\latex\tex/latex/hyperref\hyperref.sty
+Package: hyperref 2023-11-26 v7.01g Hypertext links for LaTeX
+ (G:\latex\tex/generic/infwarerr\infwarerr.sty
+Package: infwarerr 2019/12/03 v1.5 Providing info/warning/error messages (HO)
+) (G:\latex\tex/latex/kvsetkeys\kvsetkeys.sty
+Package: kvsetkeys 2022-10-05 v1.19 Key value parser (HO)
+) (G:\latex\tex/generic/kvdefinekeys\kvdefinekeys.sty
+Package: kvdefinekeys 2019-12-19 v1.6 Define keys (HO)
+) (G:\latex\tex/generic/pdfescape\pdfescape.sty
+Package: pdfescape 2019/12/09 v1.15 Implements pdfTeX's escape features (HO)
+ (G:\latex\tex/generic/ltxcmds\ltxcmds.sty
+Package: ltxcmds 2023-12-04 v1.26 LaTeX kernel commands for general use (HO)
+) (G:\latex\tex/generic/pdftexcmds\pdftexcmds.sty
+Package: pdftexcmds 2020-06-27 v0.33 Utility functions of pdfTeX for LuaTeX (HO)
+Package pdftexcmds Info: \pdf@primitive is available.
+Package pdftexcmds Info: \pdf@ifprimitive is available.
+Package pdftexcmds Info: \pdfdraftmode found.
+)) (G:\latex\tex/latex/hycolor\hycolor.sty
+Package: hycolor 2020-01-27 v1.10 Color options for hyperref/bookmark (HO)
+) (G:\latex\tex/latex/letltxmacro\letltxmacro.sty
+Package: letltxmacro 2019/12/03 v1.6 Let assignment for LaTeX macros (HO)
+) (G:\latex\tex/latex/auxhook\auxhook.sty
+Package: auxhook 2019-12-17 v1.6 Hooks for auxiliary files (HO)
+) (G:\latex\tex/latex/hyperref\nameref.sty
+Package: nameref 2023-11-26 v2.56 Cross-referencing by name of section
+ (G:\latex\tex/latex/refcount\refcount.sty
+Package: refcount 2019/12/15 v3.6 Data extraction from label references (HO)
+) (G:\latex\tex/generic/gettitlestring\gettitlestring.sty
+Package: gettitlestring 2019/12/15 v1.6 Cleanup title references (HO)
+ (G:\latex\tex/latex/kvoptions\kvoptions.sty
+Package: kvoptions 2022-06-15 v3.15 Key value format for package options (HO)
+))
+\c@section@level=\count360
+)
+\@linkdim=\dimen342
+\Hy@linkcounter=\count361
+\Hy@pagecounter=\count362
+ (G:\latex\tex/latex/hyperref\pd1enc.def
+File: pd1enc.def 2023-11-26 v7.01g Hyperref: PDFDocEncoding definition (HO)
+Now handling font encoding PD1 ...
+... no UTF-8 mapping file for font encoding PD1
+) (G:\latex\tex/generic/intcalc\intcalc.sty
+Package: intcalc 2019/12/15 v1.3 Expandable calculations with integers (HO)
+)
+\Hy@SavedSpaceFactor=\count363
+ (G:\latex\tex/latex/hyperref\puenc.def
+File: puenc.def 2023-11-26 v7.01g Hyperref: PDF Unicode definition (HO)
+Now handling font encoding PU ...
+... no UTF-8 mapping file for font encoding PU
+)
+Package hyperref Info: Option `bookmarks' set `true' on input line 4064.
+Package hyperref Info: Option `colorlinks' set `false' on input line 4064.
+Package hyperref Info: Hyper figures OFF on input line 4181.
+Package hyperref Info: Link nesting OFF on input line 4186.
+Package hyperref Info: Hyper index ON on input line 4189.
+Package hyperref Info: Plain pages OFF on input line 4196.
+Package hyperref Info: Backreferencing OFF on input line 4201.
+Package hyperref Info: Implicit mode ON; LaTeX internals redefined.
+Package hyperref Info: Bookmarks ON on input line 4448.
+\c@Hy@tempcnt=\count364
+LaTeX Info: Redefining \url on input line 4786.
+\XeTeXLinkMargin=\dimen343
+ (G:\latex\tex/generic/bitset\bitset.sty
+Package: bitset 2019/12/09 v1.3 Handle bit-vector datatype (HO)
+ (G:\latex\tex/generic/bigintcalc\bigintcalc.sty
+Package: bigintcalc 2019/12/15 v1.5 Expandable calculations on big integers (HO)
+))
+\Fld@menulength=\count365
+\Field@Width=\dimen344
+\Fld@charsize=\dimen345
+Package hyperref Info: Hyper figures OFF on input line 6065.
+Package hyperref Info: Link nesting OFF on input line 6070.
+Package hyperref Info: Hyper index ON on input line 6073.
+Package hyperref Info: backreferencing OFF on input line 6080.
+Package hyperref Info: Link coloring OFF on input line 6085.
+Package hyperref Info: Link coloring with OCG OFF on input line 6090.
+Package hyperref Info: PDF/A mode OFF on input line 6095.
+ (G:\latex\tex/latex/base\atbegshi-ltx.sty
+Package: atbegshi-ltx 2021/01/10 v1.0c Emulation of the original atbegshi
+package with kernel methods
+)
+\Hy@abspage=\count366
+\c@Item=\count367
+\c@Hfootnote=\count368
+)
+Package hyperref Info: Driver (autodetected): hpdftex.
+ (G:\latex\tex/latex/hyperref\hpdftex.def
+File: hpdftex.def 2023-11-26 v7.01g Hyperref driver for pdfTeX
+ (G:\latex\tex/latex/base\atveryend-ltx.sty
+Package: atveryend-ltx 2020/08/19 v1.0a Emulation of the original atveryend package
+with kernel methods
+)
+\Fld@listcount=\count369
+\c@bookmark@seq@number=\count370
+ (G:\latex\tex/latex/rerunfilecheck\rerunfilecheck.sty
+Package: rerunfilecheck 2025-06-21 v1.11 Rerun checks for auxiliary files (HO)
+ (G:\latex\tex/generic/uniquecounter\uniquecounter.sty
+Package: uniquecounter 2019/12/15 v1.4 Provide unlimited unique counter (HO)
+)
+Package uniquecounter Info: New unique counter `rerunfilecheck' on input line 284.
+)
+\Hy@SectionHShift=\skip87
+) (G:\latex\tex/latex/apacite\apacite.sty
+Package: apacite 2013/07/21 v6.03 APA citation
+\c@BibCnt=\count371
+\bibleftmargin=\skip88
+\bibindent=\skip89
+\bibparsep=\skip90
+\bibitemsep=\skip91
+\biblabelsep=\skip92
+) (G:\latex\tex/latex/eurosym\eurosym.sty
+Package: eurosym 1998/08/06 v1.1 European currency symbol ``Euro''
+\@eurobox=\box105
+) (G:\latex\tex/latex/fancyhdr\fancyhdr.sty
+Package: fancyhdr 2025/02/07 v5.2 Extensive control of page headers and footers
+\f@nch@headwidth=\skip93
+\f@nch@offset@elh=\skip94
+\f@nch@offset@erh=\skip95
+\f@nch@offset@olh=\skip96
+\f@nch@offset@orh=\skip97
+\f@nch@offset@elf=\skip98
+\f@nch@offset@erf=\skip99
+\f@nch@offset@olf=\skip100
+\f@nch@offset@orf=\skip101
+\f@nch@height=\skip102
+\f@nch@footalignment=\skip103
+\f@nch@widthL=\skip104
+\f@nch@widthC=\skip105
+\f@nch@widthR=\skip106
+\@temptokenb=\toks61
+) (main.aux)
+\openout1 = `main.aux'.
+
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 73.
+LaTeX Font Info:    ... okay on input line 73.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 73.
+LaTeX Font Info:    ... okay on input line 73.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 73.
+LaTeX Font Info:    ... okay on input line 73.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 73.
+LaTeX Font Info:    ... okay on input line 73.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 73.
+LaTeX Font Info:    ... okay on input line 73.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 73.
+LaTeX Font Info:    ... okay on input line 73.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 73.
+LaTeX Font Info:    ... okay on input line 73.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 73.
+LaTeX Font Info:    ... okay on input line 73.
+LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 73.
+LaTeX Font Info:    ... okay on input line 73.
+ (G:\latex\tex/context/base/mkii\supp-pdf.mkii
+[Loading MPS to PDF converter (version 2006.09.02).]
+\scratchcounter=\count372
+\scratchdimen=\dimen346
+\scratchbox=\box106
+\nofMPsegments=\count373
+\nofMParguments=\count374
+\everyMPshowfont=\toks62
+\MPscratchCnt=\count375
+\MPscratchDim=\dimen347
+\MPnumerator=\count376
+\makeMPintoPDFobject=\count377
+\everyMPtoPDFconversion=\toks63
+) (G:\latex\tex/latex/epstopdf-pkg\epstopdf-base.sty
+Package: epstopdf-base 2020-01-24 v2.11 Base part for package epstopdf
+Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 485.
+ (G:\latex\tex/latex/00miktex\epstopdf-sys.cfg
+File: epstopdf-sys.cfg 2021/03/18 v2.0 Configuration of epstopdf for MiKTeX
+))
+*geometry* driver: auto-detecting
+*geometry* detected driver: pdftex
+*geometry* verbose mode - [ preamble ] result:
+* driver: pdftex
+* paper: a4paper
+* layout: <same size as paper>
+* layoutoffset:(h,v)=(0.0pt,0.0pt)
+* modes: 
+* h-part:(L,W,R)=(89.62709pt, 418.25368pt, 89.6271pt)
+* v-part:(T,H,B)=(101.40665pt, 591.5302pt, 152.11pt)
+* \paperwidth=597.50787pt
+* \paperheight=845.04684pt
+* \textwidth=418.25368pt
+* \textheight=591.5302pt
+* \oddsidemargin=17.3571pt
+* \evensidemargin=17.3571pt
+* \topmargin=-7.86334pt
+* \headheight=14.0pt
+* \headsep=25.0pt
+* \topskip=11.0pt
+* \footskip=30.0pt
+* \marginparwidth=50.0pt
+* \marginparsep=10.0pt
+* \columnsep=10.0pt
+* \skip\footins=10.0pt plus 4.0pt minus 2.0pt
+* \hoffset=0.0pt
+* \voffset=0.0pt
+* \mag=1000
+* \@twocolumnfalse
+* \@twosidefalse
+* \@mparswitchfalse
+* \@reversemarginfalse
+* (1in=72.27pt=25.4mm, 1cm=28.453pt)
+
+Package hyperref Info: Link coloring OFF on input line 73.
+(main.out) (main.out)
+\@outlinefile=\write5
+\openout5 = `main.out'.
+
+\c@maskedRefs=\count378
+
+
+Package apacite Warning: No suitable language definition file (nil.apc) found.
+
+(title.tex
+<esi_header.jpg, id=490, 1193.45876pt x 333.245pt>
+File: esi_header.jpg Graphic file (type jpg)
+<use esi_header.jpg>
+Package pdftex.def Info: esi_header.jpg  used on input line 4.
+(pdftex.def)             Requested size: 426.78575pt x 113.81029pt.
+
+Overfull \hbox (8.53207pt too wide) in paragraph at lines 4--5
+[]  
+ []
+
+[1
+
+{C:/Users/HP/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map} <./esi_header.jpg>]) (main.toc
+LaTeX Font Info:    Trying to load font information for U+msa on input line 4.
+ (G:\latex\tex/latex/amsfonts\umsa.fd
+File: umsa.fd 2013/01/14 v3.01 AMS symbols A
+)
+LaTeX Font Info:    Trying to load font information for U+msb on input line 4.
+ (G:\latex\tex/latex/amsfonts\umsb.fd
+File: umsb.fd 2013/01/14 v3.01 AMS symbols B
+)
+pdfTeX warning (ext4): destination with the same identifier (name{page.i}) has been already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.36 ... for Early APT Detection}{29}{section.2.8}
+                                                  % [1
+
+] [2] [3])
+\tf@toc=\write6
+\openout6 = `main.toc'.
+
+ [4]
+Overfull \hbox (16.51978pt too wide) in paragraph at lines 86--87
+[]\OT1/cmr/m/n/10.95 This document uses the following formatting styles to convey supplementary information,
+ []
+
+[1
+
+] (ch1_introduction.tex
+Chapter 1.
+
+Overfull \hbox (5.05554pt too wide) in paragraph at lines 6--7
+\OT1/cmr/m/n/10.95 stages, lack generalization to novel attack sequences, or don't leverage the CKC/ATT&CK
+ []
+
+
+Overfull \hbox (20.4727pt too wide) in paragraph at lines 12--13
+[]\OT1/cmr/m/n/10.95 List your 5--6 key innovations explicitly (4 models, SecBERT embedding, REaLTabFormer
+ []
+
+) (ch2_background.tex [2
+
+]
+Chapter 2.
+
+Overfull \hbox (2.07181pt too wide) in paragraph at lines 12--14
+[]\OT1/cmr/m/n/10.95 The scope of cybersecurity extends across multiple domains, each addressing a distinct
+ []
+
+
+Overfull \hbox (5.3515pt too wide) in paragraph at lines 14--15
+[]\OT1/cmr/bx/n/10.95 Network Security\OT1/cmr/m/n/10.95 : Protecting the integrity and usability of network infrastructure
+ []
+
+
+Overfull \hbox (11.54109pt too wide) in paragraph at lines 16--17
+[]\OT1/cmr/bx/n/10.95 Application Security\OT1/cmr/m/n/10.95 : Ensuring that software applications are designed, developed,
+ []
+
+[3
+
+]
+Overfull \hbox (2.40938pt too wide) in paragraph at lines 20--21
+\OT1/cmr/m/n/10.95 handling and protecting data assets, including user behavior and access permissions. 
+ []
+
+
+Overfull \hbox (3.50142pt too wide) in paragraph at lines 34--35
+[]\OT1/cmr/m/n/10.95 As cyber threats have grown in sophistication, the scope of cybersecurity has expanded
+ []
+
+
+Overfull \hbox (16.17798pt too wide) in paragraph at lines 34--35
+\OT1/cmr/m/n/10.95 beyond purely technical concerns. Modern cybersecurity must address not only technological
+ []
+
+
+Overfull \hbox (2.18622pt too wide) in paragraph at lines 34--35
+\OT1/cmr/m/n/10.95 security awareness [][]Chandel et al.[][], []2017[]). This holistic view --- covering people, processes,
+ []
+
+[4]
+Overfull \hbox (7.24564pt too wide) in paragraph at lines 37--38
+\OT1/cmr/m/n/10.95 The following concepts are foundational and appear throughout the literature, frameworks,
+ []
+
+
+Overfull \hbox (15.95941pt too wide) in paragraph at lines 49--50
+[]\OT1/cmr/bx/n/10.95 Attack Vector\OT1/cmr/m/n/10.95 : The specific path or method used by an attacker to gain unauthorized
+ []
+
+
+Overfull \hbox (4.37639pt too wide) in paragraph at lines 50--52
+\OT1/cmr/m/n/10.95 or attack. Threat actors are typically categorized by their motivation and capability: 
+ []
+
+
+Overfull \hbox (16.73334pt too wide) in paragraph at lines 52--53
+[]\OT1/cmr/m/it/10.95 Nation-State Actors\OT1/cmr/m/n/10.95 : Highly skilled, state-sponsored groups conducting espionage
+ []
+
+
+Overfull \hbox (9.57942pt too wide) in paragraph at lines 54--55
+[]\OT1/cmr/m/it/10.95 Insider Threats\OT1/cmr/m/n/10.95 : Employees or contractors who misuse their access, intentionally
+ []
+
+[5]
+Overfull \hbox (21.4198pt too wide) in paragraph at lines 64--65
+\OT1/cmr/m/n/10.95 intended malicious action --- such as encrypting files, stealing credentials, or establishing
+ []
+
+[6]
+Overfull \hbox (3.86816pt too wide) in paragraph at lines 73--74
+\OT1/cmr/m/n/10.95 approach --- combining CKC, MITRE ATT&CK, and Machine Learning --- explored
+ []
+
+
+Overfull \hbox (7.36427pt too wide) in paragraph at lines 80--82
+[]\OT1/cmr/m/n/10.95 Malware (malicious software) is any software intentionally designed to disrupt, damage,
+ []
+
+[7]
+Overfull \hbox (18.19273pt too wide) in paragraph at lines 93--95
+[]\OT1/cmr/m/n/10.95 Social engineering attacks exploit human psychology rather than technical vulnerabilities,
+ []
+
+
+Overfull \hbox (5.4812pt too wide) in paragraph at lines 96--97
+[]\OT1/cmr/bx/n/10.95 Spear Phishing\OT1/cmr/m/n/10.95 : A highly targeted form of phishing tailored to a specific individual
+ []
+
+
+Overfull \hbox (6.26816pt too wide) in paragraph at lines 108--109
+[]\OT1/cmr/m/n/10.95 In a MitM attack, the attacker secretly intercepts and potentially alters communication
+ []
+
+
+Overfull \hbox (4.53847pt too wide) in paragraph at lines 108--109
+\OT1/cmr/m/n/10.95 between two parties who believe they are communicating directly with each other [][]Hussain
+ []
+
+
+Overfull \hbox (0.8581pt too wide) in paragraph at lines 108--109
+\OT1/cmr/m/n/10.95 inject malicious content into the communication stream without either party's knowledge. 
+ []
+
+
+Overfull \hbox (5.32643pt too wide) in paragraph at lines 112--114
+[]\OT1/cmr/m/n/10.95 Insider threats originate from individuals within the organization --- such as employees,
+ []
+
+[8]
+Overfull \hbox (28.75024pt too wide) in paragraph at lines 119--120
+\OT1/cmr/m/n/10.95 long-term strategic objectives --- such as espionage, sabotage, or data exfiltration [][]Krishnapriya
+ []
+
+
+Overfull \hbox (8.03645pt too wide) in paragraph at lines 124--125
+\OT1/cmr/m/n/10.95 directly, the adversary infiltrates a trusted third-party vendor, software update mechanism,
+ []
+
+
+Overfull \hbox (11.79793pt too wide) in paragraph at lines 126--127
+\OT1/cmr/m/n/10.95 and intent. While traditional security tools are effective against known, lower-sophistication
+ []
+
+
+Overfull \hbox (1.0836pt too wide) in paragraph at lines 130--131
+[]\OT1/cmr/m/n/10.95 The term \OT1/cmr/bx/n/10.95 Advanced Persistent Threat (APT) \OT1/cmr/m/n/10.95 was introduced in 2006 by analysts
+ []
+
+
+Overfull \hbox (28.07814pt too wide) in paragraph at lines 132--134
+[]\OT1/cmr/m/n/10.95 APTs are distinguished from traditional cybercriminal attacks by three main characteristics
+ []
+
+[9]
+Overfull \hbox (12.5078pt too wide) in paragraph at lines 135--136
+\OT1/cmr/m/n/10.95 involves constantly collecting data from the target by exploiting various vulnerabilities
+ []
+
+
+Overfull \hbox (7.26584pt too wide) in paragraph at lines 141--142
+\OT1/cmr/m/n/10.95 poisoning'' [][]Krishnapriya & Singh[], []2024[]). They employ Tools, Techniques, and Procedures
+ []
+
+[10]
+<figures/dwell.png, id=796, 639.89063pt x 325.96782pt>
+File: figures/dwell.png Graphic file (type png)
+<use figures/dwell.png>
+Package pdftex.def Info: figures/dwell.png  used on input line 147.
+(pdftex.def)             Requested size: 292.77629pt x 149.14621pt.
+
+Overfull \hbox (2.33844pt too wide) in paragraph at lines 156--157
+[][]\OT1/cmr/m/n/10.95 Krishnapriya & Singh[], []2024[]). Spear-phishing is the most commonly used technique
+ []
+
+
+Overfull \hbox (2.42844pt too wide) in paragraph at lines 157--158
+\OT1/cmr/m/n/10.95 between the compromised host(s) and an external C&C server. This communication
+ []
+
+[11 <./figures/dwell.png>]
+<figures/apt_steps.jpg, id=824, 752.8125pt x 270.00874pt>
+File: figures/apt_steps.jpg Graphic file (type jpg)
+<use figures/apt_steps.jpg>
+Package pdftex.def Info: figures/apt_steps.jpg  used on input line 166.
+(pdftex.def)             Requested size: 334.60422pt x 120.01549pt.
+ [12 <./figures/apt_steps.jpg>]
+Overfull \hbox (10.39032pt too wide) in paragraph at lines 179--180
+[]\OT1/cmr/bx/n/10.95 MITRE ATT&CK: \OT1/cmr/m/n/10.95 Created by MITRE (2013), it details the tactics and techniques
+ []
+
+
+Overfull \hbox (1.13187pt too wide) in paragraph at lines 179--180
+\OT1/cmr/m/n/10.95 Systems)---it maps specific adversarial tactics (high-level objectives) and techniques
+ []
+
+<figures/PASTA.png, id=868, 770.88pt x 346.29375pt>
+File: figures/PASTA.png Graphic file (type png)
+<use figures/PASTA.png>
+Package pdftex.def Info: figures/PASTA.png  used on input line 193.
+(pdftex.def)             Requested size: 292.77629pt x 131.51901pt.
+[13]
+Overfull \hbox (39.2284pt too wide) in paragraph at lines 198--199
+[]\OT1/cmr/bx/n/10.95 DREAD: \OT1/cmr/m/n/10.95 Rates threats by 5 categories: Damage potential, Reproducibility, Exploitability,
+ []
+
+
+Overfull \hbox (4.53824pt too wide) in paragraph at lines 199--200
+[]\OT1/cmr/bx/n/10.95 VAST: \OT1/cmr/m/n/10.95 Built specifically for large-scale enterprises and agile/DevOps environments,
+ []
+
+<figures/tree-attack.png, id=885, 756.8275pt x 521.95pt>
+File: figures/tree-attack.png Graphic file (type png)
+<use figures/tree-attack.png>
+Package pdftex.def Info: figures/tree-attack.png  used on input line 204.
+(pdftex.def)             Requested size: 292.77629pt x 201.91106pt.
+[14 <./figures/PASTA.png>]
+Overfull \hbox (3.7455pt too wide) in paragraph at lines 214--215
+[]\OT1/cmr/bx/n/10.95 MITRE D3FEND: \OT1/cmr/m/n/10.95 The defensive counterpart to ATT&CK, which maps defensive
+ []
+
+
+Overfull \hbox (9.02881pt too wide) in paragraph at lines 214--215
+\OT1/cmr/m/n/10.95 countermeasures to attack techniques. D3FEND has been integrated with ATT&CK-
+ []
+
+
+Overfull \hbox (16.68825pt too wide) in paragraph at lines 215--216
+[]\OT1/cmr/bx/n/10.95 TIBER-EU: \OT1/cmr/m/n/10.95 A European framework designed for simulating real Advanced Persistent
+ []
+
+
+Overfull \hbox (0.73534pt too wide) in paragraph at lines 215--216
+\OT1/cmr/m/n/10.95 Threat (APT) attacks on financial institutions, providing a structured methodology
+ []
+
+
+Overfull \hbox (9.49646pt too wide) in paragraph at lines 215--216
+\OT1/cmr/m/n/10.95 for red-team testing and threat intelligence-led adversarial simulations in the financial
+ []
+
+[15 <./figures/tree-attack.png>]
+Overfull \hbox (12.07896pt too wide) in paragraph at lines 222--223
+[]\OT1/cmr/m/n/10.95 The Cyber Kill Chain (CKC), developed by Lockheed Martin, is a conceptual framework
+ []
+
+
+Overfull \hbox (3.17218pt too wide) in paragraph at lines 227--228
+[]\OT1/cmr/bx/n/10.95 Reconnaissance\OT1/cmr/m/n/10.95 : The attacker performs research on the target to identify systems,
+ []
+
+
+Overfull \hbox (7.96751pt too wide) in paragraph at lines 230--231
+[]\OT1/cmr/bx/n/10.95 Exploitation\OT1/cmr/m/n/10.95 : Once the payload is successfully delivered, a vulnerability is exploited
+ []
+
+[16]
+<figures/The 7 Steps -ckc.png, id=944, 2607.7425pt x 1966.34625pt>
+File: figures/The 7 Steps -ckc.png Graphic file (type png)
+<use figures/The 7 Steps -ckc.png>
+Package pdftex.def Info: figures/The 7 Steps -ckc.png  used on input line 238.
+(pdftex.def)             Requested size: 376.42575pt x 283.83774pt.
+ [17 <./figures/The 7 Steps -ckc.png>]
+<figures/MITRE.png, id=962, 1244.65pt x 833.1125pt>
+File: figures/MITRE.png Graphic file (type png)
+<use figures/MITRE.png>
+Package pdftex.def Info: figures/MITRE.png  used on input line 258.
+(pdftex.def)             Requested size: 376.42575pt x 251.95692pt.
+ [18 <./figures/MITRE.png>]
+Overfull \hbox (2.25052pt too wide) in paragraph at lines 268--269
+[]\OT1/cmr/bx/n/10.95 CKC/ATT&CK Integration\OT1/cmr/m/n/10.95 : ATT&CK is often integrated with other frameworks
+ []
+
+[19]
+Overfull \hbox (13.48727pt too wide) in paragraph at lines 290--291
+[]\OT1/cmr/m/n/10.95 A mathematical function or structure that maps input data to an output prediction.
+ []
+
+
+Overfull \hbox (2.014pt too wide) in paragraph at lines 290--291
+\OT1/cmr/m/n/10.95 The model's internal parameters are adjusted during training to best fit the patterns
+ []
+
+
+Overfull \hbox (5.12157pt too wide) in paragraph at lines 299--301
+[]\OT1/cmr/m/n/10.95 Two fundamental challenges in ML model development: 
+ []
+
+
+Overfull \hbox (3.53433pt too wide) in paragraph at lines 301--302
+[]\OT1/cmr/bx/n/10.95 Overfitting \OT1/cmr/m/n/10.95 occurs when a model learns the training data too well --- including
+ []
+
+
+Overfull \hbox (1.60336pt too wide) in paragraph at lines 311--312
+\OT1/cmr/m/n/10.95 this loss using optimization algorithms --- the most common being Gradient Descent
+ []
+
+[20]
+Overfull \hbox (2.55348pt too wide) in paragraph at lines 318--319
+[]\OT1/cmr/bx/n/10.95 F1-Score\OT1/cmr/m/n/10.95 : The harmonic mean of precision and recall, balancing both metrics. 
+ []
+
+[21]
+Overfull \hbox (10.0446pt too wide) in paragraph at lines 347--348
+[]\OT1/cmr/bx/n/10.95 Common algorithms\OT1/cmr/m/n/10.95 : K-Means, DBSCAN, Hierarchical Clustering, Principal
+ []
+
+
+Overfull \hbox (18.47748pt too wide) in paragraph at lines 348--349
+[]\OT1/cmr/bx/n/10.95 Cybersecurity application\OT1/cmr/m/n/10.95 : Anomaly detection --- identifying unusual patterns
+ []
+
+
+Overfull \hbox (1.695pt too wide) in paragraph at lines 353--355
+[]\OT1/cmr/m/n/10.95 Semi-supervised learning operates with a partially labeled
+ []
+
+
+Overfull \hbox (20.29504pt too wide) in paragraph at lines 356--357
+[]\OT1/cmr/bx/n/10.95 Common approaches\OT1/cmr/m/n/10.95 : Self-training, Label Propagation, Generative Adversarial
+ []
+
+
+Overfull \hbox (4.2648pt too wide) in paragraph at lines 360--361
+\OT1/cmr/m/n/10.95 in practice: they may have a few confirmed attack cases (labeled) but are surrounded
+ []
+
+[22]
+Underfull \hbox (badness 10000) in paragraph at lines 381--381
+[]|\OT1/cmr/m/n/10.95 Natural Language
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 382--382
+[]|\OT1/cmr/m/n/10.95 Analyzing and interpreting
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 382--382
+\OT1/cmr/m/n/10.95 structures, visual phishing
+ []
+
+
+Underfull \hbox (badness 1365) in paragraph at lines 383--383
+[]|\OT1/cmr/m/n/10.95 Identifying data points that
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 383--383
+\OT1/cmr/m/n/10.95 deviate significantly from
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 383--383
+[]|\OT1/cmr/m/n/10.95 Detecting unusual network
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 384--384
+[]|\OT1/cmr/m/n/10.95 Modeling sequential, time-
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 384--384
+[]|\OT1/cmr/m/n/10.95 Detecting multi-stage APT
+ []
+
+
+Underfull \hbox (badness 4518) in paragraph at lines 385--385
+[]|\OT1/cmr/m/n/10.95 Analyzing relationships and
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 385--385
+[]|\OT1/cmr/m/n/10.95 Mapping attacker
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 385--385
+\OT1/cmr/m/n/10.95 infrastructure, detecting
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 386--386
+[]|\OT1/cmr/m/n/10.95 Generative AI
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 386--386
+[]|\OT1/cmr/m/n/10.95 Synthetic attack data
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 386--386
+\OT1/cmr/m/n/10.95 generation, CTI report
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 386--386
+\OT1/cmr/m/n/10.95 summarization, threat
+ []
+
+
+Overfull \hbox (16.69237pt too wide) in paragraph at lines 378--388
+ [][] 
+ []
+
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+
+Overfull \hbox (21.4198pt too wide) in paragraph at lines 411--413
+\OT1/cmr/m/n/10.95 based on feature values, producing a set of human-readable if-then rules for classification
+ []
+
+[23]
+Overfull \hbox (27.82367pt too wide) in paragraph at lines 413--414
+[]\OT1/cmr/bx/n/10.95 Strengths\OT1/cmr/m/n/10.95 : Highly interpretable, fast to train, requires minimal data preprocessing. 
+ []
+
+
+Overfull \hbox (14.66737pt too wide) in paragraph at lines 418--420
+\OT1/cmr/m/n/10.95 during training and combines their outputs --- either by majority voting (classification)
+ []
+
+
+Overfull \hbox (1.4107pt too wide) in paragraph at lines 425--427
+[]\OT1/cmr/m/n/10.95 SVM finds the optimal hyperplane that maximally
+ []
+
+[24]
+Overfull \hbox (8.18pt too wide) in paragraph at lines 428--429
+[]\OT1/cmr/bx/n/10.95 Weaknesses\OT1/cmr/m/n/10.95 : Computationally expensive on large datasets; sensitive to feature
+ []
+
+
+Overfull \hbox (35.64952pt too wide) in paragraph at lines 429--430
+[]\OT1/cmr/bx/n/10.95 Cybersecurity use\OT1/cmr/m/n/10.95 : Malware detection, spam filtering, network traffic classification. 
+ []
+
+
+Overfull \hbox (13.25404pt too wide) in paragraph at lines 434--435
+[]\OT1/cmr/bx/n/10.95 Strengths\OT1/cmr/m/n/10.95 : Excellent performance on tabular data, handles imbalanced datasets
+ []
+
+
+Overfull \hbox (19.84567pt too wide) in paragraph at lines 439--440
+[]\OT1/cmr/m/n/10.95 Artificial Neural Networks (ANNs) are composed
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 449--449
+[]|\OT1/cmr/m/n/10.95 Extracts local spatial
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 450--450
+[]|\OT1/cmr/m/n/10.95 Recurrent Neural
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 450--450
+[]|\OT1/cmr/m/n/10.95 Processes sequential data
+ []
+
+
+Underfull \hbox (badness 4531) in paragraph at lines 450--450
+\OT1/cmr/m/n/10.95 by maintaining memory of
+ []
+
+
+Underfull \hbox (badness 7925) in paragraph at lines 450--450
+[]|\OT1/cmr/m/n/10.95 Detecting sequential attack
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 451--451
+[]|\OT1/cmr/m/n/10.95 Long Short-Term
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 451--451
+[]|\OT1/cmr/m/n/10.95 An advanced RNN that
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 451--451
+[]|\OT1/cmr/m/n/10.95 Multi-stage APT detection
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 452--452
+[]|\OT1/cmr/m/n/10.95 Attention-based architecture
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 452--452
+\OT1/cmr/m/n/10.95 that models global
+ []
+
+
+Underfull \hbox (badness 5288) in paragraph at lines 452--452
+[]|\OT1/cmr/m/n/10.95 CTI report analysis, TTP
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 453--453
+[]|\OT1/cmr/m/n/10.95 Learns a compressed
+ []
+
+
+Underfull \hbox (badness 4673) in paragraph at lines 453--453
+\OT1/cmr/m/n/10.95 representation of data and
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 453--453
+[]|\OT1/cmr/m/n/10.95 Anomaly detection --
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 453--453
+\OT1/cmr/m/n/10.95 reconstruction error flags
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 454--454
+[]|\OT1/cmr/m/n/10.95 Generative
+ []
+
+
+Underfull \hbox (badness 3849) in paragraph at lines 454--454
+\OT1/cmr/m/n/10.95 Adversarial Network
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 454--454
+[]|\OT1/cmr/m/n/10.95 Synthetic attack data
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 454--454
+\OT1/cmr/m/n/10.95 generation, adversarial
+ []
+
+
+Overfull \hbox (16.69237pt too wide) in paragraph at lines 446--456
+ [][] 
+ []
+
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+
+Overfull \hbox (20.68976pt too wide) in paragraph at lines 465--467
+\OT1/cmr/m/n/10.95 each data point to the nearest cluster centroid and updating centroids until convergence. 
+ []
+
+
+Overfull \hbox (1.50679pt too wide) in paragraph at lines 469--470
+[]\OT1/cmr/bx/n/10.95 Cybersecurity use\OT1/cmr/m/n/10.95 : Grouping similar network behaviors, identifying clusters
+ []
+
+
+Overfull \hbox (35.33229pt too wide) in paragraph at lines 472--474
+[]\OT1/cmr/m/n/10.95 DBSCAN
+ []
+
+[25]
+Overfull \hbox (5.53482pt too wide) in paragraph at lines 486--488
+[]\OT1/cmr/m/n/10.95 PCA is a dimensionality reduction technique
+ []
+
+[26]
+Overfull \hbox (9.25922pt too wide) in paragraph at lines 497--499
+[]\OT1/cmr/m/n/10.95 Q-Learning is a model-free RL algorithm
+ []
+
+
+Overfull \hbox (0.30536pt too wide) in paragraph at lines 499--500
+[]\OT1/cmr/bx/n/10.95 Cybersecurity use\OT1/cmr/m/n/10.95 : Adaptive intrusion detection, automated security policy
+ []
+
+
+Overfull \hbox (19.92404pt too wide) in paragraph at lines 504--505
+[]\OT1/cmr/bx/n/10.95 Cybersecurity use\OT1/cmr/m/n/10.95 : Training autonomous agents for network defense, simulating
+ []
+
+
+Overfull \hbox (4.28601pt too wide) in paragraph at lines 514--524
+ [][] 
+ []
+
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+
+Overfull \hbox (2.07478pt too wide) in paragraph at lines 531--532
+\OT1/cmr/m/n/10.95 to include Generative Adversarial Networks (GANs) and autoencoders, used for analyzing
+ []
+
+[27]
+Overfull \hbox (0.67567pt too wide) in paragraph at lines 539--540
+\OT1/cmr/m/n/10.95 available information to generate summaries on vulnerabilities and potential targets
+ []
+
+
+Overfull \hbox (19.66257pt too wide) in paragraph at lines 540--541
+[]\OT1/cmr/bx/n/10.95 Weaponization\OT1/cmr/m/n/10.95 : Tools can generate malicious code or programs capable of exfiltrating
+ []
+
+
+Overfull \hbox (21.05867pt too wide) in paragraph at lines 540--541
+\OT1/cmr/m/n/10.95 files. GenAI can target specific components by rapidly discovering known vulnerabilities
+ []
+
+
+Overfull \hbox (2.98727pt too wide) in paragraph at lines 541--542
+\OT1/cmr/m/n/10.95 phishing emails, significantly increasing the success rate of social engineering attacks
+ []
+
+
+Overfull \hbox (0.23044pt too wide) in paragraph at lines 546--548
+[]\OT1/cmr/m/n/10.95 GenAI offers opportunities for proactive defense strategies, particularly for countering
+ []
+
+[28]
+Overfull \hbox (1.40558pt too wide) in paragraph at lines 558--559
+\OT1/cmr/m/n/10.95 Since APTs are characterized by multi-stage behaviors and often use legitimate individual
+ []
+
+[29]
+Overfull \hbox (4.52211pt too wide) in paragraph at lines 567--568
+\OT1/cmr/m/n/10.95 Augmenting this framework with GenAI is akin to equipping the defender with intelligence
+ []
+
+[30]) (ch3_related_work.tex
+Chapter 3.
+
+Overfull \hbox (10.22644pt too wide) in paragraph at lines 7--8
+\OT1/cmr/m/n/10.95 multi-stage execution, APTs often evade traditional signature-based detection mechanisms.
+ []
+
+
+Overfull \hbox (12.31508pt too wide) in paragraph at lines 12--13
+\OT1/cmr/m/n/10.95 algorithmic evolution and learning paradigms. The classification progresses from traditional
+ []
+
+
+Overfull \hbox (3.77817pt too wide) in paragraph at lines 15--17
+\OT1/cmr/m/n/10.95 As highlighted in [][]Ankalaki et al.[][], []2025[]), these are further divided based on the availability
+ []
+
+[31
+
+
+]
+Overfull \hbox (8.73518pt too wide) in paragraph at lines 29--30
+[]\OT1/cmr/bx/n/10.95 Data Augmentation: \OT1/cmr/m/n/10.95 Generating synthetic attack data to train models, addressing
+ []
+
+
+Overfull \hbox (11.71689pt too wide) in paragraph at lines 44--46
+\OT1/cmr/m/n/10.95 As noted in [15], SVMs are effective for high-dimensional data but entail high computational
+ []
+
+[32]
+Overfull \hbox (35.0728pt too wide) in paragraph at lines 51--52
+[]\OT1/cmr/m/n/10.95 Based on Bayes' theorem with an assumption of feature independence, NB is computationally
+ []
+
+
+Overfull \hbox (0.3309pt too wide) in paragraph at lines 103--104
+\OT1/cmr/m/n/10.95 (local patterns) from traffic payloads. [15] highlights their utility in malware classification
+ []
+
+[33] [34]
+Underfull \hbox (badness 10000) in paragraph at lines 179--179
+[]|\OT1/cmr/m/n/10.95 High interpretability
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 179--179
+\OT1/cmr/m/n/10.95 overhead, effective for
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 181--181
+\OT1/cmr/m/n/10.95 excellent performance on
+ []
+
+
+Underfull \hbox (badness 2285) in paragraph at lines 181--181
+\OT1/cmr/m/n/10.95 unstructured data; captures
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 181--181
+\OT1/cmr/m/n/10.95 temporal dependencies
+ []
+
+
+Underfull \hbox (badness 1127) in paragraph at lines 181--182
+[]|\OT1/cmr/m/n/10.95 "Black-box" nature (low
+ []
+
+
+Underfull \hbox (badness 1371) in paragraph at lines 181--182
+\OT1/cmr/m/n/10.95 massive labeled datasets
+ []
+
+
+Underfull \hbox (badness 4686) in paragraph at lines 183--183
+[]|\OT1/cmr/m/n/10.95 Detects zero-day anomalies;
+ []
+
+
+Underfull \hbox (badness 6188) in paragraph at lines 183--183
+\OT1/cmr/m/n/10.95 handles uncertainty (VAE);
+ []
+
+
+Underfull \hbox (badness 5147) in paragraph at lines 183--183
+\OT1/cmr/m/n/10.95 generates synthetic training
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 183--184
+[]|\OT1/cmr/m/n/10.95 Computationally
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 183--184
+\OT1/cmr/m/n/10.95 intensive; complex
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 183--184
+\OT1/cmr/m/n/10.95 hyperparameter tuning;
+ []
+
+
+Overfull \hbox (4.05122pt too wide) in paragraph at lines 188--191
+[]\OT1/cmr/bx/n/10.95 Conclusion of Synthesis: \OT1/cmr/m/n/10.95 While Traditional ML provides a baseline, it is insufficient
+ []
+
+[35]
+Overfull \hbox (0.42934pt too wide) in paragraph at lines 195--196
+[]\OT1/cmr/m/n/10.95 To address the limitations identified in the synthesis|specifically the lack of proactive
+ []
+
+
+Overfull \hbox (0.87714pt too wide) in paragraph at lines 200--201
+\OT1/cmr/m/n/10.95 framework** designed for early defense against multi-stage APT attacks. This framework
+ []
+
+
+Overfull \hbox (19.67589pt too wide) in paragraph at lines 209--210
+\OT1/cmr/m/n/10.95 "maliciousness" accompanied by an uncertainty metric. This uncertainty quantification
+ []
+
+
+Overfull \hbox (2.86449pt too wide) in paragraph at lines 210--211
+[]\OT1/cmr/bx/n/10.95 Transformer for State Prediction: \OT1/cmr/m/n/10.95 A Transformer model processes the sequence
+ []
+
+[36]
+Overfull \hbox (18.86995pt too wide) in paragraph at lines 229--229
+|[]\OT1/cmr/bx/n/12 Proposition 2: GenAI-Augmented Pre-Attack Detection Framework| 
+ []
+
+
+Overfull \hbox (13.23409pt too wide) in paragraph at lines 235--236
+\OT1/cmr/m/n/10.95 integrates the conventional Cyber Kill Chain (CKC) with the MITRE ATT&CK framework.
+ []
+
+
+Overfull \hbox (8.03639pt too wide) in paragraph at lines 235--236
+\OT1/cmr/m/n/10.95 This unified chain provides a granular view of adversary tactics, techniques, and procedures
+ []
+
+
+Overfull \hbox (26.47406pt too wide) in paragraph at lines 240--241
+\OT1/cmr/m/n/10.95 structure. GNNs are capable of learning node embeddings that capture the neighborhood
+ []
+
+[37]
+Overfull \hbox (5.75514pt too wide) in paragraph at lines 260--262
+\OT1/cmr/m/n/10.95 An RL-driven framework utilizing a multi-model perception layer (AE, VAE, Transformer)
+ []
+
+) (ch4_conception.tex [38] [39]
+Chapter 4.
+) (ch5_implementation.tex [40
+
+]
+Overfull \vbox (391.82957pt too high) has occurred while \output is active []
+
+ [41]
+Chapter 5.
+) (ch6_evaluation.tex [42
+
+]
+Chapter 6.
+) (ch7_conclusion.tex [43
+
+]
+Chapter 7.
+) (main.bbl [44
+
+] [45
+
+]) [46] (main.aux)
+ ***********
+LaTeX2e <2023-11-01> patch level 1
+L3 programming layer <2024-01-04>
+ ***********
+Package rerunfilecheck Info: File `main.out' has not changed.
+(rerunfilecheck)             Checksum: CF87D9FF90013F80FCC41F744716E9F3;22213.
+ ) 
+Here is how much of TeX's memory you used:
+ 37172 strings out of 474485
+ 782386 string characters out of 5760627
+ 1946542 words of memory out of 5000000
+ 58608 multiletter control sequences out of 15000+600000
+ 569550 words of font info for 80 fonts, out of 8000000 for 9000
+ 1141 hyphenation exceptions out of 8191
+ 84i,12n,93p,1636b,720s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ <C:\Users\HP\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\tcrm1095.pk><G:/latex/fonts/type1/public/amsfonts/cm/cmbx10.pfb><G:/latex/fonts/type1/public/amsfonts/cm/cmbx12.pfb><G:/latex/fonts/type1/public/amsfonts/cm/cmbx9.pfb><G:/latex/fonts/type1/public/amsfonts/cm/cmex10.pfb><G:/latex/fonts/type1/public/amsfonts/cm/cmmi10.pfb><G:/latex/fonts/type1/public/amsfonts/cm/cmmi6.pfb><G:/latex/fonts/type1/public/amsfonts/cm/cmmi8.pfb><G:/latex/fonts/type1/public/amsfonts/cm/cmr10.pfb><G:/latex/fonts/type1/public/amsfonts/cm/cmr12.pfb><G:/latex/fonts/type1/public/amsfonts/cm/cmr6.pfb><G:/latex/fonts/type1/public/amsfonts/cm/cmr8.pfb><G:/latex/fonts/type1/public/amsfonts/cm/cmr9.pfb><G:/latex/fonts/type1/public/amsfonts/cm/cmsy10.pfb><G:/latex/fonts/type1/public/amsfonts/cm/cmsy6.pfb><G:/latex/fonts/type1/public/amsfonts/cm/cmsy8.pfb><G:/latex/fonts/type1/public/amsfonts/cm/cmti10.pfb><G:/latex/fonts/type1/public/amsfonts/cm/cmtt10.pfb><G:/latex/fonts/type1/public/amsfonts/symbols/msbm10.pfb>
+Output written on main.pdf (51 pages, 1625354 bytes).
+PDF statistics:
+ 1369 PDF objects out of 1440 (max. 8388607)
+ 269 named destinations out of 1000 (max. 500000)
+ 1016 words of extra memory for PDF output out of 10000 (max. 10000000)
+

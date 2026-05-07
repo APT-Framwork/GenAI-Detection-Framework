@@ -1,0 +1,264 @@
+\chapter{Related Work}
+
+\label{chap:apt_solutions}
+
+\section{Introduction}
+
+Advanced Persistent Threats (APTs) represent one of the most complex challenges in the modern cybersecurity landscape. Characterized by their stealth, longevity, and multi-stage execution, APTs often evade traditional signature-based detection mechanisms. Consequently, the research community has shifted focus towards behavioral analysis and artificial intelligence (AI) to identify these sophisticated attacks. This chapter provides a detailed classification and description of existing APT detection solutions, synthesizing the state-of-the-art based on recent literature, particularly the extensive \cite{ankalaki2025cyber}. Finally, we present our proposed framework, which integrates Generative AI, Reinforcement Learning, and Graph Neural Networks to address the identified gaps in early detection and automated response.
+
+\section{Classification of Solutions}
+\label{sec:classification}
+
+Based on the comprehensive analysis provided by \cite{ankalaki2025cyber}, detection solutions for cyber-attacks and APTs can be broadly categorized based on the underlying algorithmic evolution and learning paradigms. The classification progresses from traditional statistical methods to advanced generative models.
+
+\subsection{Traditional Machine Learning (ML) Approaches}
+Traditional ML approaches constitute the foundational layer of intelligent detection. As highlighted in \cite{ankalaki2025cyber}, these are further divided based on the availability of labeled data:
+\begin{itemize}
+    \item \textbf{Supervised Learning:} These algorithms require fully labeled datasets (benign vs. malicious). They are widely used for malware classification and detecting known intrusion patterns but struggle with zero-day attacks.
+    \item \textbf{Unsupervised Learning:} These methods operate on unlabeled data, aiming to discover hidden structures or anomalies. In the context of APTs, unsupervised learning is critical for identifying deviations from "normal" network baselines without prior knowledge of the attack signature.
+    \item \textbf{Semi-supervised Learning:} A hybrid approach that utilizes a small amount of labeled data alongside a large volume of unlabeled data, addressing the scarcity of annotated APT datasets.
+\end{itemize}
+
+\subsection{Deep Learning (DL) Approaches}
+Deep Learning represents a subset of ML that utilizes multi-layered neural networks to learn hierarchical representations of data. \cite{ankalaki2025cyber} emphasize that DL models outperform traditional ML in handling unstructured high-dimensional data, such as raw network traffic bytes or system log sequences. Key architectures in this category include Convolutional Neural Networks (CNNs) and Recurrent Neural Networks (RNNs).
+
+\subsection{Generative Artificial Intelligence (GenAI) Approaches}
+The most recent evolution in detection strategies involves Generative AI. Unlike discriminative models that separate classes, generative models (such as VAEs and GANs) learn the underlying distribution of the data to generate new instances. According to [15], GenAI is revolutionizing cybersecurity by enabling:
+\begin{enumerate}
+    \item \textbf{Advanced Anomaly Detection:} By learning the exact distribution of benign traffic, any deviation—even subtle—can be flagged with high precision.
+    \item \textbf{Data Augmentation:} Generating synthetic attack data to train models, addressing the critical lack of real-world APT samples.
+    \item \textbf{Adversarial Defense:} Simulating attacks to harden defense systems.
+\end{enumerate}
+
+\section{Description of Solutions}
+\label{sec:description}
+
+This section details the technical mechanisms of the algorithms identified in the classification, evaluating their specific application to APT detection as discussed in [15].
+
+\subsection{Machine Learning Solutions}
+
+\subsubsection{Support Vector Machines (SVM)}
+SVM is a supervised learning algorithm that constructs a hyperplane or set of hyperplanes in a high-dimensional space to separate classes (e.g., Normal vs. Attack). 
+\begin{equation}
+    f(x) = \text{sign}(\sum_{i=1}^{n} \alpha_i y_i K(x_i, x) + b)
+\end{equation}
+As noted in [15], SVMs are effective for high-dimensional data but entail high computational costs during the training phase, making them less suitable for real-time processing of massive network flows.
+
+\subsubsection{Random Forest (RF) and Decision Trees}
+Decision Trees (DT) provide high interpretability by splitting data based on feature values. Random Forest (RF) improves upon DT by aggregating multiple trees (bagging) to reduce overfitting. Ankalaki et al. [15] report that RF achieves high accuracy (often exceeding 99\%) in detecting specific attack types like DDoS and Botnets within IoT environments, making it a robust baseline for APT stage detection.
+
+\subsubsection{Naïve Bayes (NB)}
+Based on Bayes' theorem with an assumption of feature independence, NB is computationally efficient. While it lacks the nuance to detect complex, correlated APT behaviors, it serves as a fast filter for initial traffic classification [15].
+
+\begin{table}[ht]
+\centering
+\caption{Performance Analysis of State-of-the-Art ML Approaches for Cyber-Attack Prediction [15]}
+\label{tab:ml_performance}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{|l|l|c|c|c|c|}
+\hline
+\textbf{Dataset} & \textbf{Model} & \textbf{Accuracy (\%)} & \textbf{Precision} & \textbf{Recall} & \textbf{F1-Measure} \\
+\hline
+\multirow{4}{*}{AWID} 
+ & AdaBoost & 92.20 & 0.850 & 0.922 & 0.885 \\
+ & Naïve Bayes & 89.43 & 0.891 & 0.894 & 0.877 \\
+ & Random Forest (RF) & \textbf{95.58} & \textbf{0.958} & \textbf{0.956} & \textbf{0.941} \\
+\hline
+\multirow{3}{*}{Modern DDoS} 
+ & MLP & 98.63 & 0.986 & 0.986 & 0.986 \\
+ & Random Forest (RF) & 98.02 & 0.980 & 0.980 & 0.980 \\
+ & Naïve Bayes & 96.91 & 0.969 & 0.969 & 0.969 \\
+\hline
+\multirow{5}{*}{CICIDS 2017} 
+ & KNN & 96.00 & 0.960 & 0.960 & 0.960 \\
+ & Random Forest (RF) & \textbf{98.00} & \textbf{0.980} & 0.970 & 0.970 \\
+ & ID3 & 98.00 & 0.980 & 0.980 & 0.980 \\
+ & Naïve Bayes & 75.00 & 0.880 & 0.040 & 0.040 \\
+\hline
+\multirow{4}{*}{HIKARI-2021} 
+ & KNN & 98.00 & 0.860 & 0.900 & 0.880 \\
+ & MLP & 99.00 & 0.990 & 0.990 & 0.990 \\
+ & SVM & 99.00 & 0.990 & 0.980 & 0.990 \\
+ & Random Forest (RF) & 99.00 & 0.990 & 0.990 & 0.990 \\
+\hline
+\multirow{3}{*}{CICAndMal2017} 
+ & Random Forest (RF) & 85.00 & 0.850 & 0.880 & 0.860 \\
+ & KNN & 85.00 & 0.850 & 0.880 & 0.860 \\
+ & Decision Tree (DT) & 85.00 & 0.850 & 0.880 & 0.860 \\
+\hline
+\multirow{4}{*}{MQTT-IoT-IDS2020} 
+ & Logistic Regression & 99.44 & 0.990 & 0.990 & 0.990 \\
+ & KNN & 99.90 & 0.990 & 0.990 & 0.990 \\
+ & Decision Tree (DT) & 99.95 & 0.995 & 0.995 & 0.995 \\
+ & Random Forest (RF) & \textbf{99.97} & \textbf{0.997} & \textbf{0.997} & \textbf{0.997} \\
+\hline
+\end{tabular}%
+}
+\end{table}
+
+
+\subsection{Deep Learning Solutions}
+
+\subsubsection{Convolutional Neural Networks (CNN)}
+Originally designed for image processing, CNNs are applied to cybersecurity by treating network traffic as images or matrices. They excel at extracting spatial features (local patterns) from traffic payloads. [15] highlights their utility in malware classification where binary executables are visualized as grayscale images.
+
+\subsubsection{Recurrent Neural Networks (RNN) and LSTM}
+Given that APTs are temporal, multi-stage attacks, standard feed-forward networks often fail to capture the sequence of events. RNNs address this by maintaining a "memory" of previous inputs. Specifically, Long Short-Term Memory (LSTM) networks are crucial for APT detection because they solve the vanishing gradient problem, allowing the model to learn long-term dependencies.
+\begin{equation}
+    f_t = \sigma(W_f \cdot [h_{t-1}, x_t] + b_f)
+\end{equation}
+This capability allows LSTMs to correlate a "Reconnaissance" event (Stage 1) with an "Exfiltration" event (Stage 7) that occurs days or weeks later [15].
+
+\subsection{Generative AI Solutions}
+
+\subsubsection{Variational Autoencoders (VAE)}
+VAEs are probabilistic generative models. Unlike standard autoencoders that learn a deterministic mapping, VAEs map inputs to a probability distribution (latent space). 
+\begin{equation}
+    \mathcal{L}(\theta, \phi; x) = -D_{KL}(q_\phi(z|x) || p_\theta(z)) + \mathbb{E}_{q_\phi(z|x)}[\log p_\theta(x|z)]
+\end{equation}
+In APT detection, VAEs are trained on benign traffic. During inference, they reconstruct input data; a high reconstruction error combined with the probabilistic uncertainty metric indicates a potential malicious anomaly. [15] identifies VAEs as superior for modeling uncertainty in detection systems.
+
+\subsubsection{Transformers}
+Transformers utilize self-attention mechanisms to weigh the importance of different parts of the input sequence, regardless of their distance in time. They are increasingly used to predict the \textit{next stage} of an attack sequence by analyzing logs, offering better parallelization and context understanding than LSTMs [15].
+
+\begin{table}[H]
+\centering
+\caption{Performance Analysis of State-of-the-Art DL Approaches for Cyber-Attack Prediction [15]}
+\label{tab:dl_performance}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{|l|l|c|c|c|c|}
+\hline
+\textbf{Dataset} & \textbf{Model} & \textbf{Accuracy (\%)} & \textbf{Precision} & \textbf{Recall} & \textbf{F1-Measure} \\
+\hline
+NSL-KDD & FCN & 89.40 & 0.877 & 0.946 & 0.910 \\
+\hline
+PDF Documents & MLP & 97.50 & 0.991 & 0.998 & 0.994 \\
+\hline
+UGR16 & Adversarial AutoEncoder (AAE) & 96.70 & 0.931 & 0.965 & 0.948 \\
+\hline
+\multirow{2}{*}{TON\_IoT} 
+ & LSTM & 97.00 & 0.970 & 0.960 & 0.970 \\
+ & CNN & \textbf{99.00} & \textbf{0.980} & \textbf{0.990} & \textbf{0.990} \\
+\hline
+\multirow{2}{*}{Bot-IoT} 
+ & LSTM & 98.05 & 0.999 & 0.980 & 0.990 \\
+ & RNN & 97.90 & 0.999 & 0.979 & 0.989 \\
+\hline
+\multirow{2}{*}{Secure Water Treatment (SWaT)} 
+ & CNN & - & 1.000 & 0.852 & 0.920 \\
+ & DNN & - & 0.982 & 0.678 & 0.802 \\
+\hline
+\multirow{2}{*}{Android Malware} 
+ & DNN & 99.70 & - & - & 0.995 \\
+ & DeNNeS (Deep Expert System) & 95.80 & - & - & 0.911 \\
+\hline
+\multirow{2}{*}{Drebin (Android)} 
+ & CNN & 98.27 & 0.993 & 0.971 & 0.982 \\
+ & CNN-LSTM & \textbf{99.18} & 0.985 & \textbf{0.998} & \textbf{0.991} \\
+\hline
+X-IIoTID & GRU & 99.46 & 0.964 & 0.915 & 0.935 \\
+\hline
+\end{tabular}%
+}
+\end{table}
+
+
+\section{Synthesis}
+\label{sec:synthesis}
+
+A comparative analysis of the described solutions reveals distinct trade-offs between interpretability, accuracy, and computational efficiency.
+
+\begin{table}[ht]
+\centering
+\caption{Synthesis of Detection Approaches based on [15]}
+\label{tab:synthesis_comparison}
+\begin{tabular}{|p{0.25\linewidth}|p{0.35\linewidth}|p{0.3\linewidth}|}
+\hline
+\textbf{Approach} & \textbf{Key Advantages} & \textbf{Limitations} \\
+\hline
+\textbf{Traditional ML} & High interpretability (DT/RF), low computational overhead, effective for signature-based threats. & High false positive rates (FPR) on complex data; requires extensive feature engineering; fails against obfuscated APTs. \\
+\hline
+\textbf{Deep Learning} & Automatic feature extraction; excellent performance on unstructured data; captures temporal dependencies (LSTM). & "Black-box" nature (low interpretability); requires massive labeled datasets which are rare for APTs; high training time. \\
+\hline
+\textbf{Generative AI} & Detects zero-day anomalies; handles uncertainty (VAE); generates synthetic training data to balance datasets. & Computationally intensive; complex hyperparameter tuning; risk of "hallucinations" in generation tasks. \\
+\hline
+\end{tabular}
+\end{table}
+
+\textbf{Conclusion of Synthesis:}
+While Traditional ML provides a baseline, it is insufficient for the stealthy nature of APTs. Deep Learning improves detection capabilities but suffers from opacity and data scarcity. Generative AI addresses the data scarcity and anomaly detection capabilities but requires careful integration. 
+Currently, a gap exists in the literature: most solutions are \textit{reactive} classifiers. There is a critical need for a framework that not only detects (Perception) but also decides on the optimal response strategy (Decision-Making) while handling the multi-stage nature of APTs mapped to the Cyber Kill Chain.
+
+\section{Proposition}
+\label{sec:proposition}
+
+To address the limitations identified in the synthesis—specifically the lack of proactive decision-making and the challenge of multi-stage correlation—this thesis proposes a dual-framework architecture. This architecture integrates Generative AI for enhanced perception and synthetic data generation, with Reinforcement Learning for optimal defense strategy.
+
+\subsection{Proposition 1: RL-Driven Decision-Making Framework}
+\label{subsec:prop1_rl}
+
+Our first proposition introduces a **Reinforcement Learning-driven decision-making framework** designed for early defense against multi-stage APT attacks. This framework is explicitly mapped to the Cyber Kill Chain to ensure stage-aware mitigation.
+
+\subsubsection{Architecture Overview}
+The core innovation of this proposition is the decoupling of \textit{Perception} (interpreting the environment) from \textit{Decision-Making} (taking action). This separation allows for more modular and robust training.
+
+\subsubsection{The Multi-Model Perception Layer}
+Instead of relying on a single detection algorithm, the framework employs a composite perception module consisting of three specialized pre-trained models:
+\begin{enumerate}
+    \item \textbf{Autoencoder (AE) for Anomaly Detection:} The AE is trained to minimize the reconstruction error of benign traffic. It acts as the first filter, identifying raw deviations from the baseline.
+    \item \textbf{Variational Autoencoder (VAE) for Maliciousness Estimation:} The VAE goes beyond simple error reconstruction. It provides a probabilistic estimate of "maliciousness" accompanied by an uncertainty metric. This uncertainty quantification is crucial for reducing false positives in ambiguous scenarios.
+    \item \textbf{Transformer for State Prediction:} A Transformer model processes the sequence of alerts to predict the likely \textit{next stage} of the attack in the Cyber Kill Chain. This predictive capability allows the system to be proactive rather than reactive.
+\end{enumerate}
+These three models work in concert to summarize high-volume alerts into a compact, numerical state representation vector $S_t$.
+
+\subsubsection{The Deep Q-Network (DQN) Agent}
+The state vector $S_t$ is fed into a custom APT environment where a Deep Q-Network (DQN) agent operates. The agent aims to learn an optimal policy $\pi(S_t)$ that maximizes the cumulative reward.
+\begin{equation}
+    Q(s, a) = r + \gamma \max_{a'} Q(s', a')
+\end{equation}
+The agent learns \textit{when} and \textit{how} to respond to evolving attacks. The reward function is designed to prioritize early intervention (stopping the attack in the Reconnaissance or Weaponization phase) while heavily penalizing false alarms that disrupt legitimate operations.
+
+\subsubsection{Training with ReALTabFormer and Conditional Replay}
+A major hurdle in training RL agents for cybersecurity is the scarcity of realistic attack traces. We address this by using **ReALTabFormer**, a generative model tailored for tabular data.
+\begin{itemize}
+    \item \textbf{Synthetic Data Generation:} ReALTabFormer is used to generate diverse, high-level malicious alert attributes based on limited real-world samples.
+    \item \textbf{Conditional Replay:} To ensure these synthetic attributes are compatible with our perception models, they are mapped back to realistic feature vectors via a conditional replay mechanism.
+\end{itemize}
+This pipeline enables the agent to train on diverse, realistic attack scenarios—ranging from stealthy low-and-slow attacks to aggressive intrusions—without the need to retrain the underlying detection models.
+
+\subsection{Proposition 2: GenAI-Augmented Pre-Attack Detection Framework}
+\label{subsec:prop2_gnn}
+
+Complementing the decision-making framework, our second proposition focuses on the structural detection of APTs using a **GenAI-Augmented Pre-Attack Detection Framework**. This approach leverages the structural nature of network data to identify pre-attack behaviors.
+
+\subsubsection{Unified Cyber Kill Chain Mapping}
+To cover the full spectrum of APT activities, we propose a mapping scheme that integrates the conventional Cyber Kill Chain (CKC) with the MITRE ATT\&CK framework. This unified chain provides a granular view of adversary tactics, techniques, and procedures (TTPs), spanning from initial reconnaissance to the final impact.
+
+\subsubsection{Graph-Based Representation and GNNs}
+Network entities (hosts, users, files, IP addresses) and their interactions are modeled as a heterogeneous graph $G = (V, E)$. 
+\begin{itemize}
+    \item \textbf{Graph Neural Networks (GNN):} We employ GNNs to analyze this graph structure. GNNs are capable of learning node embeddings that capture the neighborhood context.
+    \item \textbf{Pre-Attack Detection:} The GNN is trained to identify sub-graph patterns indicative of pre-attack activities (e.g., scanning, enumeration) which appear as specific topological structures within the network graph, often invisible to flow-based detectors.
+\end{itemize}
+
+\subsubsection{GenAI for Synthetic Scenario Generation}
+Validating APT detection models is challenging due to the lack of public datasets containing multi-stage attacks. We utilize Generative AI to create synthetic APT scenarios:
+\begin{itemize}
+    \item \textbf{Scenario Generation:} GenAI models generate synthetic sequences of MITRE ATT\&CK techniques that mimic the logic and progression of real APT groups (e.g., APT29, APT41).
+    \item \textbf{Integration:} These synthetic scenarios are injected into the training pipeline, ensuring the GNN model is robust against unseen attack vectors.
+\end{itemize}
+
+\subsubsection{Cyber Threat Intelligence (CTI) Platform Integration}
+To operationalize this framework, we propose its integration into a Cyber Threat Intelligence platform built on the ELK stack (Elasticsearch, Logstash, Kibana).
+\begin{enumerate}
+    \item \textbf{Data Ingestion:} Logstash collects logs from various sources (syslogs, firewall, IDS).
+    \item \textbf{Processing:} The GenAI-Augmented GNN models analyze incoming data streams in real-time.
+    \item \textbf{Visualization:} Kibana provides a dashboard for security analysts, visualizing the predicted attack stages and the graph-based alerts, facilitating rapid incident response.
+\end{enumerate}
+
+\section{Chapter Conclusion}
+In this chapter, we reviewed the spectrum of APT detection solutions, highlighting the progression from traditional ML to Generative AI. We identified that while GenAI offers powerful capabilities for anomaly detection and data synthesis, it requires a robust decision-making layer to be operationally effective.
+Our proposed solution is twofold: (1) An RL-driven framework utilizing a multi-model perception layer (AE, VAE, Transformer) and synthetic training data (ReALTabFormer) to automate defense strategies; and (2) A GenAI-Augmented GNN framework integrated into a CTI platform for the structural detection of pre-attack behaviors. Together, these propositions aim to significantly reduce the dwell time of APTs and enhance the resilience of critical systems.
+
+
+

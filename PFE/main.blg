@@ -1,0 +1,65 @@
+This is BibTeX, Version 0.99d
+Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
+The top-level auxiliary file: main.aux
+Reallocating 'name_of_file' (item size: 1) to 8 items.
+The style file: apacite.bst
+Reallocating 'name_of_file' (item size: 1) to 11 items.
+Reallocating 'glb_str_end' (item size: 4) to 20 items.
+Reallocating 'glb_str_ptr' (item size: 4) to 20 items.
+Reallocating 'global_strs' (item size: 1) to 4000000 items.
+Reallocating 'singl_function' (item size: 4) to 100 items.
+Reallocating 'wiz_functions' (item size: 4) to 6000 items.
+Reallocating 'singl_function' (item size: 4) to 100 items.
+Reallocating 'singl_function' (item size: 4) to 100 items.
+Reallocating 'wiz_functions' (item size: 4) to 9000 items.
+Reallocating 'singl_function' (item size: 4) to 100 items.
+Database file #1: references.bib
+apacite.bst [2013/07/21 v6.03 APA bibliography style]
+Warning--`others' not consistent with 6th ed. of the APA Manual
+Warning--`others' not consistent with 6th ed. of the APA Manual
+Warning--`others' not consistent with 6th ed. of the APA Manual
+Warning--`others' not consistent with 6th ed. of the APA Manual
+Warning--`others' not consistent with 6th ed. of the APA Manual
+Warning--`others' not consistent with 6th ed. of the APA Manual
+You've used 31 entries,
+            6951 wiz_defined-function locations,
+            1404 strings with 14874 characters,
+and the built_in function-call counts, 51814 in all, are:
+= -- 6392
+> -- 440
+< -- 2381
++ -- 2205
+- -- 113
+* -- 3096
+:= -- 9276
+add.period$ -- 134
+call.type$ -- 31
+change.case$ -- 563
+chr.to.int$ -- 0
+cite$ -- 62
+duplicate$ -- 1314
+empty$ -- 2214
+format.name$ -- 723
+if$ -- 10150
+int.to.chr$ -- 0
+int.to.str$ -- 105
+missing$ -- 0
+newline$ -- 745
+num.names$ -- 248
+pop$ -- 1615
+preamble$ -- 1
+purify$ -- 123
+quote$ -- 0
+skip$ -- 3082
+stack$ -- 0
+substring$ -- 2378
+swap$ -- 657
+text.length$ -- 85
+text.prefix$ -- 0
+top$ -- 1
+type$ -- 2544
+warning$ -- 6
+while$ -- 239
+width$ -- 0
+write$ -- 891
+(There were 6 warnings)
