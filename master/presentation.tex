@@ -1,4 +1,4 @@
-\chapter{Fundamental Concepts for Early Detection of Multi-Stage APT Attacks}
+﻿\chapter{Fundamental Concepts for Early Detection of Multi-Stage APT Attacks}
 
 \section{Introduction to Fundamental Concepts}
 Modern cybersecurity faces increasingly sophisticated threats, particularly Advanced Persistent Threats (APTs). When 900 companies were surveyed about the most likely attacks on their business, APTs ranked at 57\% \cite{aag2024stats}. These threats require structured analysis frameworks to be understood and countered. The emergence of Machine Learning (ML) has introduced new dynamics and perspectives, serving both as a powerful tool for attackers to automate and personalize their operations, and for defenders to improve early detection and incident response. This chapter lays the conceptual foundations by examining these three essential pillars (APT, framework, ML) that support the development of an ML-augmented framework for detecting multi-stage APT attacks.
@@ -6,7 +6,7 @@ Modern cybersecurity faces increasingly sophisticated threats, particularly Adva
 \section{Overview of Cybersecurity}
 
 \subsection{Definition and Scope of Cybersecurity}
-Cybersecurity is defined as the practice of protecting systems, networks, programs, and data from digital attacks, unauthorized access, damage, or destruction~\cite{cains2022cybersecurity,nist2023cyber}. It encompasses a broad set of technologies, processes, and practices designed to defend information assets across all layers of a digital environment --- from hardware infrastructure to software applications and human behavior~\cite{cisco2024cyber}.
+Cybersecurity is defined as the practice of protecting systems, networks, programs, and data from digital attacks, unauthorized access, damage, or destruction~\cite{cains2022cybersecurity,nist2023cyber}. It include a broad set of technologies, processes, and practices designed to defend information assets across all layers of a digital environment --- from hardware infrastructure to software applications and human behavior~\cite{cisco2024cyber}.
 
 The scope of cybersecurity extends across multiple domains, each addressing a distinct layer of protection~\cite{kang2023zero,cynet2023basics}:
 \begin{itemize}
@@ -19,7 +19,7 @@ The scope of cybersecurity extends across multiple domains, each addressing a di
     \item \textbf{Operational Security (OpSec)}: Managing the processes and decisions around handling and protecting data assets, including user behavior and access permissions.
 \end{itemize}
 
-\customexplication{A useful analogy is to think of cybersecurity as a multi-layered defense system --- similar to a medieval castle. The outer walls (network security) keep intruders out, the guards (endpoint and identity management) verify who enters, the vault (data security) protects the most critical assets, and internal surveillance (monitoring and logging) detects any suspicious activity that slips through.}
+\customexplication{A useful analogy is to think of cybersecurity as a multi-layered defense system --- similar to a medieval castle. The outer walls (network security) , the guards (endpoint and identity management) verify who enters, the vault (data security) .}
 
 The field is commonly structured around three foundational principles, collectively known as the CIA Triad:
 \begin{itemize}
@@ -28,9 +28,9 @@ The field is commonly structured around three foundational principles, collectiv
     \item \textbf{Availability}: Ensuring that systems and data are accessible to authorized users when needed.
 \end{itemize}
 
-\customnote{These three principles --- Confidentiality, Integrity, and Availability --- serve as the evaluation criteria for nearly every security control and framework discussed throughout this document, including STRIDE, the Cyber Kill Chain, and MITRE ATT\&CK.}
-
-As cyber threats have grown in sophistication, the scope of cybersecurity has expanded beyond purely technical concerns. Modern cybersecurity must address not only technological vulnerabilities, but also human factors such as social engineering, insider threats, and security awareness~\cite{chandel2017social}. This holistic view --- covering people, processes, and technology --- forms the foundation upon which advanced threat detection and response strategies, such as those discussed in subsequent sections, are built.
+These three principles --- Confidentiality, Integrity, and Availability --- serve as the evaluation criteria for nearly every security control and framework discussed throughout this document, including STRIDE, the Cyber Kill Chain, and MITRE ATT\&CK.
+\clearpage
+As cyber threats have grown in sophistication, the scope of cybersecurity has expanded beyond purely technical concerns. Modern cybersecurity must address not only technological vulnerabilities, but also human factors such as social engineering, insider threats, and security awareness~\cite{chandel2017social}. This general view --- covering people, processes, and technology --- forms the foundation upon which advanced threat detection and response strategies, such as those discussed in subsequent sections, are built.
 
 \subsection{Key Cybersecurity Concepts and Terminology}
 A solid understanding of cybersecurity requires familiarity with its core vocabulary. The following concepts are foundational and appear throughout the literature, frameworks, and detection methodologies discussed in this document.
@@ -57,11 +57,10 @@ A solid understanding of cybersecurity requires familiarity with its core vocabu
       \item \textbf{Indicator of Attack (IoA)}: Unlike IoCs --- which detect a breach after it occurs --- IoAs focus on detecting the behavior of an attack in progress, enabling earlier intervention before significant damage is done~\cite{crowdstrike2024ioa}.
 \end{itemize}
 
-\customexplication{A simple way to distinguish IoC from IoA: an IoC is like finding footprints left behind after a burglar has entered your house, while an IoA is like detecting the burglar trying to pick your lock before they get in. In the context of APT detection, IoAs are far more valuable because APTs are specifically designed to leave as few IoCs as possible.}
 
 \begin{itemize}
-      \item \textbf{Payload}: The component of malicious software (malware) that executes the intended malicious action --- such as encrypting files, stealing credentials, or establishing a backdoor --- once delivered to a target system~\cite{cloudflare2024payload}.
-      \item \textbf{Zero-Day Vulnerability}: A software flaw that is unknown to the vendor and for which no patch or fix yet exists at the time of exploitation~\cite{deepinstinct2023zeroday}. Zero-day vulnerabilities are highly valuable to advanced threat actors, including APT groups, precisely because they cannot be detected by signature-based security systems.
+      \item \textbf{Payload}: The component of malicious software (malware) that executes the intended malicious action --- such as encrypting files, stealing credentials, or establishing a backdoor \footnote{backdoor is a hidden way to get into a system bypassing normal security (like login, authentication)} --- once delivered to a target system~\cite{cloudflare2024payload}.
+      \item \textbf{Zero-Day Vulnerability}: A software flaw that is unknown to the vendor and for which no patch or fix yet exists at the time of exploitation~\cite{deepinstinct2023zeroday}. Zero-day vulnerabilities are highly valuable to advanced threat actors, including APT groups, precisely because they cannot be detected by signature-based security systems \footnote{Signature-based security systems detect threats by comparing observed events against a database of known malicious patterns or ``signatures''.}.
 \end{itemize}
 
 \customnote{The Stuxnet attack --- referenced in Section 1.3 --- is one of the most documented examples of zero-day exploitation in history, relying on four simultaneous zero-day vulnerabilities to compromise its target.}
@@ -69,11 +68,18 @@ A solid understanding of cybersecurity requires familiarity with its core vocabu
 \begin{itemize}
       \item \textbf{Lateral Movement}: The techniques used by an attacker --- after gaining initial access to a network --- to progressively move through systems and gain access to higher-value targets~\cite{crowdstrike2024ioa}. Lateral movement is a defining characteristic of APT attacks and is further detailed in Sections 1.3 and 1.5.
       \item \textbf{Persistence}: The ability of an attacker to maintain long-term, undetected access to a compromised system, even after reboots or credential changes. Attackers achieve persistence through backdoors, scheduled tasks, or registry modifications.
-      \item \textbf{Defense in Depth}: A layered security strategy that deploys multiple, overlapping security controls so that if one layer fails, others remain in place to prevent or detect an attack~\cite{cloudflare2024defense}. This principle underlies the multi-framework approach --- combining CKC, MITRE ATT\&CK, and Machine Learning --- explored throughout this document.
+      \item \textbf{Defense in Depth}: A layered security strategy that deploys multiple, overlapping security controls so that if one layer fails, others remain in place to prevent or detect an attack~\cite{cloudflare2024defense}. This principle underlies the multi-framework approach --- combining CKC, MITRE ATT\&CK, and Machine Learning --- explored throughout this document, as shown in Figure~\ref{fig:defense_in_depth}.
 \end{itemize}
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{figures/defense.jpeg}
+    \caption{Illustration of the Defense in Depth security strategy.}
+    \label{fig:defense_in_depth}
+\end{figure}
+
 \subsection{Major Categories of Cyber Threats}
-Cyber threats manifest in many forms, each with distinct mechanisms, objectives, and levels of sophistication. Understanding these categories is essential for designing effective detection and mitigation strategies. The following classification covers the most prevalent threat types encountered in modern cybersecurity environments~\cite{enisa2023threats}.
+Cyber threats manifest in many forms, each with distinct mechanisms, objectives, and levels of sophistication. Understanding these categories is essential for designing effective detection and mitigation strategies. The following classification covers the most common  threat types encountered in modern cybersecurity environments~\cite{enisa2023threats}.
 
 \textbf{Malware}\par
 Malware (malicious software) is any software intentionally designed to disrupt, damage, or gain unauthorized access to a system. It represents one of the most common and diverse categories of cyber threats, and includes several subcategories:
@@ -86,25 +92,24 @@ Malware (malicious software) is any software intentionally designed to disrupt, 
     \item \textbf{Rootkits}: Tools designed to hide the presence of malware or unauthorized access from detection systems.
 \end{itemize}
 
-\customnote{Ransomware has experienced significant industrialization in recent years, evolving from opportunistic attacks into coordinated, large-scale operations targeting critical infrastructure --- a trend discussed in detail in Chapter 2.}
-
 \textbf{Social Engineering}\par
 Social engineering attacks exploit human psychology rather than technical vulnerabilities, manipulating individuals into revealing confidential information or performing actions that compromise security~\cite{sentinelone2024social,akram2025social}. Key techniques include:
 \begin{itemize}
     \item \textbf{Phishing}: Mass distribution of fraudulent emails designed to trick recipients into revealing credentials or clicking malicious links.
-    \item \textbf{Spear Phishing}: A highly targeted form of phishing tailored to a specific individual or organization using personalized information.
+    \item \textbf{Spear Phishing}: A highly targeted form of phishing customized  to a specific individual or organization using personalized information.
     \item \textbf{Vishing}: Voice-based social engineering conducted via phone calls.
     \item \textbf{Pretexting}: Creating a fabricated scenario to manipulate a victim into providing information or access.
 \end{itemize}
 
-\customexplication{Spear phishing is the most commonly used technique for APT initial intrusion. As detailed in Section 1.3, APT actors invest significant resources in crafting convincing, personalized lures --- a capability that has been dramatically amplified by the integration of Generative AI, discussed in Chapter 2.}
+\customexplication{scenario: A cybercriminal first sends a mass email to thousands of employees claiming their account will be suspended ï¿½ a classic phishing attempt. One employee, Sarah, a senior financial officer, ignores it. The attacker then researches Sarah on LinkedIn and sends her a personalized email referencing her recent project and her manager's name, tricking her into clicking a malicious link ï¿½ this time using spear phishing. Hours later, Sarah receives a phone call from someone pretending to be IT support, warning her of "suspicious activity" on her account and asking her to confirm her password ï¿½ a vishing attack ,Finally, the attacker calls the company's front desk, pretending to be a bank employee doing a regular check-up, and convinces the receptionist to share internal contact details ï¿½ completing the attack through pretexting.}
+
 
 \textbf{Denial of Service (DoS) and Distributed Denial of Service (DDoS)}\par
-These attacks aim to make a system, service, or network unavailable to its intended users by overwhelming it with a flood of illegitimate requests~\cite{paloalto2024dos}. In a DDoS attack, this traffic originates from a large number of compromised devices (a botnet), making it significantly harder to mitigate. The targeted security property is Availability --- one of the three pillars of the CIA Triad.
+These attacks aim to make a system, service, or network unavailable to its  users by overwhelming it with a flood of illegitimate requests~\cite{paloalto2024dos}. In a DDoS attack, this traffic originates from a large number of compromised devices (a botnet), making it significantly harder to mitigate. The targeted security property is Availability --- one of the three pillars of the CIA Triad.
 
 \vspace{1em}
 \textbf{Man-in-the-Middle (MitM) Attacks}\par
-In a MitM attack, the attacker secretly intercepts and potentially alters communication between two parties who believe they are communicating directly with each other~\cite{hussain2023mitm,rapid72024mitm}. This allows the attacker to eavesdrop, steal credentials, or inject malicious content into the communication stream without either party's knowledge.
+In a MitM attack, the attacker secretly intercepts and potentially alters communication between two parties who believe they are communicating directly with each other~\cite{hussain2023mitm,rapid72024mitm}. This allows the attacker to spy, steal credentials, or inject malicious content into the communication stream without either party's knowledge.
 
 \vspace{1em}
 \textbf{Insider Threats}\par
@@ -114,13 +119,13 @@ Insider threats originate from individuals within the organization --- such as e
     \item \textbf{Negligent Insiders}: Users who unintentionally cause security incidents through careless behavior, such as clicking phishing links or mishandling sensitive data.
 \end{itemize}
 
+\textbf{Supply Chain Attacks}\par
+Supply chain attacks target less-secure elements within a software or hardware supply chain to compromise a final, higher-value target. Rather than attacking an organization directly, the adversary infiltrates a trusted third-party vendor, software update mechanism, or component manufacturer to gain indirect access. Notable examples include the SolarWinds attack (2020), in which a compromised software update was distributed to thousands of organizations worldwide.
+
 \textbf{Advanced Persistent Threats (APT)}\par
 APTs represent the most sophisticated category of cyber threats. Unlike other attack types that seek immediate gains, APTs are characterized by stealth, persistence, and long-term strategic objectives --- such as espionage, sabotage, or data exfiltration~\cite{krishnapriya2024comprehensive}. APTs are typically conducted by nation-state actors or highly organized criminal groups with significant resources~\cite{crowdstrike2024apt}.
 
 \customnote{Because APTs combine multiple threat categories --- malware, social engineering, lateral movement, and zero-day exploitation --- into a coordinated, multi-stage campaign, they require dedicated detection frameworks beyond standard security tools. This is precisely why Chapter 1 dedicates the following sections entirely to APT modeling, detection frameworks, and Machine Learning-based countermeasures.}
-
-\textbf{Supply Chain Attacks}\par
-Supply chain attacks target less-secure elements within a software or hardware supply chain to compromise a final, higher-value target. Rather than attacking an organization directly, the adversary infiltrates a trusted third-party vendor, software update mechanism, or component manufacturer to gain indirect access. Notable examples include the SolarWinds attack (2020), in which a compromised software update was distributed to thousands of organizations worldwide.
 
 The taxonomy above illustrates that cyber threats vary greatly in complexity, origin, and intent. While traditional security tools are effective against known, lower-sophistication threats such as common malware and phishing, they fall short when facing multi-stage, adaptive attacks like APTs. This limitation motivates the adoption of structured frameworks and intelligent detection methods --- which form the core focus of this document.
 
@@ -137,7 +142,7 @@ APTs are distinguished from traditional cybercriminal attacks by three main char
 
 \customexplication{As an analogy, consider two burglars: a direct attacker steals everything at once, ensuring immediate discovery. Conversely, an APT attacker discreetly copies the house key and secretly returns over time to steal small items sequentially. The key difference is the APT attacker's undetected persistence.}
 
-The dwell time\footnote{Dwell time refers to the duration a cyber attacker remains undetected within a compromised network.} of APTs is often very long, highlighting the difficulty current detection systems have in identifying these stealthy attacks \cite{krishnapriya2024comprehensive}. APTs are generally implemented in several stages, often referred to as ``slow poisoning'' \cite{krishnapriya2024comprehensive}. They employ Tools, Techniques, and Procedures (TTPs) that are often novel and specifically developed to evade signature-based security systems\footnote{Signature-based security systems detect threats by comparing observed events against a database of known malicious patterns or ``signatures''.}. For example, the Stuxnet attack was particularly complex and remarkable because it relied on \textbf{four zero-day vulnerabilities\footnote{A zero-day vulnerability is a software flaw unknown to the vendor, meaning no patch exists when the attack occurs.}} simultaneously, digital signature forgeries, and deep knowledge of the target environment \cite{singh2016comprehensive}.
+The dwell time\footnote{Dwell time refers to the duration a cyber attacker remains undetected within a compromised network.} of APTs is often very long, highlighting the difficulty current detection systems have in identifying these stealthy attacks \cite{krishnapriya2024comprehensive}. APTs are generally implemented in several stages, often referred to as ``slow poisoning'' \cite{krishnapriya2024comprehensive}. They employ Tools, Techniques, and Procedures (TTPs) that are often novel and specifically developed to evade signature-based security systems For example, the Stuxnet attack was particularly complex and remarkable because it relied on four zero-day vulnerabilities simultaneously, digital signature forgeries, and deep knowledge of the target environment \cite{singh2016comprehensive}.
 
 \customnote{The Stuxnet attack will be discussed in detail during the historical section of the ``Future Trends in Cyber Attacks'' chapter.}
 
@@ -169,7 +174,7 @@ The APT attack process is inherently multi-stage. Although the exact number of s
 
 \section{Introduction to Threat Modeling Frameworks}
 
-While the terms are often used as if they mean the same thing, there are actually three distinct categories of conceptual models used in cybersecurity. Each serves a different purpose in analyzing, classifying, and mitigating cyber threats— that is, taking protective measures to reduce, limit, or prevent the damage that cyber threats can cause. \cite{tatam2021review, huang2024security}.
+While the terms are often used as if they mean the same thing, there are actually three distinct categories of conceptual models used in cybersecurity. Each serves a different purpose in analyzing, classifying, and mitigating cyber threatsï¿½ that is, taking protective measures to reduce, limit, or prevent the damage that cyber threats can cause. \cite{tatam2021review, huang2024security}.
 
 \subsection{Category 1: Attack Lifecycle Models}
 These models describe the stages of how an attack unfolds from start to finish \cite{tatam2021review, huang2024security}.
@@ -262,7 +267,7 @@ ATT\&CK is organized into matrices representing adversary operating environments
 \subsection{Applications and Integration with CKC}
 MITRE ATT\&CK is a widely adopted tool for strengthening cybersecurity, notably by supporting Cyber Threat Intelligence (CTI), incident response, attack modeling, and vulnerability prioritization \cite{jiang2025mitre}.
 
-\textbf{APT Detection}: One of the fundamental uses of ATT\&CK is improving the systematic detection and analysis of threats, particularly APTs \cite{jiang2025mitre}. The framework is used to model APT attack footprints using TTP-based attack trees. Coverage percentage relative to ATT\&CK is even used as a metric to evaluate the performance of APT detection models\footnote{\textbf{What is ATT\&CK Coverage Percentage as a Metric?} When researchers build an APT detection model, they measure how many ATT\&CK techniques their model can detect. The coverage percentage tells you: "Out of all the known attack techniques in the ATT\&CK framework, how many can this model catch?" — a higher percentage means the model is better at detecting a wider range of attacks.}. Studies identify that the most frequently observed tactics are Initial Access (especially Spearphishing Link at 45.5\%), Execution, and Discovery \cite{jiang2025mitre, cisa202x}.
+\textbf{APT Detection}: One of the fundamental uses of ATT\&CK is improving the systematic detection and analysis of threats, particularly APTs \cite{jiang2025mitre}. The framework is used to model APT attack footprints using TTP-based attack trees. Coverage percentage relative to ATT\&CK is even used as a metric to evaluate the performance of APT detection models\footnote{\textbf{What is ATT\&CK Coverage Percentage as a Metric?} When researchers build an APT detection model, they measure how many ATT\&CK techniques their model can detect. The coverage percentage tells you: "Out of all the known attack techniques in the ATT\&CK framework, how many can this model catch?" ï¿½ a higher percentage means the model is better at detecting a wider range of attacks.}. Studies identify that the most frequently observed tactics are Initial Access (especially Spearphishing Link at 45.5\%), Execution, and Discovery \cite{jiang2025mitre, cisa202x}.
 
 \textbf{CKC/ATT\&CK Integration}: ATT\&CK is often integrated with other frameworks like the Cyber Kill Chain. While CKC offers a sequential view of the attack, ATT\&CK provides the granularity of TTPs at each stage \cite{jiang2025mitre}. Integration fills the gaps in CKC, which lacks detailed information on adversary tactics and techniques. This complementarity is vital for early detection, as it maps adversary actions to different CKC phases \cite{jiang2025mitre}.
 
@@ -272,12 +277,12 @@ MITRE ATT\&CK is a widely adopted tool for strengthening cybersecurity, notably 
 
 \subsection{Definition and Core Concepts of Machine Learning}
 
-Machine Learning (ML) is a subfield of Artificial Intelligence (AI) that enables computer systems to learn from data and improve their performance on a given task without being explicitly programmed to do so. Rather than following a fixed set of rules written by a programmer, an ML model identifies patterns, relationships, and regularities within data, and uses this learned knowledge to make predictions or decisions on new, unseen data.
+Machine Learning (ML) is a subfield of Artificial Intelligence (AI) that enables computer systems to learn from data and improve their performance on a given task without being explicitly programmed to do so~\cite{bishop2006pattern}. Rather than following a fixed set of rules written by a programmer, an ML model identifies patterns, relationships, and regularities within data, and uses this learned knowledge to make predictions or decisions on new, unseen data.
 
-Formally, the learning process can be described as follows: given a set of training examples, an ML algorithm adjusts its internal parameters to minimize the difference between its predictions and the actual outcomes --- a process known as optimization. The quality of this learning is measured using a loss function, which quantifies how far the model's predictions are from the true values.
+Formally, the learning process can be described as follows: given a set of training examples, an ML algorithm adjusts its internal parameters to minimize the difference between its predictions and the actual outcomes~\cite{bishop2006pattern} --- a process known as optimization. The quality of this learning is measured using a loss function, which quantifies how far the model's predictions are from the true values.
 
-\subsubsection*{Explication}
-A helpful analogy: teaching a child to recognize cats does not involve giving them a precise list of rules (``four legs, pointed ears, fur''). Instead, you show them hundreds of examples of cats and non-cats, and they gradually learn to distinguish them on their own. Machine Learning works in exactly the same way --- it learns from examples rather than from explicit instructions.
+
+\customexplication{A helpful analogy: teaching a child to recognize cats does not involve giving them a precise list of rules (``four legs, pointed ears, fur''). Instead, you show them hundreds of examples of cats and non-cats, and they gradually learn to distinguish them on their own. Machine Learning works in exactly the same way --- it learns from examples rather than from explicit instructions.}
 
 \subsubsection*{Core Concepts}
 
@@ -295,19 +300,26 @@ A helpful analogy: teaching a child to recognize cats does not involve giving th
         \item \textbf{Test set}: Used to evaluate the model's final performance on completely unseen data.
     \end{itemize}
     
-    \item[Overfitting and Underfitting] Two fundamental challenges in ML model development:
+    \item[Overfitting and Underfitting] Two fundamental challenges in ML model development~\cite{hastie2009elements}:
     \begin{itemize}
         \item \textbf{Overfitting} occurs when a model learns the training data too well --- including its noise and irrelevant details --- resulting in poor generalization to new data.
-        \item \textbf{Underfitting} occurs when a model is too simple to capture the underlying patterns in the data, resulting in poor performance on both training and test data.
+        \item \textbf{Underfitting} occurs when a model is too simple to capture the underlying patterns in the data, resulting in poor performance on both training and test data. These concepts are visually illustrated in Figure~\ref{fig:over_under}.
     \end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{figures/over_under.png}
+    \caption{Visual representation of Underfitting, Optimal Fit, and Overfitting.}
+    \label{fig:over_under}
+\end{figure}
     
-    \textbf{Note:} Overfitting is a particularly significant concern in cybersecurity applications of ML, where models must generalize to novel, previously unseen attack patterns rather than simply memorizing known ones.
+  \customwarning{Overfitting is a particularly significant concern in cybersecurity applications of ML, where models must generalize to novel, previously unseen attack patterns rather than simply memorizing known ones (which would essentially reduce the ML model into a traditional signature-based detection system).}
     
-    \item[Hyperparameters] Configuration settings defined before training begins --- such as learning rate, number of layers, or number of trees --- that control the learning process itself, as opposed to the model parameters learned from data.
+    \item[Hyperparameters] Configuration settings defined before training begins --- such as learning rate\footnote{The learning rate is a parameter that dictates the step size at each iteration while the machine learning algorithm attempts to minimize the loss function.}, number of layers, or number of trees --- that control the learning process itself, as opposed to the model parameters learned from data.
     
-    \item[Generalization] The ability of a trained model to perform well on new, unseen data that was not part of the training set. Generalization is the ultimate goal of any ML model, and is especially critical in dynamic environments such as cybersecurity, where threat patterns evolve continuously.
+    \item[Generalization] The ability of a trained model to perform well on new, unseen data that was not part of the training set~\cite{hastie2009elements}. Generalization is the ultimate goal of any ML model, and is especially critical in dynamic environments such as cybersecurity, where threat patterns evolve continuously.
     
-    \item[Loss Function and Optimization] The loss function measures how far the model's predictions deviate from the true labels. The training process seeks to minimize this loss using optimization algorithms --- the most common being Gradient Descent and its variants (e.g., Adam, SGD), which iteratively adjust model parameters in the direction that reduces the loss.
+    \item[Loss Function and Optimization] The loss function measures how far the model's predictions deviate from the true labels. The training process seeks to minimize this loss using optimization algorithms --- the most common being Gradient Descent and its variants (e.g., Adam, SGD), which iteratively adjust model parameters in the direction that reduces the loss~\cite{goodfellow2016deep}.
     
     \item[Evaluation Metrics] Once trained, a model's performance is assessed using metrics appropriate to the task:
     \begin{itemize}
@@ -315,18 +327,34 @@ A helpful analogy: teaching a child to recognize cats does not involve giving th
         \item \textbf{Precision}: The proportion of true positive predictions among all positive predictions.
         \item \textbf{Recall (Sensitivity)}: The proportion of actual positives correctly identified by the model.
         \item \textbf{F1-Score}: The harmonic mean of precision and recall, balancing both metrics.
-        \item \textbf{AUC-ROC}: A measure of the model's ability to distinguish between classes across all classification thresholds.
+        \item \textbf{AUC-ROC}: A measure of the model's ability to distinguish between classes across all classification thresholds~\cite{fawcett2006roc}.
     \end{itemize}
 \end{description}
 
-\subsubsection*{Explication}
-In cybersecurity and APT detection specifically, \textbf{Recall} is often prioritized over \textbf{Accuracy}. Missing a real attack (a false negative) is far more costly than incorrectly flagging a benign event (a false positive). A model that detects 99\% of attacks while generating some false alarms is far preferable to one that misses critical threats.
+\customexplication{
+In the context of cybersecurity and attack detection, the evaluation metrics are based on four possible outcomes, where the "Positive" class typically represents an \textit{attack} or anomaly, and the "Negative" class represents \textit{normal/benign} behavior:
+\begin{itemize}
+    \item \textbf{True Positive (TP)}: The model correctly identifies an \textit{actual attack}. This is a successful detection.
+    \item \textbf{True Negative (TN)}: The model correctly identifies \textit{normal activity}. This is a successful passing of safe traffic.
+    \item \textbf{False Positive (FP)}: The model incorrectly flags \textit{normal activity as an attack} (a false alarm).
+    \item \textbf{False Negative (FN)}: The model incorrectly identifies an \textit{attack as normal activity}. This is a critical failure where the threat slips through.
+\end{itemize}
+}
 
-Machine Learning's ability to detect complex, non-linear patterns in large datasets makes it particularly well-suited for cybersecurity applications --- a capability that static, rule-based systems fundamentally lack. The following sections elaborate on the different learning paradigms ML employs, and on how these capabilities are harnessed to detect sophisticated threats such as APTs.
+\customnote{In cybersecurity and APT detection specifically, \textbf{Recall} is often prioritized over \textbf{Accuracy}. Missing a real attack (a false negative) is far more costly than incorrectly flagging a benign event (a false positive). A model that detects 99\% of attacks while generating some false alarms is far preferable to one that misses critical threats.}
+
+Machine Learning's ability to detect complex, non-linear patterns in large datasets makes it particularly well-suited for cybersecurity applications~\cite{buczak2016survey} --- a capability that static, rule-based systems fundamentally lack. The following sections elaborate on the different learning paradigms ML employs, and on how these capabilities are used to detect sophisticated threats such as APTs.
 
 \subsection{Domains and Learning Paradigms}
 
-Machine Learning is not a single, uniform approach --- it encompasses several distinct learning paradigms, each defined by the type of data available and the nature of the task to be solved. Understanding these paradigms is essential, as different cybersecurity problems require different learning strategies. Additionally, ML operates across a range of application domains, each contributing specific capabilities to threat detection and analysis.
+Machine Learning is not a single, uniform approach --- it includes several distinct learning paradigms, each defined by the type of data available and the nature of the task to be solved. Understanding these paradigms is essential, as different cybersecurity problems require different learning strategies. Additionally, ML operates across a range of application domains, each contributing specific capabilities to threat detection and analysis, as illustrated in Figure~\ref{fig:ml_domain}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{figures/ml_domain.png}
+    \caption{Machine Learning domains and learning paradigms.}
+    \label{fig:ml_domain}
+\end{figure}
 
 \subsubsection*{Learning Paradigms}
 
@@ -335,37 +363,32 @@ Machine Learning is not a single, uniform approach --- it encompasses several di
     \begin{itemize}
         \item \textbf{Task types}: Classification (assigning a category) and Regression (predicting a continuous value).
         \item \textbf{Common algorithms}: Decision Trees, Random Forests, Support Vector Machines (SVM), Logistic Regression, Neural Networks.
-        \item \textbf{Cybersecurity application}: Classifying network traffic as malicious or benign, detecting known malware families, identifying phishing emails.
+        \item \textbf{Cybersecurity application}: Classifying network traffic as malicious or benign, detecting known malware families, identifying phishing emails~\cite{buczak2016survey}.
     \end{itemize}
     
-    \textbf{Explication:} Supervised learning is analogous to studying with an answer key --- the model sees both the questions (inputs) and the correct answers (labels) during training, and learns to produce correct answers on new questions it has never seen before.
+\customexplication{Supervised learning is analogous to studying with an answer key --- the model sees both the questions (inputs) and the correct answers (labels) during training, and learns to produce correct answers on new questions it has never seen before.}
 
-    \item[Unsupervised Learning] In unsupervised learning, the model is trained on unlabeled data --- no predefined correct outputs are provided. The model must discover hidden structure, patterns, or groupings within the data on its own.
+    \item[Unsupervised Learning] In unsupervised learning, the model is trained on unlabeled data --- no predefined correct outputs are provided. The model must discover hidden structure, patterns, or groupings within the data on its own~\cite{chandola2009anomaly}.
     \begin{itemize}
         \item \textbf{Task types}: Clustering (grouping similar examples) and Dimensionality Reduction (simplifying data representation while preserving key information).
-        \item \textbf{Common algorithms}: K-Means, DBSCAN, Hierarchical Clustering, Principal Component Analysis (PCA), Autoencoders.
-        \item \textbf{Cybersecurity application}: Anomaly detection --- identifying unusual patterns in network traffic or user behavior that deviate from the established baseline, even when no labeled attack data is available.
+        \item \textbf{Common algorithms}: K-Means, DBSCAN, Hierarchical Clustering, Principal Component Analysis (PCA).
     \end{itemize}
     
-    \textbf{Note:} Unsupervised learning is particularly valuable in APT detection because APTs use novel, previously unseen techniques specifically designed to evade known signature-based detection. Since no labeled examples of new attack patterns exist in advance, anomaly-based detection using unsupervised methods provides a critical detection layer.
 
-    \item[Semi-Supervised Learning] Semi-supervised learning operates with a partially labeled dataset --- a small amount of labeled data combined with a large amount of unlabeled data. The model leverages both to improve learning performance beyond what would be achievable with labeled data alone.
+    \item[Semi-Supervised Learning] Semi-supervised learning operates with a partially labeled dataset --- a small amount of labeled data combined with a large amount of unlabeled data. The model leverages both to improve learning performance beyond what would be achievable with labeled data alone~\cite{zhu2005semisupervised}.
     \begin{itemize}
-        \item \textbf{Why it matters}: Obtaining large quantities of labeled cybersecurity data is expensive and time-consuming, as labeling requires expert knowledge. Semi-supervised learning addresses this practical limitation.
+        \item \textbf{Why it matters}: Obtaining large quantities of labeled cybersecurity data is expensive and time-consuming, as labeling requires expert knowledge. Semi-supervised learning addresses this practical limitation~\cite{zhu2005semisupervised}.
         \item \textbf{Common approaches}: Self-training, Label Propagation, Generative Adversarial Networks (GANs) for data augmentation.
         \item \textbf{Cybersecurity application}: Training APT detection models when only a small number of confirmed attack samples are available, augmented by large volumes of unlabeled network logs.
     \end{itemize}
     
-    \textbf{Explication:} Semi-supervised learning mirrors how a cybersecurity analyst works in practice: they may have a few confirmed attack cases (labeled) but are surrounded by vast amounts of unclassified logs (unlabeled). The model uses the confirmed cases as anchors to make sense of the larger, unlabeled dataset.
 
-    \item[Reinforcement Learning (RL)] Reinforcement Learning is a paradigm in which an agent learns to make sequential decisions by interacting with an environment. The agent receives a reward or penalty based on the outcome of each action, and gradually learns a policy --- a strategy for choosing actions --- that maximizes cumulative reward over time.
+    \item[Reinforcement Learning (RL)] Reinforcement Learning is a paradigm in which an agent learns to make sequential decisions by interacting with an environment. The agent receives a reward or penalty based on the outcome of each action, and gradually learns a policy --- a strategy for choosing actions --- that maximizes cumulative reward over time~\cite{sutton2018reinforcement}.
     \begin{itemize}
         \item \textbf{Key components}: Agent, Environment, State, Action, Reward, Policy.
-        \item \textbf{Common algorithms}: Q-Learning, Deep Q-Networks (DQN), Proximal Policy Optimization (PPO).
-        \item \textbf{Cybersecurity application}: Adaptive intrusion detection systems that continuously adjust their detection strategy in response to evolving attack behaviors; automated incident response; and adversarial attack simulation for red-teaming.
+        \item \textbf{Common algorithms}: Q-Learning, Deep Q-Networks (DQN), Proximal Policy Optimization (PPO)~\cite{sutton2018reinforcement}.
     \end{itemize}
     
-    \textbf{Note:} Reinforcement Learning aligns naturally with the dynamic, adversarial nature of cybersecurity. Unlike static models trained once on fixed datasets, RL-based systems continuously adapt --- making them well-suited for detecting multi-stage APT attacks where attacker behavior evolves over time. This principle forms the basis of Proposition 1 discussed in Chapter 3.
 \end{description}
 
 \subsubsection*{ML Application Domains}
@@ -374,18 +397,18 @@ Beyond learning paradigms, ML operates across several technical domains, each pr
 
 \begin{table}[h]
 \centering
+\caption{Key Machine Learning Application Domains in Cybersecurity}
+\label{tab:ml_domains}
 \begin{tabular}{|p{0.25\linewidth}|p{0.35\linewidth}|p{0.35\linewidth}|}
 \hline
 \textbf{Domain} & \textbf{Description} & \textbf{Cybersecurity Application} \\ \hline
 Natural Language Processing (NLP) & Processing and understanding human language text & Extracting TTPs from threat intelligence reports, detecting phishing content \\ \hline
-Computer Vision & Analyzing and interpreting visual data & Detecting malicious document structures, visual phishing detection \\ \hline
 Anomaly Detection & Identifying data points that deviate significantly from expected patterns & Detecting unusual network behavior, insider threats, APT lateral movement \\ \hline
 Time Series Analysis & Modeling sequential, time-ordered data & Detecting multi-stage APT attack sequences across time \\ \hline
 Graph Learning & Analyzing relationships and connections between entities & Mapping attacker infrastructure, detecting lateral movement paths \\ \hline
 Generative AI (GenAI) & Generating new data samples similar to training data & Synthetic attack data generation, CTI report summarization, threat simulation \\ \hline
 \end{tabular}
-\caption{Key Machine Learning Application Domains in Cybersecurity}
-\label{tab:ml_domains}
+
 \end{table}
 
 \textbf{Choosing the Right Paradigm:}
@@ -397,173 +420,7 @@ The choice of learning paradigm depends on the nature of the available data and 
     \item When the system must adapt dynamically to evolving threats $\rightarrow$ \textbf{Reinforcement Learning}
 \end{itemize}
 
-\textbf{Explication:} In practice, state-of-the-art APT detection systems rarely rely on a single paradigm. The most effective approaches --- including those proposed in Chapter 3 --- combine multiple paradigms: using unsupervised methods for anomaly detection, supervised models for TTP classification, and reinforcement learning for adaptive, multi-stage response.
-
-
-\subsection{Key ML Algorithms Overview}
-
-A wide range of ML algorithms is available to address different learning tasks. The following presents the most widely used algorithms across all paradigms, with particular attention to their relevance in cybersecurity and APT detection contexts.
-
-\subsubsection*{Supervised Learning Algorithms}
-
-\begin{description}
-    \item[Decision Trees] A Decision Tree is a tree-structured model that splits data recursively based on feature values, producing a set of human-readable if-then rules for classification or regression.
-    \begin{itemize}
-        \item \textbf{Strengths}: Highly interpretable, fast to train, requires minimal data preprocessing.
-        \item \textbf{Weaknesses}: Prone to overfitting on complex datasets; sensitive to small variations in data.
-        \item \textbf{Cybersecurity use}: Classifying network intrusions, identifying malicious file attributes.
-    \end{itemize}
-
-    \item[Random Forest] An ensemble method that builds a large number of Decision Trees during training and combines their outputs --- either by majority voting (classification) or averaging (regression) --- to produce a more robust and accurate prediction.
-    \begin{itemize}
-        \item \textbf{Strengths}: Resistant to overfitting, handles high-dimensional data well, provides feature importance rankings.
-        \item \textbf{Weaknesses}: Less interpretable than a single Decision Tree; computationally heavier.
-        \item \textbf{Cybersecurity use}: Intrusion detection, malware classification, anomaly detection in network traffic.
-    \end{itemize}
-
-    \item[Support Vector Machine (SVM)] SVM finds the optimal hyperplane that maximally separates data points of different classes in a high-dimensional feature space. Using the kernel trick, SVM can handle non-linearly separable data by mapping it into a higher-dimensional space.
-    \begin{itemize}
-        \item \textbf{Strengths}: Effective in high-dimensional spaces, robust with limited training data.
-        \item \textbf{Weaknesses}: Computationally expensive on large datasets; sensitive to feature scaling.
-        \item \textbf{Cybersecurity use}: Malware detection, spam filtering, network traffic classification.
-    \end{itemize}
-
-    \item[Gradient Boosting (XGBoost, LightGBM)] Gradient Boosting builds an ensemble of weak learners --- typically Decision Trees --- sequentially, where each new tree corrects the errors of the previous ones. XGBoost and LightGBM are highly optimized implementations widely used in competitive ML benchmarks.
-    \begin{itemize}
-        \item \textbf{Strengths}: Excellent performance on tabular data, handles imbalanced datasets well, built-in regularization.
-        \item \textbf{Weaknesses}: Requires careful hyperparameter tuning; less suited for raw sequential or image data.
-        \item \textbf{Cybersecurity use}: Detecting APT-related log anomalies, classifying attack types from structured network data.
-    \end{itemize}
-
-    \item[Neural Networks and Deep Learning] Artificial Neural Networks (ANNs) are composed of layers of interconnected neurons, each applying a non-linear transformation to its inputs. Deep Learning refers to neural networks with many hidden layers, capable of learning highly complex, hierarchical representations from raw data.
-\end{description}
-
-Key deep learning architectures relevant to cybersecurity include:
-
-\begin{table}[h]
-\centering
-\begin{tabular}{|p{0.25\linewidth}|p{0.35\linewidth}|p{0.35\linewidth}|}
-\hline
-\textbf{Architecture} & \textbf{Description} & \textbf{Cybersecurity Application} \\ \hline
-Convolutional Neural Network (CNN) & Extracts local spatial patterns through convolution operations & Malware visualization, image-based phishing detection \\ \hline
-Recurrent Neural Network (RNN) & Processes sequential data by maintaining memory of previous inputs & Detecting sequential attack patterns in logs \\ \hline
-Long Short-Term Memory (LSTM) & An advanced RNN that captures long-range temporal dependencies & Multi-stage APT detection across time, network behavior modeling \\ \hline
-Transformer & Attention-based architecture that models global relationships in sequences & CTI report analysis, TTP extraction from text \\ \hline
-Autoencoder & Learns a compressed representation of data and reconstructs it & Anomaly detection -- reconstruction error flags unusual behavior \\ \hline
-Generative Adversarial Network (GAN) & Two competing networks: a generator and a discriminator & Synthetic attack data generation, adversarial training \\ \hline
-\end{tabular}
-\caption{Key Deep Learning Architectures in Cybersecurity}
-\label{tab:dl_architectures}
-\end{table}
-
-\textbf{Note:} LSTM networks are particularly well-suited to multi-stage APT detection because APT attacks unfold over extended time periods, with each stage leaving subtle traces in logs. LSTMs can model these long temporal sequences and detect patterns that span hours, days, or even weeks of system activity.
-
-\subsubsection*{Unsupervised Learning Algorithms}
-
-\begin{description}
-    \item[K-Means Clustering] K-Means partitions data into K clusters by iteratively assigning each data point to the nearest cluster centroid and updating centroids until convergence.
-    \begin{itemize}
-        \item \textbf{Strengths}: Simple, fast, and scalable to large datasets.
-        \item \textbf{Weaknesses}: Requires the number of clusters K to be defined in advance; sensitive to outliers.
-        \item \textbf{Cybersecurity use}: Grouping similar network behaviors, identifying clusters of suspicious hosts.
-    \end{itemize}
-
-    \item[DBSCAN (Density-Based Spatial Clustering of Applications with Noise)] DBSCAN groups data points that are closely packed together while marking points in low-density regions as outliers --- making it naturally suited to anomaly detection.
-    \begin{itemize}
-        \item \textbf{Strengths}: Does not require specifying the number of clusters; identifies outliers directly.
-        \item \textbf{Weaknesses}: Sensitive to the choice of density parameters; struggles with varying-density clusters.
-        \item \textbf{Cybersecurity use}: Detecting anomalous network traffic flows, identifying isolated malicious events.
-    \end{itemize}
-
-    \item[Isolation Forest] An anomaly detection algorithm that isolates outliers by randomly partitioning data. Anomalous points --- being rare and different --- require fewer partitions to isolate and thus receive lower anomaly scores.
-    \begin{itemize}
-        \item \textbf{Strengths}: Efficient on high-dimensional data, effective for detecting rare events.
-        \item \textbf{Weaknesses}: Less effective when anomalies form dense clusters.
-        \item \textbf{Cybersecurity use}: Detecting rare APT-related events buried within large volumes of normal system logs.
-    \end{itemize}
-
-    \item[Principal Component Analysis (PCA)] PCA is a dimensionality reduction technique that transforms high-dimensional data into a lower-dimensional representation by identifying the directions (principal components) of maximum variance.
-    \begin{itemize}
-        \item \textbf{Strengths}: Reduces computational cost, removes redundant features, aids visualization.
-        \item \textbf{Weaknesses}: Linear transformation only; principal components may be difficult to interpret.
-        \item \textbf{Cybersecurity use}: Reducing the dimensionality of network traffic feature vectors before feeding them into detection models.
-    \end{itemize}
-\end{description}
-
-\subsubsection*{Reinforcement Learning Algorithms}
-
-\begin{description}
-    \item[Q-Learning and Deep Q-Networks (DQN)] Q-Learning is a model-free RL algorithm that learns the value of taking a given action in a given state, building a Q-table of state-action values. Deep Q-Networks (DQN) replace the Q-table with a deep neural network, enabling RL to scale to complex, high-dimensional environments.
-    \begin{itemize}
-        \item \textbf{Cybersecurity use}: Adaptive intrusion detection, automated security policy optimization, adversarial attack simulation.
-    \end{itemize}
-
-    \item[Proximal Policy Optimization (PPO)] PPO is a state-of-the-art policy gradient RL algorithm that directly optimizes the agent's decision-making policy while ensuring stable, controlled updates.
-    \begin{itemize}
-        \item \textbf{Cybersecurity use}: Training autonomous agents for network defense, simulating realistic attacker behavior for red-team exercises.
-    \end{itemize}
-\end{description}
-
-\textbf{Explication:} The distinction between RL algorithms and other ML algorithms is fundamental: while supervised and unsupervised models learn from a fixed dataset, RL agents learn by actively interacting with their environment. In a cybersecurity context, this means the detection system continuously refines its strategy as new threats emerge --- rather than relying solely on patterns seen during training.
-
-\subsubsection*{Algorithm Selection Summary}
-
-\begin{table}[h]
-\centering
-\begin{tabular}{|p{0.45\linewidth}|p{0.5\linewidth}|}
-\hline
-\textbf{Task} & \textbf{Recommended Algorithms} \\ \hline
-Network intrusion classification & Random Forest, XGBoost, SVM, CNN \\ \hline
-Sequential attack detection & LSTM, RNN, Transformer \\ \hline
-Anomaly detection (unlabeled data) & Isolation Forest, Autoencoder, DBSCAN \\ \hline
-TTP extraction from text & Transformer, NLP-based models \\ \hline
-Adaptive, evolving threat response & DQN, PPO (Reinforcement Learning) \\ \hline
-Synthetic attack data generation & GAN, VAE (Variational Autoencoder) \\ \hline
-\end{tabular}
-\caption{Summary of Machine Learning Algorithm Selection by Task}
-\label{tab:alg_selection}
-\end{table}
-
-\subsection{Definition and Capabilities in Cybersecurity}
-Artificial Intelligence (AI) and Machine Learning (ML) are powerful techniques for addressing the rapidly evolving cyber threat landscape \cite{jiang2025mitre}. Generative Artificial Intelligence (GenAI) stands out for its ability to create varied content (text, code, images). Tools like ChatGPT and LLMs have demonstrated GenAI's potential to transform many fields.
-
-In the cybersecurity domain, GenAI extends beyond Large Language Models (LLMs) to include Generative Adversarial Networks (GANs) and autoencoders, used for analyzing large datasets to identify patterns and map them to adversary tactics \cite{jiang2025mitre}.
-
-\subsection{The Dual Role of Machine Learning: Attack and Defense}
-The influence of GenAI on cybersecurity is dual, strengthening both attackers and defenders \cite{jiang2025mitre}.
-
-\subsubsection{ML for Offense (The Attacker)}
-GenAI allows for the automation and increased sophistication of all CKC phases, posing significant challenges to traditional defenses.
-\begin{itemize}
-    \item \textbf{Reconnaissance}: GenAI excels at rapidly synthesizing vast amounts of publicly available information to generate summaries on vulnerabilities and potential targets \cite{jiang2025mitre}.
-    \item \textbf{Weaponization}: Tools can generate malicious code or programs capable of exfiltrating files. GenAI can target specific components by rapidly discovering known vulnerabilities \cite{jiang2025mitre}.
-    \item \textbf{Delivery (Spear Phishing)}: GenAI can create highly personalized and effective phishing emails, significantly increasing the success rate of social engineering attacks \cite{jiang2025mitre}.
-    \item \textbf{Command and Control (C\&C)}: GenAI can help generate realistic network traffic patterns to evade C\&C detectors \cite{jiang2025mitre}.
-\end{itemize}
-
-\subsubsection{ML for Defense (The Defender)}
-GenAI offers opportunities for proactive defense strategies, particularly for countering multi-stage APT attacks \cite{jiang2025mitre}.
-\begin{itemize}
-    \item \textbf{Log Analysis and Anomaly Detection}: GenAI significantly improves the interpretability of security logs (Windows Event logs, SSH logs, etc.), which are often cryptic \cite{jiang2025mitre}. It allows analysts to monitor suspicious activities more effectively.
-    \item \textbf{Cyber Threat Intelligence (CTI) Generation}: LLMs can extract TTPs from unstructured CTI reports and map them to the ATT\&CK framework, improving the understanding of adversary behaviors \cite{jiang2025mitre}.
-    \item \textbf{Simulation and Training}: GenAI can generate realistic and diverse simulated threat environments to test defenses. Generative models can create synthetic attack data to augment training datasets for ML/DL models \cite{jiang2025mitre}.
-    \item \textbf{Response Aid and Risk Prioritization}: GenAI can generate sophisticated threat hunting queries and help prioritize risks by identifying known CVEs \cite{jiang2025mitre}.
-\end{itemize}
-
-\section{Synergy of Concepts for Early APT Detection}
-\subsection{CKC and MITRE ATT\&CK Integration}
-The effectiveness of a framework for early detection of multi-stage APTs depends on the ability to \textbf{trace the attack} from its inception (Reconnaissance, Initial Access) to its conclusion (AoO) \cite{krishnapriya2024comprehensive}. Merging the CKC and ATT\&CK frameworks is essential for this traceability. CKC provides the general narrative of the attack lifecycle, while ATT\&CK provides the taxonomy of TTPs used at each stage, enabling granular analysis \cite{jiang2025mitre}.
-
-\textbf{Multi-Stage Detection}: Early detection of APTs is crucial to minimize damage. Since APTs are characterized by multi-stage behaviors and often use legitimate individual techniques, it is necessary to \textbf{correlate individual alerts} over a long period to capture the full APT activity \cite{krishnapriya2024comprehensive}. Models like the Bayesian ATT\&CK Network (BAN) exploit the ATT\&CK structure to model APT attackers and anticipate imminent attack strategies \cite{jiang2025mitre}.
-
-\subsection{Machine Learning Augmentation of Multi-Stage Detection}
-Integrating GenAI into a structured framework (CKC + ATT\&CK) aims to overcome limitations of traditional methods, notably reliance on signatures and the complexity of manual log analysis \cite{jiang2025mitre}.
-\begin{itemize}
-    \item \textbf{Behavior-Based Detection}: GenAI/ML models can be trained on specific TTPs (identified via ATT\&CK) and logs to detect malicious behaviors, even in the absence of known signatures \cite{jiang2025mitre}.
-    \item \textbf{Prediction and Early Warning}: GenAI-augmented systems can use correlation analysis and sequential models (like Markov models) to predict the most likely next stage of the APT attack, aiding in early warning \cite{krishnapriya2024comprehensive,jiang2025mitre}.
-    \item \textbf{Automated CTI Analysis}: Using LLMs to automatically extract and map TTPs from unstructured reports to the ATT\&CK framework reduces manual burden and accelerates threat intelligence enrichment \cite{jiang2025mitre}.
-\end{itemize}
-Augmenting this framework with GenAI is akin to equipping the defender with intelligence capable of not only tracking attack stages (CKC) and naming exact movements (MITRE ATT\&CK) but also predicting the adversary's next action by analyzing complex behavior and massive data volumes.
+\customnote{ In practice, state-of-the-art APT detection systems rarely rely on a single paradigm. The most effective approaches --- including those proposed in Chapter 3 --- combine multiple paradigms: using unsupervised methods for anomaly detection, supervised models for TTP classification, and reinforcement learning for adaptive, multi-stage response.}
 
 \clearpage
 
@@ -650,6 +507,44 @@ The concentration of APT activity on telecommunications infrastructure---account
 The geographic distribution of APT activity closely mirrors contemporary geopolitical fault lines. Countries positioned at the intersection of major power competition---such as Turkey bridging Europe and Asia, Taiwan amid U.S.-China tensions, and Ukraine amid Russia-West confrontation---experience disproportionately high levels of APT activity. This pattern underscores that APT operations are fundamentally instruments of statecraft, aligned with broader strategic objectives and geopolitical competition.
 
 Another significant trend is the evolution from targeting individual organizations to compromising entire ecosystems. By infiltrating supply chain anchors, managed service providers, software vendors, and infrastructure operators, APT groups can achieve broader access while potentially evading detection systems focused on individual victim organizations. This ecosystem approach increases both the potential intelligence value and the difficulty of comprehensive detection and remediation.
+
+\section{The Dual Role of Artificial Intelligence: Attack and Defense}
+The influence of Machine Learning and GenAI on cybersecurity is dual, strengthening both attackers and defenders \cite{jiang2025mitre}.
+
+\subsubsection{AI for Offense (The Attacker)}
+ML and GenAI allows for the automation and increased sophistication of all CKC phases, posing significant challenges to traditional defenses.
+\begin{itemize}
+    \item \textbf{Reconnaissance}: GenAI excels at rapidly synthesizing vast amounts of publicly available information to generate summaries on vulnerabilities and potential targets \cite{jiang2025mitre}. Figure~\ref{fig:reconnaissance_perplexity} demonstrates a practical example of GenAI identifying infrastructure details.
+    
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{figures/preplexty.png}
+    \caption{Figure of the utility company's infrastructure and protocols, found by Perplexity AI.}
+    \label{fig:reconnaissance_perplexity}
+\end{figure}
+
+    \item \textbf{Weaponization}: Tools can generate malicious code or programs capable of exfiltrating files. AI can target specific components by rapidly discovering known vulnerabilities \cite{jiang2025mitre}.
+    \item \textbf{Delivery (Spear Phishing)}: GenAI can create highly personalized and effective phishing emails, significantly increasing the success rate of social engineering attacks \cite{jiang2025mitre}.
+    \item \textbf{Command and Control (C\&C)}: GenAI can help generate realistic network traffic patterns to evade C\&C detectors \cite{jiang2025mitre}.
+\end{itemize}
+
+\subsubsection{AI for Defense (The Defender)}
+AI offers opportunities for proactive defense strategies, particularly for countering multi-stage APT attacks \cite{jiang2025mitre}.
+\begin{itemize}
+    \item \textbf{Log Analysis and Anomaly Detection}: AI significantly improves the interpretability of security logs (Windows Event logs, SSH logs, etc.), which are often cryptic \cite{jiang2025mitre}. It allows analysts to monitor suspicious activities more effectively, as illustrated in Figure~\ref{fig:chatgpt_log_analysis}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{figures/chatgpt.png}
+    \caption{ChatGPT4 analysis of Windows Event Log entries, identifying MSSQL login attempts.}
+    \label{fig:chatgpt_log_analysis}
+\end{figure}
+
+    \item \textbf{Cyber Threat Intelligence (CTI) Generation}: LLMs can extract TTPs from unstructured CTI reports and map them to the ATT\&CK framework, improving the understanding of adversary behaviors \cite{jiang2025mitre}.
+    \item \textbf{Simulation and Training}: AI can generate realistic and diverse simulated threat environments to test defenses. Generative models can create synthetic attack data to augment training datasets for ML/DL models \cite{jiang2025mitre}.
+    \item \textbf{Response Aid and Risk Prioritization}: AI can generate sophisticated threat hunting queries and help prioritize risks by identifying known CVEs\footnote{CVE (Common Vulnerabilities and Exposures) is a standardized list of publicly disclosed cybersecurity vulnerabilities and exposures.} \cite{jiang2025mitre}.
+\end{itemize}
+
 
 \section{Machine Learning-Enabled Attack Techniques}
 
@@ -842,7 +737,169 @@ These requirements establish the foundation for the APT detection solutions exam
 
 \section{Introduction}
 
-Advanced Persistent Threats (APTs) represent one of the most complex challenges in the modern cybersecurity landscape. Characterized by their stealth, longevity, and multi-stage execution, APTs often evade traditional signature-based detection mechanisms. Consequently, the research community has shifted focus towards behavioral analysis and artificial intelligence (AI) to identify these sophisticated attacks. This chapter provides a detailed classification and description of existing APT detection solutions, synthesizing the state-of-the-art based on recent literature, particularly the extensive \cite{ankalaki2025cyber}. Finally, we present our proposed framework, which integrates Generative AI, Reinforcement Learning, and Graph Neural Networks to address the identified gaps in early detection and automated response.
+Advanced Persistent Threats (APTs) represent one of the most complex challenges in the modern cybersecurity landscape. Characterized by their stealth, longevity, and multi-stage execution, APTs often evade traditional signature-based detection mechanisms. Consequently, the research community has shifted focus towards behavioral analysis and artificial intelligence (AI) to identify these sophisticated attacks. This chapter provides a detailed classification and description of existing APT detection solutions, synthesizing the state-of-the-art based on recent literature, particularly the extensive \cite{ankalaki2025cyber}. 
+\section{Existing Datasets for APT Detection: A Critical Study}
+
+If we are speaking about AI and ML, then the dataset is our number one priority --- we must carefully study all existing ones . A model is only as strong as the data it learns from, and in the highly specific domain of APT detection, this principle is even more critical. Unlike general cybersecurity datasets that capture isolated attack events, APT detection demands data that reflects multi-stage, temporally correlated, and stealthy adversarial behavior. This section is structured in three parts: (1) datasets strongly aligned with APT and CKC/MITRE ATT\&CK-based framework; (2) broader benchmark datasets from the literature that are not directly suited to APT; and (3) a review of published AI/ML works that have used these datasets, including their methods and results.
+
+\subsection{APT-Specific Datasets With CKC/MITRE ATT\&CK Mapping}
+
+The following datasets were selected because they carry explicit adversarial behavior annotations aligned with MITRE ATT\&CK techniques or Cyber Kill Chain phases.
+
+\subsubsection{Linux-APT-Dataset-2024}
+
+Karim et al. \cite{karim2024linux} published this dataset , describing it as a comprehensive APT and intrusion detection evaluation dataset for Linux systems, hosted on Mendeley Data. The dataset captures system and network logs from a Linux environment with each sample annotated against the MITRE ATT\&CK framework. Linux systems are commonly targeted by APT actors due to their prevalence in servers and critical infrastructure yet remain underrepresented in publicly available APT datasets --- a gap this dataset directly addresses. Its ATT\&CK mapping makes it directly integrable into our detection pipeline for evaluating model coverage across real adversarial techniques.
+
+\textbf{Published ML/AI Work:} As of 2025--2026, no independent ML/AI study has yet used this dataset for model training or evaluation beyond the original description paper --- a direct consequence of the typical 6--18 month publication cycle. 
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{figures/linux_apt.PNG}
+    \caption{Visual representation of the Linux-APT-Dataset-2024}
+    \label{fig:linux_apt_data}
+\end{figure}
+
+
+\subsubsection{LOTL APT Red Team Dataset}
+
+Hosted on Kaggle (cyberprince/lotl-apt-red-team-dataset), this dataset focuses on \textbf{Living-off-the-Land (LOTL)} APT techniques --- adversaries using legitimate system tools (PowerShell, WMI, certutil) instead of custom malware. LOTL attacks are among the most challenging to detect because they produce minimal distinctive signatures and blend seamlessly with normal administrative activity. This dataset is essential for evaluating the model's ability to detect technique-level anomalies rather than simple malware signatures.
+
+\subsubsection{Windows APT Persistence Techniques Dataset (2025)}
+
+Riahi and Debatty \cite{rahal2025windows} published this dataset at IEEE ICIN 2025, described as \textit{"Dataset of APT Persistence Techniques on Windows Platforms Mapped to the MITRE ATT\&CK Framework"}, available on Mendeley Data. It provides comprehensive persistence behavior traces mapped to ATT\&CK TA0003 (Persistence), with a focus on tactics employed by Chinese threat actors. The \textbf{Persistence} tactic is one of the defining characteristics of APTs --- adversaries maintain long-term, undetected foothold within compromised systems --- making this dataset directly relevant to the Installation and C2 phases of the CKC.
+
+\textbf{Published ML/AI Work:} This dataset \cite{rahal2025windows} was published at an IEEE conference in early 2025 and currently has only 2 Scopus citations; no ML/AI study has yet used it independently.  Ling et al. (2023) further surveyed adversarial attacks against Windows PE malware detection, demonstrating the critical importance of Windows-specific attack vectors and the robustness challenges any model must address on this platform [4].
+
+\subsubsection{KAPT-2024}
+
+Tapsoba et al. \cite{ambalangodage2024kapt} introduced KAPT-2024 in \textit{"A Relevant Feature Identification Approach to Detect APTs in HTTPS Traffic"} , generated using the KExtractor tool and hosted on GitHub. The dataset focuses on HTTPS-encrypted traffic --- a realistic and challenging scenario since APT actors increasingly use encrypted channels to blend C2 communication into legitimate traffic. The paper itself constitutes the primary reference for this dataset and presents a feature identification approach as part of the same publication; no independent research team has yet exploited it.
+
+\textbf{Published ML/AI Work:} The original paper by Tapsoba et al. \cite{ambalangodage2024kapt} presents a relevant feature identification pipeline applied to KAPT-2024.  
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{figures/kapt.png}
+    \caption{Visual overview of the KAPT-2024 dataset}
+    \label{fig:kapt_data}
+\end{figure}
+
+\subsubsection{CloudAPT Dataset}
+
+Published via the National Research Council of Canada's digital repository, this dataset covers APT attack steps in cloud environments. Cloud-specific APT datasets are currently underrepresented in the community, making this resource particularly valuable as enterprise infrastructure continues its shift to cloud platforms.
+
+\subsubsection{MLAPT Dataset}
+
+The MLAPT dataset accompanies the paper \textit{"A Cyber Kill Chain Approach for Detecting Advanced Persistent Threats"} (Ancona et al.), available both at the GitHub repository \texttt{APT\_detector/MLAPT\_dataset.csv} and via the Loughborough University repository. This dataset is particularly aligned with our work because it is explicitly structured around the \textbf{Cyber Kill Chain model} --- the primary threat modeling framework of this thesis. Alerts are labeled according to CKC phases, making it a natural benchmark for evaluating stage-aware APT detection models and a direct validation ground for our proposed sequential detection architecture.
+
+\subsubsection{APT Lateral Movement Dataset (LMD Collections)}
+
+Linked to the article \textit{"Enhanced Detection of APT Vector Lateral Movement in Organizational Networks Using Lightweight Machine Learning"} \cite{mabrouk2025lmdg} and accessible at GitHub (ChristosSmiliotopoulos/Lateral-Movement-Dataset--LMD\_Collections), with additional collections via Google Drive. \textbf{Lateral movement} (MITRE ATT\&CK TA0008) is one of the most diagnostically significant APT phases, where the adversary pivots between systems to reach high-value targets. A dedicated lateral movement dataset allows fine-grained evaluation of LSTM and GNN components that must correlate events across multiple hosts and time windows.
+
+
+\subsubsection{CICAPT-IIoT}
+
+Ghiasvand et al. \cite{ghiasvand2024cicapt} introduced CICAPT-IIoT in arXiv preprint 2407.15130 (2024), described as \textit{"CICAPT-IIoT: A Provenance-Based APT Attack Dataset for IIoT Environment"}, available via CIC Research Canada and Kaggle. The dataset covers more than 4 GB of IIoT network traffic records integrating 20 MITRE ATT\&CK techniques. Its \textbf{provenance-based} approach records the causal chain of system events (file reads, process forks, network connections) rather than only network flows .
+
+\textbf{Published ML/AI Work Using CICAPT-IIoT \cite{ghiasvand2024cicapt}:} One important study has directly applied a CNN2D-based deep learning model to this dataset.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{figures/iot.PNG}
+    \caption{Visual overview of the CICAPT-IIoT dataset}
+    \label{fig:cicapt_iot_data}
+\end{figure}
+
+\begin{table}[H]
+\centering
+
+\caption{Summary Table --- Datasets With CKC/MITRE ATT\&CK Mapping}
+\smallskip
+\label{tab:summry_dataset}
+
+\begin{tabular}{|p{0.3\linewidth}|p{0.2\linewidth}|p{0.2\linewidth}|p{0.3\linewidth}|}
+\hline
+\textbf{Dataset} & \textbf{Mapping} & \textbf{Environment} & \textbf{Key Relevance to Our Work} \\
+\hline
+Linux-APT-Dataset-2024 \cite{karim2024linux} & MITRE ATT\&CK & Linux & Linux-specific labeled APT logs \\
+\hline
+MLAPT & CKC Phases & Network & CKC-aligned alert labeling \\
+\hline
+KAPT-2024 \cite{ambalangodage2024kapt} & MITRE ATT\&CK & HTTPS Traffic & Encrypted C2 detection \\
+\hline
+Windows APT Persistence 2025 \cite{rahal2025windows} & MITRE ATT\&CK & Windows & Persistence tactic (TA0003) \\
+\hline
+CICAPT-IIoT \cite{ghiasvand2024cicapt} & MITRE ATT\&CK & IIoT & Provenance graphs, CNN2D validated \\
+\hline
+TRAM/TTP Mapping & MITRE ATT\&CK & CTI Text & NLP/LLM TTP extraction \\
+\hline
+APT Audit Logs (5 Groups) & MITRE ATT\&CK & Multi-env & Multi-group generalization \\
+\hline
+LOTL APT Red Team & MITRE ATT\&CK & Windows & Living-off-the-land detection \\
+\hline
+CloudAPT & Likely ATT\&CK & Cloud & Cloud-based APT scenarios \\
+\hline
+LMD Collections \cite{mabrouk2025lmdg} & Partial ATT\&CK & Network & Lateral movement evaluation \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsection{APT-Specific Datasets Without Explicit Mapping}
+
+\begin{itemize}
+    \item \textbf{DAPT 2020} \cite{myneni2020dapt}: Purpose-built for APT detection (\textit{"DAPT 2020 - Constructing a Benchmark Dataset for Advanced Persistent Threats"}, Kaggle). Its annotation scheme does not follow the MITRE ATT\&CK taxonomy, limiting ATT\&CK-coverage evaluation.
+    \item \textbf{Unraveled APT Dataset} \cite{myneni2023unraveled}: A semi-synthetic dataset for APT research (Kaggle). Semi-synthetic nature means some behaviors may not faithfully represent real-world APT tradecraft.
+    \item \textbf{LANL Multi-Source Cybersecurity Events}: Real-world dataset from Los Alamos National Laboratory containing 90 days of anonymized internal network events (authentication logs, process events, DNS queries). Highly realistic and temporally rich, associated with an RNN attention mechanism paper (arXiv:1803.04967), but lacks APT-specific labels and CKC annotations.
+    \item \textbf{CIC-IDS2018} \cite{hewapathirana2025comparative}: Available on Kaggle and AWS; used in APT-adjacent studies but focused on individual attack types rather than multi-stage campaigns.
+\end{itemize}
+
+
+\subsection{Broader Cybersecurity Datasets --- Not Directly Suited for APT}
+
+The survey by Ankalaki et al. [15] covers an extensive catalog of cybersecurity benchmark datasets across seven categories. While these datasets are widely adopted for evaluating ML/DL models in general intrusion detection, they are \textbf{not directly suited to our APT multi-stage detection objective} for two primary reasons: (1) they lack MITRE ATT\&CK or CKC annotations that would allow stage-aware evaluation, and (2) most capture isolated, single-stage attack events rather than the temporally correlated, multi-phase sequences that define APT campaigns. They nonetheless form the foundational literature landscape from which our work departs.
+
+\subsubsection{Network Traffic-Based Datasets}
+
+As documented in [15], this is the most studied category in intrusion detection research:
+
+\begin{itemize}
+    \item \textbf{KDD Cup 1999 / NSL-KDD}: Historically the most cited IDS datasets, containing four attack categories (DoS, U2R, R2L, Probe). Widely criticized for outdated traffic patterns, redundant data, and unrealistic scenarios that do not reflect modern APT techniques [15].
+    \item \textbf{UNSW-NB15 (2015)}: Ten attack categories including backdoors and shellcode, generated over 31 hours of emulated traffic. More diverse than KDD, but attacks remain isolated events rather than multi-stage campaigns [15].
+    \item \textbf{CICIDS2017}: One of the most comprehensive modern IDS datasets --- 3.1M flows, 8 attack types (SQL injection, DoS, DDoS, botnet, brute force, etc.) over 5 days. Despite its richness, it lacks APT-specific attack chains or CKC/ATT\&CK annotations [15].
+    \item \textbf{LITNET 2020}: Recent dataset with 12 attack types from real network traffic, small in size and focused on known cataloged signatures [15].
+    \item \textbf{HIKARI-2021}: Covers bruteforce variants and cryptomining over 39 hours of real traffic [15].
+\end{itemize}
+
+The fundamental limitation of this entire category for our purposes is that they capture \textit{what happened} (attack type), not \textit{where in the attack lifecycle it happened} (kill chain phase).
+
+\subsubsection{Malware and Android-Based Datasets}
+
+\begin{itemize}
+    \item \textbf{CIC-AndMal2017 / CCCS-CIC-AndMal-2020}: Android malware datasets covering spyware, trojans, adware, ransomware. Useful for endpoint-level malware classification (CKC Phase 2 --- Weaponization) but provide no multi-stage campaign context.
+    \item \textbf{SoReL-20M}: Over 20 million malware samples. Impressive scale for malware classification but no temporal or campaign-level APT structure.
+\end{itemize}
+
+\subsubsection{IoT Traffic-Based Datasets}
+
+\begin{itemize}
+    \item \textbf{TON-IoT (2020)}: Nine attack types in IoT environments, simulated traffic. LSTM achieved 97\% accuracy and CNN 99\% [15]. However, attacks are individually labeled without CKC phase structure.
+    \item \textbf{Bot-IoT (2019)}: 46-feature botnet detection dataset where LSTM achieved $\sim$98\% and SVM $\sim$99\% [15]. No CKC/ATT\&CK phase annotations.
+    \item \textbf{X-IIoTID (2021)}: 18 attack types including reconnaissance, lateral movement, and C2 --- features partially overlapping with CKC phases. GRU achieved 99.46\% accuracy [15]. Its lack of explicit CKC mapping limits its use for stage-aware evaluation, though it is the closest in this category to APT-relevant data.
+\end{itemize}
+
+
+
+\subsubsection{Systemic Limitations for APT Stage-Aware Detection}
+
+The review of datasets in Ankalaki et al. [15] reveals several systemic limitations when applied to the APT detection problem:
+
+\begin{enumerate}
+    \item \textbf{Narrow Attack Scope}: Datasets like MQTT-IoT-IDS2020 provide few attack classes, restricting model generalizability to the wide variety of real-world APT techniques.
+    \item \textbf{Outdated or Simulated Traffic}: Older datasets (Bot-IoT 2019) do not capture modern APT techniques; simulation-based datasets (TON-IoT) fail to reproduce the complexity of real-world APT campaigns.
+    \item \textbf{Absence of Stage Annotations}: The most critical limitation --- none of the general benchmark datasets in [15] provide kill-chain phase or ATT\&CK technique annotations, making them unsuitable for evaluating the stage-aware component of our framework.
+    \item \textbf{Class Imbalance}: APT-related traffic constitutes a minuscule fraction of total network activity, as confirmed by CICAPT-IIoT's $\sim$95\%/5\% normal-to-attack ratio.
+    \item \textbf{Lack of Provenance Context}: Standard flow-based datasets discard causal relationships between events (which process spawned which network connection), essential for graph-based APT detection.
+\end{enumerate}
+
 
 \section{Classification of Solutions}
 \label{sec:classification}
@@ -861,17 +918,140 @@ Traditional ML approaches constitute the foundational layer of intelligent detec
 Deep Learning represents a subset of ML that utilizes multi-layered neural networks to learn hierarchical representations of data. \cite{ankalaki2025cyber} emphasize that DL models outperform traditional ML in handling unstructured high-dimensional data, such as raw network traffic bytes or system log sequences. Key architectures in this category include Convolutional Neural Networks (CNNs) and Recurrent Neural Networks (RNNs).
 
 \subsection{Generative Artificial Intelligence (GenAI) Approaches}
-The most recent evolution in detection strategies involves Generative AI. Unlike discriminative models that separate classes, generative models (such as VAEs and GANs) learn the underlying distribution of the data to generate new instances. According to [15], GenAI is revolutionizing cybersecurity by enabling:
+The most recent evolution in detection strategies involves Generative AI. Unlike discriminative models that separate classes, generative models (such as VAEs and GANs) learn the underlying distribution of the data to generate new instances. According to \cite{ankalaki2025cyber}, GenAI is revolutionizing cybersecurity by enabling:
 \begin{enumerate}
-    \item \textbf{Advanced Anomaly Detection:} By learning the exact distribution of benign traffic, any deviation—even subtle—can be flagged with high precision.
+    \item \textbf{Advanced Anomaly Detection:} By learning the exact distribution of benign traffic, any deviation-even subtle-can be flagged with high precision.
     \item \textbf{Data Augmentation:} Generating synthetic attack data to train models, addressing the critical lack of real-world APT samples.
     \item \textbf{Adversarial Defense:} Simulating attacks to harden defense systems.
 \end{enumerate}
 
-\section{Description of Solutions}
+\section{Key ML Algorithms Overview}
+
+A wide range of ML algorithms is available to address different learning tasks. The following presents the most widely used algorithms across all paradigms, with particular attention to their use in cybersecurity and APT detection contexts.
+
+\subsubsection*{Supervised Learning Algorithms}
+
+\begin{description}
+    \item[Decision Trees] A Decision Tree is a tree-structured model that splits data recursively based on feature values, producing a set of human-readable if-then rules for classification or regression.
+    \begin{itemize}
+        \item \textbf{Strengths}: Highly interpretable, fast to train, requires minimal data preprocessing.
+        \item \textbf{Weaknesses}: Tends  to overfitting on complex datasets; sensitive to small variations in data.
+    \end{itemize}
+
+    \item[Random Forest] An ensemble method that builds a large number of Decision Trees during training and combines their outputs --- either by majority voting (classification) or averaging (regression) --- to produce a more robust and accurate prediction~\cite{breiman2001random}.
+    \begin{itemize}
+        \item \textbf{Strengths}: Resistant to overfitting, handles high-dimensional data well, provides feature importance rankings.
+        \item \textbf{Weaknesses}: Less interpretable than a single Decision Tree; computationally heavier.
+    \end{itemize}
+
+    \item[Support Vector Machine (SVM)] SVM finds the optimal hyperplane that maximally separates data points of different classes in a high-dimensional feature space. Using the kernel trick, SVM can handle non-linearly separable data by mapping it into a higher-dimensional space.
+    \begin{itemize}
+        \item \textbf{Strengths}: Effective in high-dimensional spaces, robust with limited training data.
+        \item \textbf{Weaknesses}: Computationally expensive on large datasets; sensitive to feature scaling.
+    \end{itemize}
+
+    \item[Gradient Boosting (XGBoost, LightGBM)] Gradient Boosting builds an ensemble of weak learners --- typically Decision Trees --- sequentially, where each new tree corrects the errors of the previous ones. XGBoost and LightGBM are highly optimized implementations widely used in competitive ML benchmarks.
+    \begin{itemize}
+        \item \textbf{Strengths}: Excellent performance on tabular data, handles imbalanced datasets well, built-in regularization.
+        \item \textbf{Weaknesses}: Requires careful hyperparameter tuning; less suited for raw sequential or image data.
+    \end{itemize}
+
+    \item[Neural Networks and Deep Learning] Artificial Neural Networks (ANNs) are composed of layers of interconnected neurons, each applying a non-linear transformation to its inputs. Deep Learning refers to neural networks with many hidden layers, capable of learning highly complex, hierarchical representations from raw data~\cite{goodfellow2016deep}, drawing inspiration from biological neural structures as illustrated in Figure~\ref{fig:ann_neuron}.
+\end{description}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{figures/artificial-neural-network-a-Brain-neuron.png}
+    \caption{Biological neuron (left) compared to an Artificial Neural Network model (right).}
+    \label{fig:ann_neuron}
+\end{figure}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|p{0.25\linewidth}|p{0.35\linewidth}|p{0.35\linewidth}|}
+\hline
+\textbf{Architecture} & \textbf{Description} & \textbf{Cybersecurity Application} \\ \hline
+Convolutional Neural Network (CNN) & Extracts local spatial patterns through convolution operations & Malware visualization, image-based phishing detection \\ \hline
+Recurrent Neural Network (RNN) & Processes sequential data by maintaining memory of previous inputs & Detecting sequential attack patterns in logs \\ \hline
+Long Short-Term Memory (LSTM) & An advanced RNN that captures long-range temporal dependencies~\cite{hochreiter1997lstm} & Multi-stage APT detection across time, network behavior modeling \\ \hline
+Transformer & Attention-based architecture that models global relationships in sequences & CTI report analysis, TTP extraction from text \\ \hline
+Autoencoder & Learns a compressed representation of data and reconstructs it & Anomaly detection -- reconstruction error flags unusual behavior \\ \hline
+Generative Adversarial Network (GAN) & Two competing networks: a generator and a discriminator & Synthetic attack data generation, adversarial training \\ \hline
+\end{tabular}
+\caption{Key Deep Learning Architectures in Cybersecurity}
+\label{tab:dl_architectures}
+\end{table}
+
+\customnote{LSTM networks are particularly well-suited to multi-stage APT detection because APT attacks happens over extended time periods, with each stage leaving Discreet  traces in logs. LSTMs can model these long temporal sequences and detect patterns that span hours, days, or even weeks of system activity. Transformer-based models take this capability further ï¿½ rather than processing log sequences step by step like LSTMs, Transformers use a self-attention mechanism that directly connects every event in the sequence to every other, regardless of how far apart they are in time. This allows Transformers to capture complex, long-range dependencies across attack stages more efficiently, while also benefiting from parallel processing ï¿½ making them increasingly preferred for large-scale, multi-stage APT detection tasks.}
+
+\subsubsection*{Unsupervised Learning Algorithms}
+
+\begin{description}
+    \item[K-Means Clustering] K-Means partitions data into K clusters by iteratively assigning each data point to the nearest cluster centroid and updating centroids until convergence.
+    \begin{itemize}
+        \item \textbf{Strengths}: Simple, fast, and scalable to large datasets.
+        \item \textbf{Weaknesses}: Requires the number of clusters K to be defined in advance; sensitive to outliers.
+    \end{itemize}
+
+    \item[DBSCAN (Density-Based Spatial Clustering of Applications with Noise)] DBSCAN groups data points that are closely packed together while marking points in low-density regions as outliers --- making it naturally suited to anomaly detection, as opposed to centroid-based methods like K-Means (see Figure~\ref{fig:kmeans_vs_dbscan}).
+    \begin{itemize}
+        \item \textbf{Strengths}: Does not require specifying the number of clusters; identifies outliers directly.
+        \item \textbf{Weaknesses}: Sensitive to the choice of density parameters; struggles with varying-density clusters.
+    \end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{figures/kmens_vs_dbscan.jpg}
+    \caption{Visual comparison between K-Means (centroid-based) and DBSCAN (density-based) clustering algorithms.}
+    \label{fig:kmeans_vs_dbscan}
+\end{figure}
+
+\end{description}
+
+\subsubsection*{Reinforcement Learning Algorithms}
+
+\begin{description}
+    \item[Q-Learning and Deep Q-Networks (DQN)] Q-Learning is a model-free RL algorithm that learns the value of taking a given action in a given state, building a Q-table of state-action values. Deep Q-Networks (DQN) replace the Q-table with a deep neural network, enabling RL to scale to complex, high-dimensional environments.
+    \begin{itemize}
+        \item \textbf{Cybersecurity use}: Adaptive intrusion detection, automated security policy optimization, adversarial attack simulation.
+    \end{itemize}
+
+    \item[Proximal Policy Optimization (PPO)] PPO is a state-of-the-art policy gradient RL algorithm that directly optimizes the agent's decision-making policy while ensuring stable, controlled updates.
+    \begin{itemize}
+        \item \textbf{Cybersecurity use}: Training autonomous agents for network defense, simulating realistic attacker behavior for red-team exercises.
+    \end{itemize}
+\end{description}
+
+
+\subsubsection*{Algorithm Selection Summary}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|p{0.45\linewidth}|p{0.5\linewidth}|}
+\hline
+\textbf{Task} & \textbf{Recommended Algorithms} \\ \hline
+Network intrusion classification & Random Forest, XGBoost, SVM, CNN \\ \hline
+Sequential attack detection & LSTM, RNN, Transformer \\ \hline
+Anomaly detection (unlabeled data) & Isolation Forest, Autoencoder, DBSCAN \\ \hline
+TTP extraction from text & Transformer, NLP-based models \\ \hline
+Adaptive, evolving threat response & DQN, PPO (Reinforcement Learning) \\ \hline
+Synthetic attack data generation & GAN, VAE (Variational Autoencoder) \\ \hline
+\end{tabular}
+\caption{Summary of Machine Learning Algorithm Selection by Task}
+\label{tab:alg_selection}
+\end{table}
+
+\subsection{Definition and Capabilities in Cybersecurity}
+Artificial Intelligence (AI) and Machine Learning (ML) are powerful techniques for addressing the rapidly evolving cyber threat landscape \cite{jiang2025mitre}. Generative Artificial Intelligence (GenAI) stands out for its ability to create varied content (text, code, images). Tools like ChatGPT and LLMs have demonstrated GenAI's potential to transform many fields.
+
+In the cybersecurity domain, GenAI extends beyond Large Language Models (LLMs) to include Generative Adversarial Networks (GANs) and autoencoders, used for analyzing large datasets to identify patterns and map them to adversary tactics \cite{jiang2025mitre}.
+
+
+
+\section{Description of Solutions: Review of AI/ML on APT Datasets}
 \label{sec:description}
 
-This section details the technical mechanisms of the algorithms identified in the classification, evaluating their specific application to APT detection as discussed in [15].
+This section details the technical mechanisms of the algorithms identified in the classification, evaluating their specific application to APT detection as discussed in \cite{ankalaki2025cyber}.
 
 \subsection{Machine Learning Solutions}
 
@@ -880,17 +1060,22 @@ SVM is a supervised learning algorithm that constructs a hyperplane or set of hy
 \begin{equation}
     f(x) = \text{sign}(\sum_{i=1}^{n} \alpha_i y_i K(x_i, x) + b)
 \end{equation}
-As noted in [15], SVMs are effective for high-dimensional data but entail high computational costs during the training phase, making them less suitable for real-time processing of massive network flows.
+As noted in \cite{ankalaki2025cyber}, SVMs are effective for high-dimensional data but entail high computational costs during the training phase, making them less suitable for real-time processing of massive network flows.
 
 \subsubsection{Random Forest (RF) and Decision Trees}
-Decision Trees (DT) provide high interpretability by splitting data based on feature values. Random Forest (RF) improves upon DT by aggregating multiple trees (bagging) to reduce overfitting. Ankalaki et al. [15] report that RF achieves high accuracy (often exceeding 99\%) in detecting specific attack types like DDoS and Botnets within IoT environments, making it a robust baseline for APT stage detection.
+Decision Trees (DT) provide high interpretability by splitting data based on feature values. Random Forest (RF) improves upon DT by aggregating multiple trees (bagging) to reduce overfitting. \cite{ankalaki2025cyber} report that RF achieves high accuracy (often exceeding 99\%) in detecting specific attack types like DDoS and Botnets within IoT environments, making it a robust baseline for APT stage detection.
 
-\subsubsection{Naïve Bayes (NB)}
-Based on Bayes' theorem with an assumption of feature independence, NB is computationally efficient. While it lacks the nuance to detect complex, correlated APT behaviors, it serves as a fast filter for initial traffic classification [15].
+\subsubsection{Naive Bayes (NB)}
+Based on Bayes' theorem (as shown in Equation~\ref{eq:bayes}) with an assumption of feature independence, NB is computationally efficient. While it lacks the nuance to detect complex, correlated APT behaviors, it serves as a fast filter for initial traffic classification \cite{ankalaki2025cyber}.
+
+\begin{equation}
+    P(A|B) = \frac{P(B|A) P(A)}{P(B)}
+    \label{eq:bayes}
+\end{equation}
 
 \begin{table}[ht]
 \centering
-\caption{Performance Analysis of State-of-the-Art ML Approaches for Cyber-Attack Prediction [15]}
+\caption{Performance Analysis of State-of-the-Art ML Approaches for Cyber-Attack Prediction  }
 \label{tab:ml_performance}
 \resizebox{\textwidth}{!}{%
 \begin{tabular}{|l|l|c|c|c|c|}
@@ -899,19 +1084,19 @@ Based on Bayes' theorem with an assumption of feature independence, NB is comput
 \hline
 \multirow{4}{*}{AWID} 
  & AdaBoost & 92.20 & 0.850 & 0.922 & 0.885 \\
- & Naïve Bayes & 89.43 & 0.891 & 0.894 & 0.877 \\
+ & Naive Bayes & 89.43 & 0.891 & 0.894 & 0.877 \\
  & Random Forest (RF) & \textbf{95.58} & \textbf{0.958} & \textbf{0.956} & \textbf{0.941} \\
 \hline
 \multirow{3}{*}{Modern DDoS} 
  & MLP & 98.63 & 0.986 & 0.986 & 0.986 \\
  & Random Forest (RF) & 98.02 & 0.980 & 0.980 & 0.980 \\
- & Naïve Bayes & 96.91 & 0.969 & 0.969 & 0.969 \\
+ & Naive Bayes & 96.91 & 0.969 & 0.969 & 0.969 \\
 \hline
 \multirow{5}{*}{CICIDS 2017} 
  & KNN & 96.00 & 0.960 & 0.960 & 0.960 \\
  & Random Forest (RF) & \textbf{98.00} & \textbf{0.980} & 0.970 & 0.970 \\
  & ID3 & 98.00 & 0.980 & 0.980 & 0.980 \\
- & Naïve Bayes & 75.00 & 0.880 & 0.040 & 0.040 \\
+ & Naive Bayes & 75.00 & 0.880 & 0.040 & 0.040 \\
 \hline
 \multirow{4}{*}{HIKARI-2021} 
  & KNN & 98.00 & 0.860 & 0.900 & 0.880 \\
@@ -938,7 +1123,7 @@ Based on Bayes' theorem with an assumption of feature independence, NB is comput
 \subsection{Deep Learning Solutions}
 
 \subsubsection{Convolutional Neural Networks (CNN)}
-Originally designed for image processing, CNNs are applied to cybersecurity by treating network traffic as images or matrices. They excel at extracting spatial features (local patterns) from traffic payloads. [15] highlights their utility in malware classification where binary executables are visualized as grayscale images.
+Originally designed for image processing, CNNs are applied to cybersecurity by treating network traffic as images or matrices. They excel at extracting spatial features (local patterns) from traffic payloads. \cite{ankalaki2025cyber} highlights their utility in malware classification where binary executables are visualized as grayscale images.
 
 \subsubsection{Recurrent Neural Networks (RNN) and LSTM}
 Given that APTs are temporal, multi-stage attacks, standard feed-forward networks often fail to capture the sequence of events. RNNs address this by maintaining a "memory" of previous inputs. Specifically, Long Short-Term Memory (LSTM) networks are crucial for APT detection because they solve the vanishing gradient problem, allowing the model to learn long-term dependencies.
@@ -1001,6 +1186,97 @@ X-IIoTID & GRU & 99.46 & 0.964 & 0.915 & 0.935 \\
 \end{table}
 
 
+
+\subsection{Detailed Results and Case Studies on APT Datasets}
+
+However, related prior work on Linux log-based APT detection provides methodological context: Chen et al. (2020) proposed a detection approach based on Linux logs, using log parsing and anomaly analysis to identify advanced attacks, achieving promising results in controlled environments [1]. This work illustrates the methodological direction that future studies exploiting Linux-APT-Dataset-2024 \cite{karim2024linux} are likely to follow.
+
+However, related prior work is instructive: Matsuda et al. (2018) applied unsupervised anomaly detection to Windows Event logs to detect APT attacks against Active Directory using legitimate administrator accounts, achieving high precision in identifying anomalous authentication patterns [3].
+
+In the broader encrypted-traffic detection domain, Yue et al. (2024) proposed \textbf{AISL} (Attack Intent-driven Sequence-based Learning), which integrates heterogeneous audit data and constructs provenance graphs annotated with attack-intent security tags. Evaluated on 10 realistic APT scenarios, AISL achieved a precision of \textbf{93.05\%}, recall of \textbf{98.12\%}, and F1-score of \textbf{95.36\%} [2].
+
+One important study has directly applied a deep learning model to this dataset. The paper proposes a \textbf{CNN2D-based framework} for IoT cyberattack detection on CICAPT-IIoT, following an 8-step pipeline:
+
+1. Data acquisition from the CICAPT-IIoT dataset (attack records + balanced normal subset)
+2. Preprocessing: null value handling, Label Encoding, shuffling, normalization
+3. Advanced feature engineering: correlation analysis, PCA for dimensionality reduction, temporal windowing
+4. Feature scaling: both Min-Max and Z-score normalization tested
+5. \textbf{2D reshaping} of feature vectors into matrix format (image-like) to enable CNN2D spatial processing
+6. Train/test split
+7. Real-time prediction deployment
+
+The CNN2D architecture uses 3 convolutional layers (3$\times$3 and 5$\times$5 kernels), ReLU activation, Max-Pooling, Dropout (rate = 0.3), and Softmax output. Hyperparameters were tuned via grid search + cross-validation (batch size: 128, learning rate: 0.001, optimizer: Adam, loss: categorical cross-entropy).
+
+\textbf{Table 3.3 --- CNN2D vs. Baseline Models on CICAPT-IIoT \cite{ghiasvand2024cicapt}}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|p{0.3\linewidth}|p{0.15\linewidth}|p{0.15\linewidth}|p{0.15\linewidth}|p{0.15\linewidth}|}
+\hline
+\textbf{Algorithm} & \textbf{Accuracy (\%)} & \textbf{Precision (\%)} & \textbf{Recall (\%)} & \textbf{F1-Score (\%)} \\
+\hline
+\textbf{CNN2D (Proposed)} & \textbf{99.78} & \textbf{99.7} & \textbf{99.8} & \textbf{99.75} \\
+\hline
+Logistic Regression & 99.70 & 99.0 & 99.8 & 99.70 \\
+\hline
+Random Forest & 96.00 & 95.2 & 96.5 & 95.80 \\
+\hline
+SVM & 94.00 & 93.4 & 94.1 & 93.70 \\
+\hline
+\end{tabular}
+\end{table}
+
+For scalability, the CNN2D model maintained \textbf{99.78\% accuracy on 50,000 records} (avg. prediction time: 1.2 s) and \textbf{99.65\% accuracy on 200,000 records} (avg. prediction time: 3.8 s), confirming strong discriminative capacity even on the highly imbalanced dataset ($\sim$95\% normal / $\sim$5\% attack). This result directly validates CICAPT-IIoT \cite{ghiasvand2024cicapt} as a viable training and evaluation benchmark and provides a strong performance reference point for our own experimental phase.
+
+In the broader IIoT-APT detection space, Saurabh et al. (2024) proposed \textbf{HMS-IDS}, a hybrid multi-stage IDS combining supervised and unsupervised approaches for known and zero-day attack detection in IIoT environments (evaluated on CIC-ToN-IoT), achieving \textbf{99.49\% accuracy for known attacks} and \textbf{98.32\% for zero-day attacks} [5]. Gueye et al. (2023) also achieved promising results for Modbus-protocol IoT/IIoT attack detection using deep learning [6].
+
+\subsection{Review of AI/ML Works on APT Datasets --- Methods and Results}
+
+Beyond the CNN2D result on CICAPT-IIoT \cite{ghiasvand2024cicapt} (Section 3.4.1.5), the following works represent the state-of-the-art in AI/ML-based APT detection using datasets comparable to those in our work:
+
+\textbf{Bodström \& Hämäläinen (2019) --- Novel Deep Learning Stack for APT Detection [7]}  
+Proposed a multi-layer deep learning architecture combining different DL methods adapted for APT detection using raw network flows. This work is one of the first to specifically target APT-level threats with a pure DL stack, establishing important architectural baselines for subsequent research.
+
+\textbf{Matsuda et al. (2018) --- APT Detection Against Active Directory [3]}  
+Applied unsupervised anomaly detection (machine learning on Windows Event Logs) to detect APT attacks using legitimate administrator accounts. Achieved high precision in identifying anomalous authentication sequences on Windows environments --- directly relevant to the Windows APT Persistence Techniques Dataset context \cite{rahal2025windows}.
+
+\textbf{Yue et al. (2024) --- AISL: Attack Intent-driven Sequence-based Learning [2]}  
+Constructed provenance graphs from heterogeneous audit logs and assigned security tags based on attack intent. A sequential learning model then detects APT stages from graph event sequences. Evaluated on 10 realistic APT scenarios: \textbf{Precision: 93.05\%, Recall: 98.12\%, F1: 95.36\%}. Particularly notable for its high recall, which is the priority metric in APT detection.
+
+\textbf{Saurabh et al. (2024) --- HMS-IDS for IIoT [5]}  
+Hybrid multi-stage IDS combining supervised (for known attacks) and unsupervised (for zero-day) approaches, integrating threat intelligence. Evaluated on CIC-ToN-IoT: \textbf{99.49\% accuracy for known attacks, 98.32\% for zero-day attacks}. Demonstrates the viability of hybrid detection in IIoT environments directly adjacent to the CICAPT-IIoT context \cite{ghiasvand2024cicapt}.
+
+\textbf{Layeghy \& Portmann (2023) --- Cross-Domain Evaluation of ML-based NIDS [8]}  
+Studied the transferability of ML intrusion detection models across different datasets. The key finding is that models trained on one dataset often perform significantly worse when applied to another --- a critical limitation that justifies dataset diversity in our experimental design and motivates our synthetic data generation component (ReALTabFormer).
+
+\textbf{Stojanovic et al. (2020) --- APT Datasets and Attack Modeling Review [9]}  
+A comprehensive review of APT datasets and modeling for automated detection methods. The study identified a critical shortage of realistic, standardized APT datasets --- a finding that directly motivates our use of multiple specialized datasets (MLAPT, KAPT-2024, CICAPT-IIoT) and our GenAI-based synthetic scenario generation \cite{huang2024saga}.
+
+\textbf{Summary Table --- AI/ML Works on APT-Relevant Datasets}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|p{0.25\linewidth}|p{0.3\linewidth}|p{0.2\linewidth}|p{0.25\linewidth}|}
+\hline
+\textbf{Reference} & \textbf{Method} & \textbf{Dataset} & \textbf{Key Results} \\
+\hline
+CNN2D Paper (2024) & CNN2D + PCA + grid search & CICAPT-IIoT & Acc. 99.78\%, F1 99.75\% \\
+\hline
+Yue et al. [2] (2024) & Provenance graph + AISL & Heterogeneous APT logs & Prec. 93.05\%, Rec. 98.12\%, F1 95.36\% \\
+\hline
+Saurabh et al. [5] (2024) & HMS-IDS (Hybrid) & CIC-ToN-IoT & 99.49\% known, 98.32\% zero-day \\
+\hline
+Bodström \& Hämäläinen (2019) & Deep Learning Stack & Network flows & APT-specific DL baseline \\
+\hline
+Matsuda et al. [3] (2018) & Unsupervised anomaly detection & Windows Event Logs & High precision AD-APT detection \\
+\hline
+Layeghy \& Portmann [8] (2023) & Cross-domain ML evaluation & Multi-dataset & Poor cross-dataset transferability \\
+\hline
+\end{tabular}
+\end{table}
+
+
+
 \section{Synthesis}
 \label{sec:synthesis}
 
@@ -1026,77 +1302,4 @@ A comparative analysis of the described solutions reveals distinct trade-offs be
 \textbf{Conclusion of Synthesis:}
 While Traditional ML provides a baseline, it is insufficient for the stealthy nature of APTs. Deep Learning improves detection capabilities but suffers from opacity and data scarcity. Generative AI addresses the data scarcity and anomaly detection capabilities but requires careful integration. 
 Currently, a gap exists in the literature: most solutions are \textit{reactive} classifiers. There is a critical need for a framework that not only detects (Perception) but also decides on the optimal response strategy (Decision-Making) while handling the multi-stage nature of APTs mapped to the Cyber Kill Chain.
-
-\section{Proposition}
-\label{sec:proposition}
-
-To address the limitations identified in the synthesis—specifically the lack of proactive decision-making and the challenge of multi-stage correlation—this thesis proposes a dual-framework architecture. This architecture integrates Generative AI for enhanced perception and synthetic data generation, with Reinforcement Learning for optimal defense strategy.
-
-\subsection{Proposition 1: RL-Driven Decision-Making Framework}
-\label{subsec:prop1_rl}
-
-Our first proposition introduces a **Reinforcement Learning-driven decision-making framework** designed for early defense against multi-stage APT attacks. This framework is explicitly mapped to the Cyber Kill Chain to ensure stage-aware mitigation.
-
-\subsubsection{Architecture Overview}
-The core innovation of this proposition is the decoupling of \textit{Perception} (interpreting the environment) from \textit{Decision-Making} (taking action). This separation allows for more modular and robust training.
-
-\subsubsection{The Multi-Model Perception Layer}
-Instead of relying on a single detection algorithm, the framework employs a composite perception module consisting of three specialized pre-trained models:
-\begin{enumerate}
-    \item \textbf{Autoencoder (AE) for Anomaly Detection:} The AE is trained to minimize the reconstruction error of benign traffic. It acts as the first filter, identifying raw deviations from the baseline.
-    \item \textbf{Variational Autoencoder (VAE) for Maliciousness Estimation:} The VAE goes beyond simple error reconstruction. It provides a probabilistic estimate of "maliciousness" accompanied by an uncertainty metric. This uncertainty quantification is crucial for reducing false positives in ambiguous scenarios.
-    \item \textbf{Transformer for State Prediction:} A Transformer model processes the sequence of alerts to predict the likely \textit{next stage} of the attack in the Cyber Kill Chain. This predictive capability allows the system to be proactive rather than reactive.
-\end{enumerate}
-These three models work in concert to summarize high-volume alerts into a compact, numerical state representation vector $S_t$.
-
-\subsubsection{The Deep Q-Network (DQN) Agent}
-The state vector $S_t$ is fed into a custom APT environment where a Deep Q-Network (DQN) agent operates. The agent aims to learn an optimal policy $\pi(S_t)$ that maximizes the cumulative reward.
-\begin{equation}
-    Q(s, a) = r + \gamma \max_{a'} Q(s', a')
-\end{equation}
-The agent learns \textit{when} and \textit{how} to respond to evolving attacks. The reward function is designed to prioritize early intervention (stopping the attack in the Reconnaissance or Weaponization phase) while heavily penalizing false alarms that disrupt legitimate operations.
-
-\subsubsection{Training with ReALTabFormer and Conditional Replay}
-A major hurdle in training RL agents for cybersecurity is the scarcity of realistic attack traces. We address this by using **ReALTabFormer**, a generative model tailored for tabular data.
-\begin{itemize}
-    \item \textbf{Synthetic Data Generation:} ReALTabFormer is used to generate diverse, high-level malicious alert attributes based on limited real-world samples.
-    \item \textbf{Conditional Replay:} To ensure these synthetic attributes are compatible with our perception models, they are mapped back to realistic feature vectors via a conditional replay mechanism.
-\end{itemize}
-This pipeline enables the agent to train on diverse, realistic attack scenarios—ranging from stealthy low-and-slow attacks to aggressive intrusions—without the need to retrain the underlying detection models.
-
-\subsection{Proposition 2: GenAI-Augmented Pre-Attack Detection Framework}
-\label{subsec:prop2_gnn}
-
-Complementing the decision-making framework, our second proposition focuses on the structural detection of APTs using a **GenAI-Augmented Pre-Attack Detection Framework**. This approach leverages the structural nature of network data to identify pre-attack behaviors.
-
-\subsubsection{Unified Cyber Kill Chain Mapping}
-To cover the full spectrum of APT activities, we propose a mapping scheme that integrates the conventional Cyber Kill Chain (CKC) with the MITRE ATT\&CK framework. This unified chain provides a granular view of adversary tactics, techniques, and procedures (TTPs), spanning from initial reconnaissance to the final impact.
-
-\subsubsection{Graph-Based Representation and GNNs}
-Network entities (hosts, users, files, IP addresses) and their interactions are modeled as a heterogeneous graph $G = (V, E)$. 
-\begin{itemize}
-    \item \textbf{Graph Neural Networks (GNN):} We employ GNNs to analyze this graph structure. GNNs are capable of learning node embeddings that capture the neighborhood context.
-    \item \textbf{Pre-Attack Detection:} The GNN is trained to identify sub-graph patterns indicative of pre-attack activities (e.g., scanning, enumeration) which appear as specific topological structures within the network graph, often invisible to flow-based detectors.
-\end{itemize}
-
-\subsubsection{GenAI for Synthetic Scenario Generation}
-Validating APT detection models is challenging due to the lack of public datasets containing multi-stage attacks. We utilize Generative AI to create synthetic APT scenarios:
-\begin{itemize}
-    \item \textbf{Scenario Generation:} GenAI models generate synthetic sequences of MITRE ATT\&CK techniques that mimic the logic and progression of real APT groups (e.g., APT29, APT41).
-    \item \textbf{Integration:} These synthetic scenarios are injected into the training pipeline, ensuring the GNN model is robust against unseen attack vectors.
-\end{itemize}
-
-\subsubsection{Cyber Threat Intelligence (CTI) Platform Integration}
-To operationalize this framework, we propose its integration into a Cyber Threat Intelligence platform built on the ELK stack (Elasticsearch, Logstash, Kibana).
-\begin{enumerate}
-    \item \textbf{Data Ingestion:} Logstash collects logs from various sources (syslogs, firewall, IDS).
-    \item \textbf{Processing:} The GenAI-Augmented GNN models analyze incoming data streams in real-time.
-    \item \textbf{Visualization:} Kibana provides a dashboard for security analysts, visualizing the predicted attack stages and the graph-based alerts, facilitating rapid incident response.
-\end{enumerate}
-
-\section{Chapter Conclusion}
-In this chapter, we reviewed the spectrum of APT detection solutions, highlighting the progression from traditional ML to Generative AI. We identified that while GenAI offers powerful capabilities for anomaly detection and data synthesis, it requires a robust decision-making layer to be operationally effective.
-Our proposed solution is twofold: (1) An RL-driven framework utilizing a multi-model perception layer (AE, VAE, Transformer) and synthetic training data (ReALTabFormer) to automate defense strategies; and (2) A GenAI-Augmented GNN framework integrated into a CTI platform for the structural detection of pre-attack behaviors. Together, these propositions aim to significantly reduce the dwell time of APTs and enhance the resilience of critical systems.
-
-
 

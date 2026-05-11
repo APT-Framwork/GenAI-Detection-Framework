@@ -1,4 +1,4 @@
-\documentclass[11pt,a4paper]{report}
+﻿\documentclass[11pt,a4paper]{report}
 \usepackage{xcolor}
 \usepackage{array}
 \usepackage{makecell}
@@ -17,11 +17,12 @@
 \usepackage{mathtools}
 \usepackage{amsmath}
 \usepackage{amssymb}
-\usepackage{geometry}
+\usepackage[bottom]{footmisc}
 \usepackage{algpseudocode}
 \usepackage[edges]{forest}
 \usepackage[ruled,lined]{algorithm2e}
 \usepackage[francais]{babel}
+\DeclareUnicodeCharacter{FFFD}{-}
 \usepackage{float}
 \usepackage[bookmarks, colorlinks=false, pdfborder={0 0 0}]{hyperref}
 \usepackage{apacite}
@@ -29,12 +30,20 @@
 \usepackage{fancyhdr}
 \setlength{\headheight}{14pt}
 
+% Wider margins (key change)
+\usepackage[top=2.5cm,bottom=2.5cm,right=2.5cm,left=2.5cm]{geometry}
+
+
 % Configuring the header to only show the chapter number with a line
 \pagestyle{fancy}
 \fancyhf{} 
 \fancyhead[L]{Chapter \thechapter} 
 \fancyfoot[C]{\thepage}
 \renewcommand{\headrulewidth}{0.4pt}
+
+% Slightly looser line spacing and paragraph gap
+\renewcommand{\baselinestretch}{1.05}
+\parskip=5pt
 
 % Custom components for warnings, explications, and notes
 \newcommand{\customexplication}[1]{
@@ -69,6 +78,9 @@
 \end{minipage}
 \vspace{1em}
 }
+
+% Prevent excessive vertical stretching
+\raggedbottom
 
 \begin{document}
 \renewcommand\bibname{References} 
