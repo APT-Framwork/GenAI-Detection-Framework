@@ -20,6 +20,7 @@
 #   CAVIX_LAN_IF=eth0  bash infra/scripts/mobile_dev.sh
 #   CAVIX_LAN_IP=192.168.1.42 bash infra/scripts/mobile_dev.sh
 #   CAVIX_TUNNEL=1     bash infra/scripts/mobile_dev.sh   # use ngrok tunnel
+#   CAVIX_DEV_CLIENT=1 bash infra/scripts/mobile_dev.sh   # for dev build APK
 #
 # Requires: qrencode (apt install qrencode), Node + npx, mobile deps installed.
 
@@ -111,6 +112,10 @@ if [[ "${CAVIX_TUNNEL:-0}" == "1" ]]; then
   echo "▶ Starting Expo in tunnel mode (CAVIX_TUNNEL=1)"
 else
   echo "▶ Starting Expo on LAN (set CAVIX_TUNNEL=1 to route via ngrok)"
+fi
+if [[ "${CAVIX_DEV_CLIENT:-0}" == "1" ]]; then
+  EXPO_FLAGS="${EXPO_FLAGS} --dev-client"
+  echo "▶ Dev-client mode (CAVIX_DEV_CLIENT=1) — open the CAVIX dev APK, not Expo Go"
 fi
 echo "  Press 'r' in this terminal to reload, Ctrl+C to stop."
 echo
