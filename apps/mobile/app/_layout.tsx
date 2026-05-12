@@ -20,6 +20,7 @@ import * as SplashScreen from "expo-splash-screen";
 import { ErrorBoundary } from "../components/ErrorBoundary";
 import { QueryProvider } from "../lib/api/QueryProvider";
 import { usePushNotifications } from "../hooks/usePushNotifications";
+import { useLocalAlertPings } from "../hooks/useLocalAlertPings";
 import { useUIStore } from "../stores/ui-store";
 import { useUserStore } from "../stores/user-store";
 
@@ -117,6 +118,7 @@ function ThemedStatusBar() {
  */
 function AppShell() {
   usePushNotifications();
+  useLocalAlertPings();
   return (
     <Stack screenOptions={{ headerShown: false, animation: "fade" }}>
       <Stack.Screen name="index" />

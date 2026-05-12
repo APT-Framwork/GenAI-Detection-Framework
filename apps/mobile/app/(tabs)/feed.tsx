@@ -169,6 +169,7 @@ export default function VigilanceFeedScreen() {
                 onPress={() => setFilter(b)}
               >
                 <Text
+                  numberOfLines={1}
                   style={[
                     styles.filterChipText,
                     { color: c.textMuted },
@@ -393,14 +394,17 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     gap: 6,
     marginBottom: spacing.sm,
+    alignItems: "center",
   },
   filterChip: {
+    height: 32,
     paddingHorizontal: spacing.md,
-    paddingVertical: 6,
-    borderRadius: radius.full,
+    borderRadius: 16,
     backgroundColor: colors.bgCard,
     borderWidth: 1,
     borderColor: colors.border,
+    alignItems: "center",
+    justifyContent: "center",
   },
   filterChipActive: {
     backgroundColor: colors.primary,
@@ -411,6 +415,8 @@ const styles = StyleSheet.create({
     fontSize: typography.size.xs,
     color: colors.textMuted,
     letterSpacing: typography.tracking.wider,
+    includeFontPadding: false,
+    textAlignVertical: "center",
   },
   filterChipTextActive: { color: colors.white },
   list: {

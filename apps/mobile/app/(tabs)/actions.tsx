@@ -129,6 +129,7 @@ export default function ActionsScreen() {
               onPress={() => setFilter(t.key)}
             >
               <Text
+                numberOfLines={1}
                 style={[
                   styles.filterChipText,
                   { color: c.textMuted },
@@ -136,7 +137,7 @@ export default function ActionsScreen() {
                 ]}
               >
                 {t.label.toUpperCase()}
-                {t.count != null ? `  ${t.count}` : ""}
+                {t.count != null ? ` ${t.count}` : ""}
               </Text>
             </Pressable>
           );
@@ -405,14 +406,21 @@ const styles = StyleSheet.create({
     fontSize: typography.size.sm,
     color: colors.textMuted,
   },
-  filterRow: { paddingHorizontal: spacing.md, gap: 6, marginBottom: spacing.sm },
-  filterChip: {
+  filterRow: {
     paddingHorizontal: spacing.md,
-    paddingVertical: 6,
-    borderRadius: radius.full,
+    gap: 6,
+    marginBottom: spacing.sm,
+    alignItems: "center",
+  },
+  filterChip: {
+    height: 32,
+    paddingHorizontal: spacing.md,
+    borderRadius: 16,
     backgroundColor: colors.bgCard,
     borderWidth: 1,
     borderColor: colors.border,
+    alignItems: "center",
+    justifyContent: "center",
   },
   filterChipActive: { backgroundColor: colors.primary, borderColor: colors.primary },
   filterChipText: {
@@ -420,6 +428,8 @@ const styles = StyleSheet.create({
     fontSize: typography.size.xs,
     color: colors.textMuted,
     letterSpacing: typography.tracking.wider,
+    includeFontPadding: false,
+    textAlignVertical: "center",
   },
   filterChipTextActive: { color: colors.white },
   list: {

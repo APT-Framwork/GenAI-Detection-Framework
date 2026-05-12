@@ -98,6 +98,7 @@ export default function AlertsScreen() {
               onPress={() => setFilter(f.key)}
             >
               <Text
+                numberOfLines={1}
                 style={[
                   styles.filterText,
                   { color: c.textMuted },
@@ -243,10 +244,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   filterChip: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: radius.full,
+    height: 32,
+    paddingHorizontal: 14,
+    borderRadius: 16,
     backgroundColor: colors.bgSurface,
+    alignItems: "center",
+    justifyContent: "center",
   },
   filterChipActive: { backgroundColor: colors.primary },
   filterText: {
@@ -255,6 +258,8 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     textTransform: "uppercase",
     letterSpacing: 0.5,
+    includeFontPadding: false,
+    textAlignVertical: "center",
   },
   filterTextActive: { color: colors.primaryLight },
   list: {

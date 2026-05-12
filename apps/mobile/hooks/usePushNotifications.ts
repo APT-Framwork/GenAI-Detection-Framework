@@ -32,6 +32,7 @@ Notifications.setNotificationHandler({
 });
 
 const TOKEN_REF = { current: null as string | null };
+const WARNED_NO_PROJECT_ID = { current: false };
 
 export function usePushNotifications() {
   const status = useUserStore((s) => s.status);
