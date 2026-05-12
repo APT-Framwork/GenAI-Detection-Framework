@@ -28,8 +28,7 @@
         "backgroundColor": "#e7faff"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.strix.mobile",
-      "useNextNotificationsApi": true
+      "package": "com.strix.mobile"
     },
     "web": {
       "favicon": "./assets/favicon.png",
@@ -46,7 +45,6 @@
       [
         "expo-notifications",
         {
-          "icon": "./assets/icon.png",
           "color": "#00f2ff"
         }
       ]
