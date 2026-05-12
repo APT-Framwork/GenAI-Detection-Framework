@@ -13,6 +13,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { API_BASE_URL } from "../../lib/api/config";
 import { colors, typography, spacing, radius, shadows } from "../../lib/theme";
+import { useColors } from "../../lib/theme-hook";
 import { useUIStore } from "../../stores/ui-store";
 import { useUserStore } from "../../stores/user-store";
 
@@ -26,6 +27,7 @@ type SettingsItem = {
 
 export default function ProfileScreen() {
   const router = useRouter();
+  const c = useColors();
   const isDark = useUIStore((s) => s.isDark);
   const toggleTheme = useUIStore((s) => s.toggleTheme);
   const user = useUserStore((s) => s.user);
@@ -119,55 +121,71 @@ export default function ProfileScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.container} edges={["top"]}>
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: c.bg }]}
+      edges={["top"]}
+    >
       <ScrollView
         contentContainerStyle={styles.scroll}
         showsVerticalScrollIndicator={false}
       >
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.headerTitle}>Settings</Text>
+          <Text style={[styles.headerTitle, { color: c.textPrimary }]}>
+            Settings
+          </Text>
         </View>
 
         {/* Profile card */}
-        <View style={styles.profileCard}>
-          <View style={styles.avatarLarge}>
-            <Text style={styles.avatarText}>{initials}</Text>
+        <View style={[styles.profileCard, { backgroundColor: c.bgCard }]}>
+          <View style={[styles.avatarLarge, { backgroundColor: c.bgAccent }]}>
+            <Text style={[styles.avatarText, { color: c.primary }]}>
+              {initials}
+            </Text>
           </View>
           <View style={styles.profileInfo}>
-            <Text style={styles.profileName} numberOfLines={1}>
+            <Text
+              style={[styles.profileName, { color: c.textPrimary }]}
+              numberOfLines={1}
+            >
               {displayName}
             </Text>
-            <Text style={styles.profileRole}>{displayRole}</Text>
-            <Text style={styles.profileDesignation}>{designation}</Text>
+            <Text style={[styles.profileRole, { color: c.primary }]}>
+              {displayRole}
+            </Text>
+            <Text style={[styles.profileDesignation, { color: c.textMuted }]}>
+              {designation}
+            </Text>
           </View>
         </View>
 
         {/* Session card */}
-        <View style={styles.statsRow}>
+        <View style={[styles.statsRow, { backgroundColor: c.bgCard }]}>
           <View style={styles.statItem}>
-            <Text style={styles.statValue}>
+            <Text style={[styles.statValue, { color: c.textPrimary }]}>
               {user?.isActive ? "ACTIVE" : "—"}
             </Text>
-            <Text style={styles.statLabel}>SESSION</Text>
+            <Text style={[styles.statLabel, { color: c.textMuted }]}>SESSION</Text>
           </View>
-          <View style={styles.statDivider} />
+          <View style={[styles.statDivider, { backgroundColor: c.border }]} />
           <View style={styles.statItem}>
-            <Text style={styles.statValue}>MOBILE</Text>
-            <Text style={styles.statLabel}>CLIENT</Text>
+            <Text style={[styles.statValue, { color: c.textPrimary }]}>MOBILE</Text>
+            <Text style={[styles.statLabel, { color: c.textMuted }]}>CLIENT</Text>
           </View>
-          <View style={styles.statDivider} />
+          <View style={[styles.statDivider, { backgroundColor: c.border }]} />
           <View style={styles.statItem}>
-            <Text style={styles.statValue}>JWT</Text>
-            <Text style={styles.statLabel}>AUTH</Text>
+            <Text style={[styles.statValue, { color: c.textPrimary }]}>JWT</Text>
+            <Text style={[styles.statLabel, { color: c.textMuted }]}>AUTH</Text>
           </View>
         </View>
 
         {/* Settings sections */}
         {SETTINGS_SECTIONS.map((section) => (
           <View key={section.title} style={styles.section}>
-            <Text style={styles.sectionTitle}>{section.title}</Text>
-            <View style={styles.sectionCard}>
+            <Text style={[styles.sectionTitle, { color: c.textMuted }]}>
+              {section.title}
+            </Text>
+            <View style={[styles.sectionCard, { backgroundColor: c.bgCard }]}>
               {section.items.map((item, idx) => {
                 const isSignOut = item.action === "signout";
                 const rowDisabled = isSignOut && signingOut;
@@ -178,38 +196,40 @@ export default function ProfileScreen() {
                     disabled={rowDisabled}
                     style={({ pressed }) => [
                       styles.settingsRow,
-                      idx < section.items.length - 1 &&
-                        styles.settingsRowBorder,
+                      idx < section.items.length - 1 && {
+                        borderBottomWidth: 1,
+                        borderBottomColor: c.border,
+                      },
                       pressed && { opacity: 0.7 },
                     ]}
                   >
                     <Ionicons
                       name={item.icon}
                       size={20}
-                      color={item.danger ? colors.critical : colors.textMuted}
+                      color={item.danger ? c.critical : c.textMuted}
                     />
                     <Text
                       style={[
                         styles.settingsLabel,
-                        item.danger && { color: colors.critical },
+                        { color: item.danger ? c.critical : c.textPrimary },
                       ]}
                     >
                       {item.label}
                     </Text>
                     {item.value ? (
                       <Text
-                        style={styles.settingsValue}
+                        style={[styles.settingsValue, { color: c.textMuted }]}
                         numberOfLines={1}
                       >
                         {item.value}
                       </Text>
                     ) : isSignOut && signingOut ? (
-                      <ActivityIndicator size="small" color={colors.critical} />
+                      <ActivityIndicator size="small" color={c.critical} />
                     ) : (
                       <Ionicons
                         name="chevron-forward"
                         size={16}
-                        color={item.danger ? colors.critical : colors.textLight}
+                        color={item.danger ? c.critical : c.textLight}
                       />
                     )}
                   </Pressable>
@@ -220,7 +240,9 @@ export default function ProfileScreen() {
         ))}
 
         {/* Version */}
-        <Text style={styles.version}>CAVIX v1.0.0 — Powered by STRIX RL</Text>
+        <Text style={[styles.version, { color: c.textMuted }]}>
+          CAVIX v1.0.0 — Powered by STRIX RL
+        </Text>
       </ScrollView>
     </SafeAreaView>
   );

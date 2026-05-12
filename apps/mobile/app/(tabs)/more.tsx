@@ -1,6 +1,7 @@
 /**
  * More — secondary surfaces that aren't primary SOC actions. Surfaces
- * alert history, IOC search/threat intel, model health, and profile.
+ * the live feed (SSE), IOC search/threat intel, model health, and
+ * profile.
  *
  * Each row deep-links to the existing screen (which remains a tab route
  * but is hidden from the tab bar via `href: null` in _layout.tsx).
@@ -11,8 +12,8 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 
-import { colors, radius, shadows, spacing, typography } from "../../lib/theme";
-import { useUnacknowledgedCount } from "../../lib/api/hooks";
+import { typography, spacing, radius, shadows } from "../../lib/theme";
+import { useColors } from "../../lib/theme-hook";
 import { useUserStore } from "../../stores/user-store";
 
 type Row = {
@@ -20,26 +21,23 @@ type Row = {
   label: string;
   caption: string;
   href: string;
-  badge?: number;
 };
 
 export default function MoreScreen() {
   const router = useRouter();
-  const unackQ = useUnacknowledgedCount();
+  const c = useColors();
   const user = useUserStore((s) => s.user);
   const logout = useUserStore((s) => s.logout);
-  const unread = unackQ.data?.count ?? 0;
 
   const sections: { title: string; rows: Row[] }[] = [
     {
       title: "Operations",
       rows: [
         {
-          icon: "notifications-outline",
-          label: "Alert log",
-          caption: "Acknowledge and review every detection",
-          href: "/(tabs)/alerts",
-          badge: unread,
+          icon: "pulse-outline",
+          label: "Live feed",
+          caption: "Real-time SSE stream of every detection",
+          href: "/(tabs)/feed",
         },
         {
           icon: "search-outline",
@@ -48,7 +46,7 @@ export default function MoreScreen() {
           href: "/(tabs)/search",
         },
         {
-          icon: "pulse-outline",
+          icon: "speedometer-outline",
           label: "Model health",
           caption: "Drift, accuracy, and latency per model",
           href: "/(tabs)/status",
@@ -69,44 +67,51 @@ export default function MoreScreen() {
   ];
 
   return (
-    <SafeAreaView style={styles.container} edges={["top"]}>
+    <SafeAreaView style={[styles.container, { backgroundColor: c.bg }]} edges={["top"]}>
       <ScrollView contentContainerStyle={styles.scroll}>
         <View style={styles.header}>
-          <Text style={styles.eyebrow}>UTILITIES</Text>
-          <Text style={styles.title}>More</Text>
+          <Text style={[styles.eyebrow, { color: c.textMuted }]}>UTILITIES</Text>
+          <Text style={[styles.title, { color: c.textPrimary }]}>More</Text>
         </View>
 
         {sections.map((section) => (
           <View key={section.title} style={styles.section}>
-            <Text style={styles.sectionTitle}>{section.title}</Text>
-            <View style={styles.sectionCard}>
+            <Text style={[styles.sectionTitle, { color: c.textMuted }]}>
+              {section.title}
+            </Text>
+            <View style={[styles.sectionCard, { backgroundColor: c.bgCard }]}>
               {section.rows.map((row, idx) => (
                 <Pressable
                   key={row.label}
                   style={[
                     styles.row,
-                    idx < section.rows.length - 1 && styles.rowBorder,
+                    idx < section.rows.length - 1 && {
+                      borderBottomWidth: 1,
+                      borderBottomColor: c.border,
+                    },
                   ]}
                   onPress={() => router.push(row.href as never)}
                 >
-                  <View style={styles.rowIcon}>
-                    <Ionicons name={row.icon} size={20} color={colors.primary} />
+                  <View
+                    style={[styles.rowIcon, { backgroundColor: c.primaryLight }]}
+                  >
+                    <Ionicons name={row.icon} size={20} color={c.primary} />
                   </View>
                   <View style={styles.rowText}>
-                    <Text style={styles.rowLabel}>{row.label}</Text>
-                    <Text style={styles.rowCaption} numberOfLines={1}>
+                    <Text style={[styles.rowLabel, { color: c.textPrimary }]}>
+                      {row.label}
+                    </Text>
+                    <Text
+                      style={[styles.rowCaption, { color: c.textMuted }]}
+                      numberOfLines={1}
+                    >
                       {row.caption}
                     </Text>
                   </View>
-                  {row.badge && row.badge > 0 ? (
-                    <View style={styles.badge}>
-                      <Text style={styles.badgeText}>{row.badge}</Text>
-                    </View>
-                  ) : null}
                   <Ionicons
                     name="chevron-forward"
                     size={16}
-                    color={colors.textMuted}
+                    color={c.textMuted}
                   />
                 </Pressable>
               ))}
@@ -114,12 +119,20 @@ export default function MoreScreen() {
           </View>
         ))}
 
-        <Pressable style={styles.signOutBtn} onPress={() => logout()}>
-          <Ionicons name="log-out-outline" size={16} color={colors.critical} />
-          <Text style={styles.signOutText}>SIGN OUT</Text>
+        <Pressable
+          style={[
+            styles.signOutBtn,
+            { borderColor: c.critical, backgroundColor: c.criticalBg },
+          ]}
+          onPress={() => logout()}
+        >
+          <Ionicons name="log-out-outline" size={16} color={c.critical} />
+          <Text style={[styles.signOutText, { color: c.critical }]}>
+            SIGN OUT
+          </Text>
         </Pressable>
 
-        <Text style={styles.versionLine}>
+        <Text style={[styles.versionLine, { color: c.textMuted }]}>
           CAVIX · Powered by STRIX RL · v1.0.0
         </Text>
       </ScrollView>
@@ -128,7 +141,7 @@ export default function MoreScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.bg },
+  container: { flex: 1 },
   scroll: { paddingBottom: spacing["2xl"] },
   header: {
     paddingHorizontal: spacing.md,
@@ -139,25 +152,21 @@ const styles = StyleSheet.create({
   eyebrow: {
     fontFamily: typography.family.heading,
     fontSize: typography.size.xs,
-    color: colors.textMuted,
     letterSpacing: typography.tracking.widest,
   },
   title: {
     fontFamily: typography.family.heading,
     fontSize: typography.size["3xl"],
-    color: colors.textPrimary,
     letterSpacing: typography.tracking.tight,
   },
   section: { paddingHorizontal: spacing.md, marginBottom: spacing.lg },
   sectionTitle: {
     fontFamily: typography.family.heading,
     fontSize: typography.size.xs,
-    color: colors.textMuted,
     letterSpacing: typography.tracking.widest,
     marginBottom: spacing.sm,
   },
   sectionCard: {
-    backgroundColor: colors.bgCard,
     borderRadius: radius.md,
     ...shadows.card,
   },
@@ -167,15 +176,10 @@ const styles = StyleSheet.create({
     gap: spacing.md,
     padding: spacing.md,
   },
-  rowBorder: {
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-  },
   rowIcon: {
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: colors.primaryLight,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -183,26 +187,10 @@ const styles = StyleSheet.create({
   rowLabel: {
     fontFamily: typography.family.heading,
     fontSize: typography.size.md,
-    color: colors.textPrimary,
   },
   rowCaption: {
     fontFamily: typography.family.body,
     fontSize: typography.size.xs,
-    color: colors.textMuted,
-  },
-  badge: {
-    minWidth: 22,
-    height: 20,
-    paddingHorizontal: 6,
-    borderRadius: 10,
-    backgroundColor: colors.critical,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  badgeText: {
-    fontFamily: typography.family.heading,
-    fontSize: 10,
-    color: colors.white,
   },
   signOutBtn: {
     flexDirection: "row",
@@ -213,19 +201,15 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.md,
     borderRadius: radius.full,
     borderWidth: 1,
-    borderColor: colors.critical,
-    backgroundColor: colors.criticalBg,
   },
   signOutText: {
     fontFamily: typography.family.heading,
     fontSize: typography.size.sm,
-    color: colors.critical,
     letterSpacing: typography.tracking.wider,
   },
   versionLine: {
     fontFamily: typography.family.heading,
     fontSize: typography.size.xs,
-    color: colors.textMuted,
     textAlign: "center",
     marginTop: spacing.lg,
     letterSpacing: typography.tracking.wide,

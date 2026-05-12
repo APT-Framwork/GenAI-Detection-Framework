@@ -11,6 +11,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { colors, typography, spacing, radius } from "../../lib/theme";
+import { useColors } from "../../lib/theme-hook";
 import { AlertCard } from "../../components/AlertCard";
 import {
   useAcknowledgeAlert,
@@ -29,6 +30,7 @@ const FILTERS: { key: AlertSeverityFilter; label: string }[] = [
 
 export default function AlertsScreen() {
   const [filter, setFilter] = useState<AlertSeverityFilter>("all");
+  const c = useColors();
 
   const listQ = useAlertsInfinite({ severity: filter, limit: 30 });
   const unackQ = useUnacknowledgedCount();
@@ -46,22 +48,18 @@ export default function AlertsScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container} edges={["top"]}>
-      {/* Header */}
-      <View style={styles.header}>
-        <View style={styles.headerLeft}>
-          <View style={styles.logoIcon}>
-            <View style={styles.logoPupil} />
-          </View>
-          <Text style={styles.headerTitle}>SENTINEL</Text>
-        </View>
-        <View style={styles.avatar} />
-      </View>
-
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: c.bg }]}
+      edges={["top"]}
+    >
       {/* Page title */}
       <View style={styles.titleSection}>
-        <Text style={styles.subtitle}>LIVE SECURITY FEED</Text>
-        <Text style={styles.title}>CAVIX Notifications</Text>
+        <Text style={[styles.subtitle, { color: c.textMuted }]}>
+          ALERT LOG
+        </Text>
+        <Text style={[styles.title, { color: c.textPrimary }]}>
+          CAVIX Notifications
+        </Text>
       </View>
 
       {/* Filters */}
@@ -80,13 +78,18 @@ export default function AlertsScreen() {
           return (
             <Pressable
               key={f.key}
-              style={[styles.filterChip, active && styles.filterChipActive]}
+              style={[
+                styles.filterChip,
+                { backgroundColor: c.bgCard, borderColor: c.border },
+                active && { backgroundColor: c.primary, borderColor: c.primary },
+              ]}
               onPress={() => setFilter(f.key)}
             >
               <Text
                 style={[
                   styles.filterText,
-                  active && styles.filterTextActive,
+                  { color: c.textMuted },
+                  active && { color: c.white },
                 ]}
               >
                 {f.label}

@@ -24,6 +24,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 
 import { colors, radius, shadows, spacing, typography } from "../../lib/theme";
+import { useColors } from "../../lib/theme-hook";
 import {
   useActions,
   useApproveAction,
@@ -72,6 +73,7 @@ function timeAgo(iso: string): string {
 
 export default function ActionsScreen() {
   const router = useRouter();
+  const c = useColors();
   const [filter, setFilter] = useState<StatusFilter>("pending");
   const [declining, setDeclining] = useState<DqnAction | null>(null);
   const [declineReason, setDeclineReason] = useState("");
@@ -95,11 +97,14 @@ export default function ActionsScreen() {
   );
 
   return (
-    <SafeAreaView style={styles.container} edges={["top"]}>
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: c.bg }]}
+      edges={["top"]}
+    >
       <View style={styles.header}>
-        <Text style={styles.eyebrow}>RESPONSE</Text>
-        <Text style={styles.title}>Approvals</Text>
-        <Text style={styles.subtitle}>
+        <Text style={[styles.eyebrow, { color: c.textMuted }]}>RESPONSE</Text>
+        <Text style={[styles.title, { color: c.textPrimary }]}>Approvals</Text>
+        <Text style={[styles.subtitle, { color: c.textMuted }]}>
           {pendingCount > 0
             ? `${pendingCount} action${pendingCount === 1 ? "" : "s"} waiting on you`
             : "No pending actions"}
@@ -116,13 +121,18 @@ export default function ActionsScreen() {
           return (
             <Pressable
               key={t.key}
-              style={[styles.filterChip, active && styles.filterChipActive]}
+              style={[
+                styles.filterChip,
+                { backgroundColor: c.bgCard, borderColor: c.border },
+                active && { backgroundColor: c.primary, borderColor: c.primary },
+              ]}
               onPress={() => setFilter(t.key)}
             >
               <Text
                 style={[
                   styles.filterChipText,
-                  active && styles.filterChipTextActive,
+                  { color: c.textMuted },
+                  active && { color: c.white },
                 ]}
               >
                 {t.label.toUpperCase()}
@@ -169,18 +179,20 @@ export default function ActionsScreen() {
           const stateLabel = (item.status ?? "proposed").replace(/_/g, " ");
           const actor = item.appliedBy?.name ?? item.rejectedBy?.name ?? null;
           return (
-            <View style={styles.card}>
+            <View style={[styles.card, { backgroundColor: c.bgCard }]}>
               <View style={styles.cardHeader}>
                 <View style={[styles.tag, { backgroundColor: tone.bg }]}>
                   <Text style={[styles.tagText, { color: tone.fg }]}>
                     {actionLabel(actionStr)}
                   </Text>
                 </View>
-                <Text style={styles.time}>{timeAgo(item.decidedAt)}</Text>
+                <Text style={[styles.time, { color: c.textMuted }]}>
+                  {timeAgo(item.decidedAt)}
+                </Text>
               </View>
 
               {item.ckcStageName ? (
-                <Text style={styles.rationale} numberOfLines={3}>
+                <Text style={[styles.rationale, { color: c.textBody }]} numberOfLines={3}>
                   At {item.ckcStageName.replace(/_/g, " ")}
                   {item.qValues && item.qValues.length > 0
                     ? `  ·  q-max ${Math.max(...item.qValues).toFixed(2)}`

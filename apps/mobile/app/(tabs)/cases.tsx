@@ -23,6 +23,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 
 import { colors, radius, shadows, spacing, typography } from "../../lib/theme";
+import { useColors } from "../../lib/theme-hook";
 import {
   useCases,
   useSetTriageStatus,
@@ -72,6 +73,7 @@ function timeAgo(iso: string): string {
 
 export default function CasesScreen() {
   const router = useRouter();
+  const c = useColors();
   const [filter, setFilter] = useState<TriageStatus | "all">("all");
   const q = useCases({ status: filter });
   const setStatusMut = useSetTriageStatus();
@@ -94,11 +96,14 @@ export default function CasesScreen() {
   );
 
   return (
-    <SafeAreaView style={styles.container} edges={["top"]}>
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: c.bg }]}
+      edges={["top"]}
+    >
       <View style={styles.header}>
-        <Text style={styles.eyebrow}>TRIAGE</Text>
-        <Text style={styles.title}>Cases</Text>
-        <Text style={styles.subtitle}>
+        <Text style={[styles.eyebrow, { color: c.textMuted }]}>TRIAGE</Text>
+        <Text style={[styles.title, { color: c.textPrimary }]}>Cases</Text>
+        <Text style={[styles.subtitle, { color: c.textMuted }]}>
           {Object.values(counts).reduce<number>((a, b) => a + b, 0)} chains tracked
         </Text>
       </View>
@@ -116,13 +121,18 @@ export default function CasesScreen() {
           return (
             <Pressable
               key={t.key}
-              style={[styles.filterChip, active && styles.filterChipActive]}
+              style={[
+                styles.filterChip,
+                { backgroundColor: c.bgCard, borderColor: c.border },
+                active && { backgroundColor: c.primary, borderColor: c.primary },
+              ]}
               onPress={() => setFilter(t.key)}
             >
               <Text
                 style={[
                   styles.filterChipText,
-                  active && styles.filterChipTextActive,
+                  { color: c.textMuted },
+                  active && { color: c.white },
                 ]}
               >
                 {t.label.toUpperCase()}  {count}
@@ -191,6 +201,7 @@ function CaseRow({
   onCycle: () => void;
   updating: boolean;
 }) {
+  const c = useColors();
   // Backend `status` is the triage state (new/investigating/contained/closed).
   // Some legacy chains may arrive with it nulled out — fall back to "new" so
   // the row still renders.
@@ -206,7 +217,10 @@ function CaseRow({
   const ownerName = item.assignee?.name ?? null;
   const chainIdShort = item.chainId ? item.chainId.slice(0, 8) : "—";
   return (
-    <Pressable style={styles.card} onPress={onOpen}>
+    <Pressable
+      style={[styles.card, { backgroundColor: c.bgCard }]}
+      onPress={onOpen}
+    >
       <View style={styles.cardTop}>
         <Pressable
           onPress={onCycle}
@@ -221,12 +235,12 @@ function CaseRow({
             </Text>
           )}
         </Pressable>
-        <Text style={styles.time}>
+        <Text style={[styles.time, { color: c.textMuted }]}>
           {item.lastSeenAt ? `${timeAgo(item.lastSeenAt)} ago` : ""}
         </Text>
       </View>
 
-      <Text style={styles.host}>
+      <Text style={[styles.host, { color: c.textPrimary }]}>
         {item.hostName
           ?? (item.hostIp ? item.hostIp : null)
           ?? (item.hostId ? `Host ${item.hostId.slice(0, 8)}` : "Unknown host")}

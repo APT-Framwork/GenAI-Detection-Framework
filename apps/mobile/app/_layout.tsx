@@ -14,6 +14,7 @@ import {
   Inter_500Medium,
   Inter_600SemiBold,
 } from "@expo-google-fonts/inter";
+import { Ionicons } from "@expo/vector-icons";
 import * as SplashScreen from "expo-splash-screen";
 
 import { ErrorBoundary } from "../components/ErrorBoundary";
@@ -45,6 +46,10 @@ export default function RootLayout() {
     "Inter-Regular": Inter_400Regular,
     "Inter-Medium": Inter_500Medium,
     "Inter-SemiBold": Inter_600SemiBold,
+    // Ship the Ionicons glyph font with the JS bundle — Expo Go on iOS
+    // doesn't auto-load it for SDK 54, so tab-bar icons rendered blank
+    // until this entry existed.
+    ...Ionicons.font,
   });
 
   const bootstrap = useUserStore((s) => s.bootstrap);

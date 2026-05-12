@@ -12,6 +12,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
 import { colors, typography, spacing, radius, shadows } from "../../lib/theme";
+import { useColors } from "../../lib/theme-hook";
 import { KPICard } from "../../components/KPICard";
 import { MiniChart } from "../../components/MiniChart";
 import { SkeletonBlock } from "../../components/Skeleton";
@@ -32,6 +33,7 @@ export default function DashboardScreen() {
   const router = useRouter();
   const user = useUserStore((s) => s.user);
   const qc = useQueryClient();
+  const c = useColors();
 
   const attackVector = useAttackVector("1h");
   const globalRisk = useGlobalRisk("1h");
@@ -128,15 +130,22 @@ export default function DashboardScreen() {
   }, [attackVector.data?.stages]);
 
   return (
-    <SafeAreaView style={styles.container} edges={["top"]}>
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: c.bg }]}
+      edges={["top"]}
+    >
       {/* Header */}
       <View style={styles.header}>
-        <CavixLogo width={96} />
-        <View style={styles.avatar}>
-          <Text style={styles.avatarText}>
+        <CavixLogo width={96} color={c.primary} />
+        <Pressable
+          onPress={() => router.push("/(tabs)/profile" as never)}
+          hitSlop={10}
+          style={[styles.avatar, { backgroundColor: c.bgAccent }]}
+        >
+          <Text style={[styles.avatarText, { color: c.primary }]}>
             {user?.email.slice(0, 2).toUpperCase() ?? "—"}
           </Text>
-        </View>
+        </Pressable>
       </View>
 
       <ScrollView
@@ -146,13 +155,13 @@ export default function DashboardScreen() {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            tintColor={colors.primary}
+            tintColor={c.primary}
           />
         }
       >
         {/* Hero: Threat Level Gauge */}
-        <View style={styles.gaugeCard}>
-          <Text style={styles.gaugeStatus}>
+        <View style={[styles.gaugeCard, { backgroundColor: c.bgCard }]}>
+          <Text style={[styles.gaugeStatus, { color: c.textMuted }]}>
             STATUS:{" "}
             {threatPct >= 70
               ? "CRITICAL"
@@ -160,14 +169,18 @@ export default function DashboardScreen() {
               ? "ELEVATED"
               : "VIGILANT"}
           </Text>
-          <View style={styles.gaugeCircle}>
+          <View style={[styles.gaugeCircle, { borderColor: c.bgSurface }]}>
             <View style={styles.gaugeRing}>
               {globalRisk.isLoading ? (
-                <ActivityIndicator color={colors.primary} size="large" />
+                <ActivityIndicator color={c.primary} size="large" />
               ) : (
                 <>
-                  <Text style={styles.gaugeValue}>{threatPct}%</Text>
-                  <Text style={styles.gaugeLabel}>THREAT LEVEL</Text>
+                  <Text style={[styles.gaugeValue, { color: c.primary }]}>
+                    {threatPct}%
+                  </Text>
+                  <Text style={[styles.gaugeLabel, { color: c.textMuted }]}>
+                    THREAT LEVEL
+                  </Text>
                 </>
               )}
             </View>
@@ -181,8 +194,10 @@ export default function DashboardScreen() {
         {/* Global Ingress Chart */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Global Ingress</Text>
-            <Text style={styles.sectionBadge}>
+            <Text style={[styles.sectionTitle, { color: c.textPrimary }]}>
+              Global Ingress
+            </Text>
+            <Text style={[styles.sectionBadge, { color: c.textMuted }]}>
               {globalRisk.isFetching ? "UPDATING…" : "LIVE STREAM"}
             </Text>
           </View>
@@ -190,7 +205,7 @@ export default function DashboardScreen() {
             <MiniChart data={chartData} />
           ) : (
             <View style={styles.chartEmpty}>
-              <Text style={styles.emptyHint}>
+              <Text style={[styles.emptyHint, { color: c.textMuted }]}>
                 {globalRisk.isLoading
                   ? "Loading trend…"
                   : "No data in the last hour."}
@@ -202,8 +217,10 @@ export default function DashboardScreen() {
         {/* Cyber Kill Chain — per-stage event counts in the last hour */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Kill Chain · 1h</Text>
-            <Text style={styles.sectionBadge}>
+            <Text style={[styles.sectionTitle, { color: c.textPrimary }]}>
+              Kill Chain · 1h
+            </Text>
+            <Text style={[styles.sectionBadge, { color: c.textMuted }]}>
               {attackVector.data?.totalAlerts ?? 0} EVENTS
             </Text>
           </View>
@@ -213,8 +230,10 @@ export default function DashboardScreen() {
         {/* MITRE ATT&CK tactics — most active in the last 24h */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>MITRE Tactics · 24h</Text>
-            <Text style={styles.sectionBadge}>
+            <Text style={[styles.sectionTitle, { color: c.textPrimary }]}>
+              MITRE Tactics · 24h
+            </Text>
+            <Text style={[styles.sectionBadge, { color: c.textMuted }]}>
               {mitre.isFetching ? "UPDATING…" : `${mitre.data?.tactics.length ?? 0} TACTICS`}
             </Text>
           </View>
@@ -223,7 +242,9 @@ export default function DashboardScreen() {
 
         {/* Active Predictions */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Active Predictions</Text>
+          <Text style={[styles.sectionTitle, { color: c.textPrimary }]}>
+            Active Predictions
+          </Text>
           {predictions.length > 0 ? (
             <View style={styles.predGrid}>
               {predictions.map((p) => (
@@ -277,7 +298,7 @@ export default function DashboardScreen() {
               ))}
             </View>
           ) : (
-            <Text style={styles.emptyHint}>
+            <Text style={[styles.emptyHint, { color: c.textMuted }]}>
               No active kill-chain stages in the current window.
             </Text>
           )}
@@ -286,30 +307,32 @@ export default function DashboardScreen() {
         {/* Sentinel Insight */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Sentinel Insight</Text>
+            <Text style={[styles.sectionTitle, { color: c.textPrimary }]}>
+              Sentinel Insight
+            </Text>
             <Pressable
               onPress={() => refreshInsight.mutate()}
               disabled={refreshInsight.isPending || insight.isFetching}
               hitSlop={10}
             >
-              <Text style={styles.viewAll}>
+              <Text style={[styles.viewAll, { color: c.primary }]}>
                 {refreshInsight.isPending || insight.isFetching
                   ? "REFRESHING…"
                   : "REFRESH"}
               </Text>
             </Pressable>
           </View>
-          <View style={styles.insightCard}>
+          <View style={[styles.insightCard, { backgroundColor: c.bgCard }]}>
             {insight.isLoading ? (
               <SkeletonBlock lines={3} lineHeight={12} />
             ) : (
               <>
-                <Text style={styles.insightBody}>
+                <Text style={[styles.insightBody, { color: c.textBody }]}>
                   {insight.data?.insight ??
                     "Insight unavailable — check backend connection."}
                 </Text>
                 {insight.data?.modelVersion ? (
-                  <Text style={styles.insightMeta}>
+                  <Text style={[styles.insightMeta, { color: c.textMuted }]}>
                     {insight.data.stale ? "STALE · " : ""}
                     {insight.data.modelVersion}
                   </Text>
@@ -321,7 +344,7 @@ export default function DashboardScreen() {
 
         {/* Live feed pulse — quick preview, deeper view on the Feed tab */}
         <Pressable
-          style={styles.feedCta}
+          style={[styles.feedCta, { backgroundColor: c.bgCard }]}
           onPress={() => router.push("/(tabs)/feed" as never)}
         >
           <View style={styles.feedCtaLeft}>
@@ -331,28 +354,28 @@ export default function DashboardScreen() {
                 {
                   backgroundColor:
                     liveFeed.status === "open"
-                      ? colors.success
+                      ? c.success
                       : liveFeed.status === "connecting"
-                        ? colors.warning
-                        : colors.textLight,
+                        ? c.warning
+                        : c.textLight,
                 },
               ]}
             />
             <View style={{ flex: 1 }}>
-              <Text style={styles.feedCtaTitle}>
+              <Text style={[styles.feedCtaTitle, { color: c.textPrimary }]}>
                 {liveFeed.status === "open"
                   ? "Live feed connected"
                   : liveFeed.status === "connecting"
                     ? "Connecting to feed…"
                     : "Feed offline"}
               </Text>
-              <Text style={styles.feedCtaSub}>
+              <Text style={[styles.feedCtaSub, { color: c.textMuted }]}>
                 {liveFeed.events.length} event
                 {liveFeed.events.length === 1 ? "" : "s"} buffered — tap to open
               </Text>
             </View>
           </View>
-          <Text style={styles.feedCtaArrow}>{"→"}</Text>
+          <Text style={[styles.feedCtaArrow, { color: c.primary }]}>{"→"}</Text>
         </Pressable>
               </ScrollView>
 

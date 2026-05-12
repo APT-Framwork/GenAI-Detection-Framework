@@ -126,14 +126,25 @@ async function getExpoPushToken(): Promise<string | null> {
     Constants.easConfig?.projectId ??
     null;
 
-  try {
-    const token = await Notifications.getExpoPushTokenAsync(
-      projectId ? { projectId } : undefined,
+  if (!projectId) {
+    // Expo Go on SDK 54 requires an EAS projectId — without it the
+    // push token request silently fails and the device never registers
+    // with the backend. Log loudly so the operator can fix app.json
+    // (`expo.extra.eas.projectId`) instead of wondering why
+    // notifications never arrive.
+    console.warn(
+      "[push] No EAS projectId configured — push notifications will not work in Expo Go. " +
+        "Set expo.extra.eas.projectId in app.json after running `eas init`.",
     );
+    return null;
+  }
+
+  try {
+    const token = await Notifications.getExpoPushTokenAsync({ projectId });
+    console.log("[push] got Expo push token, registering with API");
     return token.data;
-  } catch {
-    // `getExpoPushTokenAsync` can throw on dev builds with no projectId —
-    // that's fine, push just won't work until the project is configured.
+  } catch (err) {
+    console.warn("[push] getExpoPushTokenAsync failed:", err);
     return null;
   }
 }
