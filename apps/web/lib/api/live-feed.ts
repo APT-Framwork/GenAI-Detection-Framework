@@ -17,11 +17,24 @@ export interface LiveFeedEvent {
   occurredAt: string;
   ckcStage: number;          // 0=BENIGN, 1..7 attack stages
   ckcStageName: string;
-  vaeMaliciousProb: number | null;
+  // AE
   aeAnomalyScore: number | null;
+  aeReconError: number | null;
+  // VAE
+  vaeMaliciousProb: number | null;
+  vaeUncertainty: number | null;
+  // GNN
   gnnNodeRisk: number | null;
+  gnnNeighborRisk: number | null;
+  gnnRiskGrowth: number | null;
+  // Transformer
+  transformerPredCkc: number | null;
+  transformerConfidence: number | null;
+  // DQN
   dqnAction: number | null;
   dqnActionName: string | null;
+  qValues: number[];
+  // MITRE
   mitreTechniques: string[];
 }
 

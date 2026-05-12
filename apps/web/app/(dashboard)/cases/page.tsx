@@ -13,6 +13,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import {
   type TriageStatus,
   useCases,
@@ -66,6 +67,27 @@ export default function CasesPage() {
     const t = setTimeout(() => setFlashSet(new Set()), 600);
     return () => clearTimeout(t);
   }, [liveFeed.events, items]);
+
+  // Deep-link focus — when /cases?focus=<chainId> is opened (e.g. from
+  // the vigilance-feed "Go to Case" button), scroll the matching row into
+  // view and flash it for ~1.5s. Falls back silently if the chain isn't
+  // in the current page of results.
+  const searchParams = useSearchParams();
+  const focusChainId = searchParams?.get("focus") ?? null;
+  const focusedRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (!focusChainId || focusedRef.current === focusChainId) return;
+    if (items.length === 0) return;
+    if (!items.some((c) => c.chainId === focusChainId)) return;
+    focusedRef.current = focusChainId;
+    setFlashSet(new Set([focusChainId]));
+    const el = document.querySelector(`[data-chain-id="${focusChainId}"]`);
+    if (el && "scrollIntoView" in el) {
+      (el as HTMLElement).scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+    const t = setTimeout(() => setFlashSet(new Set()), 1500);
+    return () => clearTimeout(t);
+  }, [focusChainId, items]);
 
   const counts = cases.data?.counts ?? { new: 0, investigating: 0, contained: 0, closed: 0 };
 

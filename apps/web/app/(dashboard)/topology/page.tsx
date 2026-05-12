@@ -157,7 +157,7 @@ export default function TopologyPage() {
             System Topology
           </h1>
           <p className="text-[14px] text-[#497f8b] dark:text-[var(--strix-text-muted)] mt-1 max-w-[540px] leading-relaxed">
-            Deep-branch visualization of the STRIX core network hierarchy. Inspect real-time data flow between subnets and active sentinels.
+            Deep-branch visualization of the CAVIX core network hierarchy. Inspect real-time data flow between subnets and active sentinels.
           </p>
         </div>
         <div className="flex items-center gap-3 shrink-0">
@@ -504,7 +504,7 @@ export default function TopologyPage() {
           />
           <StatusItem
             icon={Sparkles}
-            label="DQN Policy"
+            label="STRIX Policy"
             value="active · gated"
           />
           <StatusItem

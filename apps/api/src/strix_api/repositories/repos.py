@@ -277,7 +277,85 @@ class AttackChainRepo:
         chain.close_reason = close_reason
         if intervention_action_id is not None:
             chain.intervention_action_id = intervention_action_id
+        # Auto-advance the triage workflow so the Cases queue tells a
+        # coherent story without operator interaction. INTERVENTION =
+        # the engine contained it; any other close reason = naturally
+        # closed (timeout, etc.).
+        triage_target = "contained" if close_reason == "INTERVENTION" else "closed"
+        prev_triage = chain.triage_status
+        if _TRIAGE_ORDER[triage_target] > _TRIAGE_ORDER.get(prev_triage, 0):
+            chain.triage_status = triage_target
+            await self._audit_triage(
+                chain_id=chain_id,
+                from_status=prev_triage,
+                to_status=triage_target,
+                note=f"engine close: {close_reason}",
+            )
         await self._s.flush()
+
+    async def advance_triage(self, chain_id: UUID, target: str) -> None:
+        """Ratchet the triage workflow forward only — never demote.
+
+        Called from the verdicts writer when the DQN issues an alerting
+        action (LOW_ALERT or higher). The Cases page reads this column
+        for its segmented filter, so transitioning here is what gives
+        the queue live motion across `new → investigating → contained`.
+        """
+        if target not in _TRIAGE_ORDER:
+            return
+        chain: AttackChain | None = await self._s.get(AttackChain, chain_id)
+        if chain is None:
+            return
+        if _TRIAGE_ORDER[target] > _TRIAGE_ORDER.get(chain.triage_status, 0):
+            prev = chain.triage_status
+            chain.triage_status = target
+            await self._audit_triage(
+                chain_id=chain_id,
+                from_status=prev,
+                to_status=target,
+                note="engine: alerting action observed",
+            )
+            await self._s.flush()
+
+    async def _audit_triage(
+        self,
+        *,
+        chain_id: UUID,
+        from_status: str | None,
+        to_status: str,
+        note: str | None,
+    ) -> None:
+        """Engine-generated triage audit entry. Encoded with the
+        `triage:<state>` convention so the activity feed can render it
+        as a workflow event rather than a raw status string. user_id
+        stays NULL — these are system events, not analyst actions."""
+        from sqlalchemy import text as _sql_text
+        from uuid import uuid4 as _u4
+        await self._s.execute(
+            _sql_text(
+                """
+                INSERT INTO case_audit_log
+                  (audit_id, chain_id, user_id, from_status, to_status, note, at)
+                VALUES
+                  (:aid, :cid, NULL, :fs, :ts, :note, NOW())
+                """
+            ),
+            {
+                "aid": _u4(),
+                "cid": chain_id,
+                "fs": from_status,
+                "ts": f"triage:{to_status}",
+                "note": note,
+            },
+        )
+
+
+_TRIAGE_ORDER: dict[str, int] = {
+    "new": 0,
+    "investigating": 1,
+    "contained": 2,
+    "closed": 3,
+}
 
 
 # ---------------------------------------------------------------- DQN actions

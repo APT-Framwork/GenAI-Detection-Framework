@@ -41,7 +41,7 @@ export default function SupportPage() {
             className="mt-5 text-[20px] leading-[1.6] text-[#2b636f] dark:text-[var(--strix-text-muted)]"
             style={{ fontFamily: "var(--font-inter, 'Inter', sans-serif)" }}
           >
-            Master the clinical precision of the STRIX ecosystem. Complete
+            Master the clinical precision of the CAVIX ecosystem. Complete
             documentation for the clinical sentinel, from initial deployment to
             advanced threat neutralization.
           </p>
@@ -75,7 +75,7 @@ export default function SupportPage() {
               Initial Deployment
             </h2>
             <p className="text-[15px] leading-relaxed text-[#497f8b] dark:text-[var(--strix-text-muted)] max-w-lg mb-8">
-              Get started with STRIX Sentinel in under 15 minutes. This guide
+              Get started with CAVIX Sentinel in under 15 minutes. This guide
               covers installation, initial configuration, and connecting your
               first data sources.
             </p>
@@ -130,7 +130,7 @@ export default function SupportPage() {
           {
             icon: Code,
             title: "API Reference",
-            desc: "Complete REST API documentation for STRIX integration endpoints.",
+            desc: "Complete REST API documentation for CAVIX integration endpoints.",
             link: "Explore Endpoints",
             linkColor: "text-[#006574]",
           },
@@ -197,7 +197,7 @@ export default function SupportPage() {
             </h2>
             <p className="text-[15px] leading-relaxed text-[#497f8b] dark:text-[var(--strix-text-muted)] mb-8 max-w-md">
               Connect directly with our engineering team or tap into the
-              collective intelligence of the STRIX operator community.
+              collective intelligence of the CAVIX operator community.
             </p>
 
             <div className="space-y-4">
@@ -211,7 +211,7 @@ export default function SupportPage() {
                     Direct Engineer Access
                   </h4>
                   <p className="text-[12px] text-[#497f8b] dark:text-[var(--strix-text-muted)]">
-                    Real-time support from STRIX engineers
+                    Real-time support from CAVIX engineers
                   </p>
                 </div>
                 <button className="bg-[rgba(0,102,109,0.1)] dark:bg-strix-cyan/10 text-[#00666d] dark:text-strix-cyan rounded-[9999px] px-5 py-2 text-[13px] font-semibold hover:bg-[rgba(0,102,109,0.18)] dark:hover:bg-strix-cyan/20 transition-colors flex-shrink-0">
@@ -229,7 +229,7 @@ export default function SupportPage() {
                     Community Intel
                   </h4>
                   <p className="text-[12px] text-[#497f8b] dark:text-[var(--strix-text-muted)]">
-                    Join the STRIX operator network on Discord
+                    Join the CAVIX operator network on Discord
                   </p>
                 </div>
                 <button className="bg-[rgba(0,102,109,0.1)] dark:bg-strix-cyan/10 text-[#00666d] dark:text-strix-cyan rounded-[9999px] px-5 py-2 text-[13px] font-semibold hover:bg-[rgba(0,102,109,0.18)] dark:hover:bg-strix-cyan/20 transition-colors flex-shrink-0">
@@ -331,9 +331,9 @@ export default function SupportPage() {
                   // mail client with a prefilled body — at least the
                   // request actually leaves the page.
                   const body = encodeURIComponent(
-                    `Incident level: ${incidentLevel}\n\nSubject: ${subject}\n\nDescription:\n${description}\n\n— sent via STRIX support form`,
+                    `Incident level: ${incidentLevel}\n\nSubject: ${subject}\n\nDescription:\n${description}\n\n— sent via CAVIX support form`,
                   )
-                  const subj = encodeURIComponent(`[STRIX Support] ${subject}`)
+                  const subj = encodeURIComponent(`[CAVIX Support] ${subject}`)
                   if (typeof window !== "undefined") {
                     window.location.href = `mailto:support@strix.dev?subject=${subj}&body=${body}`
                   }
@@ -358,10 +358,10 @@ export default function SupportPage() {
             className="text-[18px] font-bold text-[#00666d] dark:text-strix-cyan tracking-wider"
             style={{ fontFamily: "var(--font-space-grotesk, 'Space Grotesk', sans-serif)" }}
           >
-            STRIX
+            CAVIX
           </span>
           <span className="text-[12px] text-[#497f8b] dark:text-[var(--strix-text-muted)]">
-            &copy; {new Date().getFullYear()} STRIX Sentinel. All rights reserved.
+            &copy; {new Date().getFullYear()} CAVIX Sentinel. All rights reserved.
           </span>
         </div>
         <div className="flex items-center gap-6">

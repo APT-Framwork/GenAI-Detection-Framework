@@ -72,7 +72,7 @@ export function ChainStageTimeline({ stages, className }: ChainStageTimelineProp
               </div>
             ) : (
               <div className="mt-1.5 text-[10px] text-[#497f8b] dark:text-[var(--strix-text-muted)] italic">
-                no DQN action issued at this stage
+                no STRIX action issued at this stage
               </div>
             )}
           </li>

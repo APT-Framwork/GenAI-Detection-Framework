@@ -220,7 +220,7 @@ export default function ProfileScreen() {
         ))}
 
         {/* Version */}
-        <Text style={styles.version}>STRIX v1.0.0 — Sentinel Engine 4.2.0</Text>
+        <Text style={styles.version}>CAVIX v1.0.0 — Powered by STRIX RL</Text>
       </ScrollView>
     </SafeAreaView>
   );

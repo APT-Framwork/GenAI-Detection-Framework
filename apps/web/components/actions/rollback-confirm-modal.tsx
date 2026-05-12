@@ -67,7 +67,7 @@ export function RollbackConfirmModal({
 
           <div className="rounded-md border border-amber-500/30 bg-amber-500/5 px-3 py-2.5 text-[11px] text-amber-700 dark:text-amber-400 leading-relaxed">
             <strong className="font-semibold">Audit-only:</strong> rolling back
-            records the action as reverted in the ledger. STRIX will{" "}
+            records the action as reverted in the ledger. CAVIX will{" "}
             <strong>not</strong> automatically un-isolate, un-block, or otherwise
             reverse the side effect — you must do that in the Wazuh / firewall
             console manually.

@@ -224,6 +224,84 @@ def _psql_rows(sql: str) -> list[list[str]]:
             rows.append(line.split("|"))
     return rows
 
+# --------------------------------------------------------------------- RL ESCALATE watch
+#
+# When the DQN fires ESCALATE on a host, the simulator should stop the
+# Caldera op currently attacking that host and skip remaining tactics
+# targeting it. We detect ESCALATE by polling `dqn_actions` joined with
+# `hosts` for hostnames decided since RUN_START_TS, which is captured
+# once at the top of the for-tactics loop in main().
+
+RUN_START_TS: str = ""
+
+def contained_hosts() -> set[str]:
+    """Hostnames the DQN has ESCALATE'd on since RUN_START_TS.
+
+    Empty when no run cutoff is set yet (preflight, --report-only, etc).
+    Resilient to PG hiccups: any error returns an empty set so the sim
+    keeps running.
+    """
+    if not RUN_START_TS:
+        return set()
+    try:
+        rows = _psql_rows(
+            "SELECT DISTINCT h.agent_name FROM dqn_actions d "
+            "JOIN hosts h ON h.host_id = d.host_id "
+            f"WHERE d.action_name = 'ESCALATE' AND d.decided_at > '{RUN_START_TS}';"
+        )
+    except Exception:  # noqa: BLE001
+        return set()
+    return {r[0] for r in rows if r and r[0]}
+
+_GROUP_HOSTS_CACHE: dict[str, set[str]] = {}
+
+def mark_interventions_applied(hostnames: set[str]) -> int:
+    """Flip pending ESCALATE/ISOLATE/BLOCK rows to applied for the given hosts.
+
+    Called once stop_op() succeeds — the action *was* applied (Caldera
+    op killed) so the /actions queue should reflect that.
+
+    Returns rows affected. Best-effort; PG hiccups don't fail the sim.
+    """
+    if not hostnames or not RUN_START_TS:
+        return 0
+    names_sql = ",".join("'" + n.replace("'", "''") + "'" for n in hostnames)
+    sql = (
+        "WITH targets AS ("
+        "  SELECT d.action_id FROM dqn_actions d "
+        "  JOIN hosts h ON h.host_id = d.host_id "
+        f" WHERE h.agent_name IN ({names_sql}) "
+        f"   AND d.decided_at > '{RUN_START_TS}' "
+        "   AND d.applied = false "
+        "   AND d.action_name IN ('ESCALATE','ISOLATE_HOST','BLOCK_USER_IP')"
+        ") "
+        "UPDATE dqn_actions SET applied = true, applied_at = NOW() "
+        "WHERE action_id IN (SELECT action_id FROM targets) "
+        "RETURNING action_id;"
+    )
+    try:
+        rows = _psql_rows(sql)
+    except Exception:  # noqa: BLE001
+        return 0
+    return len(rows)
+
+def group_hostnames(cal: Caldera, group: str) -> set[str]:
+    """Caldera sandcat agents in `group`, by host. Cached per group."""
+    if group in _GROUP_HOSTS_CACHE:
+        return _GROUP_HOSTS_CACHE[group]
+    try:
+        agents = cal.list_agents()
+    except RuntimeError:
+        return set()
+    hosts = {
+        (a.get("host") or "").strip()
+        for a in agents
+        if (a.get("group") or "") == group
+    }
+    hosts.discard("")
+    _GROUP_HOSTS_CACHE[group] = hosts
+    return hosts
+
 def take_snapshot() -> Snapshot:
     xlen_out = docker_exec(REDIS_CONTAINER, "redis-cli", "XLEN", REDIS_STREAM, check=False)
     xlen = int(xlen_out.strip() or 0) if xlen_out.strip().isdigit() else 0
@@ -742,9 +820,10 @@ def run_tactic(cal: Caldera, t: Tactic, planner_id: str, group: str,
         return TacticResult(t, resolution, None, 0, {}, before, take_snapshot(),
                             time.time() - t0, error=str(e))
 
-    # 4. poll until budget exhausted OR state==finished
+    # 4. poll until budget exhausted OR state==finished OR RL ESCALATE
     poll_every = 6
     last_links = 0
+    intervened_on: set[str] = set()
     while time.time() - t0 < budget_s:
         op = cal.get_op(op_id)
         chain = op.get("chain", []) or []
@@ -761,6 +840,28 @@ def run_tactic(cal: Caldera, t: Tactic, planner_id: str, group: str,
             last_links = n
         if state in ("finished", "out_of_time", "cleanup"):
             break
+        # RL containment: if the DQN has ESCALATE'd on any host this op
+        # has touched (or is targeting), stop the op early — the agent's
+        # decision is the whole point, honour it at the attack source.
+        contained = contained_hosts()
+        if contained:
+            op_hosts = {(l.get("host") or "") for l in chain}
+            op_hosts.discard("")
+            hit = contained & op_hosts
+            if hit:
+                intervened_on = hit
+                warn(f"RL ESCALATE on {sorted(hit)} — stopping op {op_id} early")
+                # Stop the op first so the kill is real, then mark the
+                # pending intervention rows applied — order matters for
+                # honesty: applied=true should imply Caldera was killed.
+                try:
+                    cal.stop_op(op_id)
+                except RuntimeError as e:  # noqa: BLE001
+                    info(f"stop op rc: {e}")
+                applied_n = mark_interventions_applied(hit)
+                if applied_n:
+                    info(f"marked {applied_n} pending action(s) applied for {sorted(hit)}")
+                break
         time.sleep(poll_every)
 
     # 5. stop op (idempotent)
@@ -793,6 +894,8 @@ def run_tactic(cal: Caldera, t: Tactic, planner_id: str, group: str,
     print(f"\n  {C.BLD}link statuses:{C.X}  " +
           "  ".join(f"rc={s}:{n}" for s, n in sorted(by_status.items())))
 
+    if intervened_on:
+        resolution = f"{resolution}|rl-contained:{','.join(sorted(intervened_on))}"
     return TacticResult(t, resolution, op_id, len(chain), by_status, before, after, duration)
 
 # --------------------------------------------------------------------- final report
@@ -1105,9 +1208,31 @@ def main() -> int:
             warn(f"could not refine topology.json: {e}")
 
     grand_before = take_snapshot()
+    # Mark the run cutoff so contained_hosts() ignores ESCALATEs from
+    # prior runs that are still in dqn_actions.
+    global RUN_START_TS
+    RUN_START_TS = grand_before.pg_now or ""
+
     results: list[TacticResult] = []
     try:
         for t in plan:
+            # Honour earlier RL ESCALATE: skip a tactic when every host it
+            # would target is already contained.
+            contained = contained_hosts() if not args.dry_run else set()
+            if contained:
+                if t.custom_executor == "recon_burst":
+                    targets = {v.strip() for v in RECON_TARGETS if v.strip()}
+                else:
+                    targets = group_hostnames(cal, args.group)
+                if targets and targets.issubset(contained):
+                    section(f"TACTIC: {t.label}  ({t.paper_tactic_id})")
+                    warn(f"all targets {sorted(targets)} contained by RL — "
+                         f"skipping {t.label}")
+                    results.append(TacticResult(
+                        t, f"skipped:rl-contained({','.join(sorted(contained & targets))})",
+                        None, 0, {}, None, None, 0.0,
+                    ))
+                    continue
             r = run_tactic(cal, t, planner_id, args.group,
                            args.budget, args.dwell,
                            args.obfuscator or None, args.dry_run)

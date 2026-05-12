@@ -4,8 +4,8 @@ import { QueryProvider } from "@/lib/api/provider"
 import "./globals.css"
 
 export const metadata: Metadata = {
-  title: "STRIX — Cyber Threat Intelligence Platform",
-  description: "Clinical Sentinel Vigilance System",
+  title: "CAVIX — Cyber Threat Intelligence Platform",
+  description: "Cyber Threat Intelligence Platform · powered by the STRIX RL agent",
 }
 
 export default function RootLayout({

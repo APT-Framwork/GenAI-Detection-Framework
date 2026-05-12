@@ -23,12 +23,15 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { Bug, Check, Crosshair, Download, Radio, Search, Send, Shield, Upload } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLogStream, type RlPayload } from "@/lib/api/ws";
 import { useRlTimelineBackfill } from "@/lib/api/analysis";
 import { severityColors } from "@/lib/design-tokens";
 import { recordPredetection, usePredetections } from "@/lib/predetection-store";
 import { HoverHelp } from "@/components/ui/hover-help";
+
+const STAGE_ICONS = [Search, Crosshair, Send, Bug, Download, Radio, Upload] as const;
 
 // CKC stage 1..7 — index 0 is "no stage yet" / pre-Recon.
 const STAGE_LABELS = [
@@ -443,10 +446,10 @@ export function RlKillChain({ className }: RlKillChainProps) {
       <div className="flex items-center justify-between mb-4">
         <div>
           <h3 className="text-base font-bold font-heading text-[#00343d] dark:text-[var(--strix-text)]">
-            RL Intervention Timeline
+            STRIX Intervention Timeline
           </h3>
           <p className="text-[9px] text-[#497f8b] dark:text-[var(--strix-text-muted)] mt-0.5">
-            frozen final state — agent verdict per chain
+            frozen final state — STRIX verdict per chain
           </p>
         </div>
         <div className="flex items-center gap-3 text-[10px] uppercase tracking-wider">
@@ -454,8 +457,8 @@ export function RlKillChain({ className }: RlKillChainProps) {
             title="Predetected"
             body={
               <>
-                Chains where the agent fired <strong>ESCALATE</strong>{" "}
-                (DQN action ≥ 2) while the chain&apos;s deepest stage was ≤
+                Chains where STRIX fired <strong>ESCALATE</strong>{" "}
+                (action ≥ 2) while the chain&apos;s deepest stage was ≤
                 6. The intervention happened <em>before</em> stage 7
                 (Action) — the success case.
               </>
@@ -636,9 +639,9 @@ function SessionRow({ session: s }: { session: RlSession }) {
             body={
               <>
                 Softmax max over the 8-class CKC head at the moment of
-                latch. <strong>Not</strong> the DQN&apos;s confidence — the
-                DQN emits Q-values, not probabilities. Useful as a signal
-                quality proxy on the upstream classifier.
+                latch. <strong>Not</strong> STRIX&apos;s confidence — STRIX
+                is a DQN, so it emits Q-values, not probabilities. Useful as
+                a signal quality proxy on the upstream classifier.
               </>
             }
           >
@@ -709,8 +712,8 @@ function SessionRow({ session: s }: { session: RlSession }) {
               body={
                 <>
                   The most recent MITRE-ATT&amp;CK technique tag observed on
-                  this host before the agent latched. Frames at the latch
-                  moment often carry no MITRE tag (DQN fires on a non-tagged
+                  this host before STRIX latched. Frames at the latch
+                  moment often carry no MITRE tag (STRIX fires on a non-tagged
                   downstream event), so we backfill from the last tagged
                   frame in the chain.
                 </>
@@ -875,12 +878,34 @@ function StageBar({ session: s }: { session: RlSession }) {
           textColor = "#0b1416";
         }
 
+        // Glyph selection: shield for the latch stage, check for
+        // prevented / mid-chain-mitigation, stage icon otherwise.
+        const StageIcon = STAGE_ICONS[i];
+        let Glyph: typeof Shield = StageIcon;
+        let glyphColor = "#fff";
+        if (isLatchStage) {
+          Glyph = Shield;
+          glyphColor = "#fff";
+        } else if (isPrevented) {
+          Glyph = Check;
+          glyphColor = "rgba(16,185,129,0.85)";
+        } else if (!predetected && s.mitigated && !s.completed && stageIndex <= reached) {
+          Glyph = Check;
+          glyphColor = "#fff";
+        } else if (predetected && stageIndex < s.predetectionStage!) {
+          glyphColor = "#0b1416";
+        } else if (past || isCurrent) {
+          glyphColor = past ? "#0b1416" : "#fff";
+        } else {
+          glyphColor = "#80b6c3";
+        }
+        const r = isLatchStage ? 12 : 10;
         return (
           <g key={label}>
             <circle
               cx={cx}
               cy={cy}
-              r={isLatchStage ? 11 : 9}
+              r={r}
               fill={fill}
               stroke={stroke}
               strokeWidth={isLatchStage ? 2 : 1.5}
@@ -888,47 +913,11 @@ function StageBar({ session: s }: { session: RlSession }) {
               className={isCurrent || isLatchStage ? "animate-stage-pulse" : undefined}
               style={{ transition: "fill 300ms ease, stroke 300ms ease" }}
             />
-            {isLatchStage && (
-              <text
-                x={cx}
-                y={cy + 3.5}
-                textAnchor="middle"
-                fontSize="11"
-                fontWeight={700}
-                fill="#fff"
-              >
-                ⛨
-              </text>
-            )}
-            {!isLatchStage && predetected && stageIndex < s.predetectionStage! && (
-              <text x={cx} y={cy + 3} textAnchor="middle" fontSize="9" fontWeight={700} fill="#0b1416">
-                {stageIndex}
-              </text>
-            )}
-            {isPrevented && (
-              <text
-                x={cx}
-                y={cy + 3}
-                textAnchor="middle"
-                fontSize="9"
-                fontWeight={700}
-                fill="rgba(16,185,129,0.85)"
-              >
-                ✓
-              </text>
-            )}
-            {/* Mid-chain mitigation gets a green check; post-detection
-                gets the stage number on the amber→red gradient. */}
-            {!predetected && s.mitigated && !s.completed && stageIndex <= reached && (
-              <text x={cx} y={cy + 3} textAnchor="middle" fontSize="9" fontWeight={700} fill="#fff">
-                ✓
-              </text>
-            )}
-            {!predetected && (s.completed || !s.mitigated) && past && (
-              <text x={cx} y={cy + 3} textAnchor="middle" fontSize="9" fontWeight={700} fill="#0b1416">
-                {stageIndex}
-              </text>
-            )}
+            <foreignObject x={cx - 7} y={cy - 7} width={14} height={14} style={{ pointerEvents: "none" }}>
+              <div className="w-full h-full flex items-center justify-center">
+                <Glyph size={11} color={glyphColor} strokeWidth={2.4} />
+              </div>
+            </foreignObject>
             <text
               x={cx}
               y={H - 2}

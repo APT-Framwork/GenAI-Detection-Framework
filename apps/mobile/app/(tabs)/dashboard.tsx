@@ -15,9 +15,13 @@ import { colors, typography, spacing, radius, shadows } from "../../lib/theme";
 import { KPICard } from "../../components/KPICard";
 import { MiniChart } from "../../components/MiniChart";
 import { SkeletonBlock } from "../../components/Skeleton";
+import { KillChainStrip } from "../../components/KillChainStrip";
+import { MitreStrip } from "../../components/MitreStrip";
+import { CavixLogo } from "../../components/CavixLogo";
 import {
   useAttackVector,
   useGlobalRisk,
+  useMitreCoverage,
   useRefreshSentinelInsight,
   useSentinelInsight,
 } from "../../lib/api/hooks";
@@ -33,6 +37,7 @@ export default function DashboardScreen() {
   const globalRisk = useGlobalRisk("1h");
   const insight = useSentinelInsight();
   const refreshInsight = useRefreshSentinelInsight();
+  const mitre = useMitreCoverage("24h");
 
   // Live feed SSE. Each event invalidates dashboard aggregates + the
   // unack-count badge so the UI converges without waiting for the
@@ -126,12 +131,7 @@ export default function DashboardScreen() {
     <SafeAreaView style={styles.container} edges={["top"]}>
       {/* Header */}
       <View style={styles.header}>
-        <View style={styles.headerLeft}>
-          <View style={styles.logoIcon}>
-            <View style={styles.logoPupil} />
-          </View>
-          <Text style={styles.headerTitle}>SENTINEL</Text>
-        </View>
+        <CavixLogo width={96} />
         <View style={styles.avatar}>
           <Text style={styles.avatarText}>
             {user?.email.slice(0, 2).toUpperCase() ?? "—"}
@@ -197,6 +197,28 @@ export default function DashboardScreen() {
               </Text>
             </View>
           )}
+        </View>
+
+        {/* Cyber Kill Chain — per-stage event counts in the last hour */}
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Kill Chain · 1h</Text>
+            <Text style={styles.sectionBadge}>
+              {attackVector.data?.totalAlerts ?? 0} EVENTS
+            </Text>
+          </View>
+          <KillChainStrip stages={attackVector.data?.stages ?? []} />
+        </View>
+
+        {/* MITRE ATT&CK tactics — most active in the last 24h */}
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>MITRE Tactics · 24h</Text>
+            <Text style={styles.sectionBadge}>
+              {mitre.isFetching ? "UPDATING…" : `${mitre.data?.tactics.length ?? 0} TACTICS`}
+            </Text>
+          </View>
+          <MitreStrip tactics={mitre.data?.tactics ?? []} />
         </View>
 
         {/* Active Predictions */}
@@ -297,97 +319,47 @@ export default function DashboardScreen() {
           </View>
         </View>
 
-        {/* Live Intelligence Feed — SSE */}
-        <View style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Intelligence Feed</Text>
-            <View style={styles.sseBadgeRow}>
-              <View
-                style={[
-                  styles.sseDot,
-                  {
-                    backgroundColor:
-                      liveFeed.status === "open"
-                        ? colors.success
-                        : liveFeed.status === "connecting"
+        {/* Live feed pulse — quick preview, deeper view on the Feed tab */}
+        <Pressable
+          style={styles.feedCta}
+          onPress={() => router.push("/(tabs)/feed" as never)}
+        >
+          <View style={styles.feedCtaLeft}>
+            <View
+              style={[
+                styles.sseDot,
+                {
+                  backgroundColor:
+                    liveFeed.status === "open"
+                      ? colors.success
+                      : liveFeed.status === "connecting"
                         ? colors.warning
                         : colors.textLight,
-                  },
-                ]}
-              />
-              <Text style={styles.sectionBadge}>
+                },
+              ]}
+            />
+            <View style={{ flex: 1 }}>
+              <Text style={styles.feedCtaTitle}>
                 {liveFeed.status === "open"
-                  ? "LIVE"
+                  ? "Live feed connected"
                   : liveFeed.status === "connecting"
-                  ? "CONNECTING"
-                  : "OFFLINE"}
+                    ? "Connecting to feed…"
+                    : "Feed offline"}
+              </Text>
+              <Text style={styles.feedCtaSub}>
+                {liveFeed.events.length} event
+                {liveFeed.events.length === 1 ? "" : "s"} buffered — tap to open
               </Text>
             </View>
           </View>
-          {liveFeed.events.length === 0 ? (
-            <View style={styles.feedEmpty}>
-              <Text style={styles.emptyHint}>
-                {liveFeed.status === "open"
-                  ? "Waiting for the next event…"
-                  : "SSE not connected."}
-              </Text>
-            </View>
-          ) : (
-            liveFeed.events.slice(0, 4).map((e) => {
-              const highlighted = e.ckcStage >= 5;
-              return (
-                <Pressable
-                  key={`${e.alertId}-${e.occurredAt}`}
-                  onPress={() =>
-                    e.chainId
-                      ? router.push({
-                          pathname: "/analysis/[id]",
-                          params: { id: String(e.chainId) },
-                        })
-                      : router.push("/(tabs)/alerts")
-                  }
-                  style={[
-                    styles.feedItem,
-                    highlighted
-                      ? { backgroundColor: colors.bg }
-                      : { backgroundColor: colors.bgSurface },
-                  ]}
-                >
-                  <View
-                    style={[
-                      styles.feedBar,
-                      {
-                        backgroundColor: highlighted
-                          ? colors.primary
-                          : colors.textLight,
-                      },
-                    ]}
-                  />
-                  <View style={styles.feedContent}>
-                    <Text style={styles.feedTime}>
-                      {e.agentId ?? "unknown"} {"\u00B7"} {e.ckcStageName}
-                    </Text>
-                    <Text style={styles.feedMessage} numberOfLines={2}>
-                      {e.dqnActionName
-                        ? `${e.dqnActionName.replace(/_/g, " ")} · `
-                        : ""}
-                      {e.mitreTechniques[0] ?? "No MITRE tag"}
-                      {e.vaeMaliciousProb !== null
-                        ? ` · p=${e.vaeMaliciousProb.toFixed(2)}`
-                        : ""}
-                    </Text>
-                  </View>
-                </Pressable>
-              );
-            })
-          )}
-        </View>
-      </ScrollView>
+          <Text style={styles.feedCtaArrow}>{"→"}</Text>
+        </Pressable>
+              </ScrollView>
 
       {/* FAB — navigate to alerts */}
       <Pressable
         style={styles.fab}
-        onPress={() => router.push("/(tabs)/alerts")}
+        onPress={() => router.push("/(tabs)/feed" as never)}
       >
         <Text style={styles.fabIcon}>{"\u26A1"}</Text>
       </Pressable>
@@ -403,31 +375,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingHorizontal: spacing.lg,
     height: 64,
-  },
-  headerLeft: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: spacing.sm,
-  },
-  logoIcon: {
-    width: 16,
-    height: 20,
-    backgroundColor: colors.primary,
-    borderRadius: 4,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  logoPupil: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: colors.primaryLight,
-  },
-  headerTitle: {
-    fontFamily: typography.family.heading,
-    fontSize: typography.size["2xl"],
-    color: colors.primary,
-    letterSpacing: -1,
   },
   avatar: {
     width: 32,
@@ -594,48 +541,42 @@ const styles = StyleSheet.create({
     letterSpacing: 0.8,
     textTransform: "uppercase",
   },
-  sseBadgeRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: spacing.xs,
-  },
   sseDot: {
     width: 8,
     height: 8,
     borderRadius: 4,
   },
-  feedEmpty: {
-    paddingVertical: spacing.lg,
-    alignItems: "center",
-  },
-  feedItem: {
+  feedCta: {
     flexDirection: "row",
-    borderRadius: radius.lg,
-    padding: spacing.md,
-    gap: spacing.md,
-    marginBottom: spacing.sm,
+    alignItems: "center",
+    justifyContent: "space-between",
+    backgroundColor: colors.bgCard,
+    borderRadius: radius.md,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.md,
+    ...shadows.card,
   },
-  feedBar: {
-    width: 3,
-    height: 48,
-    borderRadius: radius.full,
-  },
-  feedContent: {
+  feedCtaLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.sm,
     flex: 1,
-    gap: spacing.xs,
   },
-  feedTime: {
-    fontFamily: typography.family.headingRegular,
-    fontSize: typography.size.xs,
-    color: colors.textMuted,
-    textTransform: "uppercase",
-    letterSpacing: 1,
-  },
-  feedMessage: {
-    fontFamily: typography.family.bodyMedium,
+  feedCtaTitle: {
+    fontFamily: typography.family.heading,
     fontSize: typography.size.md,
     color: colors.textPrimary,
-    lineHeight: 20,
+  },
+  feedCtaSub: {
+    fontFamily: typography.family.body,
+    fontSize: typography.size.xs,
+    color: colors.textMuted,
+    marginTop: 2,
+  },
+  feedCtaArrow: {
+    fontFamily: typography.family.heading,
+    fontSize: typography.size.xl,
+    color: colors.primary,
   },
   fab: {
     position: "absolute",

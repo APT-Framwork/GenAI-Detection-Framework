@@ -1,17 +1,12 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
+import { useMemo, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
-import { useQueryClient } from "@tanstack/react-query"
 
-import {
-  useCompromisedAssets,
-  useFileScan,
-  useIocSearch,
-  useJobResult,
-} from "@/lib/api/threat-intel"
+import { useIocSearch } from "@/lib/api/threat-intel"
 import { MitreCoverageMatrix } from "@/components/threat-intel/mitre-coverage-matrix"
-import { UserRiskPanel } from "@/components/threat-intel/user-risk-panel"
+import { ObservableLink } from "@/components/intel/observable-drawer"
+import { openObservable } from "@/lib/observable-store"
 import { downloadCsv } from "@/lib/download"
 import { toast } from "@/lib/toast"
 import {
@@ -24,13 +19,10 @@ import {
   AlertTriangle,
   CheckCircle,
   HelpCircle,
-  TrendingUp,
   Eye,
   ExternalLink,
   Filter,
   Download,
-  Upload,
-  Loader2,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -46,14 +38,6 @@ const typeIcons: Record<string, typeof Globe> = {
   domain: Globe,
   email: Mail,
   hash: Hash,
-}
-
-function severityFromVae(prob: number | null): string {
-  if (prob == null) return "low"
-  if (prob >= 0.85) return "critical"
-  if (prob >= 0.7) return "high"
-  if (prob >= 0.4) return "medium"
-  return "low"
 }
 
 function timeAgo(iso: string | null): string {
@@ -86,22 +70,6 @@ export default function ThreatIntelPage() {
 
   const [iocQuery, setIocQuery] = useState("")
   const iocs = useIocSearch({ q: iocQuery || undefined, limit: 20 })
-  const compromised = useCompromisedAssets(20)
-  const fileScan = useFileScan()
-  const queryClient = useQueryClient()
-  // SSE for the file-scan worker. The route returns the scan_id and we
-  // also use it as the Arq job id, so it doubles as the SSE channel
-  // suffix (`/streams/jobs/{scan_id}`). The latest event becomes the
-  // authoritative banner status; on completion we invalidate the IOC
-  // search so the new hash row appears in the table without a refresh.
-  const fileScanJobId = fileScan.data?.scanId ?? null
-  const fileScanResult = useJobResult(fileScanJobId)
-  const fileScanLiveEvent = fileScanResult.events[0]?.data ?? null
-  useEffect(() => {
-    if (fileScanLiveEvent?.status === "complete") {
-      queryClient.invalidateQueries({ queryKey: ["threat-intel", "iocs"] })
-    }
-  }, [fileScanLiveEvent?.status, queryClient])
   // Reputation filter — multi-select. Empty = show all.
   const [filterOpen, setFilterOpen] = useState(false)
   const [reputationFilter, setReputationFilter] = useState<Set<string>>(new Set())
@@ -139,47 +107,6 @@ export default function ThreatIntelPage() {
       else next.add(rep)
       return next
     })
-  }
-
-  // Project compromised assets to the existing card layout.
-  const compromisedAssets = useMemo(
-    () =>
-      (compromised.data?.items ?? []).map((a) => ({
-        hostname: a.agentName ?? a.hostId.slice(0, 8),
-        ip: a.ipAddress ?? "—",
-        vector:
-          a.maxVaeProb != null
-            ? `VAE ${Math.round(a.maxVaeProb * 100)}% · GNN ${
-                a.maxGnnRisk != null ? Math.round(a.maxGnnRisk * 100) : "—"
-              }%`
-            : "—",
-        severity: severityFromVae(a.maxVaeProb ?? null),
-        lastSeen: timeAgo(a.lastDetectionAt ?? a.lastSeenAt),
-      })),
-    [compromised.data],
-  )
-
-  // 4-bucket regional intensity now derived from VAE distribution.
-  const threatIntensity = useMemo(() => {
-    const items = compromised.data?.items ?? []
-    const buckets = [0, 0, 0, 0]
-    for (const it of items) {
-      const p = it.maxVaeProb ?? 0
-      const bucket = p >= 0.7 ? 0 : p >= 0.4 ? 1 : p >= 0.2 ? 2 : 3
-      buckets[bucket] += 1
-    }
-    const total = items.length || 1
-    return [
-      { region: "Critical hosts", value: Math.round((buckets[0] / total) * 100), trend: `${buckets[0]} hosts` },
-      { region: "High",           value: Math.round((buckets[1] / total) * 100), trend: `${buckets[1]} hosts` },
-      { region: "Medium",         value: Math.round((buckets[2] / total) * 100), trend: `${buckets[2]} hosts` },
-      { region: "Low",            value: Math.round((buckets[3] / total) * 100), trend: `${buckets[3]} hosts` },
-    ]
-  }, [compromised.data])
-
-  const onUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const f = e.target.files?.[0]
-    if (f) fileScan.mutate(f)
   }
 
   return (
@@ -289,63 +216,8 @@ export default function ThreatIntelPage() {
                 className="pl-9 pr-4 py-1.5 rounded-lg text-xs bg-[var(--strix-bg-surface)] border border-[var(--strix-border)] text-[var(--strix-text)] placeholder:text-[var(--strix-text-muted)] focus:outline-none focus:ring-1 focus:ring-strix-primary dark:focus:ring-strix-cyan w-[280px]"
               />
             </div>
-            <label className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-semibold uppercase tracking-wider border border-[var(--strix-border)] text-[var(--strix-text-muted)] hover:bg-[var(--strix-bg-surface)] cursor-pointer transition-colors">
-              {fileScan.isPending ? (
-                <Loader2 className="h-3.5 w-3.5 animate-spin" />
-              ) : (
-                <Upload className="h-3.5 w-3.5" />
-              )}
-              Scan File
-              <input type="file" className="hidden" onChange={onUpload} />
-            </label>
           </div>
         </div>
-        {fileScan.data && (() => {
-          const liveStatus = fileScanLiveEvent?.status
-          const status = liveStatus ?? fileScan.data.status
-          const reputation = fileScanLiveEvent?.reputation
-          const isError = status === "error"
-          const isComplete = status === "complete"
-          const dotCls = isError
-            ? "bg-red-500"
-            : isComplete
-              ? "bg-emerald-500"
-              : "bg-amber-400 animate-pulse"
-          return (
-            <div className="mb-3 px-3 py-2 rounded-lg bg-[var(--strix-bg-surface)] border border-[var(--strix-border)] text-[10px] text-[var(--strix-text-muted)] flex items-center gap-2 flex-wrap">
-              <span className={cn("h-1.5 w-1.5 rounded-full", dotCls)} />
-              <span className="font-bold text-[var(--strix-text)]">{fileScan.data.filename}</span>
-              <span>· sha256 {fileScan.data.sha256.slice(0, 12)}…</span>
-              <span>
-                · status{" "}
-                <span className={cn(
-                  "font-semibold uppercase",
-                  isError && "text-red-500",
-                  isComplete && "text-emerald-500",
-                  !isError && !isComplete && "text-amber-500",
-                )}>
-                  {status}
-                </span>
-              </span>
-              {reputation && (
-                <span>
-                  · reputation{" "}
-                  <span className={cn(
-                    "font-semibold uppercase",
-                    reputation === "malicious" && "text-red-500",
-                    reputation === "suspicious" && "text-amber-500",
-                    reputation === "clean" && "text-emerald-500",
-                  )}>
-                    {reputation}
-                  </span>
-                </span>
-              )}
-              {fileScanLiveEvent?.error && (
-                <span className="text-red-400">· {fileScanLiveEvent.error}</span>
-              )}
-            </div>
-          )
-        })()}
 
         <div className="overflow-hidden rounded-lg border border-[var(--strix-border)]">
           <table className="w-full text-xs">
@@ -365,14 +237,19 @@ export default function ThreatIntelPage() {
                 const repConfig = reputationConfig[entry.reputation]
                 const RepIcon = repConfig.icon
                 return (
-                  <tr key={i} className="hover:bg-[var(--strix-bg-surface)] transition-colors">
+                  <tr
+                    key={i}
+                    onClick={() => openObservable(entry.indicator)}
+                    className="hover:bg-[var(--strix-bg-surface)] transition-colors cursor-pointer"
+                  >
                     <td className="py-3 px-4">
                       <TypeIcon className="h-4 w-4 text-[var(--strix-text-muted)]" />
                     </td>
                     <td className="py-3 px-4">
-                      <span className="font-mono font-semibold text-[var(--strix-text)]">
-                        {entry.indicator}
-                      </span>
+                      <ObservableLink
+                        value={entry.indicator}
+                        className="font-mono font-semibold text-[var(--strix-text)] hover:text-strix-cyan"
+                      />
                     </td>
                     <td className="py-3 px-4 text-[var(--strix-text-muted)]">{entry.source}</td>
                     <td className="py-3 px-4">
@@ -384,13 +261,9 @@ export default function ThreatIntelPage() {
                     <td className="py-3 px-4 text-[var(--strix-text-muted)] font-mono text-[10px]">{entry.timestamp}</td>
                     <td className="py-3 px-4">
                       <button
-                        onClick={() => {
-                          // Use the indicator as the search query on the
-                          // attack-analysis "latest" view — at minimum it
-                          // gets the operator to a context where the IOC
-                          // can be cross-referenced. No dedicated IOC
-                          // detail route exists yet.
-                          router.push(`/attack-analysis/latest?q=${encodeURIComponent(entry.indicator)}`)
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          openObservable(entry.indicator)
                         }}
                         className="text-strix-primary dark:text-strix-cyan hover:underline text-[10px] font-semibold flex items-center gap-1"
                       >
@@ -405,104 +278,6 @@ export default function ThreatIntelPage() {
         </div>
       </div>
 
-      {/* Compromised Assets — full-width row. The "Breach Feed Integrations"
-          panel that used to sit beside it was removed: it surfaced
-          third-party adapter health (XON / VT reachability), which is
-          ops/sysadmin concern — not a story about what threats the
-          platform found. The threat-intel page is now scoped to
-          attribution + impact, with adapter ops moving to /admin if
-          ever needed. */}
-      <div className="bg-[var(--strix-bg-card)] border border-[var(--strix-border)] rounded-xl p-5">
-        <div className="flex items-center gap-2 mb-4">
-          <AlertTriangle className="h-4 w-4 text-red-500" />
-          <h3 className="text-sm font-bold text-[var(--strix-text)]">
-            Compromised Assets
-          </h3>
-          <span className="ml-auto text-[9px] text-[var(--strix-text-muted)] uppercase tracking-wider">
-            Live · Auto-refresh
-          </span>
-        </div>
-
-        <div className="space-y-2">
-          {compromisedAssets.map((asset, i) => (
-            <div
-              key={i}
-              className={cn(
-                "flex items-center gap-4 p-3 rounded-lg border transition-colors",
-                asset.severity === "critical"
-                  ? "bg-red-500/5 border-red-500/20"
-                  : asset.severity === "high"
-                  ? "bg-amber-500/5 border-amber-500/20"
-                  : "bg-[var(--strix-bg-surface)] border-[var(--strix-border)]"
-              )}
-            >
-              <div className={cn(
-                "h-2 w-2 rounded-full flex-shrink-0",
-                asset.severity === "critical" && "bg-red-500 animate-pulse",
-                asset.severity === "high" && "bg-amber-500",
-                asset.severity === "medium" && "bg-yellow-500"
-              )} />
-              <div className="flex-1 min-w-0">
-                <div className="flex items-baseline gap-2">
-                  <span className="text-xs font-bold text-[var(--strix-text)]">{asset.hostname}</span>
-                  <span className="text-[10px] font-mono text-[var(--strix-text-muted)]">{asset.ip}</span>
-                </div>
-                <span className="text-[10px] text-[var(--strix-text-muted)]">{asset.vector}</span>
-              </div>
-              <span className={cn(
-                "text-[9px] font-bold uppercase px-2 py-0.5 rounded-full",
-                asset.severity === "critical" && "bg-red-500/10 text-red-500",
-                asset.severity === "high" && "bg-amber-500/10 text-amber-500",
-                asset.severity === "medium" && "bg-yellow-500/10 text-yellow-500"
-              )}>
-                {asset.severity}
-              </span>
-              <span className="text-[10px] text-[var(--strix-text-muted)] flex-shrink-0">{asset.lastSeen}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* User-risk panel — Phase 9 UEBA. Sits between compromised-asset
-          rollup and the regional intensity block. */}
-      <UserRiskPanel />
-
-      {/* Threat Intensity by Region */}
-      <div className="bg-[var(--strix-bg-card)] border border-[var(--strix-border)] rounded-xl p-5">
-        <div className="flex items-center gap-2 mb-4">
-          <TrendingUp className="h-4 w-4 text-strix-primary dark:text-strix-cyan" />
-          <h3 className="text-sm font-bold text-[var(--strix-text)]">
-            Global Threat Intensity
-          </h3>
-          <span className="ml-auto text-[9px] text-[var(--strix-text-muted)] uppercase tracking-wider">
-            Last 24 hours
-          </span>
-        </div>
-
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          {threatIntensity.map((region, i) => (
-            <div key={i} className="p-4 rounded-xl bg-[var(--strix-bg-surface)] border border-[var(--strix-border)]">
-              <span className="text-[9px] text-[var(--strix-text-muted)] uppercase tracking-wider block mb-2">
-                {region.region}
-              </span>
-              <div className="flex items-baseline gap-2 mb-2">
-                <span className="text-2xl font-bold text-[var(--strix-text)]">{region.value}%</span>
-                <span className="text-[10px] text-red-500 font-medium">{region.trend}</span>
-              </div>
-              {/* Intensity Bar */}
-              <div className="h-1.5 rounded-full bg-[var(--strix-border)] overflow-hidden">
-                <div
-                  className={cn(
-                    "h-full rounded-full transition-all duration-500",
-                    region.value >= 80 ? "bg-red-500" : region.value >= 60 ? "bg-amber-500" : "bg-emerald-500"
-                  )}
-                  style={{ width: `${region.value}%` }}
-                />
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
       </>
       )}
     </div>

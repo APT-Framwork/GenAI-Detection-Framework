@@ -30,6 +30,7 @@ export function CaseRow({ item, selected, onSelect, flash }: CaseRowProps) {
 
   return (
     <div
+      data-chain-id={item.chainId}
       className={`group relative flex items-center gap-3 h-8 pr-3 border-b border-[rgba(128,182,195,0.1)] dark:border-[var(--strix-border)]/50 transition-colors ${
         selected
           ? "bg-strix-cyan/5"

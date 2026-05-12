@@ -207,7 +207,7 @@ async function runStep({
   if (step.kind === "manual") return;
 
   if (step.kind === "dqn_override") {
-    toast.info("Open the Action Log to approve pending DQN actions on this chain.");
+    toast.info("Open the Action Log to approve pending STRIX actions on this chain.");
     return;
   }
 

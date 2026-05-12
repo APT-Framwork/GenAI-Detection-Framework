@@ -5,7 +5,8 @@ import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { useRegister } from "@/lib/api/auth"
 import { StrixApiError } from "@/lib/api/client"
-import { Shield, Eye, EyeOff, Loader2 } from "lucide-react"
+import { Eye, EyeOff, Loader2 } from "lucide-react"
+import { CavixLogo } from "@/components/layout/cavix-logo"
 
 export default function RegisterPage() {
   const router = useRouter()
@@ -52,18 +53,11 @@ export default function RegisterPage() {
   return (
     <div className="space-y-8">
       {/* Mobile logo */}
-      <div className="lg:hidden flex items-center gap-3 mb-8">
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-strix-primary/20 to-strix-primary/5 border border-strix-primary/30">
-          <Shield className="h-5 w-5 text-strix-primary" />
-        </div>
-        <div>
-          <h1 className="text-xl font-bold tracking-widest text-[var(--strix-text)]">
-            STRIX
-          </h1>
-          <p className="text-[9px] text-[var(--strix-text-muted)] tracking-[0.3em] uppercase">
-            Vigilant Sentinel
-          </p>
-        </div>
+      <div className="lg:hidden flex flex-col gap-1 mb-8">
+        <CavixLogo width={120} color="var(--strix-text)" />
+        <p className="text-[9px] text-[var(--strix-text-muted)] tracking-[0.3em] uppercase">
+          Powered by STRIX RL
+        </p>
       </div>
 
       {/* Header */}
@@ -72,7 +66,7 @@ export default function RegisterPage() {
           Operator Registration
         </h2>
         <p className="text-sm text-[var(--strix-text-muted)]">
-          Request clearance for the STRIX sentinel network
+          Request clearance for the CAVIX sentinel network
         </p>
       </div>
 
@@ -179,7 +173,7 @@ export default function RegisterPage() {
             className="mt-0.5 rounded border-[var(--strix-border)] text-strix-primary focus:ring-strix-primary/20"
           />
           <span>
-            I acknowledge the STRIX operational protocols and consent to
+            I acknowledge the CAVIX operational protocols and consent to
             continuous biometric monitoring during active sessions.
           </span>
         </label>

@@ -4,6 +4,7 @@ import { useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { colors, typography, spacing, radius } from "../lib/theme";
 import { useUserStore } from "../stores/user-store";
+import { CavixLogo } from "../components/CavixLogo";
 
 export default function SplashEntry() {
   const router = useRouter();
@@ -65,7 +66,10 @@ export default function SplashEntry() {
         </View>
 
         {/* Brand */}
-        <Text style={styles.brand}>STRIX</Text>
+        <View style={styles.brandWrap}>
+          <CavixLogo width={180} />
+          <Text style={styles.brandTagline}>Powered by STRIX RL</Text>
+        </View>
 
         {/* Loading */}
         <View style={styles.loadingSection}>
@@ -160,13 +164,17 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     backgroundColor: colors.primaryDark,
   },
-  brand: {
-    fontFamily: typography.family.heading,
-    fontSize: typography.size["5xl"],
-    color: colors.primary,
-    letterSpacing: -1.8,
-    textAlign: "center",
+  brandWrap: {
+    alignItems: "center",
     marginBottom: spacing.md,
+    gap: spacing.xs,
+  },
+  brandTagline: {
+    fontFamily: typography.family.heading,
+    fontSize: typography.size.xs,
+    color: colors.textMuted,
+    letterSpacing: typography.tracking.widest,
+    textTransform: "uppercase",
   },
   loadingSection: {
     alignItems: "center",

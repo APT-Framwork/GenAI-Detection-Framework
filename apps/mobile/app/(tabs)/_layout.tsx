@@ -1,27 +1,45 @@
 import { Tabs } from "expo-router";
-import { View, Text, StyleSheet } from "react-native";
+import { View, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { colors, typography, radius, spacing } from "../../lib/theme";
-import { useUnacknowledgedCount } from "../../lib/api/hooks";
+
+import { colors, typography, radius } from "../../lib/theme";
+import { useUnacknowledgedCount, useActions, useCases } from "../../lib/api/hooks";
 
 type TabIcon = React.ComponentProps<typeof Ionicons>["name"];
 
-const TAB_CONFIG: {
+const PRIMARY_TABS: {
   name: string;
   title: string;
   icon: TabIcon;
   iconActive: TabIcon;
 }[] = [
-  { name: "dashboard", title: "DASHBOARD", icon: "grid-outline", iconActive: "grid" },
-  { name: "alerts", title: "ALERTS", icon: "notifications-outline", iconActive: "notifications" },
-  { name: "search", title: "SEARCH", icon: "search-outline", iconActive: "search" },
-  { name: "status", title: "NETWORK", icon: "globe-outline", iconActive: "globe" },
-  { name: "profile", title: "SETTINGS", icon: "settings-outline", iconActive: "settings" },
+  { name: "dashboard", title: "HOME",     icon: "grid-outline",         iconActive: "grid" },
+  { name: "feed",      title: "FEED",     icon: "pulse-outline",        iconActive: "pulse" },
+  { name: "cases",     title: "CASES",    icon: "briefcase-outline",    iconActive: "briefcase" },
+  { name: "actions",   title: "ACTIONS",  icon: "shield-checkmark-outline", iconActive: "shield-checkmark" },
+  { name: "more",      title: "MORE",     icon: "ellipsis-horizontal-circle-outline", iconActive: "ellipsis-horizontal-circle" },
 ];
 
+// Secondary routes still in (tabs)/ but hidden from the bar.
+const HIDDEN_ROUTES = ["alerts", "search", "status", "profile"] as const;
+
 export default function TabLayout() {
+  // Three queries drive tab badges — kept lightweight; React Query
+  // dedupes them with the screens that use the same keys.
   const unackQ = useUnacknowledgedCount();
-  const unreadCount = unackQ.data?.count ?? 0;
+  const actionsQ = useActions("pending");
+  const casesQ = useCases({ status: "new" });
+
+  const alertsUnread = unackQ.data?.count ?? 0;
+  const pendingActions = actionsQ.data?.counts?.pending ?? 0;
+  const newCases = casesQ.data?.counts?.new ?? 0;
+
+  const badgeFor = (name: string): number | undefined => {
+    if (name === "actions" && pendingActions > 0) return pendingActions;
+    if (name === "cases" && newCases > 0) return newCases;
+    if (name === "more" && alertsUnread > 0) return alertsUnread;
+    return undefined;
+  };
 
   return (
     <Tabs
@@ -33,13 +51,13 @@ export default function TabLayout() {
         tabBarLabelStyle: styles.tabLabel,
       }}
     >
-      {TAB_CONFIG.map((tab) => (
+      {PRIMARY_TABS.map((tab) => (
         <Tabs.Screen
           key={tab.name}
           name={tab.name}
           options={{
             title: tab.title,
-            tabBarIcon: ({ focused, color }) => (
+            tabBarIcon: ({ focused }) => (
               <View style={[styles.iconWrap, focused && styles.iconWrapActive]}>
                 <Ionicons
                   name={focused ? tab.iconActive : tab.icon}
@@ -48,12 +66,19 @@ export default function TabLayout() {
                 />
               </View>
             ),
-            tabBarBadge:
-              tab.name === "alerts" && unreadCount > 0
-                ? unreadCount
-                : undefined,
+            tabBarBadge: badgeFor(tab.name),
             tabBarBadgeStyle: styles.badge,
           }}
+        />
+      ))}
+
+      {HIDDEN_ROUTES.map((name) => (
+        <Tabs.Screen
+          key={name}
+          name={name}
+          // `href: null` keeps the route resolvable for deep links but
+          // omits it from the tab bar — accessed via the More screen.
+          options={{ href: null }}
         />
       ))}
     </Tabs>
@@ -62,7 +87,7 @@ export default function TabLayout() {
 
 const styles = StyleSheet.create({
   tabBar: {
-    backgroundColor: "rgba(255,255,255,0.7)",
+    backgroundColor: "rgba(255,255,255,0.92)",
     borderTopWidth: 1,
     borderTopColor: colors.border,
     height: 88,
@@ -82,7 +107,7 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   iconWrap: {
-    paddingHorizontal: 20,
+    paddingHorizontal: 16,
     paddingVertical: 4,
     borderRadius: radius.md,
   },

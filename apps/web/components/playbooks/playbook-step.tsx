@@ -20,7 +20,7 @@ const KIND_ICON = {
 
 const KIND_LABEL = {
   manual: "Manual",
-  dqn_override: "Approve DQN",
+  dqn_override: "Approve STRIX",
   isolate_host: "Isolate host",
   block_ip: "Block IP",
 } as const;

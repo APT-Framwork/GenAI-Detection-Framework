@@ -2,6 +2,7 @@ import { View, Text, StyleSheet, Pressable } from "react-native";
 import { useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { colors, typography, spacing, radius, shadows } from "../../lib/theme";
+import { CavixLogo } from "../../components/CavixLogo";
 
 export default function DetectionScreen() {
   const router = useRouter();
@@ -11,10 +12,7 @@ export default function DetectionScreen() {
       {/* Header */}
       <View style={styles.header}>
         <View style={styles.headerLeft}>
-          <View style={styles.logoIcon}>
-            <View style={styles.logoPupil} />
-          </View>
-          <Text style={styles.headerTitle}>SENTINEL</Text>
+          <CavixLogo width={92} />
         </View>
         <View style={styles.avatar} />
       </View>
@@ -48,7 +46,7 @@ export default function DetectionScreen() {
         </Text>
         <Text style={styles.description}>
           Continuous perimeter scanning with AI-driven threat recognition.{" "}
-          <Text style={styles.descBold}>STRIX</Text> never blinks.
+          <Text style={styles.descBold}>CAVIX</Text> never blinks.
         </Text>
         <View style={styles.statusChip}>
           <View style={styles.chipDot} />

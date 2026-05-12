@@ -3,7 +3,8 @@
 import { useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
-import { Shield, Eye, EyeOff, Loader2 } from "lucide-react"
+import { Eye, EyeOff, Loader2 } from "lucide-react"
+import { CavixLogo } from "@/components/layout/cavix-logo"
 
 import { useLogin } from "@/lib/api/auth"
 import { StrixApiError } from "@/lib/api/client"
@@ -42,18 +43,11 @@ export default function LoginPage() {
   return (
     <div className="space-y-8">
       {/* Mobile logo */}
-      <div className="lg:hidden flex items-center gap-3 mb-8">
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-strix-primary/20 to-strix-primary/5 border border-strix-primary/30">
-          <Shield className="h-5 w-5 text-strix-primary" />
-        </div>
-        <div>
-          <h1 className="text-xl font-bold tracking-widest text-[var(--strix-text)]">
-            STRIX
-          </h1>
-          <p className="text-[9px] text-[var(--strix-text-muted)] tracking-[0.3em] uppercase">
-            Vigilant Sentinel
-          </p>
-        </div>
+      <div className="lg:hidden flex flex-col gap-1 mb-8">
+        <CavixLogo width={120} color="var(--strix-text)" />
+        <p className="text-[9px] text-[var(--strix-text-muted)] tracking-[0.3em] uppercase">
+          Powered by STRIX RL
+        </p>
       </div>
 
       {/* Header */}
@@ -62,7 +56,7 @@ export default function LoginPage() {
           Sentinel Authentication
         </h2>
         <p className="text-sm text-[var(--strix-text-muted)]">
-          Enter your credentials to access the STRIX network
+          Enter your credentials to access the CAVIX network
         </p>
       </div>
 
@@ -178,7 +172,7 @@ export default function LoginPage() {
       <div className="border-t border-[var(--strix-border)] pt-4">
         <p className="text-[10px] text-[var(--strix-text-muted)] text-center leading-relaxed">
           All sessions are encrypted with AES-256. Unauthorized access attempts
-          are logged and reported to STRIX SENTINEL command.
+          are logged and reported to CAVIX SENTINEL command.
         </p>
       </div>
     </div>

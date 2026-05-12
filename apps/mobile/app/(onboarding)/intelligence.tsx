@@ -34,7 +34,7 @@ export default function IntelligenceScreen() {
 
         {/* Description */}
         <Text style={styles.description}>
-          STRIX monitors patterns to neutralize threats before they materialize.
+          CAVIX, driven by the STRIX RL agent, monitors patterns to neutralize threats before they materialize.
         </Text>
 
         {/* Feature cards */}
@@ -92,7 +92,10 @@ const styles = StyleSheet.create({
   scroll: {
     paddingHorizontal: spacing.lg,
     paddingTop: spacing["2xl"],
-    paddingBottom: 200,
+    // Footer is position:absolute (~120pt) — leave clearance so the
+    // "Neural Mesh Active" pill at the end of the visual doesn't get
+    // tucked underneath the NEXT button on short viewports.
+    paddingBottom: 280,
   },
   progressRow: {
     flexDirection: "row",

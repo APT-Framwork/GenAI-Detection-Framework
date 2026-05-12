@@ -3,6 +3,7 @@ import { useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useUserStore } from "../../stores/user-store";
 import { colors, typography, spacing, radius, shadows } from "../../lib/theme";
+import { CavixLogo } from "../../components/CavixLogo";
 
 export default function OrchestrationScreen() {
   const router = useRouter();
@@ -21,7 +22,7 @@ export default function OrchestrationScreen() {
       >
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.headerBrand}>STRIX</Text>
+          <CavixLogo width={92} />
         </View>
 
         {/* Hero visual */}

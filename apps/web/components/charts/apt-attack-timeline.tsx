@@ -20,10 +20,13 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { Bug, Crosshair, Download, Radio, Search, Send, Upload } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { useLogStream, type RlPayload } from "@/lib/api/ws";
 import { usePredetections } from "@/lib/predetection-store";
+
+const STAGE_ICONS = [Search, Crosshair, Send, Bug, Download, Radio, Upload] as const;
 
 const STAGE_LABELS = [
   "Recon",
@@ -410,42 +413,25 @@ function AttackStages({ stage }: { stage: number }) {
           textColor = "#F59E0B";
         }
 
+        const Icon = STAGE_ICONS[i];
+        const iconColor = past ? "#0b1416" : isCurrent ? "#fff" : future ? "#80b6c3" : "#fff";
         return (
           <g key={label}>
             <circle
               cx={cx}
               cy={cy}
-              r={9}
+              r={10}
               fill={fill}
               stroke={stroke}
               strokeWidth={1.5}
               className={isCurrent ? "animate-stage-pulse" : undefined}
               style={{ transition: "fill 400ms ease, stroke 400ms ease" }}
             />
-            {past && (
-              <text
-                x={cx}
-                y={cy + 3}
-                textAnchor="middle"
-                fontSize="9"
-                fontWeight={700}
-                fill="#0b1416"
-              >
-                {stageIdx}
-              </text>
-            )}
-            {!past && !future && isCurrent && (
-              <text
-                x={cx}
-                y={cy + 3}
-                textAnchor="middle"
-                fontSize="9"
-                fontWeight={700}
-                fill="#fff"
-              >
-                {stageIdx}
-              </text>
-            )}
+            <foreignObject x={cx - 7} y={cy - 7} width={14} height={14} style={{ pointerEvents: "none" }}>
+              <div className="w-full h-full flex items-center justify-center">
+                <Icon size={11} color={iconColor} strokeWidth={2.4} />
+              </div>
+            </foreignObject>
             <text
               x={cx}
               y={H - 2}

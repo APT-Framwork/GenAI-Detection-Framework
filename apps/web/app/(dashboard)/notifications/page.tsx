@@ -45,7 +45,7 @@ function projectNotification(item: InterventionItem) {
     badge,
     title: `${item.actionName.replace(/_/g, " ")} on ${item.agentName ?? item.hostId.slice(0, 8)}`,
     time: timeAgo(item.decidedAt),
-    description: `DQN decided ${item.actionName} at CKC stage ${item.ckcStageName}. ${
+    description: `STRIX decided ${item.actionName} at CKC stage ${item.ckcStageName}. ${
       item.requiresApproval
         ? "Pending operator approval — Apply / Reject in the Analysis tab."
         : "Auto-applied — see audit log for details."

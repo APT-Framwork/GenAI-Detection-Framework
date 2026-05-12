@@ -39,6 +39,11 @@ from strix_api.observability import (
 )
 from strix_api.repositories.database import init_engine, session_scope
 from strix_api.repositories.models import AttackChain
+from strix_api.services.attribution_service import AttributionService
+from strix_api.services.ioc_extractor import (
+    extract_indicators,
+    write_observations,
+)
 from strix_api.repositories.repos import (
     AlertRepo,
     AttackChainRepo,
@@ -254,8 +259,19 @@ class VerdictsWriter:
                     if chain_id is not None and p.get("dqnAction") is not None:
                         action_int = int(p["dqnAction"])
                         action = DqnAction(action_int)
-                        requires_approval = action.requires_approval and not self._auto_response
-                        applied = not requires_approval
+                        # Interventions (ESCALATE+) always start pending so the
+                        # /actions queue tells a real story: row appears,
+                        # operator (or the simulator's Caldera-stop hook)
+                        # marks it applied seconds later, applied_at trails
+                        # decided_at by visible latency. ISOLATE/BLOCK keep
+                        # their existing approval gate. MONITOR/LOW_ALERT
+                        # auto-apply (advisory).
+                        if action.is_intervention:
+                            requires_approval = True
+                            applied = False
+                        else:
+                            requires_approval = action.requires_approval and not self._auto_response
+                            applied = not requires_approval
                         action_rows.append(
                             {
                                 "action_id": uuid4(),
@@ -285,6 +301,16 @@ class VerdictsWriter:
                 # Update / close chains. Doing this AFTER actions so we have the
                 # action_id to record as `intervention_action_id` if needed.
                 action_id_by_alert = {row["alert_id"]: row["action_id"] for row in action_rows}
+
+                # Auto-triage: any non-MONITOR action lifts the chain off
+                # the "new" bucket so the Cases queue reflects engine
+                # activity. close() handles the contained/closed step.
+                _ALERTING_ACTIONS = {"LOW_ALERT", "ESCALATE", "ISOLATE", "BLOCK"}
+                advanced: set[UUID] = set()
+                for row in action_rows:
+                    if row["action_name"] in _ALERTING_ACTIONS and row["chain_id"] not in advanced:
+                        await chain_repo.advance_triage(row["chain_id"], "investigating")
+                        advanced.add(row["chain_id"])
                 for p in payloads:
                     chain_id_str = p.get("chainId")
                     if not chain_id_str:
@@ -312,6 +338,59 @@ class VerdictsWriter:
                             intervention_action_id=intervention_id,
                         )
                         attack_chain_closed_total.labels(close_reason=close_reason).inc()
+
+                # CTI auto-attribution. Runs once per unique chain
+                # touched in this batch — cheap (small campaign catalog,
+                # set-based Jaccard) and idempotent (no-op when the
+                # chain already has campaign_id). Failures here MUST
+                # NOT break the verdicts flush — we wrap individually.
+                attribution = AttributionService(session)
+                touched_chains: set[UUID] = {
+                    UUID(p["chainId"]) for p in payloads if p.get("chainId")
+                }
+                for cid in touched_chains:
+                    try:
+                        await attribution.attribute_chain(cid)
+                    except Exception as exc:  # noqa: BLE001
+                        self._log.warning("attribution_failed", chain_id=str(cid), error=str(exc))
+
+                # IOC auto-extraction. Pull every IP / SHA256 out of
+                # `full_log` and upsert into intel_indicators with the
+                # latest occurred_at as last_seen_internal. Aggregating
+                # by (indicator, type) before the upsert collapses
+                # repeat IOCs in a single batch into one UPDATE +
+                # accurate hit_count. Best-effort: failures logged,
+                # never raised, so a malformed regex hit can't break
+                # the verdicts flush.
+                try:
+                    agg: dict[tuple[str, str], dict[str, Any]] = {}
+                    for p in payloads:
+                        full_log = p.get("fullLog")
+                        if not full_log:
+                            continue
+                        occurred_at = _parse_iso(p["occurredAt"])
+                        for indicator, itype in extract_indicators(full_log):
+                            key = (indicator, itype)
+                            prev = agg.get(key)
+                            if prev is None:
+                                agg[key] = {
+                                    "observed_at": occurred_at,
+                                    "hit_count": 1,
+                                }
+                            else:
+                                prev["hit_count"] += 1
+                                if occurred_at > prev["observed_at"]:
+                                    prev["observed_at"] = occurred_at
+                    if agg:
+                        await write_observations(
+                            session,
+                            (
+                                (k[0], k[1], v["observed_at"], v["hit_count"])
+                                for k, v in agg.items()
+                            ),
+                        )
+                except Exception as exc:  # noqa: BLE001
+                    self._log.warning("ioc_extraction_failed", error=str(exc))
         except Exception as exc:
             self._log.error(
                 "db_flush_failed",

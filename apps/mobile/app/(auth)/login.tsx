@@ -17,6 +17,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { StrixApiError } from "../../lib/api/client";
 import { colors, radius, shadows, spacing, typography } from "../../lib/theme";
 import { useUserStore } from "../../stores/user-store";
+import { CavixLogo } from "../../components/CavixLogo";
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -66,15 +67,8 @@ export default function LoginScreen() {
         >
           {/* Logo + brand */}
           <View style={styles.brandBlock}>
-            <View style={styles.logoRing}>
-              <View style={styles.logoInner}>
-                <View style={styles.logoIris}>
-                  <View style={styles.logoPupil} />
-                </View>
-              </View>
-            </View>
-            <Text style={styles.brand}>STRIX</Text>
-            <Text style={styles.tagline}>SENTINEL CONSOLE</Text>
+            <CavixLogo width={180} />
+            <Text style={styles.tagline}>Powered by STRIX RL</Text>
           </View>
 
           {/* Card */}

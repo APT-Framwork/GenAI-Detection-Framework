@@ -12,7 +12,7 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 
-import { apiDelete, apiGet, apiPost } from "./client";
+import { apiDelete, apiGet, apiPatch, apiPost } from "./client";
 
 // ---- dashboard --------------------------------------------------------
 
@@ -334,6 +334,271 @@ export function useFileScan() {
       form.append("file", filePart);
       return apiPost<FileScanResponse>(`/threat-intel/files/scan`, form);
     },
+  });
+}
+
+// ---- cases / triage --------------------------------------------------
+
+export type TriageStatus =
+  | "new"
+  | "investigating"
+  | "contained"
+  | "closed"
+  | string;
+
+export type CaseItem = {
+  chainId: string;
+  hostId: string | null;
+  hostName: string | null;
+  openedAt: string;
+  closedAt: string | null;
+  maxCkcStage: number | null;
+  maxVaeProb: number | null;
+  status: string;
+  triageStatus: TriageStatus;
+  assignee: string | null;
+  stepCount: number;
+  lastSeenAt: string;
+};
+
+export type CasesResponse = {
+  items: CaseItem[];
+  counts: Record<string, number>;
+};
+
+export function useCases(opts: { status?: TriageStatus | "all"; limit?: number } = {}) {
+  const status = opts.status ?? "all";
+  const limit = opts.limit ?? 50;
+  return useQuery({
+    queryKey: ["cases", { status, limit }],
+    queryFn: () => {
+      const params = new URLSearchParams({ limit: String(limit) });
+      if (status !== "all") params.set("status", status);
+      return apiGet<CasesResponse>(`/cases?${params.toString()}`);
+    },
+    staleTime: 15_000,
+    refetchInterval: 30_000,
+  });
+}
+
+export function useSetTriageStatus() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (args: {
+      chainId: string;
+      triageStatus: TriageStatus;
+      assignee?: string | null;
+    }) =>
+      apiPatch(
+        `/cases/${encodeURIComponent(args.chainId)}/status`,
+        { triageStatus: args.triageStatus, assignee: args.assignee ?? null },
+      ),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["cases"] });
+      qc.invalidateQueries({ queryKey: ["analysis"] });
+    },
+  });
+}
+
+// ---- DQN actions / approvals ------------------------------------------
+
+export type DqnAction = {
+  actionId: string;
+  chainId: string | null;
+  hostId: string | null;
+  action: string;
+  decidedAt: string;
+  approvedAt: string | null;
+  approvedBy: string | null;
+  declinedAt: string | null;
+  declineReason: string | null;
+  rolledBackAt: string | null;
+  status: "pending" | "approved" | "declined" | "rolled_back" | string;
+  rationale: string | null;
+  payload: Record<string, unknown> | null;
+};
+
+export type ActionsResponse = {
+  items: DqnAction[];
+  counts: { pending: number; approved: number; declined: number };
+};
+
+export function useActions(status: "pending" | "approved" | "declined" | "all" = "pending") {
+  return useQuery({
+    queryKey: ["actions", status],
+    queryFn: () => {
+      const params = new URLSearchParams();
+      if (status !== "all") params.set("status", status);
+      return apiGet<ActionsResponse>(`/actions?${params.toString()}`);
+    },
+    staleTime: 10_000,
+    refetchInterval: 20_000,
+  });
+}
+
+export function useApproveAction() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (actionId: string) =>
+      apiPost(`/actions/${encodeURIComponent(actionId)}/approve`),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["actions"] }),
+  });
+}
+
+export function useDeclineAction() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (args: { actionId: string; reason: string }) =>
+      apiPost(
+        `/actions/${encodeURIComponent(args.actionId)}/decline`,
+        { reason: args.reason },
+      ),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["actions"] }),
+  });
+}
+
+// ---- MITRE coverage ---------------------------------------------------
+
+export type MitreTactic = {
+  tacticId: string;
+  tacticName: string;
+  techniques: { techniqueId: string; techniqueName: string; count: number }[];
+  totalCount: number;
+};
+
+export type MitreCoverageResponse = {
+  window: Window;
+  tactics: MitreTactic[];
+};
+
+export function useMitreCoverage(window: Window = "24h") {
+  return useQuery({
+    queryKey: ["mitre", "coverage", window],
+    queryFn: () =>
+      apiGet<MitreCoverageResponse>(`/mitre/coverage?window=${window}`),
+    staleTime: 60_000,
+    refetchInterval: 120_000,
+  });
+}
+
+// ---- chain investigation tools ---------------------------------------
+
+export type ChainTag = { name: string; addedBy: string; addedAt: string };
+export type ChainNote = {
+  noteId: string;
+  body: string;
+  authorEmail: string;
+  authorRole: string;
+  createdAt: string;
+};
+export type ChainActivity = {
+  id: string;
+  kind: string;
+  actorEmail: string | null;
+  occurredAt: string;
+  detail: string | null;
+};
+
+export function useChainTags(chainId: string | null) {
+  return useQuery({
+    queryKey: ["chain", "tags", chainId],
+    enabled: !!chainId,
+    queryFn: () =>
+      apiGet<{ chainId: string; tags: ChainTag[] }>(
+        `/chains/${chainId}/tags`,
+      ),
+  });
+}
+
+export function useChainNotes(chainId: string | null) {
+  return useQuery({
+    queryKey: ["chain", "notes", chainId],
+    enabled: !!chainId,
+    queryFn: () =>
+      apiGet<{ chainId: string; notes: ChainNote[] }>(
+        `/chains/${chainId}/notes`,
+      ),
+  });
+}
+
+export function useAddChainNote() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (args: { chainId: string; body: string }) =>
+      apiPost(`/chains/${args.chainId}/notes`, { body: args.body }),
+    onSuccess: (_, vars) => {
+      qc.invalidateQueries({ queryKey: ["chain", "notes", vars.chainId] });
+      qc.invalidateQueries({ queryKey: ["chain", "activity", vars.chainId] });
+    },
+  });
+}
+
+export function useChainActivity(chainId: string | null) {
+  return useQuery({
+    queryKey: ["chain", "activity", chainId],
+    enabled: !!chainId,
+    queryFn: () =>
+      apiGet<{ chainId: string; events: ChainActivity[] }>(
+        `/chains/${chainId}/activity`,
+      ),
+    refetchInterval: 20_000,
+  });
+}
+
+// ---- analysis predictions (next stage / RL timeline) -----------------
+
+export type ChainPredictions = {
+  chainId: string;
+  currentStage: number | null;
+  predictions: {
+    ckcStage: number;
+    ckcStageName: string;
+    probability: number;
+  }[];
+  generatedAt: string;
+};
+
+export function useChainPredictions(chainId: string | null) {
+  return useQuery({
+    queryKey: ["analysis", "predictions", chainId],
+    enabled: !!chainId,
+    queryFn: () =>
+      apiGet<ChainPredictions>(`/analysis/chains/${chainId}/predictions`),
+    refetchInterval: 30_000,
+  });
+}
+
+// ---- playbooks --------------------------------------------------------
+
+export type PlaybookStep = {
+  stepId: string;
+  kind: string;
+  title: string;
+  description: string | null;
+  payload: Record<string, unknown> | null;
+};
+
+export type Playbook = {
+  playbookId: string;
+  name: string;
+  description: string | null;
+  isFallback: boolean;
+  steps: PlaybookStep[];
+};
+
+export function usePlaybooks(opts: {
+  stage?: number | null;
+  technique?: string | null;
+}) {
+  const params = new URLSearchParams();
+  if (opts.stage != null) params.set("stage", String(opts.stage));
+  if (opts.technique) params.set("technique", opts.technique);
+  const qs = params.toString();
+  return useQuery({
+    queryKey: ["playbooks", opts.stage ?? null, opts.technique ?? null],
+    queryFn: () =>
+      apiGet<{ playbooks: Playbook[] }>(`/playbooks${qs ? `?${qs}` : ""}`),
+    staleTime: 5 * 60_000,
   });
 }
 

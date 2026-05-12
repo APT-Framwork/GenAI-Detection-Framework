@@ -1,4 +1,5 @@
 import { Toaster } from "@/components/layout/toaster"
+import { CavixLogo } from "@/components/layout/cavix-logo"
 
 export default function AuthLayout({
   children,
@@ -16,24 +17,11 @@ export default function AuthLayout({
         {/* Content */}
         <div className="relative z-10 text-center space-y-8">
           {/* Logo */}
-          <div className="flex items-center justify-center gap-3 mb-6">
-            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-strix-cyan/20 to-strix-cyan/5 border border-strix-cyan/30 glow-cyan">
-              <svg
-                viewBox="0 0 24 24"
-                className="h-8 w-8 text-strix-cyan"
-                fill="currentColor"
-              >
-                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
-              </svg>
-            </div>
-            <div className="text-left">
-              <h1 className="text-3xl font-bold text-white tracking-widest">
-                STRIX
-              </h1>
-              <p className="text-xs text-strix-cyan/60 tracking-[0.3em] uppercase">
-                Vigilant Sentinel
-              </p>
-            </div>
+          <div className="flex flex-col items-center gap-2 mb-6">
+            <CavixLogo width={240} color="#00F2FF" />
+            <p className="text-xs text-strix-cyan/60 tracking-[0.3em] uppercase">
+              Powered by the STRIX RL agent
+            </p>
           </div>
 
           <div className="space-y-4 max-w-md">
@@ -42,7 +30,8 @@ export default function AuthLayout({
             </h2>
             <p className="text-sm text-gray-400 leading-relaxed">
               Real-time threat detection, AI-powered attack analysis,
-              and autonomous security orchestration for clinical sentinel networks.
+              and autonomous security orchestration driven by the STRIX
+              reinforcement-learning agent.
             </p>
           </div>
 
@@ -50,7 +39,7 @@ export default function AuthLayout({
           <div className="flex flex-wrap justify-center gap-2 mt-8">
             {[
               "Kill Chain Analysis",
-              "RL-Based Detection",
+              "STRIX RL Agent",
               "Live Topology",
               "Threat Intelligence",
             ].map((feature) => (

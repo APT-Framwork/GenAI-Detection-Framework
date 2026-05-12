@@ -31,6 +31,7 @@ function liveEventToAlert(e: LiveFeedEvent) {
   const severity = severityFromCkc(e.ckcStage)
   return {
     id: e.alertId,
+    chainId: e.chainId,
     timestamp: e.occurredAt,
     title: `${e.ckcStageName}${e.dqnActionName ? ` · ${e.dqnActionName}` : ""}`,
     description:
@@ -300,14 +301,11 @@ export default function VigilanceFeedPage() {
                   <div className="flex items-center gap-[12px] mt-[20px]">
                     <button
                       onClick={() => {
-                        // The live-feed event id is an alert_id, not a
-                        // chain_id — the per-chain analysis route would
-                        // 422 on it. Route to /attack-analysis/latest
-                        // (which auto-resolves to the most recent chain)
-                        // and pass the agent as a query param so the
-                        // analysis view can hint at context.
-                        const q = alert.source ? `?q=${encodeURIComponent(alert.source)}` : ""
-                        router.push(`/attack-analysis/latest${q}`)
+                        // "Go to Case" lands on the cases triage queue. If
+                        // we know the chain, pass it as ?focus= so the row
+                        // can be highlighted; otherwise just open the queue.
+                        const q = alert.chainId ? `?focus=${alert.chainId}` : ""
+                        router.push(`/cases${q}`)
                       }}
                       className="rounded-[9999px] bg-[#00666d] px-[20px] py-[10px] text-[11px] font-bold uppercase tracking-[0.8px] text-[#cffbff] hover:opacity-90 transition-opacity"
                     >

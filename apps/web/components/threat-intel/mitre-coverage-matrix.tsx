@@ -267,7 +267,7 @@ function TechniqueCell({
           <span className="text-strix-cyan">click → /hunt</span>
         </span>
       }
-      side="top"
+      side="bottom"
       align="start"
       block
       width={320}

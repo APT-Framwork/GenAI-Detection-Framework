@@ -16,6 +16,7 @@ from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from strix_api import __version__
 from strix_api.api.errors import register_exception_handlers
@@ -32,6 +33,8 @@ from strix_api.api.routes import (
     hosts,
     hunt,
     mitre,
+    chains as chains_routes,
+    intel,
     monitoring,
     playbooks,
     simulation,
@@ -83,6 +86,31 @@ def create_app() -> FastAPI:
     register_exception_handlers(app)
     install_middleware(app)
 
+    # CORS — must be added AFTER install_middleware so it wraps OUTERMOST
+    # (Starlette: last add_middleware is outermost). Browser preflights and
+    # auth-failure responses both need ACAO headers, which only happens if
+    # CORSMiddleware sits outside AuthMiddleware. In dev we accept the Expo
+    # web origin on :8081 and the Next.js web origin on :3000.
+    _settings = get_settings()
+    _cors_origins = (
+        ["*"]
+        if _settings.env == "dev"
+        else [
+            "http://localhost:3000",
+            "http://localhost:8081",
+            "http://127.0.0.1:3000",
+            "http://127.0.0.1:8081",
+        ]
+    )
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=_cors_origins,
+        allow_credentials=_settings.env != "dev",
+        allow_methods=["*"],
+        allow_headers=["*"],
+        expose_headers=["X-CSRF-Token"],
+    )
+
     # OpenTelemetry — enabled when OBS_TRACING_ENABLED=true + OTLP endpoint set.
     from strix_api.observability.tracing import configure_tracing, instrument_fastapi
 
@@ -112,6 +140,8 @@ def create_app() -> FastAPI:
     app.include_router(ueba.router, prefix=_API_PREFIX)
     app.include_router(playbooks.router, prefix=_API_PREFIX)
     app.include_router(threat_intel.router, prefix=_API_PREFIX)
+    app.include_router(intel.router, prefix=_API_PREFIX)
+    app.include_router(chains_routes.router, prefix=_API_PREFIX)
     app.include_router(monitoring.router, prefix=_API_PREFIX)
     app.include_router(alerts.router, prefix=_API_PREFIX)
     app.include_router(streams.router, prefix=_API_PREFIX)

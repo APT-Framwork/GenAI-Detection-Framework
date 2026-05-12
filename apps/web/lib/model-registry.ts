@@ -120,10 +120,10 @@ export const MODEL_REGISTRY: ModelMetrics[] = [
     source: "apps/notebooks/TP2_MLA_TE.ipynb",
   },
   {
-    name: "DQN Agent",
+    name: "STRIX Agent",
     version: "real-data-2k",
     description:
-      "Deep-Q-Network policy over a 13-d state vector emitting one of 5 actions (NO_OP → BLOCK_USER_IP).",
+      "STRIX is a Deep-Q-Network policy over a 13-d state vector emitting one of 5 actions (NO_OP → BLOCK_USER_IP).",
     architecture: "Dueling DQN",
     color: "amber",
     status: "active",

@@ -75,9 +75,9 @@ function InlineVariant({
           Awaiting predetection
         </p>
         <p className="text-[10px] text-[#497f8b] dark:text-[var(--strix-text-muted)] mt-1 max-w-md mx-auto">
-          Receipt populates the moment the RL agent intervenes (action ≥
+          Receipt populates the moment the STRIX agent intervenes (action ≥
           ESCALATE) before any chain reaches stage 7. Benign-only hosts will
-          stay quiet — that&apos;s the agent&apos;s correct behaviour.
+          stay quiet — that&apos;s STRIX&apos;s correct behaviour.
         </p>
       </div>
     );
@@ -187,7 +187,7 @@ function InlineRow({ p }: { p: Predetection }) {
           title="Agent action"
           body={
             <>
-              The DQN&apos;s recommended action at the moment of latch (
+              STRIX&apos;s recommended action at the moment of latch (
               <strong>{p.actionName || `action ${p.action}`}</strong>).
               Anything ≥ <code>ESCALATE</code> (action 2) qualifies as an
               intervention. In the lab this is a recommendation only —
@@ -243,14 +243,14 @@ function InlineRow({ p }: { p: Predetection }) {
           icon={Brain}
           label="Transformer conf."
           value={`${(p.confidence * 100).toFixed(0)}%`}
-          sub={`DQN action ${p.action}`}
+          sub={`STRIX action ${p.action}`}
           help={
             <>
               Transformer softmax max over the 8-class CKC head at latch.
               <br />
               <em>Note:</em> this is the upstream classifier&apos;s
-              confidence, <strong>not</strong> the DQN&apos;s — the DQN
-              outputs Q-values, not probabilities. Action{" "}
+              confidence, <strong>not</strong> STRIX&apos;s — STRIX is a
+              DQN, so it outputs Q-values, not probabilities. Action{" "}
               <code>{p.action}</code> = <code>{p.actionName}</code>.
             </>
           }
@@ -263,7 +263,7 @@ function InlineRow({ p }: { p: Predetection }) {
           help={
             <>
               Most recent MITRE technique observed for this host before
-              latch. The latch frame itself often has no MITRE tag (DQN
+              latch. The latch frame itself often has no MITRE tag (STRIX
               fires on a non-tagged downstream event), so we backfill from
               the last tagged frame in the chain.
             </>

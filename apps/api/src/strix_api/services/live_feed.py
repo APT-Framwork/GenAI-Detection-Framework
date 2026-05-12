@@ -52,6 +52,15 @@ def build_live_feed_event(verdict: dict[str, Any]) -> dict[str, Any]:
         ckc_name = CkcStage(ckc_int).name
     except ValueError:
         ckc_name = "UNKNOWN"
+    # The /ai-engine page renders one panel per model and needs every
+    # model's full output, not just the headline score. q_values stays
+    # a small list (DqnAction has 5 entries) so the SSE payload remains
+    # ~250 bytes — fine for high-frequency streaming.
+    q_values_raw = verdict.get("qValues") or []
+    try:
+        q_values = [float(q) for q in q_values_raw]
+    except (TypeError, ValueError):
+        q_values = []
     return {
         "alertId": verdict["alertId"],
         "agentId": verdict.get("agentId"),
@@ -59,11 +68,24 @@ def build_live_feed_event(verdict: dict[str, Any]) -> dict[str, Any]:
         "occurredAt": verdict["occurredAt"],
         "ckcStage": ckc_int,
         "ckcStageName": ckc_name,
-        "vaeMaliciousProb": verdict.get("vaeMaliciousProb"),
+        # AE
         "aeAnomalyScore": verdict.get("aeAnomalyScore"),
+        "aeReconError": verdict.get("aeReconError"),
+        # VAE
+        "vaeMaliciousProb": verdict.get("vaeMaliciousProb"),
+        "vaeUncertainty": verdict.get("vaeUncertainty"),
+        # GNN
         "gnnNodeRisk": verdict.get("gnnNodeRisk"),
+        "gnnNeighborRisk": verdict.get("gnnNeighborRisk"),
+        "gnnRiskGrowth": verdict.get("gnnRiskGrowth"),
+        # Transformer
+        "transformerPredCkc": verdict.get("transformerPredCkc"),
+        "transformerConfidence": verdict.get("transformerConfidence"),
+        # DQN
         "dqnAction": verdict.get("dqnAction"),
         "dqnActionName": verdict.get("dqnActionName"),
+        "qValues": q_values,
+        # MITRE — already exposed
         "mitreTechniques": list(verdict.get("mitreTechniques") or []),
     }
 

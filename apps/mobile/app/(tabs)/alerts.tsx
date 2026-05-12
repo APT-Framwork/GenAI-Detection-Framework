@@ -61,7 +61,7 @@ export default function AlertsScreen() {
       {/* Page title */}
       <View style={styles.titleSection}>
         <Text style={styles.subtitle}>LIVE SECURITY FEED</Text>
-        <Text style={styles.title}>STRIX Notifications</Text>
+        <Text style={styles.title}>CAVIX Notifications</Text>
       </View>
 
       {/* Filters */}

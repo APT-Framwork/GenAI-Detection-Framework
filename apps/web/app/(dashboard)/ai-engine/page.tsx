@@ -6,8 +6,15 @@ import { useQuery } from "@tanstack/react-query"
 import { apiFetch } from "@/lib/api/client"
 import { useLiveFeed } from "@/lib/api/live-feed"
 import { CircularProgress } from "@/components/charts/circular-progress"
-import { ForensicLogViewer } from "@/components/charts/forensic-log-viewer"
 import { DetectionVolumePanel } from "@/components/charts/detection-volume-panel"
+import {
+  AePanel,
+  DqnPanel,
+  GnnPanel,
+  TransformerPanel,
+  VaePanel,
+} from "@/components/model-monitor/panels"
+import { InferenceStream } from "@/components/model-monitor/inference-stream"
 import { cn } from "@/lib/utils"
 import { MODEL_REGISTRY, compositeMetrics, type ModelMetrics } from "@/lib/model-registry"
 import {
@@ -60,6 +67,21 @@ export default function AiEnginePage() {
   // from `/streams/live-feed/recent` on mount) and serve the Export buttons.
   const liveFeed = useLiveFeed({ maxEvents: 500, backfillLimit: 200 })
   const [expandedModel, setExpandedModel] = useState<string | null>(null)
+
+  // The live-feed hook hands back { id, data } envelopes; the model
+  // panels want the flat LiveFeedEvent array, freshest-first.
+  const liveFeedEvents = useMemo(
+    () => liveFeed.events.map((e) => e.data),
+    [liveFeed.events],
+  )
+  // "Pulse" the panel accent dots when a new event arrived within the
+  // last few seconds — visual heartbeat that the SSE feed is live.
+  const recentlyActive = useMemo(() => {
+    const latest = liveFeedEvents[0]?.occurredAt
+    if (!latest) return false
+    const t = Date.parse(latest)
+    return Number.isFinite(t) && Date.now() - t < 8_000
+  }, [liveFeedEvents])
 
   // Composite metrics come from the registry — these are training-time
   // eval numbers and don't depend on live signals. The previous code
@@ -172,6 +194,49 @@ export default function AiEnginePage() {
           value={avgDriftKl == null ? "—" : avgDriftKl.toFixed(4)}
           sub={avgDriftKl == null ? "no live drift signal" : avgDriftKl < 0.2 ? "in-distribution" : "shift detected"}
         />
+      </div>
+
+      {/* Live Inference — one panel per model. Every panel reads the
+          same SSE event buffer and renders its model's outputs in its
+          own colour-coded card. The accent dot pulses briefly when a
+          fresh event arrives. */}
+      <div>
+        <div className="flex items-center gap-2 mb-3">
+          <Cpu className="h-4 w-4 text-strix-primary dark:text-strix-cyan" />
+          <h2 className="text-sm font-bold text-[var(--strix-text)] font-[family-name:var(--font-space-grotesk)]">
+            Live Inference
+          </h2>
+          <span className="text-[10px] uppercase tracking-wider text-[var(--strix-text-muted)]">
+            5 models · streaming via SSE
+          </span>
+          <span className="ml-auto flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-[var(--strix-text-muted)]">
+            <span className={cn(
+              "w-1.5 h-1.5 rounded-full",
+              liveFeed.status === "open" ? "bg-emerald-500 animate-pulse" : "bg-rose-500",
+            )} />
+            {liveFeed.status === "open" ? "connected" : liveFeed.status}
+          </span>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-4 items-start">
+          <AePanel events={liveFeedEvents} active={recentlyActive} />
+          <VaePanel events={liveFeedEvents} active={recentlyActive} />
+          <GnnPanel events={liveFeedEvents} active={recentlyActive} />
+          <TransformerPanel events={liveFeedEvents} active={recentlyActive} />
+          <DqnPanel events={liveFeedEvents} active={recentlyActive} />
+          <div className="md:col-span-2 xl:col-span-5 bg-[var(--strix-bg-card)] border border-[var(--strix-border)] rounded-2xl overflow-hidden">
+            <div className="px-4 pt-3 pb-2 border-b border-[var(--strix-border)]/40">
+              <h3 className="text-[13px] font-bold tracking-tight text-[var(--strix-text)] font-[family-name:var(--font-space-grotesk)]">
+                Inference Stream
+              </h3>
+              <p className="text-[9px] uppercase tracking-wider text-[var(--strix-text-muted)]">
+                latest 30 verdicts · all models
+              </p>
+            </div>
+            <div className="max-h-[420px] overflow-y-auto">
+              <InferenceStream events={liveFeedEvents} />
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Model Cards + Composite gauge */}
@@ -316,12 +381,6 @@ export default function AiEnginePage() {
         <DetectionVolumePanel />
       </div>
 
-      {/* Forensic Log Viewer — moved from Dashboard. Replaces the prior
-          "Live Inference Stream" terminal which was a duplicate of the
-          same SSE feed. */}
-      <div className="bg-[var(--strix-bg-card)] border border-[var(--strix-border)] rounded-xl p-5">
-        <ForensicLogViewer />
-      </div>
     </div>
   )
 }

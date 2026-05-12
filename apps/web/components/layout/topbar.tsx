@@ -39,7 +39,7 @@ function getBreadcrumb(pathname: string): { parent?: string; current: string } {
   const current = routeLabels[base] || segments[0]
 
   return {
-    parent: "STRIX",
+    parent: "CAVIX",
     current,
   }
 }
@@ -98,7 +98,7 @@ export function TopBar() {
         {/* Breadcrumb */}
         <div className="flex items-center gap-1.5 text-sm">
           <span className="font-bold text-[var(--strix-text)] tracking-wider">
-            STRIX
+            CAVIX
           </span>
           {breadcrumb.parent && (
             <>

@@ -166,25 +166,36 @@ class CasesService:
         chain_ids = [r[0].chain_id for r in rows]
 
         # ---- enrich: last alert ts + technique union per chain ----------
+        # NB: array_agg(text[]) raises ArraySubscriptError on Postgres when
+        # sub-arrays have different lengths (chains routinely have alerts
+        # with varying technique counts). Split into two queries: one
+        # straight max(occurred_at), one that unnest()s techniques before
+        # aggregating so the agg sees a flat text column.
         last_seen_by_chain: dict[UUID, datetime] = {}
         techniques_by_chain: dict[UUID, set[str]] = {}
         if chain_ids:
-            alert_stmt = (
-                select(
-                    Alert.chain_id,
-                    func.max(Alert.occurred_at),
-                    func.array_agg(Alert.mitre_techniques),
-                )
+            last_seen_stmt = (
+                select(Alert.chain_id, func.max(Alert.occurred_at))
                 .where(Alert.chain_id.in_(chain_ids))
                 .group_by(Alert.chain_id)
             )
-            for cid, ls, tech_lists in (await self._s.execute(alert_stmt)).all():
+            for cid, ls in (await self._s.execute(last_seen_stmt)).all():
                 last_seen_by_chain[cid] = ls
-                merged: set[str] = set()
-                for arr in tech_lists or []:
-                    if arr:
-                        merged.update(arr)
-                techniques_by_chain[cid] = merged
+
+            from sqlalchemy import text as _sql_text
+            tech_stmt = _sql_text(
+                """
+                SELECT chain_id, array_agg(DISTINCT t) AS techs
+                FROM alerts a, unnest(a.mitre_techniques) AS t
+                WHERE chain_id = ANY(:cids)
+                GROUP BY chain_id
+                """
+            )
+            tech_rows = (
+                await self._s.execute(tech_stmt, {"cids": [str(c) for c in chain_ids]})
+            ).all()
+            for cid, techs in tech_rows:
+                techniques_by_chain[cid] = set(techs or [])
 
             # ---- last DQN action per chain --------------------------
         last_action_by_chain: dict[UUID, str] = {}
@@ -275,13 +286,17 @@ class CasesService:
         if not isinstance(assignee_user_id, _Unset):
             chain.assignee_user_id = assignee_user_id
 
+        # Prefix the to_status with `triage:` so the activity feed
+        # parser routes this through the workflow-event lane rather
+        # than the legacy raw-string lane. Backwards-compatible —
+        # _parse_event() in chain_investigation_service handles both.
         self._s.add(
             CaseAuditLog(
                 audit_id=uuid4(),
                 chain_id=chain_id,
                 user_id=actor_user_id,
                 from_status=prev,
-                to_status=new_status,
+                to_status=f"triage:{new_status}",
                 note=note,
             )
         )

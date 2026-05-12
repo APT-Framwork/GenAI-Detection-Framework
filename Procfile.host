@@ -7,4 +7,5 @@ inference:        bash -c 'cd /home/yacine/Desktop/GenAI-Detection-Framework/app
 verdicts_writer:  bash -c 'cd /home/yacine/Desktop/GenAI-Detection-Framework/apps/api && /home/yacine/Desktop/GenAI-Detection-Framework/apps/api/.venv/bin/python -m strix_api.workers.verdicts_writer'
 arq:              bash -c 'cd /home/yacine/Desktop/GenAI-Detection-Framework/apps/api && /home/yacine/Desktop/GenAI-Detection-Framework/apps/api/.venv/bin/arq strix_api.workers.arq_tasks.WorkerSettings'
 demo_isolation:   bash -c 'cd /home/yacine/Desktop/GenAI-Detection-Framework/apps/api && /home/yacine/Desktop/GenAI-Detection-Framework/apps/api/.venv/bin/python -m strix_api.workers.demo_isolation'
+intel_feeds:      bash -c 'cd /home/yacine/Desktop/GenAI-Detection-Framework/apps/api && /home/yacine/Desktop/GenAI-Detection-Framework/apps/api/.venv/bin/python -m strix_api.workers.intel_feeds_worker'
 web:              bash -c 'cd /home/yacine/Desktop/GenAI-Detection-Framework/apps/web && PORT=5600 STRIX_API_URL=http://localhost:8000 pnpm dev'

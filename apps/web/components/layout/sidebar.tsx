@@ -4,6 +4,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { useSidebarStore } from "@/stores/sidebar-store"
+import { CavixLogo, CavixMark } from "@/components/layout/cavix-logo"
 import {
   LayoutDashboard,
   Search,
@@ -18,6 +19,7 @@ import {
   Inbox,
   Crosshair,
   ListChecks,
+  Target,
 } from "lucide-react"
 
 const navItems = [
@@ -26,6 +28,7 @@ const navItems = [
   { label: "HUNT", href: "/hunt", icon: Crosshair, id: "hunt" },
   { label: "ANALYSIS", href: "/attack-analysis/latest", icon: Search, id: "analysis" },
   { label: "ACTIONS", href: "/actions", icon: ListChecks, id: "actions" },
+  { label: "CTI", href: "/intel", icon: Target, id: "intel" },
   { label: "THREAT INTEL", href: "/threat-intel", icon: Shield, id: "threat-intel" },
   { label: "MODEL MONITORING", href: "/ai-engine", icon: Brain, id: "ai-engine" },
   { label: "SIMULATION", href: "/topology", icon: Activity, id: "simulation" },
@@ -55,16 +58,15 @@ export function Sidebar() {
     >
       {/* Logo */}
       <div className="flex items-center gap-3 px-4 py-5 border-b border-[#1E293B]">
-        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-strix-cyan/20 to-strix-cyan/5 border border-strix-cyan/30">
-          <Shield className="h-5 w-5 text-strix-cyan" />
-        </div>
-        {!isCollapsed && (
-          <div className="flex flex-col">
-            <span className="text-sm font-bold text-white tracking-wider">
-              STRIX
-            </span>
+        {isCollapsed ? (
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-strix-cyan/20 to-strix-cyan/5 border border-strix-cyan/30">
+            <CavixMark size={20} color="#00F2FF" />
+          </div>
+        ) : (
+          <div className="flex flex-col gap-1">
+            <CavixLogo width={88} color="#00F2FF" />
             <span className="text-[10px] text-sidebar-text tracking-widest uppercase">
-              Vigilant Sentinel
+              Powered by STRIX RL
             </span>
           </div>
         )}

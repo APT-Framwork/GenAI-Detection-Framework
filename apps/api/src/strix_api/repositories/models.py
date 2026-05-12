@@ -114,7 +114,124 @@ class AttackChain(Base):
     assignee_user_id: Mapped[UUID | None] = mapped_column(
         PG_UUID(as_uuid=True), ForeignKey("users.user_id"), nullable=True
     )
+    # CTI auto-attribution (migration 0012). Set by the attribution
+    # service when the chain's observed tactic set Jaccard-matches a
+    # campaign's known tactic chain. Nullable; never overwritten once
+    # set unless the operator clears it.
+    campaign_id: Mapped[UUID | None] = mapped_column(
+        PG_UUID(as_uuid=True),
+        ForeignKey("campaigns.campaign_id", ondelete="SET NULL"),
+        nullable=True,
+    )
+    # FIRST TLP 2.0 marking (migration 0015). Default 'amber' = shareable
+    # with trusted peers, the safest default for SOC-internal chains.
+    tlp: Mapped[str] = mapped_column(
+        Text, nullable=False, server_default="amber", default="amber"
+    )
     created_at: Mapped[datetime] = mapped_column(
+        TIMESTAMP(timezone=True), nullable=False, server_default=func.now()
+    )
+
+
+class Campaign(Base):
+    """Tracked adversary campaign. Seeded from APT_GROUPS in mig 0013."""
+
+    __tablename__ = "campaigns"
+
+    campaign_id: Mapped[UUID] = mapped_column(PG_UUID(as_uuid=True), primary_key=True)
+    name: Mapped[str] = mapped_column(Text, nullable=False, unique=True)
+    actor_id: Mapped[UUID | None] = mapped_column(
+        PG_UUID(as_uuid=True),
+        ForeignKey("threat_actors.actor_id", ondelete="SET NULL"),
+        nullable=True,
+    )
+    tactic_chain: Mapped[list[Any]] = mapped_column(JSONB, nullable=False, default=list)
+    description: Mapped[str | None] = mapped_column(Text, nullable=True)
+
+
+class ThreatActor(Base):
+    """Adversary group. Seeded from public knowledge in mig 0013."""
+
+    __tablename__ = "threat_actors"
+
+    actor_id: Mapped[UUID] = mapped_column(PG_UUID(as_uuid=True), primary_key=True)
+    name: Mapped[str] = mapped_column(Text, nullable=False, unique=True)
+    aliases: Mapped[list[str]] = mapped_column(ARRAY(Text), nullable=False, default=list)
+    mitre_group_id: Mapped[str | None] = mapped_column(Text, nullable=True)
+    country: Mapped[str | None] = mapped_column(Text, nullable=True)
+    motivation: Mapped[str | None] = mapped_column(Text, nullable=True)
+    description: Mapped[str | None] = mapped_column(Text, nullable=True)
+
+
+# ---------------------------------------------------------------- tags + notes (mig 0015)
+
+
+class Tag(Base):
+    __tablename__ = "tags"
+
+    tag_id: Mapped[UUID] = mapped_column(PG_UUID(as_uuid=True), primary_key=True)
+    name: Mapped[str] = mapped_column(Text, nullable=False, unique=True)
+    colour: Mapped[str] = mapped_column(Text, nullable=False, default="cyan")
+    description: Mapped[str | None] = mapped_column(Text, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(
+        TIMESTAMP(timezone=True), nullable=False, server_default=func.now()
+    )
+
+
+class TagLink(Base):
+    """Polymorphic tag → entity edge.
+
+    `entity_type` is one of ('chain', 'indicator', 'actor', 'campaign',
+    'report'); `entity_id` is the target row's UUID. One row per tag
+    per entity (unique constraint enforces idempotency).
+    """
+
+    __tablename__ = "tag_links"
+
+    link_id: Mapped[UUID] = mapped_column(PG_UUID(as_uuid=True), primary_key=True)
+    entity_type: Mapped[str] = mapped_column(Text, nullable=False)
+    entity_id: Mapped[UUID] = mapped_column(PG_UUID(as_uuid=True), nullable=False)
+    tag_id: Mapped[UUID] = mapped_column(
+        PG_UUID(as_uuid=True),
+        ForeignKey("tags.tag_id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    created_by: Mapped[UUID | None] = mapped_column(
+        PG_UUID(as_uuid=True),
+        ForeignKey("users.user_id", ondelete="SET NULL"),
+        nullable=True,
+    )
+    created_at: Mapped[datetime] = mapped_column(
+        TIMESTAMP(timezone=True), nullable=False, server_default=func.now()
+    )
+
+
+class ChainNote(Base):
+    """Backend-persisted analyst note on an attack chain.
+
+    Replaces the localStorage scratchpad. Multi-analyst, append-only —
+    edits aren't supported in v1 (the audit-trail story matters more
+    than ergonomics for intel notes).
+    """
+
+    __tablename__ = "chain_notes"
+
+    note_id: Mapped[UUID] = mapped_column(PG_UUID(as_uuid=True), primary_key=True)
+    chain_id: Mapped[UUID] = mapped_column(
+        PG_UUID(as_uuid=True),
+        ForeignKey("attack_chains.chain_id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    author_user_id: Mapped[UUID | None] = mapped_column(
+        PG_UUID(as_uuid=True),
+        ForeignKey("users.user_id", ondelete="SET NULL"),
+        nullable=True,
+    )
+    body_md: Mapped[str] = mapped_column(Text, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        TIMESTAMP(timezone=True), nullable=False, server_default=func.now()
+    )
+    updated_at: Mapped[datetime] = mapped_column(
         TIMESTAMP(timezone=True), nullable=False, server_default=func.now()
     )
 

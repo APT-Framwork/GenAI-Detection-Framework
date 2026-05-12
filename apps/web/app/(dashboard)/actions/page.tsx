@@ -141,8 +141,8 @@ export default function ActionsPage() {
           </h1>
         </div>
         <p className="text-[10px] text-[#497f8b] dark:text-[var(--strix-text-muted)] max-w-[480px]">
-          Every DQN-proposed action and every operator decision lands here.
-          Rollback is <strong>audit-only</strong> — STRIX records the reversal
+          Every STRIX-proposed action and every operator decision lands here.
+          Rollback is <strong>audit-only</strong> — CAVIX records the reversal
           but does not undo the side effect at the host / firewall layer.
         </p>
       </div>
@@ -211,7 +211,7 @@ export default function ActionsPage() {
           <EmptyState>Loading action log…</EmptyState>
         ) : items.length === 0 ? (
           <EmptyState>
-            No actions in window. The DQN intervenes only when CKC ≥ ESCALATE
+            No actions in window. STRIX intervenes only when CKC ≥ ESCALATE
             — adjust the time range or status filter to find older entries.
           </EmptyState>
         ) : (

@@ -97,7 +97,7 @@ export function HostHeader({ host, summary }: HostHeaderProps) {
             accent={summary.maxCkcStage24h >= 4 ? "red" : summary.maxCkcStage24h >= 1 ? "amber" : "muted"}
           />
           <Tile
-            label="Last DQN"
+            label="Last STRIX"
             value={summary.lastDqnAction ?? "—"}
             accent="muted"
           />

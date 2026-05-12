@@ -3,6 +3,7 @@
 import { Sidebar } from "@/components/layout/sidebar"
 import { TopBar } from "@/components/layout/topbar"
 import { Toaster } from "@/components/layout/toaster"
+import { ObservableDrawer } from "@/components/intel/observable-drawer"
 import { useSidebarStore } from "@/stores/sidebar-store"
 import { cn } from "@/lib/utils"
 
@@ -28,6 +29,7 @@ export default function DashboardLayout({
         </main>
       </div>
       <Toaster />
+      <ObservableDrawer />
     </div>
   )
 }
