@@ -1,57 +1,66 @@
 import { useEffect, useRef } from "react";
 import { Platform } from "react-native";
-import * as Notifications from "expo-notifications";
-import * as Device from "expo-device";
 import Constants from "expo-constants";
-import { type EventSubscription } from "expo-modules-core";
+import * as Device from "expo-device";
 import { useRouter } from "expo-router";
 
 import { registerDevice, unregisterDevice } from "../lib/api/auth";
 import { useUserStore } from "../stores/user-store";
+import { IS_EXPO_GO, tryGetNotifications } from "../services/notifications";
 
 /**
  * Mobile push setup — called once in the root layout.
  *
+ * In Expo Go on Android (SDK 53+) the underlying `expo-notifications`
+ * module throws at import time, so we go through `tryGetNotifications`
+ * which returns null when running in Expo Go. The hook becomes a no-op
+ * there. In a dev/standalone build it behaves as before:
+ *
  *   1. Configures how notifications render in foreground.
  *   2. Registers the device with the backend the moment we go
- *      `status === "authed"` (so the Expo push token lives alongside
- *      the fresh access token). Unregister on the transition to
- *      `anon`.
- *   3. Routes taps → if the notification payload carries `chainId`,
- *      deep-link the user straight to that chain analysis.
+ *      `status === "authed"`. Unregister on the transition to `anon`.
+ *   3. Routes taps → if the payload carries `chainId`, deep-link to the
+ *      chain analysis screen.
  */
 
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: true,
-    shouldSetBadge: true,
-    shouldShowBanner: true,
-    shouldShowList: true,
-  }),
-});
+(() => {
+  const N = tryGetNotifications();
+  if (!N) return;
+  N.setNotificationHandler({
+    handleNotification: async () => ({
+      shouldShowAlert: true,
+      shouldPlaySound: true,
+      shouldSetBadge: true,
+      shouldShowBanner: true,
+      shouldShowList: true,
+    }),
+  });
+})();
 
 const TOKEN_REF = { current: null as string | null };
 const WARNED_NO_PROJECT_ID = { current: false };
+
+type RemoveFn = { remove: () => void };
 
 export function usePushNotifications() {
   const status = useUserStore((s) => s.status);
   const router = useRouter();
 
-  const notificationListener = useRef<EventSubscription | null>(null);
-  const responseListener = useRef<EventSubscription | null>(null);
+  const notificationListener = useRef<RemoveFn | null>(null);
+  const responseListener = useRef<RemoveFn | null>(null);
 
-  // Set up OS-level listeners once.
+  // Set up OS-level listeners once. No-op in Expo Go.
   useEffect(() => {
-    notificationListener.current =
-      Notifications.addNotificationReceivedListener(() => {});
+    const N = tryGetNotifications();
+    if (!N) return;
 
-    responseListener.current = Notifications.addNotificationResponseReceivedListener(
+    notificationListener.current = N.addNotificationReceivedListener(() => {});
+
+    responseListener.current = N.addNotificationResponseReceivedListener(
       (resp) => {
-        const data = resp.notification.request.content.data as {
-          type?: string;
-          chainId?: string;
-        } | undefined;
+        const data = resp.notification.request.content.data as
+          | { type?: string; chainId?: string }
+          | undefined;
         if (data?.type === "intervention" && data.chainId) {
           router.push({
             pathname: "/analysis/[id]",
@@ -69,6 +78,8 @@ export function usePushNotifications() {
 
   // Register / unregister when auth status flips.
   useEffect(() => {
+    if (IS_EXPO_GO) return;
+
     let cancelled = false;
 
     async function register() {
@@ -105,20 +116,22 @@ export function usePushNotifications() {
 }
 
 async function getExpoPushToken(): Promise<string | null> {
+  const N = tryGetNotifications();
+  if (!N) return null;
   if (!Device.isDevice) return null;
 
-  const { status: existingStatus } = await Notifications.getPermissionsAsync();
+  const { status: existingStatus } = await N.getPermissionsAsync();
   let finalStatus = existingStatus;
   if (existingStatus !== "granted") {
-    const { status } = await Notifications.requestPermissionsAsync();
+    const { status } = await N.requestPermissionsAsync();
     finalStatus = status;
   }
   if (finalStatus !== "granted") return null;
 
   if (Platform.OS === "android") {
-    await Notifications.setNotificationChannelAsync("default", {
+    await N.setNotificationChannelAsync("default", {
       name: "default",
-      importance: Notifications.AndroidImportance.MAX,
+      importance: N.AndroidImportance.MAX,
     });
   }
 
@@ -128,20 +141,17 @@ async function getExpoPushToken(): Promise<string | null> {
     null;
 
   if (!projectId) {
-    // Expo Go on SDK 54 requires an EAS projectId — without it the
-    // push token request silently fails and the device never registers
-    // with the backend. Log loudly so the operator can fix app.json
-    // (`expo.extra.eas.projectId`) instead of wondering why
-    // notifications never arrive.
-    console.warn(
-      "[push] No EAS projectId configured — push notifications will not work in Expo Go. " +
-        "Set expo.extra.eas.projectId in app.json after running `eas init`.",
-    );
+    if (!WARNED_NO_PROJECT_ID.current) {
+      WARNED_NO_PROJECT_ID.current = true;
+      console.info(
+        "[push] No EAS projectId — backgrounded push disabled. Run `eas init` and add expo.extra.eas.projectId in app.json.",
+      );
+    }
     return null;
   }
 
   try {
-    const token = await Notifications.getExpoPushTokenAsync({ projectId });
+    const token = await N.getExpoPushTokenAsync({ projectId });
     console.log("[push] got Expo push token, registering with API");
     return token.data;
   } catch (err) {

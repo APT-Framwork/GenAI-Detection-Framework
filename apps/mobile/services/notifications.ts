@@ -1,31 +1,56 @@
-import * as Notifications from "expo-notifications";
-
 /**
- * Local (on-device) notifications. These do NOT require an Expo push token
- * or an EAS projectId and work in Expo Go — handy for surfacing live SSE
- * alerts as system-tray pings while the user runs a dev build.
+ * Notifications service — gated so it's safe to import in Expo Go.
  *
- * For real background/killed-app push, the device still needs to register
- * with the backend via `usePushNotifications.ts` and receive Expo Push
- * messages (which Expo relays to FCM/APNs); local notifications only fire
- * while the app's JS runtime is alive.
+ * On Android Expo Go SDK 53+, `expo-notifications` throws a hard error at
+ * import time because the native module was removed. We detect Expo Go
+ * with `Constants.executionEnvironment` and lazily resolve the module
+ * only outside Expo Go. In Expo Go, every export becomes a no-op so the
+ * rest of the app keeps booting.
+ *
+ * For real push notifications you need to be running a dev build /
+ * standalone build — see the EAS dev build flow.
  */
+
+import Constants from "expo-constants";
 
 export type LocalAlert = {
   title: string;
   body: string;
   data?: Record<string, unknown>;
-  /** "default" plays the OS notification sound; null is silent. */
   sound?: "default" | null;
 };
 
-/**
- * Fire a local notification immediately. Despite the name, we use a null
- * trigger (vs. a TIME_INTERVAL trigger) so the OS posts it on the next
- * tick — iOS rejects 0-second intervals.
- */
+export const IS_EXPO_GO =
+  Constants.executionEnvironment === "storeClient";
+
+let _notifications: typeof import("expo-notifications") | null = null;
+let _warned = false;
+
+function getNotifications(): typeof import("expo-notifications") | null {
+  if (IS_EXPO_GO) {
+    if (!_warned) {
+      _warned = true;
+      console.info(
+        "[notifications] running in Expo Go — system notifications disabled. Install the dev build to enable.",
+      );
+    }
+    return null;
+  }
+  if (_notifications) return _notifications;
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    _notifications = require("expo-notifications");
+    return _notifications;
+  } catch (err) {
+    console.warn("[notifications] failed to load expo-notifications:", err);
+    return null;
+  }
+}
+
 export async function presentLocalAlert(alert: LocalAlert): Promise<void> {
-  await Notifications.scheduleNotificationAsync({
+  const N = getNotifications();
+  if (!N) return;
+  await N.scheduleNotificationAsync({
     content: {
       title: alert.title,
       body: alert.body,
@@ -46,4 +71,11 @@ export async function scheduleCriticalAlert(
     body,
     data: { type: "intervention", ...(data ?? {}) },
   });
+}
+
+/** Lazy accessor for callers that need the raw API (listeners, etc.). */
+export function tryGetNotifications():
+  | typeof import("expo-notifications")
+  | null {
+  return getNotifications();
 }

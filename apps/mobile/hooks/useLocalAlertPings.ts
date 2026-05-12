@@ -13,10 +13,13 @@
  */
 
 import { useEffect, useRef } from "react";
-import * as Notifications from "expo-notifications";
 
 import { useLiveFeed, type LiveFeedEvent } from "../lib/api/sse";
-import { presentLocalAlert } from "../services/notifications";
+import {
+  IS_EXPO_GO,
+  presentLocalAlert,
+  tryGetNotifications,
+} from "../services/notifications";
 import { useUserStore } from "../stores/user-store";
 
 function isHighSeverity(ev: LiveFeedEvent): boolean {
@@ -26,16 +29,21 @@ function isHighSeverity(ev: LiveFeedEvent): boolean {
 }
 
 async function ensurePermission(): Promise<boolean> {
-  const existing = await Notifications.getPermissionsAsync();
+  const N = tryGetNotifications();
+  if (!N) return false;
+  const existing = await N.getPermissionsAsync();
   if (existing.granted) return true;
   if (!existing.canAskAgain) return false;
-  const next = await Notifications.requestPermissionsAsync();
+  const next = await N.requestPermissionsAsync();
   return next.granted;
 }
 
 export function useLocalAlertPings() {
   const status = useUserStore((s) => s.status);
-  const enabled = status === "authed";
+  // Disable entirely in Expo Go — the underlying expo-notifications module
+  // is unavailable on Android and the iOS Expo Go renderer drops the
+  // notification silently.
+  const enabled = status === "authed" && !IS_EXPO_GO;
 
   // Track which alerts we've already pinged for + a "primed" flag so the
   // first batch (backfilled events) is silently ingested.

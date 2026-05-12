@@ -15,7 +15,12 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.strix.mobile"
+      "bundleIdentifier": "com.strix.mobile",
+      "infoPlist": {
+        "UIBackgroundModes": [
+          "remote-notification"
+        ]
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -23,7 +28,8 @@
         "backgroundColor": "#e7faff"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.strix.mobile"
+      "package": "com.strix.mobile",
+      "useNextNotificationsApi": true
     },
     "web": {
       "favicon": "./assets/favicon.png",
@@ -36,7 +42,21 @@
         {
           "backgroundColor": "#e7faff"
         }
+      ],
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/icon.png",
+          "color": "#00f2ff"
+        }
       ]
-    ]
+    ],
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "4a569553-169c-4154-8fdd-995b7ef8dbd1"
+      }
+    },
+    "owner": "yacine_na"
   }
 }
