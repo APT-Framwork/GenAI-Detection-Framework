@@ -18,8 +18,8 @@ interface Props {
 
 export function MitreStrip({ tactics, limit = 6 }: Props) {
   const top = [...tactics]
-    .filter((t) => t.totalCount > 0)
-    .sort((a, b) => b.totalCount - a.totalCount)
+    .filter((t) => (t.columnTotal ?? 0) > 0)
+    .sort((a, b) => (b.columnTotal ?? 0) - (a.columnTotal ?? 0))
     .slice(0, limit);
 
   if (top.length === 0) {
@@ -36,23 +36,27 @@ export function MitreStrip({ tactics, limit = 6 }: Props) {
       showsHorizontalScrollIndicator={false}
       contentContainerStyle={styles.row}
     >
-      {top.map((t) => (
-        <View key={t.tacticId} style={styles.chip}>
-          <Text style={styles.tactic} numberOfLines={1}>
-            {t.tacticName}
-          </Text>
-          <View style={styles.metaRow}>
-            <Text style={styles.tacticId}>{t.tacticId}</Text>
-            <Text style={styles.dot}>·</Text>
-            <Text style={styles.count}>
-              {t.totalCount} {t.totalCount === 1 ? "event" : "events"}
+      {top.map((t) => {
+        const total = t.columnTotal ?? 0;
+        const techniques = t.techniques ?? [];
+        return (
+          <View key={t.tacticId} style={styles.chip}>
+            <Text style={styles.tactic} numberOfLines={1}>
+              {t.tacticName}
+            </Text>
+            <View style={styles.metaRow}>
+              <Text style={styles.tacticId}>{t.tacticId}</Text>
+              <Text style={styles.dot}>·</Text>
+              <Text style={styles.count}>
+                {total} {total === 1 ? "event" : "events"}
+              </Text>
+            </View>
+            <Text style={styles.techCount}>
+              {techniques.length} technique{techniques.length === 1 ? "" : "s"}
             </Text>
           </View>
-          <Text style={styles.techCount}>
-            {t.techniques.length} technique{t.techniques.length === 1 ? "" : "s"}
-          </Text>
-        </View>
-      ))}
+        );
+      })}
     </ScrollView>
   );
 }

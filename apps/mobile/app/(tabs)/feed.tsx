@@ -246,9 +246,9 @@ export default function VigilanceFeedScreen() {
                   </View>
                 )}
               </View>
-              {item.mitreTechniques.length > 0 && (
+              {(item.mitreTechniques?.length ?? 0) > 0 && (
                 <View style={styles.mitreRow}>
-                  {item.mitreTechniques.slice(0, 4).map((t) => (
+                  {(item.mitreTechniques ?? []).slice(0, 4).map((t) => (
                     <View key={t} style={styles.mitreChip}>
                       <Text style={styles.mitreChipText}>{t}</Text>
                     </View>

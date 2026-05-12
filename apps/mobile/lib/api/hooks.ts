@@ -343,27 +343,39 @@ export type TriageStatus =
   | "new"
   | "investigating"
   | "contained"
-  | "closed"
-  | string;
+  | "closed";
+
+export type CaseAssignee = { userId: string; name: string };
 
 export type CaseItem = {
   chainId: string;
-  hostId: string | null;
+  hostId: string;
   hostName: string | null;
+  hostIp: string | null;
   openedAt: string;
-  closedAt: string | null;
-  maxCkcStage: number | null;
-  maxVaeProb: number | null;
-  status: string;
-  triageStatus: TriageStatus;
-  assignee: string | null;
-  stepCount: number;
   lastSeenAt: string;
+  status: TriageStatus;
+  lifecycleStatus: string;
+  maxCkcStage: number;
+  maxCkcStageName: string;
+  maxVaeProb: number;
+  stepCount: number;
+  assignee: CaseAssignee | null;
+  mitreTechniques: string[];
+  lastDqnAction: string | null;
+};
+
+export type CaseCounts = {
+  new: number;
+  investigating: number;
+  contained: number;
+  closed: number;
 };
 
 export type CasesResponse = {
   items: CaseItem[];
-  counts: Record<string, number>;
+  nextCursor: string | null;
+  counts: CaseCounts;
 };
 
 export function useCases(opts: { status?: TriageStatus | "all"; limit?: number } = {}) {
@@ -386,12 +398,17 @@ export function useSetTriageStatus() {
   return useMutation({
     mutationFn: (args: {
       chainId: string;
-      triageStatus: TriageStatus;
-      assignee?: string | null;
+      status: TriageStatus;
+      assigneeUserId?: string | null;
+      note?: string | null;
     }) =>
       apiPatch(
         `/cases/${encodeURIComponent(args.chainId)}/status`,
-        { triageStatus: args.triageStatus, assignee: args.assignee ?? null },
+        {
+          status: args.status,
+          assigneeUserId: args.assigneeUserId ?? null,
+          note: args.note ?? null,
+        },
       ),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["cases"] });
@@ -402,33 +419,73 @@ export function useSetTriageStatus() {
 
 // ---- DQN actions / approvals ------------------------------------------
 
+export type ActorRef = { userId: string; name: string };
+
+export type ActionRollback = {
+  rollbackId: string;
+  rolledBackAt: string;
+  rolledBackBy: ActorRef | null;
+  reason: string;
+};
+
+export type DqnActionStatus =
+  | "proposed"
+  | "approved"
+  | "auto_applied"
+  | "declined"
+  | "rolled_back";
+
 export type DqnAction = {
   actionId: string;
-  chainId: string | null;
-  hostId: string | null;
-  action: string;
+  chainId: string;
+  hostId: string;
+  hostName: string | null;
   decidedAt: string;
-  approvedAt: string | null;
-  approvedBy: string | null;
-  declinedAt: string | null;
-  declineReason: string | null;
-  rolledBackAt: string | null;
-  status: "pending" | "approved" | "declined" | "rolled_back" | string;
-  rationale: string | null;
-  payload: Record<string, unknown> | null;
+  appliedAt: string | null;
+  action: number;
+  actionName: string;
+  qValues: number[];
+  ckcStageAtDecision: number;
+  ckcStageName: string;
+  requiresApproval: boolean;
+  status: DqnActionStatus;
+  appliedBy: ActorRef | null;
+  rejectedAt: string | null;
+  rejectedBy: ActorRef | null;
+  rollback: ActionRollback | null;
+};
+
+export type ActionCounts = {
+  proposed: number;
+  approved: number;
+  auto_applied: number;
+  declined: number;
+  rolled_back: number;
 };
 
 export type ActionsResponse = {
   items: DqnAction[];
-  counts: { pending: number; approved: number; declined: number };
+  nextCursor: string | null;
+  counts: ActionCounts;
 };
 
-export function useActions(status: "pending" | "approved" | "declined" | "all" = "pending") {
+// We treat the backend's "proposed" as the analyst-facing "pending"
+// state; the mobile UI's filter chip keeps the human-friendly label.
+export type ActionsFilter =
+  | "pending"
+  | "approved"
+  | "declined"
+  | "rolled_back"
+  | "all";
+
+export function useActions(filter: ActionsFilter = "pending") {
   return useQuery({
-    queryKey: ["actions", status],
+    queryKey: ["actions", filter],
     queryFn: () => {
       const params = new URLSearchParams();
-      if (status !== "all") params.set("status", status);
+      if (filter !== "all") {
+        params.set("status", filter === "pending" ? "proposed" : filter);
+      }
       return apiGet<ActionsResponse>(`/actions?${params.toString()}`);
     },
     staleTime: 10_000,
@@ -439,8 +496,11 @@ export function useActions(status: "pending" | "approved" | "declined" | "all" =
 export function useApproveAction() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (actionId: string) =>
-      apiPost(`/actions/${encodeURIComponent(actionId)}/approve`),
+    mutationFn: (args: { actionId: string; note?: string }) =>
+      apiPost(
+        `/actions/${encodeURIComponent(args.actionId)}/approve`,
+        { note: args.note ?? null },
+      ),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["actions"] }),
   });
 }
@@ -459,16 +519,30 @@ export function useDeclineAction() {
 
 // ---- MITRE coverage ---------------------------------------------------
 
+export type MitreTechnique = {
+  techniqueId: string;
+  techniqueName: string;
+  count: number;
+  lastSeen: string | null;
+  uniqueHosts: number;
+  description: string;
+};
+
 export type MitreTactic = {
   tacticId: string;
   tacticName: string;
-  techniques: { techniqueId: string; techniqueName: string; count: number }[];
-  totalCount: number;
+  ckc: number;
+  techniques: MitreTechnique[];
+  columnTotal: number;
+  description: string;
 };
 
 export type MitreCoverageResponse = {
-  window: Window;
+  windowStart: string;
+  windowEnd: string;
   tactics: MitreTactic[];
+  otherCount: number;
+  otherUnmatchedIds: string[];
 };
 
 export function useMitreCoverage(window: Window = "24h") {
@@ -483,20 +557,33 @@ export function useMitreCoverage(window: Window = "24h") {
 
 // ---- chain investigation tools ---------------------------------------
 
-export type ChainTag = { name: string; addedBy: string; addedAt: string };
+export type ChainTag = {
+  tagId: string;
+  name: string;
+  colour: string;
+  description: string | null;
+};
+
 export type ChainNote = {
   noteId: string;
-  body: string;
-  authorEmail: string;
-  authorRole: string;
+  chainId: string;
+  authorUserId: string | null;
+  authorEmail: string | null;
+  bodyMd: string;
   createdAt: string;
 };
+
 export type ChainActivity = {
-  id: string;
+  auditId: string;
+  chainId: string;
+  at: string;
+  userId: string | null;
+  userEmail: string | null;
   kind: string;
-  actorEmail: string | null;
-  occurredAt: string;
-  detail: string | null;
+  payload: string | null;
+  fromStatus: string | null;
+  toStatus: string;
+  note: string | null;
 };
 
 export function useChainTags(chainId: string | null) {
@@ -504,7 +591,7 @@ export function useChainTags(chainId: string | null) {
     queryKey: ["chain", "tags", chainId],
     enabled: !!chainId,
     queryFn: () =>
-      apiGet<{ chainId: string; tags: ChainTag[] }>(
+      apiGet<{ chainId: string; items: ChainTag[] }>(
         `/chains/${chainId}/tags`,
       ),
   });
@@ -515,7 +602,7 @@ export function useChainNotes(chainId: string | null) {
     queryKey: ["chain", "notes", chainId],
     enabled: !!chainId,
     queryFn: () =>
-      apiGet<{ chainId: string; notes: ChainNote[] }>(
+      apiGet<{ chainId: string; items: ChainNote[] }>(
         `/chains/${chainId}/notes`,
       ),
   });
@@ -525,7 +612,7 @@ export function useAddChainNote() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (args: { chainId: string; body: string }) =>
-      apiPost(`/chains/${args.chainId}/notes`, { body: args.body }),
+      apiPost(`/chains/${args.chainId}/notes`, { bodyMd: args.body }),
     onSuccess: (_, vars) => {
       qc.invalidateQueries({ queryKey: ["chain", "notes", vars.chainId] });
       qc.invalidateQueries({ queryKey: ["chain", "activity", vars.chainId] });
@@ -538,7 +625,7 @@ export function useChainActivity(chainId: string | null) {
     queryKey: ["chain", "activity", chainId],
     enabled: !!chainId,
     queryFn: () =>
-      apiGet<{ chainId: string; events: ChainActivity[] }>(
+      apiGet<{ chainId: string; items: ChainActivity[] }>(
         `/chains/${chainId}/activity`,
       ),
     refetchInterval: 20_000,
@@ -547,15 +634,20 @@ export function useChainActivity(chainId: string | null) {
 
 // ---- analysis predictions (next stage / RL timeline) -----------------
 
+export type StageProbability = {
+  ckcStage: number;
+  ckcStageName: string;
+  prob: number;
+};
+
 export type ChainPredictions = {
   chainId: string;
   currentStage: number | null;
-  predictions: {
-    ckcStage: number;
-    ckcStageName: string;
-    probability: number;
-  }[];
-  generatedAt: string;
+  currentStageName: string | null;
+  predictedNextStage: number | null;
+  predictedNextStageName: string | null;
+  confidence: number;
+  probabilities: StageProbability[];
 };
 
 export function useChainPredictions(chainId: string | null) {
@@ -570,20 +662,29 @@ export function useChainPredictions(chainId: string | null) {
 
 // ---- playbooks --------------------------------------------------------
 
+export type PlaybookStepKind = "manual" | "dqn_override" | "isolate_host" | "block_ip";
+
 export type PlaybookStep = {
   stepId: string;
-  kind: string;
   title: string;
-  description: string | null;
-  payload: Record<string, unknown> | null;
+  rationale: string;
+  kind: PlaybookStepKind;
+  payload: { action: string; chainIdRequired: boolean } | null;
 };
+
+export type PlaybookSeverity = "low" | "medium" | "high" | "critical";
 
 export type Playbook = {
   playbookId: string;
-  name: string;
-  description: string | null;
-  isFallback: boolean;
+  title: string;
+  description: string;
+  severity: PlaybookSeverity;
   steps: PlaybookStep[];
+};
+
+export type PlaybookMatchResponse = {
+  matched: Playbook[];
+  fallback: Playbook | null;
 };
 
 export function usePlaybooks(opts: {
@@ -597,7 +698,7 @@ export function usePlaybooks(opts: {
   return useQuery({
     queryKey: ["playbooks", opts.stage ?? null, opts.technique ?? null],
     queryFn: () =>
-      apiGet<{ playbooks: Playbook[] }>(`/playbooks${qs ? `?${qs}` : ""}`),
+      apiGet<PlaybookMatchResponse>(`/playbooks${qs ? `?${qs}` : ""}`),
     staleTime: 5 * 60_000,
   });
 }

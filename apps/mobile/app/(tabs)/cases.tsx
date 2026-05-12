@@ -76,7 +76,10 @@ export default function CasesScreen() {
   const q = useCases({ status: filter });
   const setStatusMut = useSetTriageStatus();
 
-  const counts = q.data?.counts ?? {};
+  const counts: Record<string, number> = (q.data?.counts ?? {}) as Record<
+    string,
+    number
+  >;
   const items = q.data?.items ?? [];
 
   const tabs: { key: TriageStatus | "all"; label: string }[] = useMemo(
@@ -96,7 +99,7 @@ export default function CasesScreen() {
         <Text style={styles.eyebrow}>TRIAGE</Text>
         <Text style={styles.title}>Cases</Text>
         <Text style={styles.subtitle}>
-          {Object.values(counts).reduce<number>((a, b) => a + (b as number), 0)} chains tracked
+          {Object.values(counts).reduce<number>((a, b) => a + b, 0)} chains tracked
         </Text>
       </View>
 
@@ -108,8 +111,8 @@ export default function CasesScreen() {
         {tabs.map((t) => {
           const active = t.key === filter;
           const count = t.key === "all"
-            ? Object.values(counts).reduce<number>((a, b) => a + (b as number), 0)
-            : (counts[t.key as string] ?? 0);
+            ? Object.values(counts).reduce<number>((a, b) => a + b, 0)
+            : (counts[t.key] ?? 0);
           return (
             <Pressable
               key={t.key}
@@ -162,7 +165,8 @@ export default function CasesScreen() {
             onCycle={() =>
               setStatusMut.mutate({
                 chainId: item.chainId,
-                triageStatus: STATUS_FLOW[item.triageStatus] ?? "investigating",
+                status:
+                  STATUS_FLOW[item.status ?? "new"] ?? "investigating",
               })
             }
             updating={
@@ -187,11 +191,20 @@ function CaseRow({
   onCycle: () => void;
   updating: boolean;
 }) {
-  const tone = statusTone(item.triageStatus);
-  const stage = STAGE_NAMES[item.maxCkcStage ?? 0] ?? "Stage";
+  // Backend `status` is the triage state (new/investigating/contained/closed).
+  // Some legacy chains may arrive with it nulled out — fall back to "new" so
+  // the row still renders.
+  const triage = item.status ?? "new";
+  const tone = statusTone(triage);
+  const stage =
+    item.maxCkcStageName
+      ?? STAGE_NAMES[item.maxCkcStage ?? 0]
+      ?? "Stage";
   const probPct = item.maxVaeProb != null
     ? `${Math.round(item.maxVaeProb * 100)}%`
     : null;
+  const ownerName = item.assignee?.name ?? null;
+  const chainIdShort = item.chainId ? item.chainId.slice(0, 8) : "—";
   return (
     <Pressable style={styles.card} onPress={onOpen}>
       <View style={styles.cardTop}>
@@ -204,15 +217,19 @@ function CaseRow({
             <ActivityIndicator size="small" color={tone.fg} />
           ) : (
             <Text style={[styles.statusPillText, { color: tone.fg }]}>
-              {item.triageStatus.toUpperCase()}
+              {triage.toUpperCase()}
             </Text>
           )}
         </Pressable>
-        <Text style={styles.time}>{timeAgo(item.lastSeenAt)} ago</Text>
+        <Text style={styles.time}>
+          {item.lastSeenAt ? `${timeAgo(item.lastSeenAt)} ago` : ""}
+        </Text>
       </View>
 
       <Text style={styles.host}>
-        {item.hostName ?? (item.hostId ? `Host ${item.hostId.slice(0, 8)}` : "Unknown host")}
+        {item.hostName
+          ?? (item.hostIp ? item.hostIp : null)
+          ?? (item.hostId ? `Host ${item.hostId.slice(0, 8)}` : "Unknown host")}
       </Text>
 
       <View style={styles.metricRow}>
@@ -228,20 +245,20 @@ function CaseRow({
         )}
         <View style={styles.metricCell}>
           <Text style={styles.metricLabel}>EVENTS</Text>
-          <Text style={styles.metricValue}>{item.stepCount}</Text>
+          <Text style={styles.metricValue}>{item.stepCount ?? 0}</Text>
         </View>
-        {item.assignee && (
+        {ownerName && (
           <View style={[styles.metricCell, { flex: 1.5 }]}>
             <Text style={styles.metricLabel}>OWNER</Text>
             <Text style={styles.metricValue} numberOfLines={1}>
-              {item.assignee}
+              {ownerName}
             </Text>
           </View>
         )}
       </View>
 
       <View style={styles.cardFooter}>
-        <Text style={styles.chainId}>Chain {item.chainId.slice(0, 8)}</Text>
+        <Text style={styles.chainId}>Chain {chainIdShort}</Text>
         <Ionicons name="chevron-forward" size={14} color={colors.textMuted} />
       </View>
     </Pressable>

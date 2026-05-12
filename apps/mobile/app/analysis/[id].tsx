@@ -173,20 +173,20 @@ export default function ChainAnalysisScreen() {
           <Text style={styles.sectionTitle}>Next-Stage Predictions</Text>
           {predictions.isLoading ? (
             <ActivityIndicator color={colors.primary} />
-          ) : (predictions.data?.predictions ?? []).length === 0 ? (
+          ) : (predictions.data?.probabilities ?? []).length === 0 ? (
             <Text style={styles.emptyHint}>
               No active predictions for this chain.
             </Text>
           ) : (
             <View style={styles.predictionsCard}>
-              {predictions.data!.predictions.slice(0, 3).map((p) => {
-                const pct = Math.round(p.probability * 100);
+              {predictions.data!.probabilities.slice(0, 3).map((p) => {
+                const pct = Math.round((p.prob ?? 0) * 100);
                 const hot = pct >= 60;
                 return (
                   <View key={p.ckcStage} style={styles.predictionRow}>
                     <View style={styles.predictionMain}>
                       <Text style={styles.predictionStage}>
-                        S{p.ckcStage} · {p.ckcStageName.replace(/_/g, " ")}
+                        S{p.ckcStage} · {(p.ckcStageName ?? "").replace(/_/g, " ")}
                       </Text>
                       <View style={styles.predictionBar}>
                         <View
@@ -217,42 +217,49 @@ export default function ChainAnalysisScreen() {
           )}
         </View>
 
-        {/* Recommended response playbooks */}
+        {/* Recommended response playbooks — prefer matched, fall back to fallback */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Recommended Response</Text>
           {playbooks.isLoading ? (
             <ActivityIndicator color={colors.primary} />
-          ) : (playbooks.data?.playbooks ?? []).length === 0 ? (
-            <Text style={styles.emptyHint}>
-              No matching playbook for this stage yet.
-            </Text>
-          ) : (
-            (playbooks.data?.playbooks ?? []).slice(0, 1).map((pb) => (
-              <View key={pb.playbookId} style={styles.playbookCard}>
-                <View style={styles.playbookHeader}>
-                  <Text style={styles.playbookName}>{pb.name}</Text>
-                  {pb.isFallback && (
-                    <View style={styles.fallbackBadge}>
-                      <Text style={styles.fallbackText}>FALLBACK</Text>
-                    </View>
-                  )}
-                </View>
-                {pb.description ? (
-                  <Text style={styles.playbookDesc} numberOfLines={3}>
-                    {pb.description}
+          ) : (() => {
+              const matched = playbooks.data?.matched ?? [];
+              const fallback = playbooks.data?.fallback ?? null;
+              const pb = matched[0] ?? fallback;
+              const isFallback = !matched[0] && !!fallback;
+              if (!pb) {
+                return (
+                  <Text style={styles.emptyHint}>
+                    No matching playbook for this stage yet.
                   </Text>
-                ) : null}
-                {pb.steps.slice(0, 4).map((s, i) => (
-                  <View key={s.stepId} style={styles.stepRow}>
-                    <Text style={styles.stepIdx}>{i + 1}</Text>
-                    <Text style={styles.stepText} numberOfLines={2}>
-                      {s.title}
-                    </Text>
+                );
+              }
+              return (
+                <View style={styles.playbookCard}>
+                  <View style={styles.playbookHeader}>
+                    <Text style={styles.playbookName}>{pb.title}</Text>
+                    {isFallback && (
+                      <View style={styles.fallbackBadge}>
+                        <Text style={styles.fallbackText}>FALLBACK</Text>
+                      </View>
+                    )}
                   </View>
-                ))}
-              </View>
-            ))
-          )}
+                  {pb.description ? (
+                    <Text style={styles.playbookDesc} numberOfLines={3}>
+                      {pb.description}
+                    </Text>
+                  ) : null}
+                  {(pb.steps ?? []).slice(0, 4).map((s, i) => (
+                    <View key={s.stepId} style={styles.stepRow}>
+                      <Text style={styles.stepIdx}>{i + 1}</Text>
+                      <Text style={styles.stepText} numberOfLines={2}>
+                        {s.title}
+                      </Text>
+                    </View>
+                  ))}
+                </View>
+              );
+            })()}
         </View>
 
         {/* Investigation notes */}
@@ -289,42 +296,44 @@ export default function ChainAnalysisScreen() {
               )}
             </Pressable>
           </View>
-          {(notes.data?.notes ?? []).length === 0 ? (
+          {(notes.data?.items ?? []).length === 0 ? (
             <Text style={styles.emptyHint}>
               No notes yet. Add the first observation above.
             </Text>
           ) : (
-            (notes.data?.notes ?? []).slice(0, 5).map((n) => (
+            (notes.data?.items ?? []).slice(0, 5).map((n) => (
               <View key={n.noteId} style={styles.noteCard}>
                 <View style={styles.noteHeader}>
-                  <Text style={styles.noteAuthor}>{n.authorEmail}</Text>
+                  <Text style={styles.noteAuthor}>
+                    {n.authorEmail ?? "system"}
+                  </Text>
                   <Text style={styles.noteTime}>
-                    {n.createdAt.slice(11, 19)}
+                    {n.createdAt ? n.createdAt.slice(11, 19) : ""}
                   </Text>
                 </View>
-                <Text style={styles.noteBody}>{n.body}</Text>
+                <Text style={styles.noteBody}>{n.bodyMd}</Text>
               </View>
             ))
           )}
         </View>
 
         {/* Audit trail */}
-        {(activity.data?.events ?? []).length > 0 && (
+        {(activity.data?.items ?? []).length > 0 && (
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Activity</Text>
-            {activity.data!.events.slice(0, 6).map((e) => (
-              <View key={e.id} style={styles.activityRow}>
+            {activity.data!.items.slice(0, 6).map((e) => (
+              <View key={e.auditId} style={styles.activityRow}>
                 <View style={styles.activityDot} />
                 <View style={{ flex: 1 }}>
                   <Text style={styles.activityKind}>
-                    {e.kind.replace(/_/g, " ")}
+                    {(e.kind ?? "").replace(/_/g, " ")}
                   </Text>
                   <Text style={styles.activityMeta}>
-                    {e.actorEmail ?? "system"} · {e.occurredAt.slice(11, 19)}
+                    {e.userEmail ?? "system"} · {e.at ? e.at.slice(11, 19) : ""}
                   </Text>
-                  {e.detail && (
+                  {(e.payload || e.note) && (
                     <Text style={styles.activityDetail} numberOfLines={2}>
-                      {e.detail}
+                      {e.payload ?? e.note}
                     </Text>
                   )}
                 </View>

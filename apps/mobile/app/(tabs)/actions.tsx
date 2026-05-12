@@ -28,10 +28,11 @@ import {
   useActions,
   useApproveAction,
   useDeclineAction,
+  type ActionsFilter,
   type DqnAction,
 } from "../../lib/api/hooks";
 
-type StatusFilter = "pending" | "approved" | "declined" | "all";
+type StatusFilter = ActionsFilter;
 
 function actionLabel(a: string): string {
   const map: Record<string, string> = {
@@ -80,16 +81,17 @@ export default function ActionsScreen() {
   const declineMut = useDeclineAction();
 
   const items = q.data?.items ?? [];
-  const counts = q.data?.counts ?? { pending: 0, approved: 0, declined: 0 };
+  const counts = q.data?.counts;
+  const pendingCount = counts?.proposed ?? 0;
 
   const filterTabs: { key: StatusFilter; label: string; count?: number }[] = useMemo(
     () => [
-      { key: "pending", label: "Pending", count: counts.pending },
-      { key: "approved", label: "Approved", count: counts.approved },
-      { key: "declined", label: "Declined", count: counts.declined },
+      { key: "pending", label: "Pending", count: pendingCount },
+      { key: "approved", label: "Approved", count: counts?.approved ?? 0 },
+      { key: "declined", label: "Declined", count: counts?.declined ?? 0 },
       { key: "all", label: "All" },
     ],
-    [counts],
+    [pendingCount, counts?.approved, counts?.declined],
   );
 
   return (
@@ -98,8 +100,8 @@ export default function ActionsScreen() {
         <Text style={styles.eyebrow}>RESPONSE</Text>
         <Text style={styles.title}>Approvals</Text>
         <Text style={styles.subtitle}>
-          {counts.pending > 0
-            ? `${counts.pending} action${counts.pending === 1 ? "" : "s"} waiting on you`
+          {pendingCount > 0
+            ? `${pendingCount} action${pendingCount === 1 ? "" : "s"} waiting on you`
             : "No pending actions"}
         </Text>
       </View>
@@ -159,22 +161,30 @@ export default function ActionsScreen() {
           )
         }
         renderItem={({ item }) => {
-          const tone = actionTone(item.action);
-          const pending = item.status === "pending";
+          const actionStr = item.actionName ?? "";
+          const tone = actionTone(actionStr);
+          const isProposed = item.status === "proposed";
+          const positiveState =
+            item.status === "approved" || item.status === "auto_applied";
+          const stateLabel = (item.status ?? "proposed").replace(/_/g, " ");
+          const actor = item.appliedBy?.name ?? item.rejectedBy?.name ?? null;
           return (
             <View style={styles.card}>
               <View style={styles.cardHeader}>
                 <View style={[styles.tag, { backgroundColor: tone.bg }]}>
                   <Text style={[styles.tagText, { color: tone.fg }]}>
-                    {actionLabel(item.action)}
+                    {actionLabel(actionStr)}
                   </Text>
                 </View>
                 <Text style={styles.time}>{timeAgo(item.decidedAt)}</Text>
               </View>
 
-              {item.rationale ? (
+              {item.ckcStageName ? (
                 <Text style={styles.rationale} numberOfLines={3}>
-                  {item.rationale}
+                  At {item.ckcStageName.replace(/_/g, " ")}
+                  {item.qValues && item.qValues.length > 0
+                    ? `  ·  q-max ${Math.max(...item.qValues).toFixed(2)}`
+                    : ""}
                 </Text>
               ) : null}
 
@@ -196,7 +206,7 @@ export default function ActionsScreen() {
                     </Text>
                   </Pressable>
                 )}
-                {item.hostId && (
+                {(item.hostName || item.hostId) && (
                   <View style={styles.metaPill}>
                     <Ionicons
                       name="hardware-chip-outline"
@@ -204,13 +214,13 @@ export default function ActionsScreen() {
                       color={colors.textMuted}
                     />
                     <Text style={styles.metaText}>
-                      Host {item.hostId.slice(0, 8)}
+                      {item.hostName ?? `Host ${item.hostId.slice(0, 8)}`}
                     </Text>
                   </View>
                 )}
               </View>
 
-              {pending ? (
+              {isProposed ? (
                 <View style={styles.actionRow}>
                   <Pressable
                     style={[styles.btn, styles.declineBtn]}
@@ -228,10 +238,10 @@ export default function ActionsScreen() {
                   <Pressable
                     style={[styles.btn, styles.approveBtn]}
                     disabled={approveMut.isPending}
-                    onPress={() => approveMut.mutate(item.actionId)}
+                    onPress={() => approveMut.mutate({ actionId: item.actionId })}
                   >
                     {approveMut.isPending &&
-                    approveMut.variables === item.actionId ? (
+                    approveMut.variables?.actionId === item.actionId ? (
                       <ActivityIndicator size="small" color={colors.white} />
                     ) : (
                       <>
@@ -247,7 +257,7 @@ export default function ActionsScreen() {
                 <View
                   style={[
                     styles.stateBadge,
-                    item.status === "approved"
+                    positiveState
                       ? { backgroundColor: colors.successBg }
                       : { backgroundColor: colors.criticalBg },
                   ]}
@@ -255,17 +265,17 @@ export default function ActionsScreen() {
                   <Text
                     style={[
                       styles.stateText,
-                      item.status === "approved"
+                      positiveState
                         ? { color: colors.success }
                         : { color: colors.critical },
                     ]}
                   >
-                    {item.status.toUpperCase()}
-                    {item.approvedBy ? `  by ${item.approvedBy}` : ""}
+                    {stateLabel.toUpperCase()}
+                    {actor ? `  by ${actor}` : ""}
                   </Text>
-                  {item.declineReason ? (
+                  {item.rollback?.reason ? (
                     <Text style={styles.declineReason}>
-                      Reason: {item.declineReason}
+                      Rolled back: {item.rollback.reason}
                     </Text>
                   ) : null}
                 </View>
@@ -286,7 +296,7 @@ export default function ActionsScreen() {
           <View style={styles.modalCard}>
             <Text style={styles.modalTitle}>Decline action</Text>
             <Text style={styles.modalSub}>
-              {declining ? actionLabel(declining.action) : ""}
+              {declining ? actionLabel(declining.actionName ?? "") : ""}
             </Text>
             <TextInput
               style={styles.modalInput}

@@ -31,7 +31,9 @@ export default function TabLayout() {
   const casesQ = useCases({ status: "new" });
 
   const alertsUnread = unackQ.data?.count ?? 0;
-  const pendingActions = actionsQ.data?.counts?.pending ?? 0;
+  // Backend names the pre-approval state "proposed"; we surface it as
+  // "pending" to the analyst (and the Actions tab badge counts it).
+  const pendingActions = actionsQ.data?.counts?.proposed ?? 0;
   const newCases = casesQ.data?.counts?.new ?? 0;
 
   const badgeFor = (name: string): number | undefined => {
