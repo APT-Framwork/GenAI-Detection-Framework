@@ -23,6 +23,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 
 import { colors, radius, shadows, spacing, typography } from "../../lib/theme";
+import { useColors } from "../../lib/theme-hook";
 import { useLiveFeed, type LiveFeedEvent } from "../../lib/api/sse";
 
 type SeverityBucket = "all" | "critical" | "high" | "medium" | "low";
@@ -48,12 +49,15 @@ function bucketOf(ev: LiveFeedEvent): Exclude<SeverityBucket, "all"> {
   return "low";
 }
 
-function bucketColor(b: Exclude<SeverityBucket, "all">) {
+function bucketColor(
+  b: Exclude<SeverityBucket, "all">,
+  c: ReturnType<typeof useColors>,
+) {
   switch (b) {
-    case "critical": return colors.critical;
-    case "high":     return colors.critical;
-    case "medium":   return colors.warning;
-    case "low":      return colors.info;
+    case "critical": return c.critical;
+    case "high":     return c.critical;
+    case "medium":   return c.warning;
+    case "low":      return c.info;
   }
 }
 
@@ -71,6 +75,7 @@ function timeAgo(iso: string): string {
 
 export default function VigilanceFeedScreen() {
   const router = useRouter();
+  const c = useColors();
   const [filter, setFilter] = useState<SeverityBucket>("all");
   const [refreshing, setRefreshing] = useState(false);
   const { events, status } = useLiveFeed();
@@ -94,19 +99,27 @@ export default function VigilanceFeedScreen() {
     error: "RECONNECTING",
   }[status];
   const statusColor =
-    status === "open" ? colors.success
-    : status === "error" ? colors.critical
-    : colors.textMuted;
+    status === "open" ? c.success
+    : status === "error" ? c.critical
+    : c.textMuted;
 
   return (
-    <SafeAreaView style={styles.container} edges={["top"]}>
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: c.bg }]}
+      edges={["top"]}
+    >
       {/* Header */}
       <View style={styles.header}>
         <View style={styles.headerLeft}>
-          <Text style={styles.eyebrow}>VIGILANCE</Text>
-          <Text style={styles.title}>Live Feed</Text>
+          <Text style={[styles.eyebrow, { color: c.textMuted }]}>VIGILANCE</Text>
+          <Text style={[styles.title, { color: c.textPrimary }]}>Live Feed</Text>
         </View>
-        <View style={[styles.statusPill, { borderColor: statusColor }]}>
+        <View
+          style={[
+            styles.statusPill,
+            { borderColor: statusColor, backgroundColor: c.bgCard },
+          ]}
+        >
           <View style={[styles.statusDot, { backgroundColor: statusColor }]} />
           <Text style={[styles.statusText, { color: statusColor }]}>{statusLabel}</Text>
         </View>
@@ -114,21 +127,25 @@ export default function VigilanceFeedScreen() {
 
       {/* Counters */}
       <View style={styles.kpiRow}>
-        <View style={styles.kpiCard}>
-          <Text style={styles.kpiValue}>{events.length}</Text>
-          <Text style={styles.kpiLabel}>BUFFERED</Text>
+        <View style={[styles.kpiCard, { backgroundColor: c.bgCard }]}>
+          <Text style={[styles.kpiValue, { color: c.textPrimary }]}>
+            {events.length}
+          </Text>
+          <Text style={[styles.kpiLabel, { color: c.textMuted }]}>BUFFERED</Text>
         </View>
-        <View style={styles.kpiCard}>
-          <Text style={[styles.kpiValue, { color: colors.critical }]}>
+        <View style={[styles.kpiCard, { backgroundColor: c.bgCard }]}>
+          <Text style={[styles.kpiValue, { color: c.critical }]}>
             {counts.critical + counts.high}
           </Text>
-          <Text style={styles.kpiLabel}>CRIT + HIGH</Text>
+          <Text style={[styles.kpiLabel, { color: c.textMuted }]}>
+            CRIT + HIGH
+          </Text>
         </View>
-        <View style={styles.kpiCard}>
-          <Text style={[styles.kpiValue, { color: colors.warning }]}>
+        <View style={[styles.kpiCard, { backgroundColor: c.bgCard }]}>
+          <Text style={[styles.kpiValue, { color: c.warning }]}>
             {counts.medium}
           </Text>
-          <Text style={styles.kpiLabel}>MEDIUM</Text>
+          <Text style={[styles.kpiLabel, { color: c.textMuted }]}>MEDIUM</Text>
         </View>
       </View>
 
@@ -144,13 +161,18 @@ export default function VigilanceFeedScreen() {
             return (
               <Pressable
                 key={b}
-                style={[styles.filterChip, active && styles.filterChipActive]}
+                style={[
+                  styles.filterChip,
+                  { backgroundColor: c.bgCard, borderColor: c.border },
+                  active && { backgroundColor: c.primary, borderColor: c.primary },
+                ]}
                 onPress={() => setFilter(b)}
               >
                 <Text
                   style={[
                     styles.filterChipText,
-                    active && styles.filterChipTextActive,
+                    { color: c.textMuted },
+                    active && { color: c.white },
                   ]}
                 >
                   {b.toUpperCase()}
@@ -173,6 +195,7 @@ export default function VigilanceFeedScreen() {
               setRefreshing(true);
               setTimeout(() => setRefreshing(false), 500);
             }}
+            tintColor={c.primary}
           />
         }
         ListEmptyComponent={
@@ -180,14 +203,14 @@ export default function VigilanceFeedScreen() {
             <Ionicons
               name={status === "open" ? "ear-outline" : "cloud-offline-outline"}
               size={40}
-              color={colors.textLight}
+              color={c.textLight}
             />
-            <Text style={styles.emptyTitle}>
+            <Text style={[styles.emptyTitle, { color: c.textPrimary }]}>
               {status === "open"
                 ? "Listening for events"
                 : "Waiting for stream"}
             </Text>
-            <Text style={styles.emptyBody}>
+            <Text style={[styles.emptyBody, { color: c.textMuted }]}>
               {status === "open"
                 ? "New detections will appear here as the platform emits them."
                 : "Reconnecting to the live feed…"}
@@ -196,14 +219,17 @@ export default function VigilanceFeedScreen() {
         }
         renderItem={({ item }) => {
           const sev = bucketOf(item);
-          const accent = bucketColor(sev);
+          const accent = bucketColor(sev, c);
           const stage =
             item.ckcStageName ||
             STAGE_NAMES[item.ckcStage ?? 0] ||
             `Stage ${item.ckcStage ?? 0}`;
           return (
             <Pressable
-              style={[styles.eventCard, { borderLeftColor: accent }]}
+              style={[
+                styles.eventCard,
+                { backgroundColor: c.bgCard, borderLeftColor: accent },
+              ]}
               onPress={() => {
                 if (item.chainId) {
                   router.push(`/analysis/${item.chainId}` as never);
@@ -214,33 +240,41 @@ export default function VigilanceFeedScreen() {
                 <Text style={[styles.eventSev, { color: accent }]}>
                   {sev.toUpperCase()}
                 </Text>
-                <Text style={styles.eventTime}>{timeAgo(item.occurredAt)}</Text>
+                <Text style={[styles.eventTime, { color: c.textMuted }]}>
+                  {timeAgo(item.occurredAt)}
+                </Text>
               </View>
-              <Text style={styles.eventStage}>
+              <Text style={[styles.eventStage, { color: c.textPrimary }]}>
                 CKC · {stage}
                 {item.dqnActionName ? `  ·  RL: ${item.dqnActionName}` : ""}
               </Text>
               <View style={styles.eventMetrics}>
                 {item.vaeMaliciousProb != null && (
                   <View style={styles.metric}>
-                    <Text style={styles.metricLabel}>VAE</Text>
-                    <Text style={styles.metricValue}>
+                    <Text style={[styles.metricLabel, { color: c.textMuted }]}>
+                      VAE
+                    </Text>
+                    <Text style={[styles.metricValue, { color: c.primary }]}>
                       {(item.vaeMaliciousProb * 100).toFixed(0)}%
                     </Text>
                   </View>
                 )}
                 {item.gnnNodeRisk != null && (
                   <View style={styles.metric}>
-                    <Text style={styles.metricLabel}>GNN</Text>
-                    <Text style={styles.metricValue}>
+                    <Text style={[styles.metricLabel, { color: c.textMuted }]}>
+                      GNN
+                    </Text>
+                    <Text style={[styles.metricValue, { color: c.primary }]}>
                       {(item.gnnNodeRisk * 100).toFixed(0)}%
                     </Text>
                   </View>
                 )}
                 {item.aeAnomalyScore != null && (
                   <View style={styles.metric}>
-                    <Text style={styles.metricLabel}>AE</Text>
-                    <Text style={styles.metricValue}>
+                    <Text style={[styles.metricLabel, { color: c.textMuted }]}>
+                      AE
+                    </Text>
+                    <Text style={[styles.metricValue, { color: c.primary }]}>
                       {item.aeAnomalyScore.toFixed(2)}
                     </Text>
                   </View>
@@ -249,26 +283,36 @@ export default function VigilanceFeedScreen() {
               {(item.mitreTechniques?.length ?? 0) > 0 && (
                 <View style={styles.mitreRow}>
                   {(item.mitreTechniques ?? []).slice(0, 4).map((t) => (
-                    <View key={t} style={styles.mitreChip}>
-                      <Text style={styles.mitreChipText}>{t}</Text>
+                    <View
+                      key={t}
+                      style={[
+                        styles.mitreChip,
+                        { backgroundColor: c.primaryLight },
+                      ]}
+                    >
+                      <Text style={[styles.mitreChipText, { color: c.primary }]}>
+                        {t}
+                      </Text>
                     </View>
                   ))}
                 </View>
               )}
               {item.chainId && (
-                <View style={styles.eventFooter}>
+                <View
+                  style={[styles.eventFooter, { borderTopColor: c.border }]}
+                >
                   <Ionicons
                     name="git-network-outline"
                     size={12}
-                    color={colors.textMuted}
+                    color={c.textMuted}
                   />
-                  <Text style={styles.eventChain}>
+                  <Text style={[styles.eventChain, { color: c.textMuted }]}>
                     Chain {item.chainId.slice(0, 8)}
                   </Text>
                   <Ionicons
                     name="chevron-forward"
                     size={14}
-                    color={colors.textMuted}
+                    color={c.textMuted}
                     style={{ marginLeft: "auto" }}
                   />
                 </View>

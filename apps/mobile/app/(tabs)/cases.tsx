@@ -152,17 +152,43 @@ export default function CasesScreen() {
         ListEmptyComponent={
           q.isLoading ? (
             <View style={styles.empty}>
-              <ActivityIndicator color={colors.primary} />
+              <ActivityIndicator color={c.primary} />
+            </View>
+          ) : q.isError ? (
+            <View style={styles.empty}>
+              <Ionicons name="alert-circle-outline" size={40} color={c.critical} />
+              <Text style={[styles.emptyTitle, { color: c.textPrimary }]}>
+                Couldn't load cases
+              </Text>
+              <Text style={[styles.emptyBody, { color: c.textMuted }]}>
+                {(q.error as Error)?.message ?? "Unknown error"}
+              </Text>
+              <Pressable
+                onPress={() => q.refetch()}
+                style={{
+                  marginTop: spacing.md,
+                  paddingHorizontal: spacing.lg,
+                  paddingVertical: spacing.sm,
+                  borderRadius: radius.full,
+                  backgroundColor: c.primary,
+                }}
+              >
+                <Text style={{ color: c.white, fontFamily: typography.family.heading }}>
+                  RETRY
+                </Text>
+              </Pressable>
             </View>
           ) : (
             <View style={styles.empty}>
               <Ionicons
                 name="briefcase-outline"
                 size={40}
-                color={colors.textLight}
+                color={c.textLight}
               />
-              <Text style={styles.emptyTitle}>No cases</Text>
-              <Text style={styles.emptyBody}>
+              <Text style={[styles.emptyTitle, { color: c.textPrimary }]}>
+                No cases
+              </Text>
+              <Text style={[styles.emptyBody, { color: c.textMuted }]}>
                 The triage queue is empty for this filter.
               </Text>
             </View>

@@ -21,9 +21,17 @@ interface UIState {
   hydrated: boolean;
   isDark: boolean;
   isLoading: boolean;
+  /**
+   * Count of unacknowledged alerts the user has already "seen" by opening
+   * the Alerts tab. The tab-bar badge shows `max(0, unackCount - baseline)`
+   * so the number falls to zero on visit but a future incoming alert still
+   * surfaces. Session-only — not persisted.
+   */
+  alertsBadgeBaseline: number;
   toggleTheme: () => void;
   setDark: (v: boolean) => void;
   setLoading: (v: boolean) => void;
+  markAlertsSeen: (count: number) => void;
   hydrate: () => Promise<void>;
 }
 
@@ -31,6 +39,7 @@ export const useUIStore = create<UIState>((set, get) => ({
   hydrated: false,
   isDark: false,
   isLoading: false,
+  alertsBadgeBaseline: 0,
 
   toggleTheme: () => {
     set((s) => ({ isDark: !s.isDark }));
@@ -41,6 +50,7 @@ export const useUIStore = create<UIState>((set, get) => ({
     void persist(get);
   },
   setLoading: (v) => set({ isLoading: v }),
+  markAlertsSeen: (count) => set({ alertsBadgeBaseline: count }),
 
   hydrate: async () => {
     if (get().hydrated) return;

@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
@@ -10,6 +10,7 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useFocusEffect } from "expo-router";
 import { colors, typography, spacing, radius } from "../../lib/theme";
 import { useColors } from "../../lib/theme-hook";
 import { AlertCard } from "../../components/AlertCard";
@@ -19,6 +20,7 @@ import {
   useUnacknowledgedCount,
   type AlertSeverityFilter,
 } from "../../lib/api/hooks";
+import { useUIStore } from "../../stores/ui-store";
 
 const FILTERS: { key: AlertSeverityFilter; label: string }[] = [
   { key: "all", label: "All" },
@@ -35,6 +37,16 @@ export default function AlertsScreen() {
   const listQ = useAlertsInfinite({ severity: filter, limit: 30 });
   const unackQ = useUnacknowledgedCount();
   const ackMut = useAcknowledgeAlert();
+  const markAlertsSeen = useUIStore((s) => s.markAlertsSeen);
+  const unackCount = unackQ.data?.count ?? 0;
+
+  // Drop the tab-bar badge as soon as the user opens the Alerts page. We
+  // re-run on every focus so a refresh-while-on-page also re-baselines.
+  useFocusEffect(
+    useCallback(() => {
+      markAlertsSeen(unackCount);
+    }, [markAlertsSeen, unackCount]),
+  );
 
   const alerts = useMemo(
     () => (listQ.data?.pages ?? []).flatMap((p) => p.items),

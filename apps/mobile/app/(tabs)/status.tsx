@@ -11,6 +11,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { colors, typography, spacing, radius, shadows } from "../../lib/theme";
+import { useColors } from "../../lib/theme-hook";
 import {
   useDrift,
   useModels,
@@ -19,40 +20,43 @@ import {
 
 type StatusKey = "operational" | "degraded" | "down" | "maintenance";
 
-const STATUS_CONFIG: Record<
-  StatusKey,
-  {
-    color: string;
-    bg: string;
-    label: string;
-    icon: React.ComponentProps<typeof Ionicons>["name"];
-  }
-> = {
-  operational: {
-    color: colors.success,
-    bg: colors.successBg,
-    label: "Operational",
-    icon: "checkmark-circle",
-  },
-  degraded: {
-    color: "#c77900",
-    bg: "rgba(199,121,0,0.08)",
-    label: "Degraded",
-    icon: "warning",
-  },
-  down: {
-    color: colors.critical,
-    bg: colors.criticalBg,
-    label: "Down",
-    icon: "close-circle",
-  },
-  maintenance: {
-    color: colors.warning,
-    bg: colors.warningBg,
-    label: "Maintenance",
-    icon: "construct",
-  },
+type StatusConfigEntry = {
+  color: string;
+  bg: string;
+  label: string;
+  icon: React.ComponentProps<typeof Ionicons>["name"];
 };
+
+function buildStatusConfig(
+  c: ReturnType<typeof useColors>,
+): Record<StatusKey, StatusConfigEntry> {
+  return {
+    operational: {
+      color: c.success,
+      bg: c.successBg,
+      label: "Operational",
+      icon: "checkmark-circle",
+    },
+    degraded: {
+      color: c.warning,
+      bg: c.warningBg,
+      label: "Degraded",
+      icon: "warning",
+    },
+    down: {
+      color: c.critical,
+      bg: c.criticalBg,
+      label: "Down",
+      icon: "close-circle",
+    },
+    maintenance: {
+      color: c.warning,
+      bg: c.warningBg,
+      label: "Maintenance",
+      icon: "construct",
+    },
+  };
+}
 
 function classifyStatus(model: ModelHealth): StatusKey {
   if (model.status === "degraded") return "degraded";
@@ -75,6 +79,8 @@ function fmtChecked(iso: string): string {
 }
 
 export default function StatusScreen() {
+  const c = useColors();
+  const statusConfig = useMemo(() => buildStatusConfig(c), [c]);
   const modelsQ = useModels();
   const driftQ = useDrift(60);
 
@@ -93,23 +99,30 @@ export default function StatusScreen() {
   const total = models.length;
 
   return (
-    <SafeAreaView style={styles.container} edges={["top"]}>
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: c.bg }]}
+      edges={["top"]}
+    >
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Network</Text>
+        <Text style={[styles.headerTitle, { color: c.textPrimary }]}>
+          Network
+        </Text>
       </View>
 
       {/* Summary card */}
-      <View style={styles.summaryCard}>
+      <View style={[styles.summaryCard, { backgroundColor: c.bgCard }]}>
         <View style={styles.summaryLeft}>
           {modelsQ.isLoading ? (
-            <ActivityIndicator color={colors.primary} />
+            <ActivityIndicator color={c.primary} />
           ) : (
             <>
-              <Text style={styles.summaryValue}>
+              <Text style={[styles.summaryValue, { color: c.textPrimary }]}>
                 {operational}/{total}
               </Text>
-              <Text style={styles.summaryLabel}>MODELS OPERATIONAL</Text>
+              <Text style={[styles.summaryLabel, { color: c.textMuted }]}>
+                MODELS OPERATIONAL
+              </Text>
             </>
           )}
         </View>
@@ -119,8 +132,8 @@ export default function StatusScreen() {
             {
               backgroundColor:
                 total > 0 && operational === total
-                  ? colors.successBg
-                  : colors.warningBg,
+                  ? c.successBg
+                  : c.warningBg,
             },
           ]}
         >
@@ -133,8 +146,8 @@ export default function StatusScreen() {
             size={28}
             color={
               total > 0 && operational === total
-                ? colors.success
-                : colors.warning
+                ? c.success
+                : c.warning
             }
           />
         </View>
@@ -142,16 +155,18 @@ export default function StatusScreen() {
 
       {/* Service list */}
       {modelsQ.isError ? (
-        <View style={styles.errorCard}>
-          <Text style={styles.errorTitle}>Couldn't reach /monitoring/models</Text>
-          <Text style={styles.errorDesc}>
+        <View style={[styles.errorCard, { backgroundColor: c.bgCard }]}>
+          <Text style={[styles.errorTitle, { color: c.textPrimary }]}>
+            Couldn't reach /monitoring/models
+          </Text>
+          <Text style={[styles.errorDesc, { color: c.textMuted }]}>
             {(modelsQ.error as Error)?.message ?? "Check backend connection."}
           </Text>
           <Pressable
-            style={styles.retryBtn}
+            style={[styles.retryBtn, { backgroundColor: c.primary }]}
             onPress={() => void modelsQ.refetch()}
           >
-            <Text style={styles.retryText}>RETRY</Text>
+            <Text style={[styles.retryText, { color: c.white }]}>RETRY</Text>
           </Pressable>
         </View>
       ) : (
@@ -164,8 +179,10 @@ export default function StatusScreen() {
           ListEmptyComponent={
             modelsQ.isLoading ? null : (
               <View style={styles.emptyCard}>
-                <Text style={styles.errorTitle}>No models reporting</Text>
-                <Text style={styles.errorDesc}>
+                <Text style={[styles.errorTitle, { color: c.textPrimary }]}>
+                  No models reporting
+                </Text>
+                <Text style={[styles.errorDesc, { color: c.textMuted }]}>
                   Inference workers haven't posted a health check yet.
                 </Text>
               </View>
@@ -178,15 +195,17 @@ export default function StatusScreen() {
                 void modelsQ.refetch();
                 void driftQ.refetch();
               }}
-              tintColor={colors.primary}
+              tintColor={c.primary}
             />
           }
           renderItem={({ item }) => {
             const key = classifyStatus(item);
-            const cfg = STATUS_CONFIG[key];
+            const cfg = statusConfig[key];
             const drift = item.driftKl ?? driftByModel.get(item.name) ?? null;
             return (
-              <View style={styles.serviceCard}>
+              <View
+                style={[styles.serviceCard, { backgroundColor: c.bgCard }]}
+              >
                 <View style={styles.serviceHeader}>
                   <View
                     style={[
@@ -197,7 +216,7 @@ export default function StatusScreen() {
                     <Ionicons name={cfg.icon} size={16} color={cfg.color} />
                   </View>
                   <View style={styles.serviceInfo}>
-                    <Text style={styles.serviceName}>
+                    <Text style={[styles.serviceName, { color: c.textPrimary }]}>
                       {item.name} · v{item.version}
                     </Text>
                     <Text style={[styles.serviceStatus, { color: cfg.color }]}>
@@ -205,40 +224,51 @@ export default function StatusScreen() {
                     </Text>
                   </View>
                 </View>
-                <View style={styles.serviceMetrics}>
+                <View
+                  style={[
+                    styles.serviceMetrics,
+                    { backgroundColor: c.bgSurface },
+                  ]}
+                >
                   <View style={styles.metric}>
-                    <Text style={styles.metricValue}>
+                    <Text style={[styles.metricValue, { color: c.textPrimary }]}>
                       {fmtLatency(item.p50LatencyMs)}
                     </Text>
-                    <Text style={styles.metricLabel}>P50</Text>
+                    <Text style={[styles.metricLabel, { color: c.textMuted }]}>
+                      P50
+                    </Text>
                   </View>
-                  <View style={styles.metricDivider} />
+                  <View style={[styles.metricDivider, { backgroundColor: c.border }]} />
                   <View style={styles.metric}>
-                    <Text style={styles.metricValue}>
+                    <Text style={[styles.metricValue, { color: c.textPrimary }]}>
                       {fmtLatency(item.p99LatencyMs)}
                     </Text>
-                    <Text style={styles.metricLabel}>P99</Text>
+                    <Text style={[styles.metricLabel, { color: c.textMuted }]}>
+                      P99
+                    </Text>
                   </View>
-                  <View style={styles.metricDivider} />
+                  <View style={[styles.metricDivider, { backgroundColor: c.border }]} />
                   <View style={styles.metric}>
                     <Text
                       style={[
                         styles.metricValue,
-                        drift !== null && drift > 0.2
-                          ? { color: colors.critical }
-                          : null,
+                        { color: drift !== null && drift > 0.2 ? c.critical : c.textPrimary },
                       ]}
                     >
                       {drift === null ? "—" : drift.toFixed(3)}
                     </Text>
-                    <Text style={styles.metricLabel}>DRIFT KL</Text>
+                    <Text style={[styles.metricLabel, { color: c.textMuted }]}>
+                      DRIFT KL
+                    </Text>
                   </View>
-                  <View style={styles.metricDivider} />
+                  <View style={[styles.metricDivider, { backgroundColor: c.border }]} />
                   <View style={styles.metric}>
-                    <Text style={styles.metricValue}>
+                    <Text style={[styles.metricValue, { color: c.textPrimary }]}>
                       {fmtChecked(item.lastHealthCheck)}
                     </Text>
-                    <Text style={styles.metricLabel}>CHECKED</Text>
+                    <Text style={[styles.metricLabel, { color: c.textMuted }]}>
+                      CHECKED
+                    </Text>
                   </View>
                 </View>
               </View>

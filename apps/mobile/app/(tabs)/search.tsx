@@ -12,6 +12,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import * as DocumentPicker from "expo-document-picker";
 import { colors, typography, spacing, radius, shadows } from "../../lib/theme";
+import { useColors } from "../../lib/theme-hook";
 import {
   useFileScan,
   useIocSearch,
@@ -27,20 +28,24 @@ function statusLabel(status: string | undefined): string {
   return status.toUpperCase();
 }
 
-function reputationColor(rep: IocItem["reputation"]): string {
+function reputationColor(
+  rep: IocItem["reputation"],
+  c: ReturnType<typeof useColors>,
+): string {
   switch (rep) {
     case "malicious":
-      return colors.critical;
+      return c.critical;
     case "suspicious":
-      return colors.warning;
+      return c.warning;
     case "clean":
-      return colors.success;
+      return c.success;
     default:
-      return colors.textMuted;
+      return c.textMuted;
   }
 }
 
 export default function SearchScreen() {
+  const c = useColors();
   const [query, setQuery] = useState("");
   const [debounced, setDebounced] = useState("");
   const [scan, setScan] = useState<FileScanResponse | null>(null);
@@ -79,19 +84,29 @@ export default function SearchScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.container} edges={["top"]}>
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: c.bg }]}
+      edges={["top"]}
+    >
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Threat Intel</Text>
+        <Text style={[styles.headerTitle, { color: c.textPrimary }]}>
+          Threat Intel
+        </Text>
       </View>
 
       {/* Search input */}
-      <View style={styles.searchContainer}>
-        <Ionicons name="search" size={18} color={colors.textMuted} />
+      <View
+        style={[
+          styles.searchContainer,
+          { backgroundColor: c.bgCard, borderColor: c.border },
+        ]}
+      >
+        <Ionicons name="search" size={18} color={c.textMuted} />
         <TextInput
-          style={styles.input}
+          style={[styles.input, { color: c.textPrimary }]}
           placeholder="Search IOC: email, IP, domain, hash…"
-          placeholderTextColor={colors.textLight}
+          placeholderTextColor={c.textLight}
           value={query}
           onChangeText={setQuery}
           autoCapitalize="none"
@@ -99,7 +114,7 @@ export default function SearchScreen() {
         />
         {query.length > 0 ? (
           <Pressable onPress={() => setQuery("")}>
-            <Ionicons name="close-circle" size={18} color={colors.textMuted} />
+            <Ionicons name="close-circle" size={18} color={c.textMuted} />
           </Pressable>
         ) : null}
       </View>
@@ -109,36 +124,38 @@ export default function SearchScreen() {
         {QUICK_TAGS.map((tag) => (
           <Pressable
             key={tag}
-            style={styles.quickTag}
+            style={[styles.quickTag, { backgroundColor: c.bgSurface }]}
             onPress={() => setQuery(tag)}
           >
-            <Text style={styles.quickTagText}>{tag}</Text>
+            <Text style={[styles.quickTagText, { color: c.primary }]}>
+              {tag}
+            </Text>
           </Pressable>
         ))}
       </View>
 
       {/* File scan */}
       <Pressable
-        style={styles.scanCard}
+        style={[styles.scanCard, { backgroundColor: c.bgCard }]}
         disabled={fileScan.isPending}
         onPress={onPickFile}
       >
-        <View style={styles.scanIcon}>
+        <View style={[styles.scanIcon, { backgroundColor: c.bgAccentSoft }]}>
           {fileScan.isPending ? (
-            <ActivityIndicator color={colors.primary} />
+            <ActivityIndicator color={c.primary} />
           ) : (
-            <Ionicons name="cloud-upload-outline" size={18} color={colors.primary} />
+            <Ionicons name="cloud-upload-outline" size={18} color={c.primary} />
           )}
         </View>
         <View style={styles.scanContent}>
-          <Text style={styles.scanTitle}>
+          <Text style={[styles.scanTitle, { color: c.textPrimary }]}>
             {fileScan.isPending
               ? "Uploading…"
               : scan
               ? scan.filename
               : "Scan a file"}
           </Text>
-          <Text style={styles.scanDesc} numberOfLines={1}>
+          <Text style={[styles.scanDesc, { color: c.textMuted }]} numberOfLines={1}>
             {fileScan.isError
               ? "Upload failed — tap to retry"
               : scan
@@ -146,26 +163,30 @@ export default function SearchScreen() {
               : "VirusTotal via async job · ≤10 MB"}
           </Text>
         </View>
-        <Ionicons name="chevron-forward" size={16} color={colors.textLight} />
+        <Ionicons name="chevron-forward" size={16} color={c.textLight} />
       </Pressable>
 
       {/* Results */}
       {query.trim().length === 0 ? (
         <View style={styles.emptyState}>
-          <Ionicons name="search" size={48} color={colors.bgSurface} />
-          <Text style={styles.emptyTitle}>Threat Intelligence Search</Text>
-          <Text style={styles.emptyDesc}>
+          <Ionicons name="search" size={48} color={c.bgSurface} />
+          <Text style={[styles.emptyTitle, { color: c.textPrimary }]}>
+            Threat Intelligence Search
+          </Text>
+          <Text style={[styles.emptyDesc, { color: c.textMuted }]}>
             Cached IOC lookups + on-demand HIBP and VirusTotal enrichment.
           </Text>
         </View>
       ) : searchQ.isLoading || (searchQ.isFetching && query !== debounced) ? (
         <View style={styles.emptyState}>
-          <ActivityIndicator color={colors.primary} />
+          <ActivityIndicator color={c.primary} />
         </View>
       ) : searchQ.isError ? (
         <View style={styles.emptyState}>
-          <Text style={styles.emptyTitle}>Lookup failed</Text>
-          <Text style={styles.emptyDesc}>
+          <Text style={[styles.emptyTitle, { color: c.textPrimary }]}>
+            Lookup failed
+          </Text>
+          <Text style={[styles.emptyDesc, { color: c.textMuted }]}>
             {(searchQ.error as Error)?.message ?? "Check backend connection."}
           </Text>
         </View>
@@ -177,42 +198,56 @@ export default function SearchScreen() {
           showsVerticalScrollIndicator={false}
           ListEmptyComponent={
             <View style={styles.emptyState}>
-              <Text style={styles.emptyTitle}>No results</Text>
-              <Text style={styles.emptyDesc}>
+              <Text style={[styles.emptyTitle, { color: c.textPrimary }]}>
+                No results
+              </Text>
+              <Text style={[styles.emptyDesc, { color: c.textMuted }]}>
                 No cached IOC matches "{debounced}".
               </Text>
             </View>
           }
           renderItem={({ item }) => (
-            <Pressable style={styles.resultCard}>
+            <Pressable
+              style={[styles.resultCard, { backgroundColor: c.bgCard }]}
+            >
               <View style={styles.resultHeader}>
                 <View
                   style={[
                     styles.severityDot,
-                    { backgroundColor: reputationColor(item.reputation) },
+                    { backgroundColor: reputationColor(item.reputation, c) },
                   ]}
                 />
-                <Text style={styles.resultTitle} numberOfLines={1}>
+                <Text
+                  style={[styles.resultTitle, { color: c.textPrimary }]}
+                  numberOfLines={1}
+                >
                   {item.indicator}
                 </Text>
-                <Text style={styles.typeBadge}>{item.type.toUpperCase()}</Text>
+                <Text
+                  style={[
+                    styles.typeBadge,
+                    { color: c.primary, backgroundColor: c.bgSurface },
+                  ]}
+                >
+                  {item.type.toUpperCase()}
+                </Text>
               </View>
               <View style={styles.resultMetaRow}>
                 <Text
                   style={[
                     styles.resultReputation,
-                    { color: reputationColor(item.reputation) },
+                    { color: reputationColor(item.reputation, c) },
                   ]}
                 >
                   {item.reputation.toUpperCase()}
                 </Text>
-                <Text style={styles.resultSource}>
+                <Text style={[styles.resultSource, { color: c.textMuted }]}>
                   {item.source}
                   {item.stale ? " · STALE" : ""}
                 </Text>
               </View>
               {item.breachCount !== null && item.breachCount > 0 ? (
-                <Text style={styles.breachText}>
+                <Text style={[styles.breachText, { color: c.critical }]}>
                   {item.breachCount} breach{item.breachCount === 1 ? "" : "es"}
                 </Text>
               ) : null}

@@ -34,6 +34,12 @@ export default function MoreScreen() {
       title: "Operations",
       rows: [
         {
+          icon: "shield-checkmark-outline",
+          label: "Actions queue",
+          caption: "Approve or decline pending DQN actions",
+          href: "/(tabs)/actions",
+        },
+        {
           icon: "pulse-outline",
           label: "Live feed",
           caption: "Real-time SSE stream of every detection",

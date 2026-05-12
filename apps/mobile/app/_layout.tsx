@@ -98,11 +98,16 @@ export default function RootLayout() {
   return (
     <ErrorBoundary>
       <QueryProvider>
-        <StatusBar style="dark" />
+        <ThemedStatusBar />
         <AppShell />
       </QueryProvider>
     </ErrorBoundary>
   );
+}
+
+function ThemedStatusBar() {
+  const isDark = useUIStore((s) => s.isDark);
+  return <StatusBar style={isDark ? "light" : "dark"} />;
 }
 
 /**

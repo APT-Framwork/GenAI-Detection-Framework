@@ -165,6 +165,54 @@ class ActionsService:
             stmt = stmt.where(DqnActionRow.chain_id == chain_id)
         if since is not None:
             stmt = stmt.where(DqnActionRow.decided_at >= since)
+
+        # Push status filter into SQL so pagination returns the right
+        # bucket. Before this, the filter ran after `LIMIT 50` — so if
+        # the 50 most-recent actions were all auto_applied, asking for
+        # `status=proposed` returned 0 items even when `counts.proposed`
+        # said there were hundreds. The filter is a disjunction of the
+        # boolean conditions that drive `_derive_status` so it stays in
+        # sync with the per-row derivation below.
+        if statuses:
+            wanted = set(statuses)
+            clauses = []
+            for s in wanted:
+                if s == "rolled_back":
+                    clauses.append(DqnActionRollback.rollback_id.is_not(None))
+                elif s == "declined":
+                    clauses.append(
+                        and_(
+                            DqnActionRow.rejected_at.is_not(None),
+                            DqnActionRollback.rollback_id.is_(None),
+                        )
+                    )
+                elif s == "auto_applied":
+                    clauses.append(
+                        and_(
+                            DqnActionRow.applied.is_(True),
+                            DqnActionRow.requires_approval.is_(False),
+                            DqnActionRollback.rollback_id.is_(None),
+                        )
+                    )
+                elif s == "approved":
+                    clauses.append(
+                        and_(
+                            DqnActionRow.applied.is_(True),
+                            DqnActionRow.requires_approval.is_(True),
+                            DqnActionRollback.rollback_id.is_(None),
+                        )
+                    )
+                elif s == "proposed":
+                    clauses.append(
+                        and_(
+                            DqnActionRow.applied.is_(False),
+                            DqnActionRow.rejected_at.is_(None),
+                            DqnActionRollback.rollback_id.is_(None),
+                        )
+                    )
+            if clauses:
+                stmt = stmt.where(or_(*clauses))
+
         if cursor:
             try:
                 cur = _ActionCursor.decode(cursor)
