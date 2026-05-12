@@ -1,0 +1,70 @@
+# EAS Build only needs the mobile app + its lockfiles. Everything else
+# in this monorepo (api, web, notebooks, models, RL_agent, infra, docs)
+# is dead weight for the Android dev build and inflates the upload to
+# hundreds of MB. Excluded here on top of whatever .gitignore already
+# drops.
+#
+# Pattern syntax mirrors .gitignore.
+
+# ---- other apps -------------------------------------------------------
+apps/api/
+apps/web/
+apps/notebooks/
+apps/models/
+apps/data/
+apps/prompts/
+apps/architecture/
+
+# ---- backend / ML / infra ---------------------------------------------
+RL_agent/
+infra/
+config/
+docs/
+
+# ---- repo-root artefacts ----------------------------------------------
+PLATFOR_BIG_CHANGES_PLAN.md
+Procfile.host
+Procfile.host.local
+Makefile
+jury_demo.sh
+jury_demo_single.sh
+
+# Design references / screenshots committed at the repo root
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.svg
+*.pdf
+
+# ---- python noise -----------------------------------------------------
+**/.venv/
+**/__pycache__/
+**/*.pyc
+**/*.pyo
+
+# ---- notebook + dataset artefacts -------------------------------------
+**/*.ipynb
+**/*.csv
+**/*.parquet
+**/*.tsv
+**/*.h5
+**/*.hdf5
+**/*.npy
+**/*.npz
+**/*.pkl
+**/*.joblib
+
+# ---- model weights ----------------------------------------------------
+**/*.pt
+**/*.pth
+**/*.onnx
+**/*.ckpt
+**/*.safetensors
+**/*.tflite
+
+# ---- system / IDE noise -----------------------------------------------
+.DS_Store
+.idea/
+.vscode/
+*.log
