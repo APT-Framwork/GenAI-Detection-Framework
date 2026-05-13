@@ -209,9 +209,10 @@ class TagLink(Base):
 class ChainNote(Base):
     """Backend-persisted analyst note on an attack chain.
 
-    Replaces the localStorage scratchpad. Multi-analyst, append-only —
-    edits aren't supported in v1 (the audit-trail story matters more
-    than ergonomics for intel notes).
+    Replaces the localStorage scratchpad. Multi-analyst — the original
+    author may edit or delete; both transitions are recorded in
+    `case_audit_log` as `note.edited` / `note.deleted` so the trail is
+    preserved without keeping rotten content in the journal.
     """
 
     __tablename__ = "chain_notes"
@@ -362,6 +363,13 @@ class Detection(Base):
     vae_uncertainty: Mapped[float | None] = mapped_column(REAL, nullable=True)
     transformer_pred_ckc: Mapped[int | None] = mapped_column(SmallInteger, nullable=True)
     transformer_confidence: Mapped[float | None] = mapped_column(REAL, nullable=True)
+    # Full softmax over the 8 CKC classes (BENIGN..ACTIONS_ON_OBJECTIVES).
+    # Nullable for backward compat with rows written before migration 0016 —
+    # the analysis service falls back to a reconstructed distribution when
+    # absent. See worker `inference._publish_verdict` for the producer side.
+    transformer_probabilities: Mapped[list[float] | None] = mapped_column(
+        ARRAY(REAL), nullable=True
+    )
     gnn_node_risk: Mapped[float | None] = mapped_column(REAL, nullable=True)
     gnn_neighbor_risk: Mapped[float | None] = mapped_column(REAL, nullable=True)
     gnn_risk_growth: Mapped[float | None] = mapped_column(REAL, nullable=True)

@@ -8,7 +8,7 @@
 import type { InfectedHost } from "@/lib/api/analysis"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
-import { ExternalLink } from "lucide-react"
+import { ExternalLink, ShieldCheck, ShieldAlert } from "lucide-react"
 
 interface AffectedHostsTableProps {
   hosts: InfectedHost[]
@@ -22,7 +22,10 @@ function fmt(iso: string | null | undefined): string {
   return d.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit", second: "2-digit" })
 }
 
-function severityFromStage(stage: number | null): { label: string; cls: string } {
+function severityFromStage(stage: number | null, infected: boolean): { label: string; cls: string } {
+  if (!infected && (stage == null || stage <= 0)) {
+    return { label: "Watch", cls: "text-emerald-600 dark:text-emerald-400 bg-emerald-500/10" }
+  }
   if (stage == null || stage <= 0) return { label: "—", cls: "text-[#497f8b] bg-[#497f8b]/10" }
   if (stage >= 6) return { label: "Critical", cls: "text-rose-600 dark:text-rose-400 bg-rose-500/10" }
   if (stage >= 4) return { label: "High", cls: "text-amber-600 dark:text-amber-400 bg-amber-500/10" }
@@ -34,7 +37,7 @@ export function AffectedHostsTable({ hosts, className }: AffectedHostsTableProps
   if (hosts.length === 0) {
     return (
       <div className={cn("rounded-xl border border-dashed border-[rgba(128,182,195,0.3)] dark:border-[var(--strix-border)] py-8 text-center text-xs text-[#497f8b] dark:text-[var(--strix-text-muted)]", className)}>
-        No affected hosts recorded for this chain.
+        No hosts associated with this chain yet.
       </div>
     )
   }
@@ -45,6 +48,7 @@ export function AffectedHostsTable({ hosts, className }: AffectedHostsTableProps
         <thead>
           <tr className="bg-[var(--strix-bg-surface)]">
             <Th>Host</Th>
+            <Th>State</Th>
             <Th>First Seen</Th>
             <Th>Reached Stage</Th>
             <Th>Severity</Th>
@@ -53,7 +57,7 @@ export function AffectedHostsTable({ hosts, className }: AffectedHostsTableProps
         </thead>
         <tbody className="divide-y divide-[var(--strix-border)]">
           {hosts.map((h) => {
-            const sev = severityFromStage(h.currentStage)
+            const sev = severityFromStage(h.currentStage, h.infected)
             return (
               <tr key={h.hostId} className="hover:bg-[var(--strix-bg-surface)] transition-colors">
                 <td className="py-2.5 px-4">
@@ -63,6 +67,19 @@ export function AffectedHostsTable({ hosts, className }: AffectedHostsTableProps
                   <div className="text-[10px] text-[var(--strix-text-muted)] font-mono">
                     {h.hostId.length > 12 ? h.hostId.slice(0, 12) + "…" : h.hostId}
                   </div>
+                </td>
+                <td className="py-2.5 px-4">
+                  {h.infected ? (
+                    <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wide text-rose-500">
+                      <ShieldAlert className="h-3 w-3" />
+                      Infected
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wide text-emerald-500">
+                      <ShieldCheck className="h-3 w-3" />
+                      Sub-threshold
+                    </span>
+                  )}
                 </td>
                 <td className="py-2.5 px-4 text-[var(--strix-text-muted)] font-mono text-[10px]">
                   {fmt(h.firstSeen)}

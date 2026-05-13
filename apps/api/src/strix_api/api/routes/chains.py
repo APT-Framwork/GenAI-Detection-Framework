@@ -7,6 +7,8 @@
   DELETE /chains/{chain_id}/tags/{tag_name}
   GET    /chains/{chain_id}/notes
   POST   /chains/{chain_id}/notes
+  PATCH  /chains/{chain_id}/notes/{note_id}
+  DELETE /chains/{chain_id}/notes/{note_id}
   GET    /chains/{chain_id}/activity
 
 The current_principal injection gives us user_id for the audit log
@@ -25,6 +27,7 @@ from strix_api.api.deps import enforce_csrf, get_current_principal, get_db_sessi
 from strix_api.api.schemas.chains import (
     ChainActivityResponse,
     ChainNoteCreateRequest,
+    ChainNoteUpdateRequest,
     ChainNotesResponse,
     ChainTagsResponse,
     TagAddRequest,
@@ -181,6 +184,58 @@ async def add_chain_note(
     items = await ChainInvestigationService(session).add_note(
         chain_id=chain_id, body_md=body.body_md, user_id=user_id,
     )
+    return ChainNotesResponse(chain_id=chain_id, items=items)
+
+
+@router.patch(
+    "/{chain_id}/notes/{note_id}",
+    response_model=ChainNotesResponse,
+    dependencies=[Depends(enforce_csrf)],
+)
+async def update_chain_note(
+    chain_id: UUID,
+    note_id: UUID,
+    body: ChainNoteUpdateRequest,
+    session: Annotated[AsyncSession | None, Depends(get_db_session)] = None,
+    principal=Depends(get_current_principal),
+) -> ChainNotesResponse:
+    if session is None:
+        raise HTTPException(status_code=503, detail="DB unavailable")
+    user_id = getattr(principal, "user_id", None)
+    try:
+        items = await ChainInvestigationService(session).update_note(
+            chain_id=chain_id,
+            note_id=note_id,
+            body_md=body.body_md,
+            user_id=user_id,
+        )
+    except PermissionError as exc:
+        raise HTTPException(status_code=401, detail=str(exc)) from exc
+    return ChainNotesResponse(chain_id=chain_id, items=items)
+
+
+@router.delete(
+    "/{chain_id}/notes/{note_id}",
+    response_model=ChainNotesResponse,
+    dependencies=[Depends(enforce_csrf)],
+)
+async def delete_chain_note(
+    chain_id: UUID,
+    note_id: UUID,
+    session: Annotated[AsyncSession | None, Depends(get_db_session)] = None,
+    principal=Depends(get_current_principal),
+) -> ChainNotesResponse:
+    if session is None:
+        raise HTTPException(status_code=503, detail="DB unavailable")
+    user_id = getattr(principal, "user_id", None)
+    try:
+        items = await ChainInvestigationService(session).delete_note(
+            chain_id=chain_id,
+            note_id=note_id,
+            user_id=user_id,
+        )
+    except PermissionError as exc:
+        raise HTTPException(status_code=401, detail=str(exc)) from exc
     return ChainNotesResponse(chain_id=chain_id, items=items)
 
 

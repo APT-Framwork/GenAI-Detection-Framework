@@ -5,6 +5,7 @@ import { ChevronRight } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useChainAttribution } from "@/lib/api/intel"
+import { StageProbabilityPie } from "@/components/charts/stage-probability-pie"
 
 // Real shape from /api/v1/analysis/chains/{id}/predictions
 interface ChainPredictions {
@@ -88,6 +89,29 @@ export function AIPredictionsPanel({
         <p className="text-[12px] text-[#497f8b] dark:text-[var(--strix-text-muted)] leading-relaxed mb-4">
           {nextMoveNarrative(predictions)}
         </p>
+
+        {/* Full per-stage probability distribution — the Transformer
+            emits 8 logits and the worker now persists all of them
+            (migration 0016). The donut lets the analyst toggle each
+            slice to read its stage + percentage; the centre always
+            shows the currently-focused slice. */}
+        {predictions.probabilities.length > 0 && (
+          <div className="mt-4 mb-4">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-[9px] font-bold uppercase tracking-widest text-[#497f8b] dark:text-[var(--strix-text-muted)]">
+                Per-stage distribution
+              </span>
+              <span className="text-[9px] font-mono text-[#497f8b] dark:text-[var(--strix-text-muted)]">
+                {predictions.probabilities.length} stages · click to focus
+              </span>
+            </div>
+            <StageProbabilityPie
+              probabilities={predictions.probabilities}
+              predictedNextStage={predictions.predictedNextStage}
+            />
+          </div>
+        )}
+
         <div className="flex items-center justify-between">
           <span className="text-[12px] font-semibold text-[#00343d] dark:text-[var(--strix-text)]">
             Confidence Score:{" "}

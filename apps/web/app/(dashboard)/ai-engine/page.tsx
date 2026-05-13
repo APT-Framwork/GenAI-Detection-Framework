@@ -5,8 +5,6 @@ import { useQuery } from "@tanstack/react-query"
 
 import { apiFetch } from "@/lib/api/client"
 import { useLiveFeed } from "@/lib/api/live-feed"
-import { CircularProgress } from "@/components/charts/circular-progress"
-import { DetectionVolumePanel } from "@/components/charts/detection-volume-panel"
 import {
   AePanel,
   DqnPanel,
@@ -20,9 +18,7 @@ import { MODEL_REGISTRY, compositeMetrics, type ModelMetrics } from "@/lib/model
 import {
   Brain,
   Gauge,
-  Clock,
   Zap,
-  TrendingUp,
   BarChart3,
   Cpu,
 } from "lucide-react"
@@ -35,14 +31,6 @@ interface ModelHealth {
   driftKl?: number | null
 }
 interface ModelsResponse { models: ModelHealth[] }
-interface TrendPoint {
-  ts: string
-  aeAnomaly: number
-  vaeProb: number
-  transformerConfidence: number
-  gnnRisk: number
-}
-interface ConfidenceTrendResponse { window: string; points: TrendPoint[] }
 
 const COLOR_TINTS: Record<ModelMetrics["color"], { fg: string; bg: string; border: string }> = {
   cyan:    { fg: "text-strix-primary dark:text-strix-cyan", bg: "bg-strix-primary/10 dark:bg-strix-cyan/10", border: "border-strix-primary/20 dark:border-strix-cyan/20" },
@@ -57,11 +45,6 @@ export default function AiEnginePage() {
     queryKey: ["monitoring", "models"],
     queryFn: () => apiFetch<ModelsResponse>("/monitoring/models"),
     refetchInterval: 30_000,
-  })
-  const trend = useQuery({
-    queryKey: ["monitoring", "confidence-trend", "7d"],
-    queryFn: () => apiFetch<ConfidenceTrendResponse>("/monitoring/confidence-trend?window=7d"),
-    refetchInterval: 60_000,
   })
   // Bump retained events so the panel can show real history (backfilled
   // from `/streams/live-feed/recent` on mount) and serve the Export buttons.
@@ -106,31 +89,9 @@ export default function AiEnginePage() {
     return recent
   }, [liveFeed.events])
 
-  // Drift signal — average KL across reported live models. Real value
-  // (or null when /monitoring/models hasn't reported drift yet).
-  const avgDriftKl = useMemo(() => {
-    const xs = (models.data?.models ?? [])
-      .map((m) => m.driftKl)
-      .filter((v): v is number => typeof v === "number")
-    if (xs.length === 0) return null
-    return xs.reduce((a, b) => a + b, 0) / xs.length
-  }, [models.data])
-
-  const overallHealth: "optimal" | "degraded" | "unknown" = useMemo(() => {
-    if (avgDriftKl == null) return "unknown"
-    return avgDriftKl < 0.2 ? "optimal" : "degraded"
-  }, [avgDriftKl])
-
-  const modelConfidenceData = useMemo(
-    () =>
-      (trend.data?.points ?? []).map((p) => ({
-        time: new Date(p.ts).toLocaleDateString(undefined, { month: "short", day: "numeric" }),
-        classifier: Math.round(p.transformerConfidence * 100),
-        gnn: Math.round(p.gnnRisk * 100),
-        vae: Math.round(p.vaeProb * 100),
-      })),
-    [trend.data],
-  )
+  // Per-model live status pill stays unchanged — we keep the active-models
+  // section. The aggregate "engine health" badge that used `avgDriftKl`
+  // was removed alongside the Avg Drift KPI.
 
   return (
     <div className="space-y-6">
@@ -147,29 +108,16 @@ export default function AiEnginePage() {
           <p className="text-[11px] text-[var(--strix-text-muted)] mt-2 max-w-[640px] leading-relaxed">
             Test-set metrics below are training-time evaluation numbers from the artefacts under{" "}
             <span className="font-mono text-[10px]">apps/notebooks/</span> and{" "}
-            <span className="font-mono text-[10px]">RL_agent/evaluation/</span>. Live signals (drift KL,
-            inference rate) are sourced from the API and refresh every 30 s.
+            <span className="font-mono text-[10px]">RL_agent/evaluation/</span>. Live inference rate is
+            sourced from the API and refreshes every 30 s.
           </p>
-        </div>
-        <div className="flex items-center gap-3">
-          <div className="text-right">
-            <span className="text-[9px] text-[var(--strix-text-muted)] uppercase tracking-wider block mb-1">
-              Engine Health
-            </span>
-            <span className={cn(
-              "inline-block px-3 py-1 rounded-md text-xs font-bold border uppercase",
-              overallHealth === "optimal"  && "bg-emerald-500/10 text-emerald-500 border-emerald-500/20",
-              overallHealth === "degraded" && "bg-amber-500/10  text-amber-500  border-amber-500/20",
-              overallHealth === "unknown"  && "bg-[#497f8b]/10  text-[#497f8b]  border-[#497f8b]/20",
-            )}>
-              {overallHealth}
-            </span>
-          </div>
         </div>
       </div>
 
-      {/* Top KPI Row — composite test-set metrics + live signals. */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* Top KPI Row — composite test-set metrics + live throughput. The
+          Avg Drift KL tile was removed (the engine-health badge in the
+          header depended on the same signal). */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <Kpi
           icon={Gauge}
           label="Composite Accuracy"
@@ -187,12 +135,6 @@ export default function AiEnginePage() {
           label="Throughput"
           value={throughputPerMin == null ? "—" : `${throughputPerMin}/min`}
           sub={`SSE feed ${liveFeed.status}`}
-        />
-        <Kpi
-          icon={Clock}
-          label="Avg Drift KL"
-          value={avgDriftKl == null ? "—" : avgDriftKl.toFixed(4)}
-          sub={avgDriftKl == null ? "no live drift signal" : avgDriftKl < 0.2 ? "in-distribution" : "shift detected"}
         />
       </div>
 
@@ -239,9 +181,9 @@ export default function AiEnginePage() {
         </div>
       </div>
 
-      {/* Model Cards + Composite gauge */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-        <div className="lg:col-span-8 space-y-4">
+      {/* Active models — full width now that the composite gauge was removed. */}
+      <div className="space-y-4">
+        <div>
           <div className="flex items-center gap-2 mb-1">
             <Brain className="h-4 w-4 text-strix-primary dark:text-strix-cyan" />
             <h3 className="text-sm font-bold text-[var(--strix-text)]">Active Models</h3>
@@ -319,66 +261,6 @@ export default function AiEnginePage() {
             )
           })}
         </div>
-
-        {/* Composite gauge — uses real composite test-set accuracy. */}
-        <div className="lg:col-span-4 bg-[var(--strix-bg-card)] border border-[var(--strix-border)] rounded-xl p-5 flex flex-col items-center justify-center">
-          <span className="text-[9px] text-[var(--strix-text-muted)] uppercase tracking-widest mb-4">
-            Composite Test-Set Accuracy
-          </span>
-          <CircularProgress value={composite.accuracyPct} size={180} strokeWidth={12} />
-          <div className="mt-4 text-center">
-            <span className="text-[10px] text-[var(--strix-text-muted)]">
-              mean over {composite.modelCount} models that report accuracy
-            </span>
-          </div>
-        </div>
-      </div>
-
-      {/* Confidence Trend Chart */}
-      <div className="bg-[var(--strix-bg-card)] border border-[var(--strix-border)] rounded-xl p-5">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <TrendingUp className="h-4 w-4 text-strix-primary dark:text-strix-cyan" />
-            <h3 className="text-sm font-bold text-[var(--strix-text)]">
-              Confidence Trend (7-Day)
-            </h3>
-          </div>
-          <div className="flex items-center gap-4">
-            <Legend color="#006B94" darkColor="#00F2FF" label="Transformer" />
-            <Legend color="#8B5CF6" label="GNN" />
-            <Legend color="#F59E0B" label="VAE" />
-          </div>
-        </div>
-
-        {modelConfidenceData.length === 0 ? (
-          <div className="h-[200px] flex items-center justify-center text-[11px] text-[var(--strix-text-muted)] italic">
-            No trend points returned by /monitoring/confidence-trend yet — run a simulation to populate.
-          </div>
-        ) : (
-          <div className="relative h-[200px] w-full">
-            <svg className="w-full h-full" viewBox="0 0 600 200" preserveAspectRatio="none">
-              {[0, 1, 2, 3, 4].map((i) => (
-                <line key={`grid-${i}`} x1="0" y1={i * 50} x2="600" y2={i * 50} stroke="var(--strix-border)" strokeWidth="0.5" opacity="0.5" />
-              ))}
-              <Trendline points={modelConfidenceData.map((d) => d.classifier)} stroke="#006B94" />
-              <Trendline points={modelConfidenceData.map((d) => d.gnn)} stroke="#8B5CF6" />
-              <Trendline points={modelConfidenceData.map((d) => d.vae)} stroke="#F59E0B" />
-            </svg>
-            <div className="flex justify-between mt-2">
-              {modelConfidenceData.map((d, i) => (
-                <span key={i} className="text-[9px] text-[var(--strix-text-muted)] font-mono">{d.time}</span>
-              ))}
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Detection Volume — Kibana-style stacked TN/FP bars over a 10 min
-          rolling window. Replaces the AE-vs-VAE side-by-side comparison
-          panel; this one answers "are we drowning in false alarms?" rather
-          than "which model has higher F1?". */}
-      <div className="bg-[var(--strix-bg-card)] border border-[var(--strix-border)] rounded-xl p-5">
-        <DetectionVolumePanel />
       </div>
 
     </div>
@@ -425,22 +307,3 @@ function Detail({ label, value, mono = false }: { label: string; value: string; 
   )
 }
 
-function Legend({ color, darkColor, label }: { color: string; darkColor?: string; label: string }) {
-  return (
-    <div className="flex items-center gap-1.5">
-      <div className="h-2 w-6 rounded-full" style={{ background: color }}>
-        {darkColor && <span className="hidden dark:block h-full w-full rounded-full" style={{ background: darkColor }} />}
-      </div>
-      <span className="text-[9px] text-[var(--strix-text-muted)]">{label}</span>
-    </div>
-  )
-}
-
-function Trendline({ points, stroke }: { points: number[]; stroke: string }) {
-  if (points.length === 0) return null
-  const stepX = points.length > 1 ? 600 / (points.length - 1) : 0
-  // Map 0..100 → 0..200 (inverted, with 10px padding top/bottom).
-  const yFor = (v: number) => 190 - Math.max(0, Math.min(100, v)) * 1.8
-  const d = points.map((v, i) => `${i * stepX},${yFor(v)}`).join(" ")
-  return <polyline fill="none" stroke={stroke} strokeWidth="2" points={d} strokeLinejoin="round" strokeLinecap="round" />
-}

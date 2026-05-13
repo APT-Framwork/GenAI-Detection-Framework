@@ -93,6 +93,10 @@ export interface InfectedHost {
   firstSeen: string;
   currentStage: number | null;
   currentStageName: string | null;
+  /** True when the host crossed the §6.3 infection threshold. False for
+   *  hosts that are part of the chain but stayed sub-threshold (typical
+   *  for BENIGN / LOW_ALERT chains). */
+  infected: boolean;
 }
 export interface InfectionResponse {
   chainId: string;

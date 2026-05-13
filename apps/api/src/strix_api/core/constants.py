@@ -119,3 +119,11 @@ DQN_STAGE5_PREDETECT_GNN_MIN: Final[float] = float(
 DQN_STAGE6_PREDETECT_GNN_MIN: Final[float] = float(
     os.environ.get("STRIX_DQN_STAGE6_GNN_MIN", "0.7743")
 )
+
+# Master kill-switch for the DQN gate ladder. Default ON. Set to "false"
+# / "0" to run the system as pure-RL (no overrides) — the DQN's argmax
+# ships downstream untouched, even at stage 5+ and under AE OOD spikes.
+# Intended for ablation runs.
+DQN_GATES_ENABLED: Final[bool] = os.environ.get(
+    "STRIX_DQN_GATES_ENABLED", "true"
+).strip().lower() not in ("0", "false", "no", "off")

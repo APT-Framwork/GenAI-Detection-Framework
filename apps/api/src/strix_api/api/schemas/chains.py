@@ -63,6 +63,10 @@ class ChainNoteItem(StrixBase):
     author_email: str | None = None
     body_md: str
     created_at: datetime
+    # Set when the note was edited after creation. Equal to `created_at`
+    # for never-edited notes; the UI uses `updated_at != created_at` to
+    # decide whether to render the "(edited)" marker.
+    updated_at: datetime | None = None
 
 
 class ChainNotesResponse(StrixBase):
@@ -71,6 +75,10 @@ class ChainNotesResponse(StrixBase):
 
 
 class ChainNoteCreateRequest(StrixBase):
+    body_md: str = Field(min_length=1, max_length=10_000)
+
+
+class ChainNoteUpdateRequest(StrixBase):
     body_md: str = Field(min_length=1, max_length=10_000)
 
 

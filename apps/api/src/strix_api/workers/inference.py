@@ -73,6 +73,7 @@ from strix_api.api.errors import ValidationFailedError
 from strix_api.core.batcher import MicroBatcher
 from strix_api.core.constants import (
     CHAIN_OPEN_GNN_THRESHOLD,
+    DQN_GATES_ENABLED,
     DQN_OOD_AE_RECON_THRESHOLD,
     DQN_Q_MARGIN_MIN,
     DQN_STAGE5_PREDETECT_GNN_MIN,
@@ -644,90 +645,95 @@ class InferenceWorker:
         gate_reason: str | None = None
         gated_action = original_action
 
-        # `effective_stage` = chain's running max, not just THIS event's
-        # mitre tag. The DQN's per-event ckc only fires the stage-7 gate
-        # on the one alert whose technique mapped to S7 (e.g. Data
-        # Destruction); every other alert on a stage-7 chain slipped
-        # past unchanged. Using the chain max means once a chain has
-        # walked into Install/C2/Action, all subsequent decisions on
-        # that chain are gated correctly. Mirrors the `chain_max_ckc`
-        # computation used by the dashboard publisher below.
-        effective_stage = max(
-            int(msg.current_ckc_stage),
-            int(session.max_ckc_stage if session is not None else 0),
-        )
-
-        # Priority 1 — stage 7 force-escalate. The trained policy
-        # reliably picks LOW_ALERT here because Q(ESCALATE | stage=7)
-        # is negative; SOC-wise that's wrong.
-        if (
-            effective_stage >= 7
-            and float(gnn_node_risk) >= DQN_STAGE7_FORCE_ESCALATE_GNN_MIN
-            and original_action.value < DqnAction.ESCALATE.value
-        ):
-            gated_action = DqnAction.ESCALATE
-            gate_reason = "stage7_force_escalate"
-
-        # Priority 2 — stage 6 predetection. C2 reached without prior
-        # intervention; with meaningful GNN risk, force ESCALATE so the
-        # dashboard's "predetected" pile populates *before* stage 7.
-        elif (
-            effective_stage >= 6
-            and float(gnn_node_risk) >= DQN_STAGE6_PREDETECT_GNN_MIN
-            and original_action.value < DqnAction.ESCALATE.value
-        ):
-            gated_action = DqnAction.ESCALATE
-            gate_reason = "stage6_predetect"
-
-        # Priority 3 — stage 5 predetection. Install reached; if the GNN
-        # is above the open-chain threshold (the empirical signal floor
-        # on this lab — see core/constants.py audit comment), intervene.
-        elif (
-            effective_stage >= 5
-            and float(gnn_node_risk) >= DQN_STAGE5_PREDETECT_GNN_MIN
-            and original_action.value < DqnAction.ESCALATE.value
-        ):
-            gated_action = DqnAction.ESCALATE
-            gate_reason = "stage5_predetect"
-
-        # Priority 4 — OOD gate. AE recon explosion saturates the VAE
-        # calibrator on lab data; the DQN reads "VAE near 1.0" as
-        # "attack" and ISOLATEs benign noise. Override on GNN-only.
-        elif float(recon_err) > DQN_OOD_AE_RECON_THRESHOLD:
-            if float(gnn_node_risk) >= CHAIN_OPEN_GNN_THRESHOLD:
-                gated_action = DqnAction.ESCALATE
-                gate_reason = "ood_gnn_says_attack"
-            else:
-                gated_action = DqnAction.MONITOR
-                gate_reason = "ood_gnn_says_benign"
-
-        # Priority 5 — Q-margin abstention. If max(Q) − second(Q) is
-        # below the configured floor, the choice is essentially noise.
-        elif original_action.value >= DqnAction.ESCALATE.value:
-            qs = np.asarray(dqn_decision.q_values, dtype=np.float64)
-            chosen_q = float(qs[int(original_action.value)])
-            qs_no_chosen = np.delete(qs, int(original_action.value))
-            second_q = float(qs_no_chosen.max()) if qs_no_chosen.size else chosen_q
-            if (chosen_q - second_q) < DQN_Q_MARGIN_MIN:
-                gated_action = DqnAction.MONITOR
-                gate_reason = "q_margin_abstain"
-
-        if gate_reason is not None:
-            self._log.info(
-                "dqn_action_gated",
-                alert_id=msg.alert_id,
-                host_id=msg.agent_id,
-                ckc_stage=int(msg.current_ckc_stage),
-                effective_stage=int(effective_stage),
-                ae_recon_error=float(recon_err),
-                vae_malicious_prob=float(mal_prob),
-                gnn_node_risk=float(gnn_node_risk),
-                original_action=original_action.name,
-                gated_action=gated_action.name,
-                gate_reason=gate_reason,
+        # Pure-RL ablation switch: when STRIX_DQN_GATES_ENABLED=false the
+        # whole gate ladder is bypassed and the DQN's raw argmax ships
+        # downstream. Used to demonstrate untreated policy behaviour
+        # under domain shift. Keep ON for normal operation.
+        if DQN_GATES_ENABLED:
+            # `effective_stage` = chain's running max, not just THIS event's
+            # mitre tag. The DQN's per-event ckc only fires the stage-7 gate
+            # on the one alert whose technique mapped to S7 (e.g. Data
+            # Destruction); every other alert on a stage-7 chain slipped
+            # past unchanged. Using the chain max means once a chain has
+            # walked into Install/C2/Action, all subsequent decisions on
+            # that chain are gated correctly. Mirrors the `chain_max_ckc`
+            # computation used by the dashboard publisher below.
+            effective_stage = max(
+                int(msg.current_ckc_stage),
+                int(session.max_ckc_stage if session is not None else 0),
             )
-            # Replace decision in-place. Q-values stay intact for the UI.
-            dqn_decision = DqnDecision(action=gated_action, q_values=dqn_decision.q_values)
+
+            # Priority 1 — stage 7 force-escalate. The trained policy
+            # reliably picks LOW_ALERT here because Q(ESCALATE | stage=7)
+            # is negative; SOC-wise that's wrong.
+            if (
+                effective_stage >= 7
+                and float(gnn_node_risk) >= DQN_STAGE7_FORCE_ESCALATE_GNN_MIN
+                and original_action.value < DqnAction.ESCALATE.value
+            ):
+                gated_action = DqnAction.ESCALATE
+                gate_reason = "stage7_force_escalate"
+
+            # Priority 2 — stage 6 predetection. C2 reached without prior
+            # intervention; with meaningful GNN risk, force ESCALATE so the
+            # dashboard's "predetected" pile populates *before* stage 7.
+            elif (
+                effective_stage >= 6
+                and float(gnn_node_risk) >= DQN_STAGE6_PREDETECT_GNN_MIN
+                and original_action.value < DqnAction.ESCALATE.value
+            ):
+                gated_action = DqnAction.ESCALATE
+                gate_reason = "stage6_predetect"
+
+            # Priority 3 — stage 5 predetection. Install reached; if the GNN
+            # is above the open-chain threshold (the empirical signal floor
+            # on this lab — see core/constants.py audit comment), intervene.
+            elif (
+                effective_stage >= 5
+                and float(gnn_node_risk) >= DQN_STAGE5_PREDETECT_GNN_MIN
+                and original_action.value < DqnAction.ESCALATE.value
+            ):
+                gated_action = DqnAction.ESCALATE
+                gate_reason = "stage5_predetect"
+
+            # Priority 4 — OOD gate. AE recon explosion saturates the VAE
+            # calibrator on lab data; the DQN reads "VAE near 1.0" as
+            # "attack" and ISOLATEs benign noise. Override on GNN-only.
+            elif float(recon_err) > DQN_OOD_AE_RECON_THRESHOLD:
+                if float(gnn_node_risk) >= CHAIN_OPEN_GNN_THRESHOLD:
+                    gated_action = DqnAction.ESCALATE
+                    gate_reason = "ood_gnn_says_attack"
+                else:
+                    gated_action = DqnAction.MONITOR
+                    gate_reason = "ood_gnn_says_benign"
+
+            # Priority 5 — Q-margin abstention. If max(Q) − second(Q) is
+            # below the configured floor, the choice is essentially noise.
+            elif original_action.value >= DqnAction.ESCALATE.value:
+                qs = np.asarray(dqn_decision.q_values, dtype=np.float64)
+                chosen_q = float(qs[int(original_action.value)])
+                qs_no_chosen = np.delete(qs, int(original_action.value))
+                second_q = float(qs_no_chosen.max()) if qs_no_chosen.size else chosen_q
+                if (chosen_q - second_q) < DQN_Q_MARGIN_MIN:
+                    gated_action = DqnAction.MONITOR
+                    gate_reason = "q_margin_abstain"
+
+            if gate_reason is not None:
+                self._log.info(
+                    "dqn_action_gated",
+                    alert_id=msg.alert_id,
+                    host_id=msg.agent_id,
+                    ckc_stage=int(msg.current_ckc_stage),
+                    effective_stage=int(effective_stage),
+                    ae_recon_error=float(recon_err),
+                    vae_malicious_prob=float(mal_prob),
+                    gnn_node_risk=float(gnn_node_risk),
+                    original_action=original_action.name,
+                    gated_action=gated_action.name,
+                    gate_reason=gate_reason,
+                )
+                # Replace decision in-place. Q-values stay intact for the UI.
+                dqn_decision = DqnDecision(action=gated_action, q_values=dqn_decision.q_values)
 
         # Phase 2 multiplex fan-out (GNN + RL). `affected_edges` is a coarse
         # count (undirected degree of this node in the latest snapshot) — full
@@ -883,6 +889,13 @@ class InferenceWorker:
             "vaeUncertainty": float(uncertainty),
             "transformerPredCkc": int(transformer_out.pred_ckc),
             "transformerConfidence": float(transformer_out.confidence),
+            # Full per-stage softmax (8 floats, sum≈1). Persisted to
+            # `detections.transformer_probabilities` so the UI renders the
+            # true distribution instead of reconstructing one from the
+            # argmax + max-prob pair (migration 0016).
+            "transformerProbabilities": [
+                float(p) for p in transformer_out.probabilities.tolist()
+            ],
             "gnnNodeRisk": float(gnn_node_risk),
             "gnnNeighborRisk": float(gnn_neighbor_risk),
             "gnnRiskGrowth": float(gnn_risk_growth),
@@ -952,6 +965,7 @@ class InferenceWorker:
             "vaeUncertainty": float(uncertainty),
             "transformerPredCkc": None,
             "transformerConfidence": None,
+            "transformerProbabilities": None,
             "gnnNodeRisk": None,
             "gnnNeighborRisk": None,
             "gnnRiskGrowth": None,

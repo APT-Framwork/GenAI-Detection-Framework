@@ -91,6 +91,12 @@ class InfectedHost(StrixBase):
     first_seen: str
     current_stage: int | None
     current_stage_name: str | None
+    # True when the host crossed the §6.3 infection threshold (high VAE
+    # malicious-prob OR a STRIX escalation/isolation action). False when
+    # the host is part of the chain but stayed sub-threshold (typical for
+    # BENIGN / LOW_ALERT chains). The frontend uses this to render a
+    # "watched but not infected" row instead of an empty table.
+    infected: bool = False
 
 
 class InfectionResponse(StrixBase):

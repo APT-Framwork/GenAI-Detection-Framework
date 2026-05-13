@@ -138,7 +138,13 @@ class VaeCalibrators:
     """
 
     mapping: dict[str, Any]
-    active_key: str = "Beta-VAE (Top 25)"
+    # Switched to the lab-distribution refit (2026-05-13). The original
+    # `Beta-VAE (Top 25)` calibrator had coef=+11.58 fit on training-time
+    # data; on lab telemetry that direction is inverted (verified ROC-AUC
+    # 0.42 — worse than random). The refit calibrator (coef=-3.42, fit
+    # on 12,612 lab-labeled events) is directionally correct.
+    # See infra/scripts/calibration_refit.py + /tmp/strix_calib/.
+    active_key: str = "Beta-VAE (Top 25) lab-refit"
 
     @property
     def active(self) -> Any:

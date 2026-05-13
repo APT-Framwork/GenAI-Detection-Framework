@@ -124,26 +124,45 @@ async def confidence_trend(
     window: WindowLiteral = Query("7d"),
     session: Annotated[AsyncSession | None, Depends(get_db_session)] = None,
 ) -> ConfidenceTrendResponse:
+    """Per-window confidence trend.
+
+    The daily CAGG (`confidence_trend_daily`) only refreshes once per hour
+    and only emits a row when there's at least a full day of data — that
+    makes the chart look perpetually empty during short demo runs. To stay
+    useful in both demo + production regimes we now aggregate `detections`
+    directly with a bucket sized to the requested window:
+
+      - 15m  → 1-minute buckets
+      - 1h   → 5-minute buckets
+      - 24h  → 1-hour buckets
+      - 7d   → 6-hour buckets
+      - all  → 1-day buckets
+
+    Reads `detections` (hypertable) on each request — cheap because of the
+    BRIN-style time index and the window-bounded scan.
+    """
     if session is None:
         return ConfidenceTrendResponse(window=window, points=[])
-    interval = {
-        "15m": "15 minutes",
-        "1h": "1 hour",
-        "24h": "24 hours",
-        "7d": "7 days",
-        "all": "100 years",
-    }.get(window, "7 days")
+
+    bucket_interval, range_interval = _bucket_for_window(window)
+
     try:
         result = await session.execute(
             text(
                 """
-                SELECT bucket, ae_anomaly, vae_prob, transformer_confidence, gnn_risk
-                FROM confidence_trend_daily
-                WHERE bucket >= NOW() - (:interval)::INTERVAL
+                SELECT
+                  time_bucket(:bucket_interval::INTERVAL, occurred_at) AS bucket,
+                  AVG(ae_anomaly_score)::REAL       AS ae_anomaly,
+                  AVG(vae_malicious_prob)::REAL     AS vae_prob,
+                  AVG(transformer_confidence)::REAL AS transformer_confidence,
+                  AVG(gnn_node_risk)::REAL          AS gnn_risk
+                FROM detections
+                WHERE occurred_at >= NOW() - (:range_interval)::INTERVAL
+                GROUP BY bucket
                 ORDER BY bucket ASC
                 """
             ),
-            {"interval": interval},
+            {"bucket_interval": bucket_interval, "range_interval": range_interval},
         )
         points = [
             TrendPoint(
@@ -159,6 +178,17 @@ async def confidence_trend(
     except Exception as exc:  # noqa: BLE001
         log.warning("monitoring_trend_db_error", exc_info=exc)
         return ConfidenceTrendResponse(window=window, points=[])
+
+
+def _bucket_for_window(window: str) -> tuple[str, str]:
+    """Return `(bucket_interval, range_interval)` strings for time_bucket."""
+    return {
+        "15m": ("1 minute", "15 minutes"),
+        "1h": ("5 minutes", "1 hour"),
+        "24h": ("1 hour", "24 hours"),
+        "7d": ("6 hours", "7 days"),
+        "all": ("1 day", "100 years"),
+    }.get(window, ("6 hours", "7 days"))
 
 
 # ---- /drift -----------------------------------------------------------

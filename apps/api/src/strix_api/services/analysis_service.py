@@ -462,13 +462,17 @@ class AnalysisService:
     async def predictions(self, chain_id: UUID) -> PredictionsResponse:
         await self._get_chain_or_404(chain_id)
         # Last detection in the chain — its Transformer output is the
-        # "what comes next" prediction the dashboard cares about.
+        # "what comes next" prediction the dashboard cares about. We
+        # also pull the full softmax (`transformer_probabilities`) so the
+        # UI can render the real distribution; rows written before
+        # migration 0016 carry NULL and we fall back to a reconstruction.
         result = await self._s.execute(
             text(
                 """
                 SELECT
                     transformer_pred_ckc,
-                    transformer_confidence
+                    transformer_confidence,
+                    transformer_probabilities
                 FROM detections
                 WHERE chain_id = :chain_id
                 ORDER BY occurred_at DESC
@@ -512,22 +516,35 @@ class AnalysisService:
 
         confidence = float(row.transformer_confidence or 0.0)
         next_stage = int(row.transformer_pred_ckc) if row.transformer_pred_ckc is not None else None
+        stored = row.transformer_probabilities
 
-        # We don't store the full softmax in the detections row — just the
-        # argmax + confidence. Reconstruct a degenerate distribution:
-        # `prob[predicted_stage] = confidence`, evenly spread the remainder.
-        n_others = max(1, len(_CKC_NAMES) - 1)
-        spread = (1.0 - confidence) / n_others if confidence < 1.0 else 0.0
-        probs = []
-        for s in sorted(_CKC_NAMES):
-            p = confidence if s == next_stage else spread
-            probs.append(
-                StageProbability(
-                    ckc_stage=s,
-                    ckc_stage_name=_stage_name(s) or "BENIGN",
-                    prob=round(p, 6),
+        probs: list[StageProbability] = []
+        if stored is not None and len(stored) == len(_CKC_NAMES):
+            # Real per-stage softmax persisted by the worker.
+            for s in sorted(_CKC_NAMES):
+                p = float(stored[s])
+                probs.append(
+                    StageProbability(
+                        ckc_stage=s,
+                        ckc_stage_name=_stage_name(s) or "BENIGN",
+                        prob=round(p, 6),
+                    )
                 )
-            )
+        else:
+            # Backward compat: rows written before migration 0016 only
+            # carry the argmax + confidence pair. Reconstruct a degenerate
+            # distribution so the UI keeps rendering something honest.
+            n_others = max(1, len(_CKC_NAMES) - 1)
+            spread = (1.0 - confidence) / n_others if confidence < 1.0 else 0.0
+            for s in sorted(_CKC_NAMES):
+                p = confidence if s == next_stage else spread
+                probs.append(
+                    StageProbability(
+                        ckc_stage=s,
+                        ckc_stage_name=_stage_name(s) or "BENIGN",
+                        prob=round(p, 6),
+                    )
+                )
 
         return PredictionsResponse(
             chain_id=chain_id,
@@ -623,7 +640,7 @@ class AnalysisService:
         chain = await self._get_chain_or_404(chain_id)
         upper = chain.closed_at or datetime.now(UTC)
 
-        # All hosts in the chain
+        # All hosts in the chain (host_id -> agent_name)
         all_hosts = await self._s.execute(
             text(
                 """
@@ -648,36 +665,39 @@ class AnalysisService:
                 infected_hosts=[],
             )
 
-        # Hosts that crossed the infection threshold (§6.3)
-        infected_result = await self._s.execute(
+        # Per-host first-seen + max stage reached (covers every host in chain,
+        # not just those past the §6.3 infection threshold). This is what the
+        # Affected Hosts table renders.
+        all_seen_result = await self._s.execute(
             text(
                 """
-                WITH infected AS (
-                    SELECT DISTINCT d.host_id
-                    FROM detections d
-                    WHERE d.chain_id = :chain_id
-                      AND d.occurred_at <= :upper
-                      AND d.vae_malicious_prob >= :prob_threshold
-                    UNION
-                    SELECT DISTINCT a.host_id
-                    FROM dqn_actions a
-                    WHERE a.chain_id = :chain_id
-                      AND a.decided_at <= :upper
-                      AND a.action >= :escalate
-                ),
-                first_seen AS (
-                    SELECT host_id, MIN(occurred_at) AS first_at,
-                           MAX(transformer_pred_ckc) AS current_stage
-                    FROM detections
+                SELECT host_id,
+                       MIN(occurred_at) AS first_at,
+                       MAX(transformer_pred_ckc) AS current_stage
+                FROM detections
+                WHERE chain_id = :chain_id
+                GROUP BY host_id
+                """
+            ),
+            {"chain_id": chain_id},
+        )
+        per_host = {r.host_id: r for r in all_seen_result.all()}
+
+        # Set of host_ids that crossed the §6.3 infection threshold.
+        infected_ids_result = await self._s.execute(
+            text(
+                """
+                SELECT DISTINCT host_id FROM (
+                    SELECT host_id FROM detections
                     WHERE chain_id = :chain_id
-                    GROUP BY host_id
-                )
-                SELECT
-                    i.host_id,
-                    f.first_at,
-                    f.current_stage
-                FROM infected i
-                JOIN first_seen f ON f.host_id = i.host_id
+                      AND occurred_at <= :upper
+                      AND vae_malicious_prob >= :prob_threshold
+                    UNION
+                    SELECT host_id FROM dqn_actions
+                    WHERE chain_id = :chain_id
+                      AND decided_at <= :upper
+                      AND action >= :escalate
+                ) x
                 """
             ),
             {
@@ -687,25 +707,37 @@ class AnalysisService:
                 "escalate": int(DqnAction.ESCALATE),
             },
         )
-        infected_rows = list(infected_result.all())
-        infected_hosts = [
-            InfectedHost(
-                host_id=r.host_id,
-                host_name=host_names.get(r.host_id, str(r.host_id)),
-                first_seen=_iso(r.first_at),
-                current_stage=int(r.current_stage) if r.current_stage is not None else None,
-                current_stage_name=_stage_name(r.current_stage),
+        infected_ids = {r.host_id for r in infected_ids_result.all()}
+
+        # Render every chain host. Sort so infected hosts appear first, then
+        # by first-seen time so the analyst sees the earliest pivot.
+        rows: list[InfectedHost] = []
+        for host_id, agent_name in (
+            (r.host_id, r.agent_name) for r in host_rows
+        ):
+            seen = per_host.get(host_id)
+            first_at = seen.first_at if seen is not None else None
+            stage = seen.current_stage if seen is not None else None
+            rows.append(
+                InfectedHost(
+                    host_id=host_id,
+                    host_name=agent_name or str(host_id),
+                    first_seen=_iso(first_at) if first_at is not None else "",
+                    current_stage=int(stage) if stage is not None else None,
+                    current_stage_name=_stage_name(stage),
+                    infected=host_id in infected_ids,
+                )
             )
-            for r in infected_rows
-        ]
-        infected_count = len(infected_hosts)
+        rows.sort(key=lambda h: (0 if h.infected else 1, h.first_seen))
+
+        infected_count = len(infected_ids)
         percent = round(infected_count / total_count, 6)
         return InfectionResponse(
             chain_id=chain_id,
             infected_count=infected_count,
             total_count=total_count,
             percent=percent,
-            infected_hosts=infected_hosts,
+            infected_hosts=rows,
         )
 
     # ---- dwell time -------------------------------------------

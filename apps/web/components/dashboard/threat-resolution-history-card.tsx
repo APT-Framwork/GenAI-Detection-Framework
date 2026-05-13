@@ -49,16 +49,37 @@ export function ThreatResolutionHistoryCard() {
         </span>
       </div>
 
-      <div className="flex-1 flex items-end justify-between gap-1.5 min-h-[80px]">
-        {bars.map((b, i) => (
-          <div key={i} className="flex flex-col items-center gap-1.5 flex-1">
-            <div
-              className="w-full bg-[rgba(0,102,109,0.2)] dark:bg-[rgba(135,237,246,0.25)] rounded-t-md transition-all"
-              style={{ height: `${Math.max(4, b.height)}%` }}
-              title={`${b.day} · ${b.count}`}
-            />
+      <div className="relative flex-1 min-h-[80px]">
+        {total === 0 ? (
+          <div
+            className="absolute inset-0 flex items-center justify-center text-[10px] italic text-[#497f8b] dark:text-[var(--strix-text-muted)] rounded-md"
+            style={{
+              backgroundImage:
+                "repeating-linear-gradient(45deg, transparent, transparent 6px, rgba(135,237,246,0.06) 6px, rgba(135,237,246,0.06) 7px)",
+              border: "1px dashed rgba(135,237,246,0.25)",
+            }}
+          >
+            awaiting STRIX interventions…
           </div>
-        ))}
+        ) : (
+          <div className="flex h-full items-end justify-between gap-1.5">
+            {bars.map((b, i) => (
+              <div key={i} className="flex flex-col items-center justify-end gap-1.5 flex-1 h-full">
+                <span className="text-[9px] tabular-nums text-[#497f8b] dark:text-[var(--strix-text-muted)]">
+                  {b.count > 0 ? b.count : ""}
+                </span>
+                <div
+                  className="w-full bg-[#00666d] dark:bg-[#87edf6] rounded-t-md transition-all"
+                  style={{
+                    height: `${Math.max(b.count > 0 ? 8 : 2, b.height)}%`,
+                    opacity: b.count > 0 ? 0.9 : 0.18,
+                  }}
+                  title={`${b.day} · ${b.count}`}
+                />
+              </div>
+            ))}
+          </div>
+        )}
       </div>
       <div className="flex justify-between mt-2">
         {bars.map((b, i) => (

@@ -1,18 +1,18 @@
 // -----------------------------------------------------------------------------
-// detection-volume-panel.tsx — Kibana-style stacked bar chart of TN/FP volume
-// over a rolling 10-minute window. Replaces the older AE-vs-VAE comparison
-// panel: this surface answers the operational question "are we drowning in
-// false alarms?" rather than the engineering question "which model has higher
-// F1?".
+// detection-volume-panel.tsx — Kibana-style grouped bar chart of TN/FP volume
+// over a rolling 10-minute window. Renders two side-by-side bars per bucket
+// (one for TN, one for FP) so the analyst can compare alarm noise against
+// quiet ignores at a glance without the visual cheating that comes with
+// stacked bars.
 //
 // Subscribes to AE + VAE WS frames via `useLogStream`. Each frame carries a
 // `label` field (`tp|fp|tn|fn|unknown`) populated by the backend in
 // `streams.py:_attach_label` from the GNN ground-truth verdict — so this
 // component never needs to interpret raw scores.
 //
-// Only the negative-class outcomes (TN + FP) are stacked into bars. TP / FN
-// counts are surfaced as side pills so the bar metaphor stays honest: one
-// model, one outcome family per bar.
+// Only the negative-class outcomes (TN + FP) are charted. TP / FN counts
+// are surfaced as side pills so the bar metaphor stays honest: one model,
+// one outcome family per bar.
 // -----------------------------------------------------------------------------
 
 "use client";
@@ -28,8 +28,6 @@ const NUM_BUCKETS = WINDOW_MS / BUCKET_MS; // 20
 const COLOR_TN = "#7C8FA1";   // slate halfway between 500/400 — readable in both themes
 const COLOR_FP = "#F59E0B";   // amber-500 — alarm noise
 
-type ModelToggle = "ae" | "vae" | "both";
-
 interface Bucket {
   start: number;       // ms epoch (bucket left edge)
   tn: number;
@@ -37,8 +35,9 @@ interface Bucket {
 }
 
 export function DetectionVolumePanel({ className }: { className?: string }) {
+  // Always aggregate AE + VAE — the per-model toggle was removed; "both"
+  // is the only useful mode for an operator dashboard.
   const { frames } = useLogStream(["ae", "vae"]);
-  const [model, setModel] = useState<ModelToggle>("both");
   const [hoverIdx, setHoverIdx] = useState<number | null>(null);
   const [now, setNow] = useState(() => Date.now());
 
@@ -80,24 +79,22 @@ export function DetectionVolumePanel({ className }: { className?: string }) {
       else if (label === "fp") { arr[i].fp++; totalFp++; }
     };
 
-    if (model === "ae" || model === "both") {
-      for (const f of frames.ae) consider(f.ts, f.payload.label);
-    }
-    if (model === "vae" || model === "both") {
-      for (const f of frames.vae) consider(f.ts, f.payload.label);
-    }
+    for (const f of frames.ae) consider(f.ts, f.payload.label);
+    for (const f of frames.vae) consider(f.ts, f.payload.label);
 
     return {
       buckets: arr,
       sideCounts: { tp, fn },
       totals: { tn: totalTn, fp: totalFp },
     };
-  }, [frames.ae, frames.vae, model, now]);
+  }, [frames.ae, frames.vae, now]);
 
-  // Y-scale: max stack height across all buckets (≥ 1 to avoid div-by-zero).
+  // Y-scale: max single-class height across all buckets (≥ 1 to avoid
+  // div-by-zero). We chart TN and FP side-by-side rather than stacked,
+  // so the y-axis represents per-class volume, not their sum.
   const yMax = useMemo(() => {
     let m = 0;
-    for (const b of buckets) m = Math.max(m, b.tn + b.fp);
+    for (const b of buckets) m = Math.max(m, b.tn, b.fp);
     return Math.max(1, m);
   }, [buckets]);
 
@@ -105,12 +102,7 @@ export function DetectionVolumePanel({ className }: { className?: string }) {
 
   return (
     <div className={`text-[var(--strix-text)] ${className ?? ""}`}>
-      <Header
-        model={model}
-        onModel={setModel}
-        totals={totals}
-        sideCounts={sideCounts}
-      />
+      <Header totals={totals} sideCounts={sideCounts} />
 
       {isEmpty ? (
         <EmptyState />
@@ -129,17 +121,13 @@ export function DetectionVolumePanel({ className }: { className?: string }) {
 }
 
 // ────────────────────────────────────────────────────────────────────────────
-// Header — title, caption, model toggle, counter pills
+// Header — title, caption, counter pills
 // ────────────────────────────────────────────────────────────────────────────
 
 function Header({
-  model,
-  onModel,
   totals,
   sideCounts,
 }: {
-  model: ModelToggle;
-  onModel: (m: ModelToggle) => void;
   totals: { tn: number; fp: number };
   sideCounts: { tp: number; fn: number };
 }) {
@@ -157,7 +145,7 @@ function Header({
           </h3>
         </div>
         <p className="text-[10px] text-[var(--strix-text-muted)] mt-0.5">
-          10 min · 30 s buckets · TN / FP · live AE+VAE feed
+          10 min · 30 s buckets · TN vs FP
         </p>
       </div>
 
@@ -171,8 +159,6 @@ function Header({
         <span className="text-[10px] text-[var(--strix-text-muted)] tabular-nums">
           tp {sideCounts.tp} · fn {sideCounts.fn}
         </span>
-        <span className="mx-1.5 h-4 w-px bg-[var(--strix-border)]" />
-        <ModelToggleButtons value={model} onChange={onModel} />
       </div>
     </div>
   );
@@ -203,30 +189,8 @@ function CounterPill({ label, value, color }: { label: string; value: number; co
   );
 }
 
-function ModelToggleButtons({ value, onChange }: { value: ModelToggle; onChange: (m: ModelToggle) => void }) {
-  const opts: ModelToggle[] = ["ae", "vae", "both"];
-  return (
-    <div className="inline-flex rounded-md border border-[var(--strix-border)] overflow-hidden">
-      {opts.map((opt) => (
-        <button
-          key={opt}
-          type="button"
-          onClick={() => onChange(opt)}
-          className={`px-2 py-0.5 text-[10px] uppercase font-semibold tracking-wider transition-colors ${
-            value === opt
-              ? "bg-[var(--strix-bg-surface)] text-[var(--strix-text)]"
-              : "bg-transparent text-[var(--strix-text-muted)] hover:text-[var(--strix-text)]"
-          }`}
-        >
-          {opt}
-        </button>
-      ))}
-    </div>
-  );
-}
-
 // ────────────────────────────────────────────────────────────────────────────
-// Chart — Kibana stacked vertical bars with hover guide rail
+// Chart — grouped vertical bars (TN | FP side-by-side per bucket)
 // ────────────────────────────────────────────────────────────────────────────
 
 const CHART_HEIGHT = 220;
@@ -251,8 +215,14 @@ function Chart({
 }) {
   const wrapRef = useRef<HTMLDivElement | null>(null);
   const slotW = PLOT_W / NUM_BUCKETS;
-  const barW = Math.max(4, Math.floor(slotW * 0.68));
-  const barOffset = (slotW - barW) / 2;
+
+  // Each slot holds two adjacent bars + a 1px gap between them. Reserve
+  // ~14% of the slot as left/right padding so neighbouring buckets don't
+  // visually merge.
+  const groupGap = Math.max(1, Math.floor(slotW * 0.06));
+  const groupInnerW = slotW - groupGap * 2;
+  const barGap = Math.max(1, Math.floor(slotW * 0.03));
+  const barW = Math.max(2, Math.floor((groupInnerW - barGap) / 2));
 
   // Y ticks at 0/25/50/75/100 % of yMax.
   const yTicks = [0, 0.25, 0.5, 0.75, 1].map((f) => Math.round(yMax * f));
@@ -312,35 +282,38 @@ function Chart({
           );
         })}
 
-        {/* Bars */}
+        {/* Grouped TN / FP bars per bucket */}
         {buckets.map((b, i) => {
-          const total = b.tn + b.fp;
-          if (total === 0) return null;
-          const x = CHART_PAD_LEFT + i * slotW + barOffset;
+          if (b.tn === 0 && b.fp === 0) return null;
+          const slotLeft = CHART_PAD_LEFT + i * slotW + groupGap;
+          const tnX = slotLeft;
+          const fpX = slotLeft + barW + barGap;
           const tnH = (b.tn / yMax) * PLOT_H;
           const fpH = (b.fp / yMax) * PLOT_H;
           const yTn = CHART_PAD_TOP + PLOT_H - tnH;
-          const yFp = yTn - fpH;
+          const yFp = CHART_PAD_TOP + PLOT_H - fpH;
           const isHover = hoverIdx === i;
 
           return (
             <g key={i} opacity={hoverIdx == null || isHover ? 1 : 0.55}>
               {b.tn > 0 && (
                 <rect
-                  x={x}
+                  x={tnX}
                   y={yTn}
                   width={barW}
                   height={Math.max(1, tnH)}
                   fill={COLOR_TN}
+                  rx={1}
                 />
               )}
               {b.fp > 0 && (
                 <rect
-                  x={x}
+                  x={fpX}
                   y={yFp}
                   width={barW}
                   height={Math.max(1, fpH)}
                   fill={COLOR_FP}
+                  rx={1}
                 />
               )}
             </g>
@@ -427,7 +400,7 @@ function EmptyState() {
       }}
     >
       <p className="text-[11px] text-[var(--strix-text-muted)] italic">
-        awaiting AE/VAE frames…
+        awaiting detection frames…
       </p>
     </div>
   );

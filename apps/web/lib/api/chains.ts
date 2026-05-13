@@ -22,6 +22,8 @@ export interface ChainNote {
   authorEmail: string | null;
   bodyMd: string;
   createdAt: string;
+  /** Same as `createdAt` for never-edited notes; later for edited ones. */
+  updatedAt: string | null;
 }
 
 export interface ActivityEvent {
@@ -120,6 +122,36 @@ export function useAddChainNote(chainId: string | null) {
         method: "POST",
         body: { bodyMd },
       }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["chain", chainId, "notes"] });
+      qc.invalidateQueries({ queryKey: ["chain", chainId, "activity"] });
+    },
+  });
+}
+
+export function useUpdateChainNote(chainId: string | null) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ noteId, bodyMd }: { noteId: string; bodyMd: string }) =>
+      apiFetch<{ chainId: string; items: ChainNote[] }>(
+        `/chains/${chainId}/notes/${noteId}`,
+        { method: "PATCH", body: { bodyMd } },
+      ),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["chain", chainId, "notes"] });
+      qc.invalidateQueries({ queryKey: ["chain", chainId, "activity"] });
+    },
+  });
+}
+
+export function useDeleteChainNote(chainId: string | null) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (noteId: string) =>
+      apiFetch<{ chainId: string; items: ChainNote[] }>(
+        `/chains/${chainId}/notes/${noteId}`,
+        { method: "DELETE" },
+      ),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["chain", chainId, "notes"] });
       qc.invalidateQueries({ queryKey: ["chain", chainId, "activity"] });

@@ -176,14 +176,16 @@ export default function AttackAnalysisDetailPage({ params }: PageProps) {
         </div>
       </div>
 
-      {/* Affected Hosts — full width */}
+      {/* Affected Hosts — full width. The table lists every host that
+          generated alerts on this chain; the header counts how many of
+          those crossed the §6.3 infection threshold. */}
       <div className="bg-[var(--strix-bg-card)] border border-[var(--strix-border)] rounded-xl p-5">
         <div className="flex items-center gap-2 mb-4">
           <Users className="h-4 w-4 text-strix-primary dark:text-strix-cyan" />
           <h3 className="text-sm font-bold text-[var(--strix-text)]">Affected Hosts</h3>
           {infection.data && (
             <span className="ml-auto text-[10px] text-[var(--strix-text-muted)] uppercase tracking-wider font-mono">
-              {infection.data.infectedCount}/{infection.data.totalCount} hosts ·{" "}
+              {infection.data.infectedCount}/{infection.data.totalCount} infected ·{" "}
               {(infection.data.percent * 100).toFixed(1)}% radius
             </span>
           )}

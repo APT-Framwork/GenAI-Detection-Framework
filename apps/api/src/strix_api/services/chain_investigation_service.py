@@ -203,6 +203,7 @@ class ChainInvestigationService:
                 author_email=email,
                 body_md=n.body_md,
                 created_at=n.created_at,
+                updated_at=n.updated_at,
             )
             for n, email in rows
         ]
@@ -226,6 +227,69 @@ class ChainInvestigationService:
         )
         await self._audit(
             chain_id=chain_id, user_id=user_id, to_status="note.added"
+        )
+        await self._s.commit()
+        return await self.list_notes(chain_id)
+
+    async def update_note(
+        self,
+        *,
+        chain_id: UUID,
+        note_id: UUID,
+        body_md: str,
+        user_id: UUID | None,
+    ) -> list[ChainNoteItem]:
+        """Edit an existing note in-place.
+
+        Authorship rule: only the original author can edit. The author_id
+        check returns 404 (not 403) when the requester doesn't own the
+        note so the existence of others' notes isn't leaked. When the
+        caller is unauthenticated (`user_id is None`) the edit is
+        refused — anonymous editing breaks the audit trail.
+        """
+        body = body_md.strip()
+        if not body:
+            raise ValueError("note body is empty")
+        if user_id is None:
+            raise PermissionError("authentication required to edit a note")
+
+        note = await self._s.get(ChainNote, note_id)
+        if note is None or note.chain_id != chain_id:
+            raise NotFoundError(f"note {note_id} not found on chain {chain_id}")
+        if note.author_user_id is not None and note.author_user_id != user_id:
+            # Reveal-by-existence guard — same 404 a non-owner sees for a
+            # non-existent note. The audit log already records who wrote
+            # it, so an admin-tooling layer can still investigate.
+            raise NotFoundError(f"note {note_id} not found on chain {chain_id}")
+
+        note.body_md = body
+        note.updated_at = datetime.now(UTC)
+        await self._audit(
+            chain_id=chain_id, user_id=user_id, to_status="note.edited"
+        )
+        await self._s.commit()
+        return await self.list_notes(chain_id)
+
+    async def delete_note(
+        self,
+        *,
+        chain_id: UUID,
+        note_id: UUID,
+        user_id: UUID | None,
+    ) -> list[ChainNoteItem]:
+        """Remove a note. Same authorship rule as `update_note`."""
+        if user_id is None:
+            raise PermissionError("authentication required to delete a note")
+
+        note = await self._s.get(ChainNote, note_id)
+        if note is None or note.chain_id != chain_id:
+            raise NotFoundError(f"note {note_id} not found on chain {chain_id}")
+        if note.author_user_id is not None and note.author_user_id != user_id:
+            raise NotFoundError(f"note {note_id} not found on chain {chain_id}")
+
+        await self._s.delete(note)
+        await self._audit(
+            chain_id=chain_id, user_id=user_id, to_status="note.deleted"
         )
         await self._s.commit()
         return await self.list_notes(chain_id)
@@ -302,6 +366,10 @@ def _parse_event(to_status: str, from_status: str | None) -> tuple[str, str | No
         return ("tlp", to_status[len("tlp:"):])
     if to_status == "note.added":
         return ("note.added", None)
+    if to_status == "note.edited":
+        return ("note.edited", None)
+    if to_status == "note.deleted":
+        return ("note.deleted", None)
     if to_status.startswith("attribution:"):
         return ("attribution", to_status[len("attribution:"):])
     if to_status.startswith("triage:"):

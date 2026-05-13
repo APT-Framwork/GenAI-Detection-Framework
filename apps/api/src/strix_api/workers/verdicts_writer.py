@@ -247,6 +247,9 @@ class VerdictsWriter:
                             "vae_uncertainty": _f(p.get("vaeUncertainty")),
                             "transformer_pred_ckc": _i(p.get("transformerPredCkc")),
                             "transformer_confidence": _f(p.get("transformerConfidence")),
+                            "transformer_probabilities": _probs(
+                                p.get("transformerProbabilities")
+                            ),
                             "gnn_node_risk": _f(p.get("gnnNodeRisk")),
                             "gnn_neighbor_risk": _f(p.get("gnnNeighborRisk")),
                             "gnn_risk_growth": _f(p.get("gnnRiskGrowth")),
@@ -447,6 +450,24 @@ def _f(v: Any) -> float | None:
 
 def _i(v: Any) -> int | None:
     return None if v is None else int(v)
+
+
+def _probs(v: Any) -> list[float] | None:
+    """Coerce a softmax payload to `list[float] | None`.
+
+    Defensive against shape drift: anything non-list, empty, or with
+    non-numeric entries collapses to None so the analysis service falls
+    back to the reconstructed distribution.
+    """
+    if v is None:
+        return None
+    if not isinstance(v, (list, tuple)):
+        return None
+    try:
+        out = [float(x) for x in v]
+    except (TypeError, ValueError):
+        return None
+    return out or None
 
 
 # ---- entry point ---------------------------------------------------
