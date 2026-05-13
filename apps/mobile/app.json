@@ -11,7 +11,7 @@
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#e7faff"
+      "backgroundColor": "#0b0e14"
     },
     "ios": {
       "supportsTablet": true,
@@ -25,10 +25,11 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#e7faff"
+        "backgroundColor": "#0b0e14"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.strix.mobile"
+      "package": "com.strix.mobile",
+      "googleServicesFile": "./google-service/google-services.json"
     },
     "web": {
       "favicon": "./assets/favicon.png",
@@ -41,7 +42,7 @@
         {
           "image": "./assets/splash-icon.png",
           "resizeMode": "contain",
-          "backgroundColor": "#e7faff",
+          "backgroundColor": "#0b0e14",
           "imageWidth": 200
         }
       ],
