@@ -29,13 +29,17 @@ Makefile
 jury_demo.sh
 jury_demo_single.sh
 
-# Design references / screenshots committed at the repo root
-*.png
-*.jpg
-*.jpeg
-*.gif
-*.svg
-*.pdf
+# Design references / screenshots committed at the repo root only.
+# Anchored with a leading slash so the mobile app's icon/splash assets
+# under apps/mobile/assets/ stay in the upload. Without the slash these
+# patterns matched at every directory level and prebuild failed with
+# ENOENT on adaptive-icon.png, icon.png, splash-icon.png.
+/*.png
+/*.jpg
+/*.jpeg
+/*.gif
+/*.svg
+/*.pdf
 
 # ---- python noise -----------------------------------------------------
 **/.venv/
