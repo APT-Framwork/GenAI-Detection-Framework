@@ -10,6 +10,16 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
+# Firebase / FCM secrets — service-account private keys must NEVER be
+# committed. The public google-services.json (project IDs + restricted
+# API key) is fine to track; the *-firebase-adminsdk-*.json and any
+# downloaded service-account / OAuth JSON is not.
+**/*-firebase-adminsdk-*.json
+**/firebase-adminsdk*.json
+**/service-account*.json
+**/*-service-account-*.json
+google-service/*-firebase-adminsdk-*.json
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
