@@ -4,7 +4,7 @@ import { View, Text, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import * as Font from "expo-font";
 
-import { typography, radius } from "../../lib/theme";
+import { typography } from "../../lib/theme";
 import { useColors } from "../../lib/theme-hook";
 import { useUnacknowledgedCount, useCases } from "../../lib/api/hooks";
 import { useUIStore } from "../../stores/ui-store";
@@ -98,16 +98,11 @@ export default function TabLayout() {
           options={{
             title: tab.title,
             tabBarIcon: ({ focused }) => (
-              <View
-                style={[
-                  styles.iconWrap,
-                  focused && { backgroundColor: colors.tabActiveBg },
-                ]}
-              >
+              <View style={styles.iconCell}>
                 {ionLoaded ? (
                   <Ionicons
                     name={focused ? tab.iconActive : tab.icon}
-                    size={20}
+                    size={22}
                     color={focused ? colors.tabActive : colors.tabInactive}
                   />
                 ) : (
@@ -124,6 +119,16 @@ export default function TabLayout() {
                     {tab.fallback}
                   </Text>
                 )}
+                <View
+                  style={[
+                    styles.activeDot,
+                    {
+                      backgroundColor: focused
+                        ? colors.tabActive
+                        : "transparent",
+                    },
+                  ]}
+                />
               </View>
             ),
             tabBarBadge: badgeFor(tab.name),
@@ -150,10 +155,9 @@ export default function TabLayout() {
 const styles = StyleSheet.create({
   tabBar: {
     borderTopWidth: 1,
-    height: 92,
+    height: 86,
     paddingTop: 10,
-    paddingBottom: 26,
-    paddingHorizontal: 8,
+    paddingBottom: 22,
     shadowColor: "#00343d",
     shadowOffset: { width: 0, height: -12 },
     shadowOpacity: 0.06,
@@ -162,28 +166,33 @@ const styles = StyleSheet.create({
   },
   tabLabel: {
     fontFamily: typography.family.heading,
-    fontSize: typography.size.xs,
+    fontSize: 10,
     letterSpacing: 1,
     textTransform: "uppercase",
-    marginTop: 2,
+    marginTop: 6,
   },
   itemStyle: {
-    paddingTop: 2,
+    paddingTop: 6,
     paddingBottom: 0,
   },
   iconStyle: {
-    // Let our iconWrap drive sizing — react-navigation's default 24px
-    // box clips the focused-state pill.
+    // We render our own icon cell — disable the default 24px box so the
+    // dot indicator sits flush under the glyph.
     marginTop: 0,
     marginBottom: 0,
+    width: 28,
+    height: 24,
   },
-  iconWrap: {
-    paddingHorizontal: 12,
-    paddingVertical: 2,
-    borderRadius: radius.md,
-    minWidth: 38,
+  iconCell: {
     alignItems: "center",
     justifyContent: "center",
+    height: 24,
+  },
+  activeDot: {
+    width: 4,
+    height: 4,
+    borderRadius: 2,
+    marginTop: 3,
   },
   fallbackGlyph: {
     fontSize: 18,
