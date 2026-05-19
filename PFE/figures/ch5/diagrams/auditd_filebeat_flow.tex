@@ -1,0 +1,38 @@
+\documentclass[border=8pt,tikz]{standalone}
+\usepackage{tikz}
+\input{_style}
+
+\begin{document}
+\begin{tikzpicture}[node distance=14mm]
+
+\node[source, minimum width=28mm] (k) {Linux kernel\\\scriptsize syscalls};
+
+\node[worker, right=of k, minimum width=44mm] (ad) {Auditd \(\cdot\) 52 rules\\
+  \scriptsize execve / write / read / attribute\\\scriptsize \texttt{/etc/audit/rules.d/strix.rules}};
+
+\node[worker, right=of ad, minimum width=32mm] (wm) {Wazuh manager\\\scriptsize decoders + rules};
+
+\node[store, right=of wm, minimum width=32mm] (af)
+  {alerts.json\\\scriptsize NDJSON};
+
+\node[worker, below=of af, minimum width=32mm] (fb)
+  {Filebeat 8.15\\\scriptsize filestream, 1\,s scan};
+
+\node[stream, left=of fb, minimum width=34mm] (rl)
+  {strix:alerts:raw:list};
+
+\node[font=\sffamily\scriptsize\itshape, text=strixGrey, anchor=north]
+  at ([yshift=-2mm]rl.south) {at-least-once via\\registry offset};
+
+\draw[edgeStrong] (k) -- (ad);
+\draw[edgeStrong] (ad) -- (wm);
+\draw[edgeStrong] (wm) -- (af);
+\draw[edgeStrong] (af) -- (fb) node[midway, right, font=\sffamily\scriptsize] {tail};
+\draw[edgeStrong] (fb) -- (rl) node[midway, above, font=\sffamily\scriptsize] {RPUSH};
+
+% Synthetic-benign annotation
+\node[badge=strixGold, anchor=west]
+  at ([xshift=2mm, yshift=4mm]fb.east) {\footnotesize uid=4242 \(\to\) synthetic\_benign};
+
+\end{tikzpicture}
+\end{document}

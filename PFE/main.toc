@@ -1,4 +1,4 @@
-\babel@toc {nil}{}\relax 
+\babel@toc {english}{}\relax 
 \contentsline {chapter}{General Introduction}{1}{chapter*.2}%
 \contentsline {chapter}{\numberline {1}Introduction}{2}{chapter.1}%
 \contentsline {section}{\numberline {1.1}General Context and Motivation}{2}{section.1.1}%
@@ -12,11 +12,11 @@
 \contentsline {subsection}{\numberline {2.2.1}Definition and Scope of Cybersecurity}{3}{subsection.2.2.1}%
 \contentsline {subsection}{\numberline {2.2.2}Key Cybersecurity Concepts and Terminology}{5}{subsection.2.2.2}%
 \contentsline {subsection}{\numberline {2.2.3}Major Categories of Cyber Threats}{7}{subsection.2.2.3}%
-\contentsline {section}{\numberline {2.3}Advanced Persistent Threats (APT)}{9}{section.2.3}%
-\contentsline {subsection}{\numberline {2.3.1}Definition and Characteristics}{9}{subsection.2.3.1}%
+\contentsline {section}{\numberline {2.3}Advanced Persistent Threats (APT)}{10}{section.2.3}%
+\contentsline {subsection}{\numberline {2.3.1}Definition and Characteristics}{10}{subsection.2.3.1}%
 \contentsline {subsection}{\numberline {2.3.2}Modeling APT Phases}{11}{subsection.2.3.2}%
 \contentsline {section}{\numberline {2.4}Introduction to Threat Modeling Frameworks}{12}{section.2.4}%
-\contentsline {subsection}{\numberline {2.4.1}Category 1: Attack Lifecycle Models}{12}{subsection.2.4.1}%
+\contentsline {subsection}{\numberline {2.4.1}Category 1: Attack Lifecycle Models}{13}{subsection.2.4.1}%
 \contentsline {subsection}{\numberline {2.4.2}Category 2: Threat Modeling Frameworks}{13}{subsection.2.4.2}%
 \contentsline {subsection}{\numberline {2.4.3}Category 3: Adversary Behavior \& Incident Analysis Models}{15}{subsection.2.4.3}%
 \contentsline {section}{\numberline {2.5}The Cyber Kill Chain (CKC)}{16}{section.2.5}%
@@ -28,11 +28,11 @@
 \contentsline {section}{\numberline {2.7}Introduction to Machine Learning}{19}{section.2.7}%
 \contentsline {subsection}{\numberline {2.7.1}Definition and Core Concepts of Machine Learning}{19}{subsection.2.7.1}%
 \contentsline {subsection}{\numberline {2.7.2}Domains and Learning Paradigms}{21}{subsection.2.7.2}%
-\contentsline {subsection}{\numberline {2.7.3}Key ML Algorithms Overview}{23}{subsection.2.7.3}%
-\contentsline {subsection}{\numberline {2.7.4}Definition and Capabilities in Cybersecurity}{27}{subsection.2.7.4}%
+\contentsline {subsection}{\numberline {2.7.3}Key ML Algorithms Overview}{24}{subsection.2.7.3}%
+\contentsline {subsection}{\numberline {2.7.4}Definition and Capabilities in Cybersecurity}{28}{subsection.2.7.4}%
 \contentsline {subsection}{\numberline {2.7.5}The Dual Role of Machine Learning: Attack and Defense}{28}{subsection.2.7.5}%
 \contentsline {subsubsection}{ML for Offense (The Attacker)}{28}{subsubsection*.3}%
-\contentsline {subsubsection}{ML for Defense (The Defender)}{28}{subsubsection*.4}%
+\contentsline {subsubsection}{ML for Defense (The Defender)}{29}{subsubsection*.4}%
 \contentsline {section}{\numberline {2.8}Synergy of Concepts for Early APT Detection}{29}{section.2.8}%
 \contentsline {subsection}{\numberline {2.8.1}CKC and MITRE ATT\&CK Integration}{29}{subsection.2.8.1}%
 \contentsline {subsection}{\numberline {2.8.2}Machine Learning Augmentation of Multi-Stage Detection}{29}{subsection.2.8.2}%
@@ -62,7 +62,7 @@
 \contentsline {subsubsection}{Training with ReALTabFormer and Conditional Replay}{37}{subsubsection*.15}%
 \contentsline {subsection}{\numberline {3.5.2}Proposition 2: GenAI-Augmented Pre-Attack Detection Framework}{37}{subsection.3.5.2}%
 \contentsline {subsubsection}{Unified Cyber Kill Chain Mapping}{37}{subsubsection*.16}%
-\contentsline {subsubsection}{Graph-Based Representation and GNNs}{37}{subsubsection*.17}%
+\contentsline {subsubsection}{Graph-Based Representation and GNNs}{38}{subsubsection*.17}%
 \contentsline {subsubsection}{GenAI for Synthetic Scenario Generation}{38}{subsubsection*.18}%
 \contentsline {subsubsection}{Cyber Threat Intelligence (CTI) Platform Integration}{38}{subsubsection*.19}%
 \contentsline {section}{\numberline {3.6}Chapter Conclusion}{38}{section.3.6}%
@@ -103,37 +103,57 @@
 \contentsline {section}{\numberline {4.10}Conclusion}{41}{section.4.10}%
 \contentsline {chapter}{\numberline {5}Implementation}{42}{chapter.5}%
 \contentsline {section}{\numberline {5.1}Introduction}{42}{section.5.1}%
-\contentsline {section}{\numberline {5.2}Hardware and Software Environment}{42}{section.5.2}%
-\contentsline {subsection}{\numberline {5.2.1}Hardware}{42}{subsection.5.2.1}%
-\contentsline {subsection}{\numberline {5.2.2}Libraries}{42}{subsection.5.2.2}%
-\contentsline {subsection}{\numberline {5.2.3}Dev tools}{42}{subsection.5.2.3}%
-\contentsline {section}{\numberline {5.3}Dataset Description}{42}{section.5.3}%
-\contentsline {subsection}{\numberline {5.3.1}Linux APT Dataset 2024}{42}{subsection.5.3.1}%
-\contentsline {subsection}{\numberline {5.3.2}Statistics}{42}{subsection.5.3.2}%
-\contentsline {subsection}{\numberline {5.3.3}Simulated APT groups}{42}{subsection.5.3.3}%
-\contentsline {section}{\numberline {5.4}Platform Description}{42}{section.5.4}%
-\contentsline {subsection}{\numberline {5.4.1}Wazuh SIEM}{42}{subsection.5.4.1}%
-\contentsline {subsection}{\numberline {5.4.2}Integration}{42}{subsection.5.4.2}%
-\contentsline {subsection}{\numberline {5.4.3}Threat Intelligence Module}{42}{subsection.5.4.3}%
-\contentsline {subsection}{\numberline {5.4.4}APT Early Detection Dashboard}{42}{subsection.5.4.4}%
-\contentsline {section}{\numberline {5.5}Conclusion}{42}{section.5.5}%
-\contentsline {chapter}{\numberline {6}Evaluation and Results}{43}{chapter.6}%
-\contentsline {section}{\numberline {6.1}Introduction}{43}{section.6.1}%
-\contentsline {section}{\numberline {6.2}Evaluation Metrics}{43}{section.6.2}%
-\contentsline {section}{\numberline {6.3}Iterative Results Summary}{43}{section.6.3}%
-\contentsline {section}{\numberline {6.4}Final Per-Model Results}{43}{section.6.4}%
-\contentsline {section}{\numberline {6.5}Ablation Study}{43}{section.6.5}%
-\contentsline {section}{\numberline {6.6}Synthetic Data Impact}{43}{section.6.6}%
-\contentsline {section}{\numberline {6.7}RL Agent Final Results}{43}{section.6.7}%
-\contentsline {section}{\numberline {6.8}Comparison with State-of-the-Art}{43}{section.6.8}%
-\contentsline {section}{\numberline {6.9}Simulation Results}{43}{section.6.9}%
-\contentsline {subsection}{\numberline {6.9.1}Environment}{43}{subsection.6.9.1}%
-\contentsline {subsection}{\numberline {6.9.2}Attack Scenarios}{43}{subsection.6.9.2}%
-\contentsline {subsection}{\numberline {6.9.3}Discussion of Results}{43}{subsection.6.9.3}%
-\contentsline {section}{\numberline {6.10}Conclusion}{43}{section.6.10}%
-\contentsline {chapter}{\numberline {7}Conclusion}{44}{chapter.7}%
-\contentsline {section}{\numberline {7.1}Summary}{44}{section.7.1}%
-\contentsline {section}{\numberline {7.2}Main Contributions}{44}{section.7.2}%
-\contentsline {section}{\numberline {7.3}Limitations}{44}{section.7.3}%
-\contentsline {section}{\numberline {7.4}Future Work}{44}{section.7.4}%
-\contentsline {chapter}{References}{45}{chapter*.20}%
+\contentsline {section}{\numberline {5.2}Hardware and Software Environment}{44}{section.5.2}%
+\contentsline {subsection}{\numberline {5.2.1}Hardware}{44}{subsection.5.2.1}%
+\contentsline {subsection}{\numberline {5.2.2}Libraries}{45}{subsection.5.2.2}%
+\contentsline {subsubsection}{Backend and machine-learning stack}{46}{subsubsection*.20}%
+\contentsline {subsubsection}{Reinforcement-learning training stack}{47}{subsubsection*.21}%
+\contentsline {subsubsection}{Web console}{48}{subsubsection*.22}%
+\contentsline {subsubsection}{Mobile companion}{49}{subsubsection*.23}%
+\contentsline {subsection}{\numberline {5.2.3}Development Tools}{49}{subsection.5.2.3}%
+\contentsline {section}{\numberline {5.3}Dataset Description}{51}{section.5.3}%
+\contentsline {subsection}{\numberline {5.3.1}Linux APT Dataset 2024}{51}{subsection.5.3.1}%
+\contentsline {subsection}{\numberline {5.3.2}Statistics}{52}{subsection.5.3.2}%
+\contentsline {subsection}{\numberline {5.3.3}Simulated APT Groups}{54}{subsection.5.3.3}%
+\contentsline {section}{\numberline {5.4}Attack Simulation with MITRE Caldera}{54}{section.5.4}%
+\contentsline {subsection}{\numberline {5.4.1}Why Caldera}{54}{subsection.5.4.1}%
+\contentsline {subsection}{\numberline {5.4.2}Deployment}{55}{subsection.5.4.2}%
+\contentsline {subsection}{\numberline {5.4.3}The Nine Paper-Aligned Tactics}{56}{subsection.5.4.3}%
+\contentsline {subsection}{\numberline {5.4.4}Topology Discovery and the Run Manifest}{57}{subsection.5.4.4}%
+\contentsline {subsection}{\numberline {5.4.5}Per-Tactic and Final Reports}{58}{subsection.5.4.5}%
+\contentsline {section}{\numberline {5.5}Platform Description}{60}{section.5.5}%
+\contentsline {subsection}{\numberline {5.5.1}Wazuh SIEM}{60}{subsection.5.5.1}%
+\contentsline {subsection}{\numberline {5.5.2}Auditd $\rightarrow $ Filebeat Ingestion}{61}{subsection.5.5.2}%
+\contentsline {subsection}{\numberline {5.5.3}Backend Integration: Workers and Redis Streams}{62}{subsection.5.5.3}%
+\contentsline {paragraph}{Stage 1 --- Bridge.}{63}{paragraph*.24}%
+\contentsline {paragraph}{Stage 2 --- Normalize.}{63}{paragraph*.25}%
+\contentsline {paragraph}{Stage 3 --- Inference.}{63}{paragraph*.26}%
+\contentsline {paragraph}{Stage 4 --- Persist.}{64}{paragraph*.27}%
+\contentsline {paragraph}{Stage 5 --- Fan out.}{64}{paragraph*.28}%
+\contentsline {subsection}{\numberline {5.5.4}Threat Intelligence Module}{65}{subsection.5.5.4}%
+\contentsline {subsection}{\numberline {5.5.5}APT Early-Detection Dashboard}{66}{subsection.5.5.5}%
+\contentsline {paragraph}{Model Monitoring (AI Engine).}{66}{paragraph*.29}%
+\contentsline {paragraph}{Attack Analysis (Chains).}{67}{paragraph*.30}%
+\contentsline {paragraph}{Topology.}{68}{paragraph*.31}%
+\contentsline {paragraph}{Mobile companion.}{69}{paragraph*.32}%
+\contentsline {section}{\numberline {5.6}Conclusion}{69}{section.5.6}%
+\contentsline {chapter}{\numberline {6}Evaluation and Results}{71}{chapter.6}%
+\contentsline {section}{\numberline {6.1}Introduction}{71}{section.6.1}%
+\contentsline {section}{\numberline {6.2}Evaluation Metrics}{71}{section.6.2}%
+\contentsline {section}{\numberline {6.3}Iterative Results Summary}{71}{section.6.3}%
+\contentsline {section}{\numberline {6.4}Final Per-Model Results}{71}{section.6.4}%
+\contentsline {section}{\numberline {6.5}Ablation Study}{71}{section.6.5}%
+\contentsline {section}{\numberline {6.6}Synthetic Data Impact}{71}{section.6.6}%
+\contentsline {section}{\numberline {6.7}RL Agent Final Results}{71}{section.6.7}%
+\contentsline {section}{\numberline {6.8}Comparison with State-of-the-Art}{71}{section.6.8}%
+\contentsline {section}{\numberline {6.9}Simulation Results}{71}{section.6.9}%
+\contentsline {subsection}{\numberline {6.9.1}Environment}{71}{subsection.6.9.1}%
+\contentsline {subsection}{\numberline {6.9.2}Attack Scenarios}{71}{subsection.6.9.2}%
+\contentsline {subsection}{\numberline {6.9.3}Discussion of Results}{71}{subsection.6.9.3}%
+\contentsline {section}{\numberline {6.10}Conclusion}{71}{section.6.10}%
+\contentsline {chapter}{\numberline {7}Conclusion}{72}{chapter.7}%
+\contentsline {section}{\numberline {7.1}Summary}{72}{section.7.1}%
+\contentsline {section}{\numberline {7.2}Main Contributions}{72}{section.7.2}%
+\contentsline {section}{\numberline {7.3}Limitations}{72}{section.7.3}%
+\contentsline {section}{\numberline {7.4}Future Work}{72}{section.7.4}%
+\contentsline {chapter}{References}{73}{chapter*.33}%

@@ -1,0 +1,38 @@
+\documentclass[border=8pt,tikz]{standalone}
+\usepackage{tikz}
+\input{_style}
+
+\begin{document}
+\begin{tikzpicture}[node distance=10mm,
+  decision/.style={diamond, draw=strixDark, fill=strixGold!20, very thick,
+                   aspect=2, inner sep=1pt, font=\sffamily\scriptsize, align=center,
+                   minimum width=24mm},
+  action/.style={comp=strixGreen, minimum width=30mm}]
+
+\node[model, minimum width=38mm] (dqn) {DQN proposes action\\\scriptsize\(\in\)\{Monitor, LowAlert,\\Escalate, Isolate, Block\}};
+
+\node[decision, below=of dqn] (g1) {AE score\\\(\geq\theta_{AE}\)?};
+\node[decision, below=of g1] (g2) {$\beta$-VAE prob\\\(\geq\theta_{VAE}\)?};
+\node[decision, below=of g2] (g3) {Tx confidence\\\(\geq\theta_{Tx}\)?};
+\node[decision, below=of g3] (g4) {GNN node-risk\\\(\geq\theta_{GNN}\)?};
+
+\node[action, right=22mm of g3] (auth) {Authorise\\\scriptsize intervention};
+\node[action, fill=strixRed!10, draw=strixRed, right=22mm of g1] (down) {Down-grade\\\scriptsize to Low Alert};
+
+\draw[edgeStrong] (dqn) -- (g1);
+\draw[edgeStrong] (g1) -- (g2) node[midway, right, font=\sffamily\scriptsize\bfseries] {yes};
+\draw[edgeStrong] (g2) -- (g3) node[midway, right, font=\sffamily\scriptsize\bfseries] {yes};
+\draw[edgeStrong] (g3) -- (g4) node[midway, right, font=\sffamily\scriptsize\bfseries] {yes};
+\draw[edgeStrong] (g4) -| (auth) node[near start, above, font=\sffamily\scriptsize\bfseries] {yes};
+
+\draw[edgeStrong, draw=strixRed] (g1.east) -- (down) node[midway, above, font=\sffamily\scriptsize\bfseries, text=strixRed] {no};
+\draw[edgeStrong, draw=strixRed] (g2.east) -| (down) node[near start, above, font=\sffamily\scriptsize\bfseries, text=strixRed] {no};
+\draw[edgeStrong, draw=strixRed] (g3.east) -| (down);
+\draw[edgeStrong, draw=strixRed] (g4.east) -| (down);
+
+\node[font=\sffamily\scriptsize\itshape, text=strixGrey, anchor=north, align=left]
+  at ([yshift=-6mm]g4.south)
+  {production safeguard: a pure-RL policy was measured\\to produce 100\% false-positive interventions};
+
+\end{tikzpicture}
+\end{document}
