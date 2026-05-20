@@ -4,24 +4,24 @@
 \contentsline {figure}{\numberline {1.2}{\ignorespaces Dwell time in APT attacks}}{10}{figure.1.2}%
 \contentsline {figure}{\numberline {1.3}{\ignorespaces Stages of an APT attack}}{11}{figure.1.3}%
 \contentsline {figure}{\numberline {1.4}{\ignorespaces Steps of the PASTA methodology}}{13}{figure.1.4}%
-\contentsline {figure}{\numberline {1.5}{\ignorespaces Example of an Attack Tree structure}}{14}{figure.1.5}%
-\contentsline {figure}{\numberline {1.6}{\ignorespaces The 7 Steps of the Cyber Kill Chain (CKC)}}{16}{figure.1.6}%
-\contentsline {figure}{\numberline {1.7}{\ignorespaces The MITRE ATT\&CK Framework matrix}}{17}{figure.1.7}%
-\contentsline {figure}{\numberline {1.8}{\ignorespaces Visual representation of Underfitting, Optimal Fit, and Overfitting.}}{19}{figure.1.8}%
-\contentsline {figure}{\numberline {1.9}{\ignorespaces Machine Learning domains and learning paradigms.}}{21}{figure.1.9}%
+\contentsline {figure}{\numberline {1.5}{\ignorespaces Example of an Attack Tree structure}}{13}{figure.1.5}%
+\contentsline {figure}{\numberline {1.6}{\ignorespaces The 7 Steps of the Cyber Kill Chain (CKC)}}{15}{figure.1.6}%
+\contentsline {figure}{\numberline {1.7}{\ignorespaces The MITRE ATT\&CK Framework matrix}}{16}{figure.1.7}%
+\contentsline {figure}{\numberline {1.8}{\ignorespaces Visual representation of Underfitting, Optimal Fit, and Overfitting.}}{18}{figure.1.8}%
+\contentsline {figure}{\numberline {1.9}{\ignorespaces Machine Learning domains and learning paradigms.}}{20}{figure.1.9}%
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {2.1}{\ignorespaces Top 10 Most Active APT Groups (2024--2025). Distribution of global APT activity showing North Korean and Chinese groups leading in operational tempo. Data source: Trellix Advanced Research Center \cite {trellix2025}.}}{28}{figure.2.1}%
-\contentsline {figure}{\numberline {2.2}{\ignorespaces Figure of the utility company's infrastructure and protocols, found by Perplexity AI.}}{29}{figure.2.2}%
-\contentsline {figure}{\numberline {2.3}{\ignorespaces ChatGPT4 analysis of Windows Event Log entries, identifying MSSQL login attempts.}}{30}{figure.2.3}%
-\contentsline {figure}{\numberline {2.4}{\ignorespaces Effectiveness Comparison: Traditional vs AI-Powered APT Techniques. GenAI demonstrates substantial improvements across all attack categories, with reconnaissance automation reaching 95\% effectiveness compared to 30\% for traditional approaches.}}{31}{figure.2.4}%
-\contentsline {figure}{\numberline {2.5}{\ignorespaces Evolution of Cyber Threats: Ransomware and AI-Phishing (2019--2025). Temporal trends showing exponential growth in AI-powered phishing attacks (red line, right axis) starting in 2023, alongside steady ransomware incident growth (blue line, left axis). The 2025 data represents projected full-year figures based on January--September 2025 actuals.}}{37}{figure.2.5}%
+\contentsline {figure}{\numberline {2.1}{\ignorespaces Top 10 Most Active APT Groups (2024--2025). Distribution of global APT activity showing North Korean and Chinese groups leading in operational tempo. Data source: Trellix Advanced Research Center \cite {trellix2025}.}}{27}{figure.2.1}%
+\contentsline {figure}{\numberline {2.2}{\ignorespaces Figure of the utility company's infrastructure and protocols, found by Perplexity AI.}}{28}{figure.2.2}%
+\contentsline {figure}{\numberline {2.3}{\ignorespaces ChatGPT4 analysis of Windows Event Log entries, identifying MSSQL login attempts.}}{29}{figure.2.3}%
+\contentsline {figure}{\numberline {2.4}{\ignorespaces Effectiveness Comparison: Traditional vs AI-Powered APT Techniques. GenAI demonstrates substantial improvements across all attack categories, with reconnaissance automation reaching 95\% effectiveness compared to 30\% for traditional approaches.}}{30}{figure.2.4}%
+\contentsline {figure}{\numberline {2.5}{\ignorespaces Evolution of Cyber Threats: Ransomware and AI-Phishing (2019--2025). Temporal trends showing exponential growth in AI-powered phishing attacks (red line, right axis) starting in 2023, alongside steady ransomware incident growth (blue line, left axis). The 2025 data represents projected full-year figures based on January--September 2025 actuals.}}{36}{figure.2.5}%
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {3.1}{\ignorespaces Visual representation of the Linux-APT-Dataset-2024}}{41}{figure.3.1}%
-\contentsline {figure}{\numberline {3.2}{\ignorespaces Visual overview of the KAPT-2024 dataset}}{42}{figure.3.2}%
-\contentsline {figure}{\numberline {3.3}{\ignorespaces Visual overview of the CICAPT-IIoT dataset}}{43}{figure.3.3}%
-\contentsline {figure}{\numberline {3.4}{\ignorespaces Biological neuron (left) compared to an Artificial Neural Network model (right).}}{49}{figure.3.4}%
-\contentsline {figure}{\numberline {3.5}{\ignorespaces Visual comparison between K-Means (centroid-based) and DBSCAN (density-based) clustering algorithms.}}{51}{figure.3.5}%
-\contentsline {figure}{\numberline {3.6}{\ignorespaces GNN classification axes for IDS}}{56}{figure.3.6}%
-\contentsline {figure}{\numberline {3.7}{\ignorespaces GAT usage in MAGIC}}{57}{figure.3.7}%
-\contentsline {figure}{\numberline {3.8}{\ignorespaces Architecture and Data Pipeline for the Autoencoder Model}}{58}{figure.3.8}%
-\contentsline {figure}{\numberline {3.9}{\ignorespaces RL Agent Learning Curve (accumulative reward over episodes)}}{61}{figure.3.9}%
+\contentsline {figure}{\numberline {3.1}{\ignorespaces Visual representation of the Linux-APT-Dataset-2024}}{40}{figure.3.1}%
+\contentsline {figure}{\numberline {3.2}{\ignorespaces Visual overview of the KAPT-2024 dataset}}{41}{figure.3.2}%
+\contentsline {figure}{\numberline {3.3}{\ignorespaces Visual overview of the CICAPT-IIoT dataset}}{42}{figure.3.3}%
+\contentsline {figure}{\numberline {3.4}{\ignorespaces Biological neuron (left) compared to an Artificial Neural Network model (right).}}{48}{figure.3.4}%
+\contentsline {figure}{\numberline {3.5}{\ignorespaces Visual comparison between K-Means (centroid-based) and DBSCAN (density-based) clustering algorithms.}}{50}{figure.3.5}%
+\contentsline {figure}{\numberline {3.6}{\ignorespaces GNN classification axes for IDS}}{55}{figure.3.6}%
+\contentsline {figure}{\numberline {3.7}{\ignorespaces GAT usage in MAGIC}}{56}{figure.3.7}%
+\contentsline {figure}{\numberline {3.8}{\ignorespaces Architecture and Data Pipeline for the Autoencoder Model}}{57}{figure.3.8}%
+\contentsline {figure}{\numberline {3.9}{\ignorespaces RL Agent Learning Curve (accumulative reward over episodes)}}{60}{figure.3.9}%

@@ -489,7 +489,6 @@ INPUT .\figures\MITRE.png
 INPUT .\figures\MITRE.png
 INPUT .\figures\MITRE.png
 INPUT G:\latex\fonts\tfm\public\cm\cmbx9.tfm
-INPUT G:\latex\fonts\tfm\jknappen\ec\tcrm0900.tfm
 INPUT .\figures\over_under.png
 INPUT .\figures\over_under.png
 INPUT .\figures\over_under.png
@@ -616,8 +615,6 @@ INPUT .\main.out
 INPUT .\main.out
 INPUT C:\Users\HP\AppData\Local\MiKTeX\fonts\pk\ljfour\jknappen\ec\dpi600\tcti1095.pk
 INPUT C:\Users\HP\AppData\Local\MiKTeX\fonts\pk\ljfour\jknappen\ec\dpi600\tcti1095.pk
-INPUT C:\Users\HP\AppData\Local\MiKTeX\fonts\pk\ljfour\jknappen\ec\dpi600\tcrm0900.pk
-INPUT C:\Users\HP\AppData\Local\MiKTeX\fonts\pk\ljfour\jknappen\ec\dpi600\tcrm0900.pk
 INPUT C:\Users\HP\AppData\Local\MiKTeX\fonts\pk\ljfour\jknappen\ec\dpi600\tcrm1095.pk
 INPUT C:\Users\HP\AppData\Local\MiKTeX\fonts\pk\ljfour\jknappen\ec\dpi600\tcrm1095.pk
 INPUT G:\latex\fonts\type1\public\amsfonts\cm\cmbx10.pfb

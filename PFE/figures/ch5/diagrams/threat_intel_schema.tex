@@ -1,0 +1,32 @@
+\documentclass[border=8pt,tikz]{standalone}
+\usepackage{tikz}
+\input{_style}
+
+\begin{document}
+\begin{tikzpicture}[node distance=10mm]
+
+\node[ext, minimum width=30mm] (uh) {URLhaus\\\scriptsize urlhaus.abuse.ch};
+\node[ext, below=of uh, minimum width=30mm] (fd) {Feodo Tracker\\\scriptsize feodotracker.abuse.ch};
+
+\node[worker, right=18mm of uh, yshift=-7mm, minimum width=42mm] (iw)
+  {intel\_feeds\_worker\\\scriptsize 30\,s tick \(\cdot\) pybreaker circuit};
+
+\node[store, right=18mm of iw, minimum width=36mm] (idx)
+  {intel\_indicators\\\scriptsize Postgres table};
+
+\node[store, below=14mm of idx, minimum width=36mm] (det) {detections\\\scriptsize Timescale hypertable};
+
+\node[ui, right=18mm of idx, yshift=-7mm, minimum width=40mm] (hit)
+  {Observable hit\\\scriptsize surfaced in UI};
+
+\draw[edgeStrong] (uh) -- (iw) node[midway, above, font=\sffamily\scriptsize] {JSON};
+\draw[edgeStrong] (fd) -- (iw);
+\draw[edgeStrong] (iw) -- (idx) node[midway, above, font=\sffamily\scriptsize] {upsert};
+\draw[edgeStrong] (idx) -- (hit);
+\draw[edgeStrong] (det) -- (hit) node[midway, below, font=\sffamily\scriptsize] {join on indicator};
+
+\node[font=\sffamily\scriptsize\itshape, text=strixGrey, anchor=north]
+  at ([yshift=-2mm]iw.south) {types: ip, domain, url, hash, email};
+
+\end{tikzpicture}
+\end{document}

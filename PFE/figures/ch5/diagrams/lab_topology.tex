@@ -1,0 +1,51 @@
+\documentclass[border=8pt,tikz]{standalone}
+\usepackage{tikz}
+\input{_style}
+
+\begin{document}
+\begin{tikzpicture}[node distance=8mm]
+
+% Developer host
+\node[comp=strixDark, minimum width=110mm, minimum height=72mm,
+      draw=strixDark, fill=strixGrey!4]
+  (host) at (0,0) {};
+\node[title, anchor=north west] at ([xshift=2mm,yshift=-2mm]host.north west)
+  {Developer host \(\cdot\) 16\,GB RAM \(\cdot\) CPU-only};
+
+% Docker bridge network
+\node[group, minimum width=104mm, minimum height=52mm,
+      fill=strixBlue!4, draw=strixBlue!50]
+  (bridge) at (0,-7mm) {};
+\node[title, font=\sffamily\bfseries\scriptsize, anchor=north west, text=strixBlue]
+  at ([xshift=2mm,yshift=-1mm]bridge.north west)
+  {Docker bridge network \(\cdot\) \texttt{strix\_lab} \(\cdot\) 172.18.0.0/16};
+
+% Containers
+\node[ext, minimum width=24mm]
+  (attacker) at ([xshift=-38mm,yshift=-4mm]bridge.center) {Kali +\\Caldera};
+\node[source, minimum width=22mm]
+  (v1) at ([xshift=-10mm,yshift=-4mm]bridge.center) {victim1};
+\node[source, minimum width=22mm]
+  (v2) at ([xshift=14mm,yshift=-4mm]bridge.center) {victim2};
+\node[store, minimum width=20mm]
+  (pg) at ([xshift=36mm,yshift=2mm]bridge.center) {Postgres};
+\node[store, minimum width=20mm]
+  (rd) at ([xshift=36mm,yshift=-12mm]bridge.center) {Redis};
+
+\node[worker, minimum width=22mm, anchor=north]
+  (api) at ([yshift=-22mm]bridge.south) {API + 6 workers};
+\node[ui, minimum width=22mm, left=8mm of api] (web) {Web};
+\node[ui, minimum width=22mm, right=8mm of api] (mob) {Mobile};
+
+\draw[edgeStrong, dashed, draw=strixRed]
+  (attacker.east) -- (v1.west) node[midway,above,font=\sffamily\scriptsize, text=strixRed] {C2};
+\draw[edgeStrong, dashed, draw=strixRed]
+  (attacker) to[bend right=10] (v2.west);
+\draw[edge] (v1) -- (pg);
+\draw[edge] (v2) -- (rd);
+\draw[edgeStrong] (api) -- (bridge.south);
+\draw[edge] (web) -- (api);
+\draw[edge] (mob) -- (api);
+
+\end{tikzpicture}
+\end{document}

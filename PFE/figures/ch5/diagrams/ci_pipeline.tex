@@ -1,0 +1,30 @@
+\documentclass[border=8pt,tikz]{standalone}
+\usepackage{tikz}
+\input{_style}
+
+\begin{document}
+\begin{tikzpicture}[node distance=6mm and 14mm]
+
+\node[source, minimum width=24mm] (push) {git push};
+
+\node[worker, right=22mm of push, minimum width=28mm] (api) {api.yml};
+\node[worker, below=8mm of api, minimum width=28mm] (web) {web.yml};
+\node[worker, below=8mm of web, minimum width=28mm] (mob) {mobile.yml};
+\node[worker, below=8mm of mob, minimum width=28mm] (sec) {security.yml};
+\node[worker, below=8mm of sec, minimum width=28mm] (lt)  {loadtest.yml};
+
+\node[ui, right=26mm of api,minimum width=44mm] (a1) {ruff \(\cdot\) mypy \(\cdot\) pytest\\\scriptsize{coverage \(\geq\)55\%}, alembic round-trip, build};
+\node[ui, right=26mm of web,minimum width=44mm] (a2) {tsc \(\cdot\) eslint \(\cdot\) build\\\scriptsize check:api-types (OpenAPI/TS drift)};
+\node[ui, right=26mm of mob,minimum width=44mm] (a3) {tsc \(\cdot\) Expo build};
+\node[ui, right=26mm of sec,minimum width=44mm] (a4) {dep-scan \(\cdot\) secret-scan};
+\node[ui, right=26mm of lt, minimum width=44mm] (a5) {k6 load test (manual)};
+
+\foreach \w in {api,web,mob,sec,lt} {
+  \draw[edgeStrong] (push.east) to[bend left=0] (\w.west);
+}
+\foreach \src/\tgt in {api/a1,web/a2,mob/a3,sec/a4,lt/a5} {
+  \draw[edge] (\src) -- (\tgt);
+}
+
+\end{tikzpicture}
+\end{document}

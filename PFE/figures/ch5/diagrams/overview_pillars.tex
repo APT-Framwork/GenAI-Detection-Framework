@@ -1,0 +1,31 @@
+\documentclass[border=8pt,tikz]{standalone}
+\usepackage{tikz}
+\input{_style}
+
+\begin{document}
+\begin{tikzpicture}[node distance=12mm]
+
+% Central STRIX hub
+\node[comp=strixDark, minimum width=42mm, minimum height=20mm,
+      fill=strixDark, text=white, font=\sffamily\bfseries]
+  (hub) {STRIX platform\\\scriptsize\mdseries
+         OpenAPI \(\cdot\) hash-pinned weights\\\scriptsize\mdseries Docker Compose};
+
+% Five pillars
+\def\R{4.6}
+\foreach \i/\name/\sub/\col in {
+  0/{ML stack}/{5 models + DQN\\PyTorch, transformers}/strixGold,
+  1/{Backend}/{FastAPI + 6 workers\\Postgres + Redis Streams}/strixGreen,
+  2/{Web console}/{Next.js 14\\Zustand, TanStack Query}/strixPurple,
+  3/{Mobile app}/{Expo + EAS\\react-native-sse}/strixBlue,
+  4/{Lab \& sim}/{Wazuh, Caldera\\Auditd, Filebeat}/strixRed%
+} {
+  \pgfmathsetmacro{\angle}{90 - \i*72}
+  \node[comp=\col, minimum width=34mm, minimum height=16mm]
+    at ({\R*cos(\angle)}, {\R*sin(\angle)}) (p\i)
+    {\textbf{\name}\\\scriptsize\sub};
+  \draw[edgeStrong, draw=\col] (hub) -- (p\i);
+}
+
+\end{tikzpicture}
+\end{document}
