@@ -1,160 +1,48 @@
-This is BibTeX, Version 0.99d (TeX Live 2025/Debian)
+This is BibTeX, Version 0.99d
 Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
 The top-level auxiliary file: main.aux
-The style file: apacite.bst
-Reallocated glb_str_ptr (elt_size=4) to 20 items from 10.
-Reallocated global_strs (elt_size=200001) to 20 items from 10.
-Reallocated glb_str_end (elt_size=4) to 20 items from 10.
-Reallocated singl_function (elt_size=4) to 100 items from 50.
-Reallocated wiz_functions (elt_size=4) to 6000 items from 3000.
-Reallocated singl_function (elt_size=4) to 100 items from 50.
-Reallocated singl_function (elt_size=4) to 100 items from 50.
-Reallocated wiz_functions (elt_size=4) to 9000 items from 6000.
-Reallocated singl_function (elt_size=4) to 100 items from 50.
-Database file #1: references.bib
-Warning--entry type for "caldera2024" isn't style-file defined
---line 853 of file references.bib
-Warning--entry type for "wazuh2024" isn't style-file defined
---line 860 of file references.bib
-Warning--entry type for "auditd2024" isn't style-file defined
---line 867 of file references.bib
-Warning--entry type for "filebeat2024" isn't style-file defined
---line 874 of file references.bib
-Warning--entry type for "mitre_attack" isn't style-file defined
---line 881 of file references.bib
-Warning--entry type for "fastapi2024" isn't style-file defined
---line 888 of file references.bib
-Warning--entry type for "pydantic2024" isn't style-file defined
---line 895 of file references.bib
-Warning--entry type for "sqlalchemy2024" isn't style-file defined
---line 902 of file references.bib
-Warning--entry type for "nextjs2024" isn't style-file defined
---line 909 of file references.bib
-Warning--entry type for "expo2024" isn't style-file defined
---line 916 of file references.bib
-Warning--entry type for "redis2024" isn't style-file defined
---line 923 of file references.bib
-Warning--entry type for "timescaledb2024" isn't style-file defined
---line 930 of file references.bib
-Warning--entry type for "postgres2024" isn't style-file defined
---line 937 of file references.bib
-Warning--entry type for "docker2024" isn't style-file defined
---line 944 of file references.bib
-Warning--entry type for "arq2024" isn't style-file defined
---line 951 of file references.bib
-Warning--entry type for "urlhaus2024" isn't style-file defined
---line 965 of file references.bib
-Warning--entry type for "feodotracker2024" isn't style-file defined
---line 972 of file references.bib
-Warning--entry type for "opentelemetry2024" isn't style-file defined
---line 987 of file references.bib
-Warning--entry type for "prometheus2024" isn't style-file defined
---line 994 of file references.bib
-Warning--entry type for "simpleicons2024" isn't style-file defined
---line 1001 of file references.bib
-apacite.bst [2013/07/21 v6.03 APA bibliography style]
-Warning--`others' not consistent with 6th ed. of the APA Manual
-Warning--`others' not consistent with 6th ed. of the APA Manual
-Warning--`others' not consistent with 6th ed. of the APA Manual
-Warning--`others' not consistent with 6th ed. of the APA Manual
-Warning--`others' not consistent with 6th ed. of the APA Manual
-Warning--`others' not consistent with 6th ed. of the APA Manual
-<<<<<<< HEAD
-Warning--`others' not consistent with 6th ed. of the APA Manual
-Warning--`others' not consistent with 6th ed. of the APA Manual
-Warning--`others' not consistent with 6th ed. of the APA Manual
-Warning--`others' not consistent with 6th ed. of the APA Manual
-Warning--`others' not consistent with 6th ed. of the APA Manual
-Warning--`others' not consistent with 6th ed. of the APA Manual
-Warning--`others' not consistent with 6th ed. of the APA Manual
-Warning--`others' not consistent with 6th ed. of the APA Manual
-Warning--`others' not consistent with 6th ed. of the APA Manual
-Warning--`others' not consistent with 6th ed. of the APA Manual
-Warning--`others' not consistent with 6th ed. of the APA Manual
-Warning--No address in zhu2005semisupervised
-You've used 76 entries,
-            6951 wiz_defined-function locations,
-            1628 strings with 21867 characters,
-and the built_in function-call counts, 140079 in all, are:
-= -- 17823
-> -- 1224
-< -- 6243
-+ -- 6074
-- -- 226
-* -- 8295
-:= -- 24091
-add.period$ -- 329
-call.type$ -- 76
-change.case$ -- 1357
+I found no \citation commands---while reading file main.aux
+I found no \bibdata command---while reading file main.aux
+I found no \bibstyle command---while reading file main.aux
+You've used 0 entries,
+            0 wiz_defined-function locations,
+            83 strings with 482 characters,
+and the built_in function-call counts, 0 in all, are:
+= -- 0
+> -- 0
+< -- 0
++ -- 0
+- -- 0
+* -- 0
+:= -- 0
+add.period$ -- 0
+call.type$ -- 0
+change.case$ -- 0
 chr.to.int$ -- 0
-cite$ -- 153
-duplicate$ -- 3704
-empty$ -- 5707
-format.name$ -- 2051
-if$ -- 27555
+cite$ -- 0
+duplicate$ -- 0
+empty$ -- 0
+format.name$ -- 0
+if$ -- 0
 int.to.chr$ -- 0
-int.to.str$ -- 244
+int.to.str$ -- 0
 missing$ -- 0
-newline$ -- 1867
-num.names$ -- 608
-pop$ -- 3593
-preamble$ -- 1
-purify$ -- 303
+newline$ -- 0
+num.names$ -- 0
+pop$ -- 0
+preamble$ -- 0
+purify$ -- 0
 quote$ -- 0
-skip$ -- 9233
+skip$ -- 0
 stack$ -- 0
-substring$ -- 6634
-swap$ -- 1981
-text.length$ -- 220
+substring$ -- 0
+swap$ -- 0
+text.length$ -- 0
 text.prefix$ -- 0
-top$ -- 1
-type$ -- 7488
-warning$ -- 18
-while$ -- 675
+top$ -- 0
+type$ -- 0
+warning$ -- 0
+while$ -- 0
 width$ -- 0
-write$ -- 2305
-(There were 18 warnings)
-=======
-You've used 61 entries,
-            6951 wiz_defined-function locations,
-            1533 strings with 19858 characters,
-and the built_in function-call counts, 110109 in all, are:
-= -- 14519
-> -- 879
-< -- 4783
-+ -- 4416
-- -- 213
-* -- 6212
-:= -- 18354
-add.period$ -- 262
-call.type$ -- 61
-change.case$ -- 1143
-chr.to.int$ -- 0
-cite$ -- 122
-duplicate$ -- 2705
-empty$ -- 4466
-format.name$ -- 1436
-if$ -- 22114
-int.to.chr$ -- 0
-int.to.str$ -- 211
-missing$ -- 0
-newline$ -- 1454
-num.names$ -- 488
-pop$ -- 2594
-preamble$ -- 1
-purify$ -- 243
-quote$ -- 0
-skip$ -- 8118
-stack$ -- 0
-substring$ -- 4789
-swap$ -- 1352
-text.length$ -- 183
-text.prefix$ -- 0
-top$ -- 1
-type$ -- 6768
-warning$ -- 6
-while$ -- 489
-width$ -- 0
-write$ -- 1727
-(There were 26 warnings)
->>>>>>> f144d13dbd5151019151a8e2c8d52ed926f8ce75
+write$ -- 0
+(There were 3 error messages)
