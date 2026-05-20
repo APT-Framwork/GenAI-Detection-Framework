@@ -90,22 +90,197 @@
 
 \tableofcontents
 \newpage
+\listoffigures
+\newpage
+\listoftables
+\newpage
 \pagenumbering{arabic} 
 
 \chapter*{General Introduction}
 \addcontentsline{toc}{chapter}{General Introduction}
 
-This document uses the following formatting styles to convey supplementary information, following the Explication, Note, and Warning conventions:
+The field of cybersecurity has never been more critical --- or more crowded
+with literature. A quick search returns hundreds of papers, surveys, and
+reviews, and yet something feels off. They all read the same. Same structure,
+same detached tone, same walls of definitions delivered cold, as if the goal
+is to exhaust the reader rather than enlighten them. It is as if the rise of
+AI has infected academic writing itself: reports that feel generated for a
+machine, not written for a human.
+
+This state-of-the-art review is different. Not because the topic is different
+--- it is, in fact, one of the most pressing challenges in modern computing:
+the detection of \textbf{Advanced Persistent Threats (APTs)} using Machine
+Learning. But because the \textit{way} we chose to approach it is different.
+This is not the orthodox way of doing things. We did not set out to pump your
+mind with random information and call it a survey. We set out to talk
+\textit{to} you --- the reader --- whether you are a seasoned security
+researcher or someone just stepping into this field for the first time. We use
+analogies. We build intuition before we build formulas. We treat concepts like
+conversations, not mandates.
+
+\section*{What This Report Covers}
+
+The report is structured around three interconnected pillars:
+\textbf{APT attack modeling}, \textbf{threat detection frameworks}, and
+\textbf{Machine Learning-based countermeasures}. It opens by establishing the
+conceptual foundations --- what cybersecurity really means, what makes an APT
+different from a regular cyberattack. Think of a burglar who quietly copies
+your house key and comes back over months, stealing small things one at a
+time, never triggering the alarm --- that is the essence of an APT, as opposed
+to someone who smashes the door in and runs. The report then walks through
+the frameworks that security professionals use to understand and map attacks
+--- the \textbf{Cyber Kill Chain (CKC)} and the \textbf{MITRE ATT\&CK}
+framework --- explaining not just what they are, but why they exist and how
+they complement each other.
+
+From there, the report moves into the present threat landscape of
+2024--2025, where state-sponsored APT groups and AI-powered attack tools are
+converging in ways that fundamentally challenge traditional defenses. It
+examines how Generative AI is being weaponized at every stage of the kill
+chain --- from automated reconnaissance to polymorphic malware --- while
+simultaneously offering defenders powerful new capabilities.
+
+\section*{The Heart of the Review}
+
+The final chapter dives into the actual detection solutions: an honest,
+critical study of the datasets used in APT research, the Machine Learning
+algorithms most suited to each type of detection task, and a detailed review
+of state-of-the-art ML, Deep Learning, and Generative AI approaches applied
+to real APT datasets. Performance tables, architectural breakdowns, and honest
+assessments of each method's strengths and limits are all included --- not to
+overwhelm, but to give you a clear picture of where the field stands today and
+where it is headed.
+
+\section*{A Note on Style}
+
+Throughout this report, you will notice special callout blocks:
+\textbf{Explication} boxes that offer analogies and clarifying examples,
+\textbf{Note} boxes that highlight important nuances, and \textbf{Warning}
+boxes that flag common misconceptions or critical pitfalls. These are not
+decorations --- they are our way of keeping a real conversation going with you
+on every page.
 
 \customexplication{This element signifies an explication or suggestion.}
 
+
 \customnote{This element signifies a general note.}
 
+
 \customwarning{This element indicates a warning or caution.}
+
+As AI continues to reshape how knowledge is produced and consumed, most
+reports in this space have started to look and feel the same --- written by
+a template, for a template, as if every survey was cast from the same mold.
+We tried our best to break out of that shell. The goal was never to write
+something that sounds impressive. The goal was to write something that is
+actually useful --- something a real person can read, understand, and build
+upon.
 
 \newpage
 
 \input{presentation}
+
+\chapter*{Conclusion}
+\addcontentsline{toc}{chapter}{General Conclusion}
+
+This report set out with a clear ambition: not simply to list what exists in
+the literature, but to build a coherent, honest, and human-readable picture
+of where the field of Machine Learning-based APT detection stands today ---
+and where it is going.
+
+\section*{Laying the Foundations}
+
+Before any algorithm could be discussed, it was necessary to understand what
+we are actually defending against. Advanced Persistent Threats are not
+ordinary attacks. They are slow, deliberate, and adaptive campaigns --- often
+state-sponsored --- that blend into the noise of normal network activity for
+weeks or months before their damage becomes visible. Understanding their
+nature, their phases, and the frameworks built to model them --- the
+\textbf{Cyber Kill Chain (CKC)} and \textbf{MITRE ATT\&CK} --- was not a
+formality. It was the prerequisite for everything that followed.
+
+\section*{The Evolving Threat Landscape}
+
+The second chapter painted the threat landscape as it stands in 2024--2025,
+and the picture is sobering. APT groups are no longer just sophisticated ---
+they are now \textit{AI-augmented}. Reconnaissance is automated. Phishing is
+personalized at scale. Malware mutates to evade signatures. Breakout times
+have collapsed. The same technology that gives defenders powerful new tools is
+being handed, simultaneously, to the attackers. This duality is not a
+coincidence --- it is the defining tension of modern cybersecurity, and any
+detection solution that ignores it is already outdated before it is deployed.
+
+\section*{What the Review Revealed}
+
+The third chapter turned to solutions. A critical review of the available
+datasets revealed that despite growing research activity, truly APT-specific,
+well-labeled, and CKC/MITRE ATT\&CK-mapped datasets remain scarce. The
+\textbf{Linux-APT-Dataset-2024}, \textbf{KAPT-2024}, and
+\textbf{CICAPT-IIoT} datasets represent meaningful progress, but the field
+still suffers from a lack of standardized, realistic benchmarks that reflect
+the multi-stage nature of real APT campaigns.
+
+Across the three families of solutions reviewed --- traditional Machine
+Learning, Deep Learning, and Generative AI --- several conclusions emerge
+clearly:
+
+\begin{itemize}
+    \item \textbf{Traditional ML} methods such as Random Forests and SVMs
+    remain strong baselines, particularly when interpretability and low
+    computational cost are priorities. However, they struggle with the
+    sequential, multi-stage nature of APT attacks.
+
+    \item \textbf{Deep Learning} approaches --- CNNs, LSTMs, GNNs, and
+    Transformer-based models --- offer substantially higher expressive power
+    and are better suited to capturing temporal and structural patterns in
+    attack sequences. Graph Neural Networks in particular show great promise
+    for modeling the lateral movement and multi-hop behavior characteristic
+    of APTs.
+
+    \item \textbf{Generative AI} approaches --- autoencoders, VAEs, and
+    Reinforcement Learning agents --- open new frontiers. They address the
+    chronic problem of data imbalance, enable anomaly detection without
+    requiring labeled attack samples, and allow agents to adapt dynamically
+    to evolving threats. The \textbf{OGE-DQN} model reviewed in this report
+    exemplifies how RL-based agents can outperform static classifiers on
+    zero-day and contaminated test scenarios.
+\end{itemize}
+
+\section*{Open Challenges}
+
+Despite this progress, important challenges remain open. No single model
+today achieves both high detection coverage across the full MITRE ATT\&CK
+matrix and robust generalization to unseen attack variants. The gap between
+controlled benchmark performance and real-world deployment is still wide.
+Explainability --- the ability to tell a security analyst \textit{why} a
+model flagged an event, not just \textit{that} it did --- remains an unsolved
+problem for most deep architectures. And the adversarial arms race means that
+any static model, however accurate today, risks obsolescence tomorrow.
+
+\section*{Looking Forward}
+
+What this report ultimately reveals is that the future of APT detection lies
+not in any single algorithm, but in the \textbf{combination}: structured
+frameworks like CKC and MITRE ATT\&CK to provide semantic grounding,
+graph-based and sequential models to capture attack progression, and
+generative or adaptive components to handle novelty and imbalance. The field
+is moving, steadily, toward detection systems that do not just recognize known
+threats --- but reason about unknown ones.
+
+This report was written as a stepping stone. The knowledge built here --- the
+understanding of APT mechanics, the landscape of existing datasets, the
+strengths and limits of each ML family --- forms the direct foundation for
+the upcoming work: \textit{``GenAI-Augmented Framework for Early Detection of
+Multi-Stage APT Attacks using Cyber Kill Chain''}. That work will take
+everything examined in this report and push it further: designing a framework
+that is not just aware of the attack lifecycle, but actively guided by it ---
+using Generative AI not as an accessory, but as a core component of
+detection. This report is the map. What comes next is the journey.
+
+We hope this report served not only as a map of that landscape, but as a
+readable one. If at any point an analogy made a concept click, or a warning
+box saved you from a common pitfall, then we achieved what we set out to do
+--- to write something useful, from one human to another.
 
 \bibliographystyle{apacite}
 \bibliography{references}

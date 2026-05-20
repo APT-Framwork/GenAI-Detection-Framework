@@ -65,46 +65,49 @@ Warning--`others' not consistent with 6th ed. of the APA Manual
 Warning--`others' not consistent with 6th ed. of the APA Manual
 Warning--`others' not consistent with 6th ed. of the APA Manual
 Warning--`others' not consistent with 6th ed. of the APA Manual
+Warning--`others' not consistent with 6th ed. of the APA Manual
+Warning--`others' not consistent with 6th ed. of the APA Manual
+Warning--`others' not consistent with 6th ed. of the APA Manual
 Warning--No address in zhu2005semisupervised
-You've used 71 entries,
+You've used 101 entries,
             6951 wiz_defined-function locations,
-            1602 strings with 21219 characters,
-and the built_in function-call counts, 125391 in all, are:
-= -- 16129
-> -- 925
-< -- 5817
-+ -- 5235
-- -- 256
-* -- 7296
-:= -- 22284
-add.period$ -- 294
-call.type$ -- 71
-change.case$ -- 1295
+            1744 strings with 26527 characters,
+and the built_in function-call counts, 190093 in all, are:
+= -- 24532
+> -- 1535
+< -- 8688
++ -- 8219
+- -- 319
+* -- 11174
+:= -- 32993
+add.period$ -- 434
+call.type$ -- 101
+change.case$ -- 1833
 chr.to.int$ -- 0
-cite$ -- 143
-duplicate$ -- 2889
-empty$ -- 5112
-format.name$ -- 1455
-if$ -- 24699
+cite$ -- 203
+duplicate$ -- 4688
+empty$ -- 7546
+format.name$ -- 2535
+if$ -- 37306
 int.to.chr$ -- 0
-int.to.str$ -- 227
+int.to.str$ -- 321
 missing$ -- 0
-newline$ -- 1662
-num.names$ -- 568
-pop$ -- 2768
+newline$ -- 2447
+num.names$ -- 808
+pop$ -- 4215
 preamble$ -- 1
-purify$ -- 325
+purify$ -- 445
 quote$ -- 0
-skip$ -- 8873
+skip$ -- 13350
 stack$ -- 0
-substring$ -- 5660
-swap$ -- 1489
-text.length$ -- 254
+substring$ -- 8884
+swap$ -- 2463
+text.length$ -- 333
 text.prefix$ -- 0
 top$ -- 1
-type$ -- 7168
-warning$ -- 15
-while$ -- 535
+type$ -- 10848
+warning$ -- 18
+while$ -- 884
 width$ -- 0
-write$ -- 1945
-(There were 33 warnings)
+write$ -- 2969
+(There were 36 warnings)

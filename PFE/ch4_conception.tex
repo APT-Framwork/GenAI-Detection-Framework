@@ -1,23 +1,8 @@
 \chapter{Conception}
+\label{chap:conception}
 \section{Introduction}
 \section{Identified Gaps and Proposed Solution Overview}
 \section{Global Architecture of the Framework}
-\section{Dataset Selection and Justification}
-\subsection{Selection Criteria}
-\subsection{Elimination Process}
-\subsection{Final Selection}
-\section{Data Preprocessing Pipeline}
-\subsection{CSV Repair}
-\subsection{Field Extraction and MITRE Filtering}
-\subsection{Timestamp Parsing and Chronological Sorting per Agent}
-\subsection{Attack Sequence Graph Construction}
-\subsection{Attack Pattern Analysis}
-\subsection{Exported Artifacts}
-\section{Feature Engineering}
-\subsection{Phase 1}
-\subsection{Phase 2}
-\subsection{SecBERT Embedding}
-\subsection{Feature Selection with XGBoost/RandomForest}
 \section{Detection Models}
 \subsection{Autoencoder}
 \subsection{VAE}
@@ -32,4 +17,29 @@
 \subsection{Architecture and role}
 \subsection{Training process}
 \subsection{Ablation Study}
+\section{Platform Architecture and Design}
+
+\subsection{Overview of the Platform}
+% General description of the platform, its role, and how it fits in the full framework
+
+\subsection{System Architecture Diagram}
+% High-level UML component or deployment diagram showing all platform components
+
+\subsection{Platform Components}
+% Description of each component: detection engine, Wazuh integration, threat intelligence module, dashboard
+
+\subsection{Data Flow Design}
+% UML sequence or activity diagram showing how data flows from Wazuh agent → manager → your detection pipeline → dashboard
+
+\subsection{Use Case Diagram}
+% UML use case diagram: actors (security analyst, Wazuh agent, detection engine) and their interactions
+
+\subsection{Class Diagram}
+% If you have a backend/API: main classes and their relationships
+
+\subsection{Sequence Diagram}
+% Step-by-step interaction between components during an APT detection event
+
+\subsection{Deployment Architecture}
+% How the platform is deployed: Docker containers, Wazuh manager, victim machines, Caldera
 \section{Conclusion}

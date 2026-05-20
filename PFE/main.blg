@@ -21,45 +21,57 @@ Warning--`others' not consistent with 6th ed. of the APA Manual
 Warning--`others' not consistent with 6th ed. of the APA Manual
 Warning--`others' not consistent with 6th ed. of the APA Manual
 Warning--`others' not consistent with 6th ed. of the APA Manual
-You've used 31 entries,
+Warning--`others' not consistent with 6th ed. of the APA Manual
+Warning--`others' not consistent with 6th ed. of the APA Manual
+Warning--`others' not consistent with 6th ed. of the APA Manual
+Warning--`others' not consistent with 6th ed. of the APA Manual
+Warning--`others' not consistent with 6th ed. of the APA Manual
+Warning--`others' not consistent with 6th ed. of the APA Manual
+Warning--`others' not consistent with 6th ed. of the APA Manual
+Warning--`others' not consistent with 6th ed. of the APA Manual
+Warning--`others' not consistent with 6th ed. of the APA Manual
+Warning--`others' not consistent with 6th ed. of the APA Manual
+Warning--`others' not consistent with 6th ed. of the APA Manual
+Warning--No address in zhu2005semisupervised
+You've used 76 entries,
             6951 wiz_defined-function locations,
-            1404 strings with 14874 characters,
-and the built_in function-call counts, 51814 in all, are:
-= -- 6392
-> -- 440
-< -- 2381
-+ -- 2205
-- -- 113
-* -- 3096
-:= -- 9276
-add.period$ -- 134
-call.type$ -- 31
-change.case$ -- 563
+            1628 strings with 21867 characters,
+and the built_in function-call counts, 140079 in all, are:
+= -- 17823
+> -- 1224
+< -- 6243
++ -- 6074
+- -- 226
+* -- 8295
+:= -- 24091
+add.period$ -- 329
+call.type$ -- 76
+change.case$ -- 1357
 chr.to.int$ -- 0
-cite$ -- 62
-duplicate$ -- 1314
-empty$ -- 2214
-format.name$ -- 723
-if$ -- 10150
+cite$ -- 153
+duplicate$ -- 3704
+empty$ -- 5707
+format.name$ -- 2051
+if$ -- 27555
 int.to.chr$ -- 0
-int.to.str$ -- 105
+int.to.str$ -- 244
 missing$ -- 0
-newline$ -- 745
-num.names$ -- 248
-pop$ -- 1615
+newline$ -- 1867
+num.names$ -- 608
+pop$ -- 3593
 preamble$ -- 1
-purify$ -- 123
+purify$ -- 303
 quote$ -- 0
-skip$ -- 3082
+skip$ -- 9233
 stack$ -- 0
-substring$ -- 2378
-swap$ -- 657
-text.length$ -- 85
+substring$ -- 6634
+swap$ -- 1981
+text.length$ -- 220
 text.prefix$ -- 0
 top$ -- 1
-type$ -- 2544
-warning$ -- 6
-while$ -- 239
+type$ -- 7488
+warning$ -- 18
+while$ -- 675
 width$ -- 0
-write$ -- 891
-(There were 6 warnings)
+write$ -- 2305
+(There were 18 warnings)

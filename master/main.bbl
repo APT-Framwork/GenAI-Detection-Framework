@@ -55,6 +55,71 @@ Ahmed, Y.%
 \PrintBackRefs{\CurrentBib}
 
 \bibitem [\protect \citeauthoryear {%
+Alkasassbeh%
+, Al-Naymat%
+, Hassanat%
+\BCBL {}\ \BBA {} Almseidin%
+}{%
+Alkasassbeh%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2016}}%
+}]{%
+alkasassbeh2016detecting}
+\APACinsertmetastar {%
+alkasassbeh2016detecting}%
+\begin{APACrefauthors}%
+Alkasassbeh, M.%
+, Al-Naymat, G.%
+, Hassanat, A.%
+\BCBL {}\ \BBA {} Almseidin, M.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2016}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Detecting distributed denial of service attacks using
+  data mining techniques} {Detecting distributed denial of service attacks
+  using data mining techniques}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{International Journal of Advanced Computer Science and
+  Applications (IJACSA)}{7}{1}{436--445}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Alsaheel%
+\ \protect \BOthers {.}}{%
+Alsaheel%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2021}}%
+}]{%
+alsaheel2021atlas}
+\APACinsertmetastar {%
+alsaheel2021atlas}%
+\begin{APACrefauthors}%
+Alsaheel, A.%
+, Nan, Y.%
+, Ma, S.%
+, Yu, L.%
+, Walkup, G.%
+, Celik, Z\BPBI B.%
+\BDBL {}Xu, D.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2021}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {ATLAS: A Sequence-based Learning Approach for Attack
+  Investigation} {Atlas: A sequence-based learning approach for attack
+  investigation}.{\BBCQ}
+\newblock
+\BIn{} \APACrefbtitle {Proceedings of the 30th USENIX Security Symposium
+  (USENIX Security 21)} {Proceedings of the 30th usenix security symposium
+  (usenix security 21)}\ (\BPGS\ 3005--3022).
+\newblock
+\APACaddressPublisher{}{USENIX Association}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
 Ankalaki%
 \ \protect \BOthers {.}}{%
 Ankalaki%
@@ -387,6 +452,51 @@ Chandola, V.%
   survey}.{\BBCQ}
 \newblock
 \APACjournalVolNumPages{ACM Computing Surveys}{41}{3}{1--58}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Cheng%
+\ \protect \BOthers {.}}{%
+Cheng%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2023}}%
+{\protect \APACexlab {{\protect \BCnt {1}}}}}]{%
+cheng2023ghunter}
+\APACinsertmetastar {%
+cheng2023ghunter}%
+\begin{APACrefauthors}%
+Cheng, Z.%
+\BCBT {}\ \BOthersPeriod {.}
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2023{\protect \BCnt {1}}}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {GHUNTER: Subgraph matching for intrusion detection}
+  {Ghunter: Subgraph matching for intrusion detection}.{\BBCQ}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Cheng%
+\ \protect \BOthers {.}}{%
+Cheng%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2023}}%
+{\protect \APACexlab {{\protect \BCnt {2}}}}}]{%
+cheng2023kairos}
+\APACinsertmetastar {%
+cheng2023kairos}%
+\begin{APACrefauthors}%
+Cheng, Z.%
+\BCBT {}\ \BOthersPeriod {.}
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2023{\protect \BCnt {2}}}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {KAIROS: Temporal Encoder-Decoder for Intrusion
+  Detection} {Kairos: Temporal encoder-decoder for intrusion
+  detection}.{\BBCQ}.
 \PrintBackRefs{\CurrentBib}
 
 \bibitem [\protect \citeauthoryear {%
@@ -745,6 +855,67 @@ Fawcett, T.%
 \PrintBackRefs{\CurrentBib}
 
 \bibitem [\protect \citeauthoryear {%
+Ferriyan%
+, Thamrin%
+, Takeda%
+\BCBL {}\ \BBA {} Murai%
+}{%
+Ferriyan%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2021}}%
+}]{%
+ferriyan2021generating}
+\APACinsertmetastar {%
+ferriyan2021generating}%
+\begin{APACrefauthors}%
+Ferriyan, A.%
+, Thamrin, A\BPBI H.%
+, Takeda, K.%
+\BCBL {}\ \BBA {} Murai, J.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2021}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Generating Network Intrusion Detection Dataset Based on
+  Real and Encrypted Synthetic Attack Traffic} {Generating network intrusion
+  detection dataset based on real and encrypted synthetic attack
+  traffic}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{Applied Sciences}{11}{17}{7868}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Fu%
+, Zhang%
+, Meng%
+\BCBL {}\ \BBA {} King%
+}{%
+Fu%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2020}}%
+}]{%
+fu2020magnn}
+\APACinsertmetastar {%
+fu2020magnn}%
+\begin{APACrefauthors}%
+Fu, X.%
+, Zhang, J.%
+, Meng, Z.%
+\BCBL {}\ \BBA {} King, I.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2020}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {MAGNN: Metapath Aggregated Graph Neural Network for
+  Heterogeneous Graph Embedding} {Magnn: Metapath aggregated graph neural
+  network for heterogeneous graph embedding}.{\BBCQ}
+\newblock
+\BIn{} \APACrefbtitle {The Web Conference.} {The web conference.}
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
 Ghiasvand%
 \ \protect \BOthers {.}}{%
 Ghiasvand%
@@ -818,6 +989,33 @@ google2025}%
 \begin{APACrefURL}
   \url{https://cloud.google.com/blog/topics/threat-intelligence/adversarial-misuse-generative-ai}
   \end{APACrefURL}
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Hamilton%
+, Ying%
+\BCBL {}\ \BBA {} Leskovec%
+}{%
+Hamilton%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2017}}%
+}]{%
+hamilton2017graphsage}
+\APACinsertmetastar {%
+hamilton2017graphsage}%
+\begin{APACrefauthors}%
+Hamilton, W.%
+, Ying, Z.%
+\BCBL {}\ \BBA {} Leskovec, J.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2017}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Inductive Representation Learning on Large Graphs}
+  {Inductive representation learning on large graphs}.{\BBCQ}
+\newblock
+\BIn{} \APACrefbtitle {NIPS.} {Nips.}
 \PrintBackRefs{\CurrentBib}
 
 \bibitem [\protect \citeauthoryear {%
@@ -899,6 +1097,40 @@ Hewapathirana, I\BPBI U.%
 \PrintBackRefs{\CurrentBib}
 
 \bibitem [\protect \citeauthoryear {%
+Hindy%
+\ \protect \BOthers {.}}{%
+Hindy%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2020}}%
+}]{%
+hindy2020machine}
+\APACinsertmetastar {%
+hindy2020machine}%
+\begin{APACrefauthors}%
+Hindy, H.%
+, Bayne, E.%
+, Bures, M.%
+, Atkinson, R.%
+, Tachtatzis, C.%
+\BCBL {}\ \BBA {} Bellekens, X.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2020}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Machine Learning Based IoT Intrusion Detection System:
+  An MQTT Case Study (MQTT-IoT-IDS2020 Dataset)} {Machine learning based iot
+  intrusion detection system: An mqtt case study (mqtt-iot-ids2020
+  dataset)}.{\BBCQ}
+\newblock
+\BIn{} \APACrefbtitle {Selected Papers from the 12th International Networking
+  Conference.} {Selected papers from the 12th international networking
+  conference.}
+\newblock
+\APACaddressPublisher{}{Springer, Cham}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
 Hochreiter%
 \ \BBA {} Schmidhuber%
 }{%
@@ -946,31 +1178,6 @@ Huang%
   A systematic literature review}.{\BBCQ}
 \newblock
 \APACjournalVolNumPages{arXiv preprint arXiv:2404.07527}{}{}{}.
-\PrintBackRefs{\CurrentBib}
-
-\bibitem [\protect \citeauthoryear {%
-Y\BHBI T.~Huang%
-\ \protect \BOthers {.}}{%
-Y\BHBI T.~Huang%
-\ \protect \BOthers {.}}{%
-{\protect \APACyear {2024}}%
-}]{%
-huang2024saga}
-\APACinsertmetastar {%
-huang2024saga}%
-\begin{APACrefauthors}%
-Huang, Y\BHBI T.%
-\BCBT {}\ \BOthersPeriod {.}
-\end{APACrefauthors}%
-\unskip\
-\newblock
-\APACrefYearMonthDay{2024}{}{}.
-\newblock
-{\BBOQ}\APACrefatitle {{SAGA}: Synthetic Audit Log Generation for {APT}
-  Campaigns} {{SAGA}: Synthetic audit log generation for {APT}
-  campaigns}.{\BBCQ}
-\newblock
-\APACjournalVolNumPages{arXiv preprint arXiv:2411.13138}{}{}{}.
 \PrintBackRefs{\CurrentBib}
 
 \bibitem [\protect \citeauthoryear {%
@@ -1075,6 +1282,27 @@ industrialcyber2025}%
 \PrintBackRefs{\CurrentBib}
 
 \bibitem [\protect \citeauthoryear {%
+Jia%
+}{%
+Jia%
+}{%
+{\protect \APACyear {2023}}%
+}]{%
+jia2023magic}
+\APACinsertmetastar {%
+jia2023magic}%
+\begin{APACrefauthors}%
+Jia, e\BPBI a.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2023}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {MAGIC: Masked Graph Autoencoder for Intrusion Detection}
+  {Magic: Masked graph autoencoder for intrusion detection}.{\BBCQ}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
 Jiang%
 \ \protect \BOthers {.}}{%
 Jiang%
@@ -1156,6 +1384,64 @@ Karim, O.%
 \PrintBackRefs{\CurrentBib}
 
 \bibitem [\protect \citeauthoryear {%
+Kipf%
+\ \BBA {} Welling%
+}{%
+Kipf%
+\ \BBA {} Welling%
+}{%
+{\protect \APACyear {2017}}%
+}]{%
+kipf2016gcn}
+\APACinsertmetastar {%
+kipf2016gcn}%
+\begin{APACrefauthors}%
+Kipf, T\BPBI N.%
+\BCBT {}\ \BBA {} Welling, M.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2017}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Semi-Supervised Classification with Graph Convolutional
+  Networks} {Semi-supervised classification with graph convolutional
+  networks}.{\BBCQ}
+\newblock
+\BIn{} \APACrefbtitle {ICLR.} {Iclr.}
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Kolias%
+, Kambourakis%
+, Stavrou%
+\BCBL {}\ \BBA {} Gritzalis%
+}{%
+Kolias%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2016}}%
+}]{%
+kolias2016intrusion}
+\APACinsertmetastar {%
+kolias2016intrusion}%
+\begin{APACrefauthors}%
+Kolias, C.%
+, Kambourakis, G.%
+, Stavrou, A.%
+\BCBL {}\ \BBA {} Gritzalis, S.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2016}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Intrusion detection in 802.11 networks: empirical
+  evaluation of threats and a public dataset} {Intrusion detection in 802.11
+  networks: empirical evaluation of threats and a public dataset}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{IEEE Communications Surveys \&
+  Tutorials}{18}{1}{184--208}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
 Krishnapriya%
 \ \BBA {} Singh%
 }{%
@@ -1184,6 +1470,41 @@ Krishnapriya, S.%
 \PrintBackRefs{\CurrentBib}
 
 \bibitem [\protect \citeauthoryear {%
+Lashkari%
+, Kadir%
+, Taheri%
+\BCBL {}\ \BBA {} Ghorbani%
+}{%
+Lashkari%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2018}}%
+}]{%
+lashkari2018toward}
+\APACinsertmetastar {%
+lashkari2018toward}%
+\begin{APACrefauthors}%
+Lashkari, A\BPBI H.%
+, Kadir, A\BPBI F\BPBI A.%
+, Taheri, L.%
+\BCBL {}\ \BBA {} Ghorbani, A\BPBI A.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2018}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Toward Developing a Systematic Approach to Generate
+  Benchmark Android Malware Datasets and Classification} {Toward developing a
+  systematic approach to generate benchmark android malware datasets and
+  classification}.{\BBCQ}
+\newblock
+\BIn{} \APACrefbtitle {Proceedings of the 52nd IEEE International Carnahan
+  Conference (ICCST).} {Proceedings of the 52nd ieee international carnahan
+  conference (iccst).}
+\newblock
+\APACaddressPublisher{Montreal, Quebec, Canada}{}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
 {LinkedIn}%
 }{%
 {LinkedIn}%
@@ -1209,6 +1530,63 @@ darkllms2023}%
 \PrintBackRefs{\CurrentBib}
 
 \bibitem [\protect \citeauthoryear {%
+Lopez-Martin%
+, Carro%
+\BCBL {}\ \BBA {} Sanchez-Esguevillas%
+}{%
+Lopez-Martin%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2020}}%
+}]{%
+lopez2020application}
+\APACinsertmetastar {%
+lopez2020application}%
+\begin{APACrefauthors}%
+Lopez-Martin, M.%
+, Carro, B.%
+\BCBL {}\ \BBA {} Sanchez-Esguevillas, A.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2020}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Application of deep reinforcement learning to intrusion
+  detection for supervised problems} {Application of deep reinforcement
+  learning to intrusion detection for supervised problems}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{Expert Systems with Applications}{141}{}{112963}.
+\newblock
+\begin{APACrefDOI} \doi{10.1016/j.eswa.2019.112963} \end{APACrefDOI}
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Ma%
+\ \BBA {} Shi%
+}{%
+Ma%
+\ \BBA {} Shi%
+}{%
+{\protect \APACyear {2020}}%
+}]{%
+ma2020idsgan}
+\APACinsertmetastar {%
+ma2020idsgan}%
+\begin{APACrefauthors}%
+Ma, X.%
+\BCBT {}\ \BBA {} Shi, W.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2020}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {IDSGAN: Generative Adversarial Networks for Attack
+  Generation against Intrusion Detection} {Idsgan: Generative adversarial
+  networks for attack generation against intrusion detection}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{Information Sciences}{}{}{}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
 Mabrouk%
 \ \protect \BOthers {.}}{%
 Mabrouk%
@@ -1231,6 +1609,37 @@ Mabrouk, A.%
   detection through high-fidelity dataset generation}.{\BBCQ}
 \newblock
 \APACjournalVolNumPages{arXiv preprint arXiv:2508.02942}{}{}{}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Mnih%
+\ \protect \BOthers {.}}{%
+Mnih%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2015}}%
+}]{%
+mnih2015human}
+\APACinsertmetastar {%
+mnih2015human}%
+\begin{APACrefauthors}%
+Mnih, V.%
+, Kavukcuoglu, K.%
+, Silver, D.%
+, Rusu, A\BPBI A.%
+, Veness, J.%
+, Bellemare, M\BPBI G.%
+\BDBL {}Hassabis, D.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2015}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Human-level control through deep reinforcement learning}
+  {Human-level control through deep reinforcement learning}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{Nature}{518}{7540}{529--533}.
+\newblock
+\begin{APACrefDOI} \doi{10.1038/nature14236} \end{APACrefDOI}
 \PrintBackRefs{\CurrentBib}
 
 \bibitem [\protect \citeauthoryear {%
@@ -1306,6 +1715,36 @@ nist2023cyber}%
 \APACrefbtitle {See Yourself in Cyber.} {See yourself in cyber.}
 \newblock
 \APAChowpublished {\url{https://www.nist.gov}}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Neuschmied%
+\ \protect \BOthers {.}}{%
+Neuschmied%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2022}}%
+}]{%
+neuschmied2022apt}
+\APACinsertmetastar {%
+neuschmied2022apt}%
+\begin{APACrefauthors}%
+Neuschmied, H.%
+, Winter, M.%
+, Stojanovi{\'c}, B.%
+, Hofer-Schmitz, K.%
+, Bo{\v{z}}i{\'c}, J.%
+\BCBL {}\ \BBA {} Kleb, U.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2022}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {APT-Attack Detection Based on Multi-Stage Autoencoders}
+  {Apt-attack detection based on multi-stage autoencoders}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{Applied Sciences}{12}{13}{6816}.
+\newblock
+\begin{APACrefDOI} \doi{10.3390/app12136816} \end{APACrefDOI}
 \PrintBackRefs{\CurrentBib}
 
 \bibitem [\protect \citeauthoryear {%
@@ -1495,6 +1934,65 @@ reddit2025}%
 \PrintBackRefs{\CurrentBib}
 
 \bibitem [\protect \citeauthoryear {%
+Rossi%
+\ \protect \BOthers {.}}{%
+Rossi%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2020}}%
+}]{%
+rossi2020tgn}
+\APACinsertmetastar {%
+rossi2020tgn}%
+\begin{APACrefauthors}%
+Rossi, E.%
+, Chamberlain, B.%
+, Frasca, F.%
+, Eynard, D.%
+, Monti, F.%
+\BCBL {}\ \BBA {} Bronstein, M.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2020}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Temporal Graph Networks for Deep Learning on Dynamic
+  Graphs} {Temporal graph networks for deep learning on dynamic graphs}.{\BBCQ}
+\newblock
+\BIn{} \APACrefbtitle {ICML.} {Icml.}
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Saad%
+\ \BBA {} Yildiz%
+}{%
+Saad%
+\ \BBA {} Yildiz%
+}{%
+{\protect \APACyear {2023}}%
+}]{%
+saad2023reinforcement}
+\APACinsertmetastar {%
+saad2023reinforcement}%
+\begin{APACrefauthors}%
+Saad, A\BPBI M\BPBI S\BPBI E.%
+\BCBT {}\ \BBA {} Yildiz, B.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2023}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Reinforcement Learning for Intrusion Detection}
+  {Reinforcement learning for intrusion detection}.{\BBCQ}
+\newblock
+\BIn{} \APACrefbtitle {Proceedings of the International Conference on
+  Computational Intelligence and Data Analytics (ICCIDA 2022)} {Proceedings of
+  the international conference on computational intelligence and data analytics
+  (iccida 2022)}\ (\BVOL~643).
+\newblock
+\APACaddressPublisher{}{Springer}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
 {SCADAfence}%
 }{%
 {SCADAfence}%
@@ -1565,6 +2063,42 @@ sentinelone2024vector}%
 \PrintBackRefs{\CurrentBib}
 
 \bibitem [\protect \citeauthoryear {%
+Sharmila~Devi%
+\ \protect \BOthers {.}}{%
+Sharmila~Devi%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2026}}%
+}]{%
+SharmilaD2026CNN2D}
+\APACinsertmetastar {%
+SharmilaD2026CNN2D}%
+\begin{APACrefauthors}%
+Sharmila~Devi, M.%
+, Sai Guna~Varsheta, G.%
+, Sreedhar, B.%
+, Swarajya~Lakshmi, B.%
+, Sravanthi, D.%
+\BCBL {}\ \BBA {} Rubiya~Parveen, S.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2026}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {{CNN2D}-based Deep Learning Framework for {IoT}
+  Cyberattack Detection with {CICAPT-IIoT}} {{CNN2D}-based deep learning
+  framework for {IoT} cyberattack detection with {CICAPT-IIoT}}.{\BBCQ}
+\newblock
+\BIn{} \APACrefbtitle {Proceedings of the International Conference on Visual
+  Analytics and Data Visualization (ICVADV-2026)} {Proceedings of the
+  international conference on visual analytics and data visualization
+  (icvadv-2026)}\ (\BPGS\ 1459--1464).
+\newblock
+\APACaddressPublisher{}{IEEE}.
+\newblock
+\begin{APACrefDOI} \doi{10.1109/ICVADV67766.2026.11469823} \end{APACrefDOI}
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
 Singh%
 , Sharma%
 , Moon%
@@ -1621,6 +2155,27 @@ socradar2024}%
 \begin{APACrefURL}
   \url{https://socradar.io/top-10-advanced-persistent-threat-apt-groups-2024/}
   \end{APACrefURL}
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Son%
+}{%
+Son%
+}{%
+{\protect \APACyear {2023}}%
+}]{%
+son2023xfed}
+\APACinsertmetastar {%
+son2023xfed}%
+\begin{APACrefauthors}%
+Son, e\BPBI a.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2023}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {XFedGraph-Hunter: Transformer-augmented GraphSAGE}
+  {Xfedgraph-hunter: Transformer-augmented graphsage}.{\BBCQ}.
 \PrintBackRefs{\CurrentBib}
 
 \bibitem [\protect \citeauthoryear {%
@@ -1761,6 +2316,273 @@ veeam2025}%
 \PrintBackRefs{\CurrentBib}
 
 \bibitem [\protect \citeauthoryear {%
+Veli{\v{c}}kovi{\'{c}}%
+\ \protect \BOthers {.}}{%
+Veli{\v{c}}kovi{\'{c}}%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2018}}%
+}]{%
+velickovic2017gat}
+\APACinsertmetastar {%
+velickovic2017gat}%
+\begin{APACrefauthors}%
+Veli{\v{c}}kovi{\'{c}}, P.%
+, Cucurull, G.%
+, Casanova, A.%
+, Romero, A.%
+, Lio, P.%
+\BCBL {}\ \BBA {} Bengio, Y.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2018}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Graph Attention Networks} {Graph attention
+  networks}.{\BBCQ}
+\newblock
+\BIn{} \APACrefbtitle {ICLR.} {Iclr.}
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Vinayakumar%
+\ \protect \BOthers {.}}{%
+Vinayakumar%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2019}}%
+}]{%
+vinayakumar2019deep}
+\APACinsertmetastar {%
+vinayakumar2019deep}%
+\begin{APACrefauthors}%
+Vinayakumar, R.%
+, Alazab, M.%
+, Soman, K\BPBI P.%
+, Poornachandran, P.%
+, Al-Nemrat, A.%
+\BCBL {}\ \BBA {} Venkatraman, S.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2019}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Deep Learning Approach for Intelligent Intrusion
+  Detection System} {Deep learning approach for intelligent intrusion detection
+  system}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{IEEE Access}{7}{}{41525--41550}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Wang%
+\ \protect \BOthers {.}}{%
+Wang%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2022}}%
+}]{%
+wang2022threatrace}
+\APACinsertmetastar {%
+wang2022threatrace}%
+\begin{APACrefauthors}%
+Wang, S.%
+\BCBT {}\ \BOthersPeriod {.}
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2022}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {THREATRACE: Inductive node-role learning} {Threatrace:
+  Inductive node-role learning}.{\BBCQ}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Watkins%
+}{%
+Watkins%
+}{%
+{\protect \APACyear {1989}}%
+}]{%
+watkins1989learning}
+\APACinsertmetastar {%
+watkins1989learning}%
+\begin{APACrefauthors}%
+Watkins, C\BPBI J\BPBI C\BPBI H.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYear{1989}.
+\unskip\
+\newblock
+\APACrefbtitle {Learning from delayed rewards} {Learning from delayed rewards}\
+  \APACtypeAddressSchool {\BUPhD}{}{}.
+\unskip\
+\newblock
+\APACaddressSchool {}{King's College, University of Cambridge}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Watkins%
+\ \BBA {} Dayan%
+}{%
+Watkins%
+\ \BBA {} Dayan%
+}{%
+{\protect \APACyear {1992}}%
+}]{%
+watkins1992qlearning}
+\APACinsertmetastar {%
+watkins1992qlearning}%
+\begin{APACrefauthors}%
+Watkins, C\BPBI J\BPBI C\BPBI H.%
+\BCBT {}\ \BBA {} Dayan, P.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{1992}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Q-learning} {Q-learning}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{Machine learning}{8}{}{279--292}.
+\newblock
+\begin{APACrefDOI} \doi{10.1007/BF00992698} \end{APACrefDOI}
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Xu%
+, Hu%
+, Leskovec%
+\BCBL {}\ \BBA {} Jegelka%
+}{%
+Xu%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2019}}%
+}]{%
+xu2018gin}
+\APACinsertmetastar {%
+xu2018gin}%
+\begin{APACrefauthors}%
+Xu, K.%
+, Hu, W.%
+, Leskovec, J.%
+\BCBL {}\ \BBA {} Jegelka, S.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2019}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {How Powerful are Graph Neural Networks?} {How powerful
+  are graph neural networks?}{\BBCQ}
+\newblock
+\BIn{} \APACrefbtitle {ICLR.} {Iclr.}
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Yan%
+\ \protect \BOthers {.}}{%
+Yan%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2022}}%
+}]{%
+yan2022deepro}
+\APACinsertmetastar {%
+yan2022deepro}%
+\begin{APACrefauthors}%
+Yan, N.%
+\BCBT {}\ \BOthersPeriod {.}
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2022}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {DEEPRO: 3-metapath MAGNN} {Deepro: 3-metapath
+  magnn}.{\BBCQ}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Ye%
+}{%
+Ye%
+}{%
+{\protect \APACyear {2023}}%
+}]{%
+ye2023gca}
+\APACinsertmetastar {%
+ye2023gca}%
+\begin{APACrefauthors}%
+Ye, e\BPBI a.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2023}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {GCA: Graph Competitive Autoencoder} {Gca: Graph
+  competitive autoencoder}.{\BBCQ}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Ying%
+, Bourgeois%
+, You%
+, Zitnik%
+\BCBL {}\ \BBA {} Leskovec%
+}{%
+Ying%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2019}}%
+}]{%
+ying2019gnnexplainer}
+\APACinsertmetastar {%
+ying2019gnnexplainer}%
+\begin{APACrefauthors}%
+Ying, Z.%
+, Bourgeois, D.%
+, You, J.%
+, Zitnik, R.%
+\BCBL {}\ \BBA {} Leskovec, J.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2019}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {GNNExplainer: Generating Explanations for Graph Neural
+  Networks} {Gnnexplainer: Generating explanations for graph neural
+  networks}.{\BBCQ}
+\newblock
+\BIn{} \APACrefbtitle {NeurIPS.} {Neurips.}
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Yue%
+, Li%
+, Wu%
+, Zhang%
+\BCBL {}\ \BBA {} Yang%
+}{%
+Yue%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2024}}%
+}]{%
+yue2024aisl}
+\APACinsertmetastar {%
+yue2024aisl}%
+\begin{APACrefauthors}%
+Yue, H.%
+, Li, T.%
+, Wu, D.%
+, Zhang, R.%
+\BCBL {}\ \BBA {} Yang, Z.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2024}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Detecting APT attacks using an attack intent-driven and
+  sequence-based learning approach} {Detecting apt attacks using an attack
+  intent-driven and sequence-based learning approach}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{Computers \& Security}{140}{}{}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
 {ZeroThreat.ai}%
 }{%
 {ZeroThreat.ai}%
@@ -1783,6 +2605,29 @@ zerothreat2025}%
 \begin{APACrefURL}
   \url{https://zerothreat.ai/blog/deepfake-and-ai-phishing-statistics}
   \end{APACrefURL}
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Zhong%
+}{%
+Zhong%
+}{%
+{\protect \APACyear {2024}}%
+}]{%
+zhong2024}
+\APACinsertmetastar {%
+zhong2024}%
+\begin{APACrefauthors}%
+Zhong, e\BPBI a.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2024}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Graph Neural Networks for Intrusion Detection: A Survey}
+  {Graph neural networks for intrusion detection: A survey}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{IEEE}{}{}{}.
 \PrintBackRefs{\CurrentBib}
 
 \bibitem [\protect \citeauthoryear {%

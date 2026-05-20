@@ -791,10 +791,9 @@ Published via the National Research Council of Canada's digital repository, this
 
 The MLAPT dataset accompanies the paper \textit{"A Cyber Kill Chain Approach for Detecting Advanced Persistent Threats"} (Ancona et al.), available both at the GitHub repository \texttt{APT\_detector/MLAPT\_dataset.csv} and via the Loughborough University repository. This dataset is particularly aligned with our work because it is explicitly structured around the \textbf{Cyber Kill Chain model} --- the primary threat modeling framework of this thesis. Alerts are labeled according to CKC phases, making it a natural benchmark for evaluating stage-aware APT detection models and a direct validation ground for our proposed sequential detection architecture.
 
-\subsubsection{APT Lateral Movement Dataset (LMD Collections)}
+\subsubsection{ATLAS audit logs}
 
-Linked to the article \textit{"Enhanced Detection of APT Vector Lateral Movement in Organizational Networks Using Lightweight Machine Learning"} \cite{mabrouk2025lmdg} and accessible at GitHub (ChristosSmiliotopoulos/Lateral-Movement-Dataset--LMD\_Collections), with additional collections via Google Drive. \textbf{Lateral movement} (MITRE ATT\&CK TA0008) is one of the most diagnostically significant APT phases, where the adversary pivots between systems to reach high-value targets. A dedicated lateral movement dataset allows fine-grained evaluation of LSTM and GNN components that must correlate events across multiple hosts and time windows.
-
+sourced from \cite{alsaheel2021atlas} — ATLAS audit logs, available on GitHub. The dataset simulates a 10-day enterprise environment in an isolated network, with both single-host (S-1 to S-4) and multi-host lateral movement attacks (M-1 to M-6). On average, each attack scenario produces 19,750 entities and around 284,000 events per attack. Benign behavior is realistically simulated alongside attacks — users browse websites, download files, and interact with remote servers within an 8-hour working-day window.
 
 \subsubsection{CICAPT-IIoT}
 
@@ -855,18 +854,18 @@ LMD Collections \cite{mabrouk2025lmdg} & Partial ATT\&CK & Network & Lateral mov
 
 \subsection{Broader Cybersecurity Datasets --- Not Directly Suited for APT}
 
-The survey by Ankalaki et al. [15] covers an extensive catalog of cybersecurity benchmark datasets across seven categories. While these datasets are widely adopted for evaluating ML/DL models in general intrusion detection, they are \textbf{not directly suited to our APT multi-stage detection objective} for two primary reasons: (1) they lack MITRE ATT\&CK or CKC annotations that would allow stage-aware evaluation, and (2) most capture isolated, single-stage attack events rather than the temporally correlated, multi-phase sequences that define APT campaigns. They nonetheless form the foundational literature landscape from which our work departs.
+The survey by Ankalaki et al. covers an extensive catalog of cybersecurity benchmark datasets across seven categories. While these datasets are widely adopted for evaluating ML/DL models in general intrusion detection, they are \textbf{not directly suited to our APT multi-stage detection objective} for two primary reasons: (1) they lack MITRE ATT\&CK or CKC annotations that would allow stage-aware evaluation, and (2) most capture isolated, single-stage attack events rather than the temporally correlated, multi-phase sequences that define APT campaigns. They nonetheless form the foundational literature landscape from which our work departs.
 
 \subsubsection{Network Traffic-Based Datasets}
 
-As documented in [15], this is the most studied category in intrusion detection research:
+As documented in \cite{ankalaki2025cyber}, this is the most studied category in intrusion detection research:
 
 \begin{itemize}
-    \item \textbf{KDD Cup 1999 / NSL-KDD}: Historically the most cited IDS datasets, containing four attack categories (DoS, U2R, R2L, Probe). Widely criticized for outdated traffic patterns, redundant data, and unrealistic scenarios that do not reflect modern APT techniques [15].
-    \item \textbf{UNSW-NB15 (2015)}: Ten attack categories including backdoors and shellcode, generated over 31 hours of emulated traffic. More diverse than KDD, but attacks remain isolated events rather than multi-stage campaigns [15].
-    \item \textbf{CICIDS2017}: One of the most comprehensive modern IDS datasets --- 3.1M flows, 8 attack types (SQL injection, DoS, DDoS, botnet, brute force, etc.) over 5 days. Despite its richness, it lacks APT-specific attack chains or CKC/ATT\&CK annotations [15].
-    \item \textbf{LITNET 2020}: Recent dataset with 12 attack types from real network traffic, small in size and focused on known cataloged signatures [15].
-    \item \textbf{HIKARI-2021}: Covers bruteforce variants and cryptomining over 39 hours of real traffic [15].
+    \item \textbf{KDD Cup 1999 / NSL-KDD}: Historically the most cited IDS datasets, containing four attack categories (DoS, U2R, R2L, Probe). Widely criticized for outdated traffic patterns, redundant data, and unrealistic scenarios that do not reflect modern APT techniques \cite{ankalaki2025cyber}.
+    \item \textbf{UNSW-NB15 (2015)}: Ten attack categories including backdoors and shellcode, generated over 31 hours of emulated traffic. More diverse than KDD, but attacks remain isolated events rather than multi-stage campaigns \cite{ankalaki2025cyber}.
+    \item \textbf{CICIDS2017}: One of the most comprehensive modern IDS datasets --- 3.1M flows, 8 attack types (SQL injection, DoS, DDoS, botnet, brute force, etc.) over 5 days. Despite its richness, it lacks APT-specific attack chains or CKC/ATT\&CK annotations \cite{ankalaki2025cyber}.
+    \item \textbf{LITNET 2020}: Recent dataset with 12 attack types from real network traffic, small in size and focused on known cataloged signatures \cite{ankalaki2025cyber}.
+    \item \textbf{HIKARI-2021}: Covers bruteforce variants and cryptomining over 39 hours of real traffic \cite{ankalaki2025cyber}.
 \end{itemize}
 
 The fundamental limitation of this entire category for our purposes is that they capture \textit{what happened} (attack type), not \textit{where in the attack lifecycle it happened} (kill chain phase).
@@ -881,21 +880,21 @@ The fundamental limitation of this entire category for our purposes is that they
 \subsubsection{IoT Traffic-Based Datasets}
 
 \begin{itemize}
-    \item \textbf{TON-IoT (2020)}: Nine attack types in IoT environments, simulated traffic. LSTM achieved 97\% accuracy and CNN 99\% [15]. However, attacks are individually labeled without CKC phase structure.
-    \item \textbf{Bot-IoT (2019)}: 46-feature botnet detection dataset where LSTM achieved $\sim$98\% and SVM $\sim$99\% [15]. No CKC/ATT\&CK phase annotations.
-    \item \textbf{X-IIoTID (2021)}: 18 attack types including reconnaissance, lateral movement, and C2 --- features partially overlapping with CKC phases. GRU achieved 99.46\% accuracy [15]. Its lack of explicit CKC mapping limits its use for stage-aware evaluation, though it is the closest in this category to APT-relevant data.
+    \item \textbf{TON-IoT (2020)}: Nine attack types in IoT environments, simulated traffic. LSTM achieved 97\% accuracy and CNN 99\% \cite{ankalaki2025cyber}. However, attacks are individually labeled without CKC phase structure.
+    \item \textbf{Bot-IoT (2019)}: 46-feature botnet detection dataset where LSTM achieved $\sim$98\% and SVM $\sim$99\% \cite{ankalaki2025cyber}. No CKC/ATT\&CK phase annotations.
+    \item \textbf{X-IIoTID (2021)}: 18 attack types including reconnaissance, lateral movement, and C2 --- features partially overlapping with CKC phases. GRU achieved 99.46\% accuracy \cite{ankalaki2025cyber}. Its lack of explicit CKC mapping limits its use for stage-aware evaluation, though it is the closest in this category to APT-relevant data.
 \end{itemize}
 
-
+\customwarning{Many research works and articles use this type of dataset and present their solutions as "APT detection" frameworks. However, in reality they are not, due to the lack of true APT characteristics in these datasets --- specifically, the long-term temporal sequencing of attacks and the correlation between these multi-stage sequences.}
 
 \subsubsection{Systemic Limitations for APT Stage-Aware Detection}
 
-The review of datasets in Ankalaki et al. [15] reveals several systemic limitations when applied to the APT detection problem:
+The review of datasets in \cite{ankalaki2025cyber} reveals several systemic limitations when applied to the APT detection problem:
 
 \begin{enumerate}
     \item \textbf{Narrow Attack Scope}: Datasets like MQTT-IoT-IDS2020 provide few attack classes, restricting model generalizability to the wide variety of real-world APT techniques.
     \item \textbf{Outdated or Simulated Traffic}: Older datasets (Bot-IoT 2019) do not capture modern APT techniques; simulation-based datasets (TON-IoT) fail to reproduce the complexity of real-world APT campaigns.
-    \item \textbf{Absence of Stage Annotations}: The most critical limitation --- none of the general benchmark datasets in [15] provide kill-chain phase or ATT\&CK technique annotations, making them unsuitable for evaluating the stage-aware component of our framework.
+    \item \textbf{Absence of Stage Annotations}: The most critical limitation --- none of the general benchmark datasets in \cite{ankalaki2025cyber} provide kill-chain phase or ATT\&CK technique annotations, making them unsuitable for evaluating the stage-aware component of our framework.
     \item \textbf{Class Imbalance}: APT-related traffic constitutes a minuscule fraction of total network activity, as confirmed by CICAPT-IIoT's $\sim$95\%/5\% normal-to-attack ratio.
     \item \textbf{Lack of Provenance Context}: Standard flow-based datasets discard causal relationships between events (which process spawned which network connection), essential for graph-based APT detection.
 \end{enumerate}
@@ -1073,43 +1072,46 @@ Based on Bayes' theorem (as shown in Equation~\ref{eq:bayes}) with an assumption
     \label{eq:bayes}
 \end{equation}
 
+
+
 \begin{table}[ht]
 \centering
 \caption{Performance Analysis of State-of-the-Art ML Approaches for Cyber-Attack Prediction  }
 \label{tab:ml_performance}
 \resizebox{\textwidth}{!}{%
-\begin{tabular}{|l|l|c|c|c|c|}
+\renewcommand{\arraystretch}{1.4}
+\begin{tabular}{|p{4.5cm}|l|c|c|c|c|}
 \hline
 \textbf{Dataset} & \textbf{Model} & \textbf{Accuracy (\%)} & \textbf{Precision} & \textbf{Recall} & \textbf{F1-Measure} \\
 \hline
-\multirow{4}{*}{AWID} 
+\multirow{4}{\linewidth}{AWID \cite{kolias2016intrusion}} 
  & AdaBoost & 92.20 & 0.850 & 0.922 & 0.885 \\
  & Naive Bayes & 89.43 & 0.891 & 0.894 & 0.877 \\
  & Random Forest (RF) & \textbf{95.58} & \textbf{0.958} & \textbf{0.956} & \textbf{0.941} \\
 \hline
-\multirow{3}{*}{Modern DDoS} 
+\multirow{3}{\linewidth}{Modern DDoS \cite{alkasassbeh2016detecting}} 
  & MLP & 98.63 & 0.986 & 0.986 & 0.986 \\
  & Random Forest (RF) & 98.02 & 0.980 & 0.980 & 0.980 \\
  & Naive Bayes & 96.91 & 0.969 & 0.969 & 0.969 \\
 \hline
-\multirow{5}{*}{CICIDS 2017} 
+\multirow{5}{\linewidth}{CICIDS 2017} 
  & KNN & 96.00 & 0.960 & 0.960 & 0.960 \\
  & Random Forest (RF) & \textbf{98.00} & \textbf{0.980} & 0.970 & 0.970 \\
  & ID3 & 98.00 & 0.980 & 0.980 & 0.980 \\
  & Naive Bayes & 75.00 & 0.880 & 0.040 & 0.040 \\
 \hline
-\multirow{4}{*}{HIKARI-2021} 
+\multirow{4}{\linewidth}{HIKARI-2021 \cite{ferriyan2021generating}} 
  & KNN & 98.00 & 0.860 & 0.900 & 0.880 \\
  & MLP & 99.00 & 0.990 & 0.990 & 0.990 \\
  & SVM & 99.00 & 0.990 & 0.980 & 0.990 \\
  & Random Forest (RF) & 99.00 & 0.990 & 0.990 & 0.990 \\
 \hline
-\multirow{3}{*}{CICAndMal2017} 
+\multirow{3}{\linewidth}{CICAndMal2017 \cite{lashkari2018toward}} 
  & Random Forest (RF) & 85.00 & 0.850 & 0.880 & 0.860 \\
  & KNN & 85.00 & 0.850 & 0.880 & 0.860 \\
  & Decision Tree (DT) & 85.00 & 0.850 & 0.880 & 0.860 \\
 \hline
-\multirow{4}{*}{MQTT-IoT-IDS2020} 
+\multirow{4}{\linewidth}{MQTT-IoT-IDS2020 \cite{hindy2020machine}} 
  & Logistic Regression & 99.44 & 0.990 & 0.990 & 0.990 \\
  & KNN & 99.90 & 0.990 & 0.990 & 0.990 \\
  & Decision Tree (DT) & 99.95 & 0.995 & 0.995 & 0.995 \\
@@ -1119,41 +1121,282 @@ Based on Bayes' theorem (as shown in Equation~\ref{eq:bayes}) with an assumption
 }
 \end{table}
 
+\customnote{All results presented in Table~\ref{tab:ml_performance} are based on classic cybersecurity datasets, not APT-specific ones.}
 
 \subsection{Deep Learning Solutions}
 
 \subsubsection{Convolutional Neural Networks (CNN)}
 Originally designed for image processing, CNNs are applied to cybersecurity by treating network traffic as images or matrices. They excel at extracting spatial features (local patterns) from traffic payloads. \cite{ankalaki2025cyber} highlights their utility in malware classification where binary executables are visualized as grayscale images.
 
+\textbf{Case Study: CNN2D-based framework \cite{SharmilaD2026CNN2D}}
+
+One important study \cite{SharmilaD2026CNN2D} has directly applied a deep learning model to this dataset. The paper proposes a \textbf{CNN2D-based framework} for IoT cyberattack detection on CICAPT-IIoT, following an 8-step pipeline:
+
+1. Data acquisition from the CICAPT-IIoT dataset (attack records + balanced normal subset)
+2. Preprocessing: null value handling, Label Encoding, shuffling, normalization
+3. Advanced feature engineering: correlation analysis, PCA for dimensionality reduction, temporal windowing
+4. Feature scaling: both Min-Max and Z-score normalization tested
+5. \textbf{2D reshaping} of feature vectors into matrix format (image-like) to enable CNN2D spatial processing
+6. Train/test split
+7. Real-time prediction deployment
+
+The CNN2D architecture uses 3 convolutional layers (3$\times$3 and 5$\times$5 kernels), ReLU activation, Max-Pooling, Dropout (rate = 0.3), and Softmax output. Hyperparameters were tuned via grid search + cross-validation (batch size: 128, learning rate: 0.001, optimizer: Adam, loss: categorical cross-entropy).
+
+\textbf{Table 3.3 ---  \cite{ghiasvand2024cicapt}}
+
+\begin{table}[H]
+\centering
+\caption{CNN2D vs. Baseline Models on CICAPT-IIoT}
+\medskip
+\begin{tabular}{|p{0.3\linewidth}|p{0.15\linewidth}|p{0.15\linewidth}|p{0.15\linewidth}|p{0.15\linewidth}|}
+\hline
+\textbf{Algorithm} & \textbf{Accuracy (\%)} & \textbf{Precision (\%)} & \textbf{Recall (\%)} & \textbf{F1-Score (\%)} \\
+\hline
+\textbf{CNN2D (Proposed)} & \textbf{99.78} & \textbf{99.7} & \textbf{99.8} & \textbf{99.75} \\
+\hline
+Logistic Regression & 99.70 & 99.0 & 99.8 & 99.70 \\
+\hline
+Random Forest & 96.00 & 95.2 & 96.5 & 95.80 \\
+\hline
+SVM & 94.00 & 93.4 & 94.1 & 93.70 \\
+\hline
+\end{tabular}
+\end{table}
+
+For scalability, the CNN2D model maintained \textbf{99.78\% accuracy on 50,000 records} (avg. prediction time: 1.2 s) and \textbf{99.65\% accuracy on 200,000 records} (avg. prediction time: 3.8 s), confirming strong discriminative capacity even on the highly imbalanced dataset ($\sim$95\% normal / $\sim$5\% attack). This result directly validates CICAPT-IIoT \cite{ghiasvand2024cicapt} as a viable training and evaluation benchmark and provides a strong performance reference point for our own experimental phase.
+
 \subsubsection{Recurrent Neural Networks (RNN) and LSTM}
 Given that APTs are temporal, multi-stage attacks, standard feed-forward networks often fail to capture the sequence of events. RNNs address this by maintaining a "memory" of previous inputs. Specifically, Long Short-Term Memory (LSTM) networks are crucial for APT detection because they solve the vanishing gradient problem, allowing the model to learn long-term dependencies.
 \begin{equation}
     f_t = \sigma(W_f \cdot [h_{t-1}, x_t] + b_f)
 \end{equation}
-This capability allows LSTMs to correlate a "Reconnaissance" event (Stage 1) with an "Exfiltration" event (Stage 7) that occurs days or weeks later [15].
+This capability allows LSTMs to correlate a "Reconnaissance" event (Stage 1) with an "Exfiltration" event (Stage 7) that occurs days or weeks later \cite{ankalaki2025cyber}.
+
+\textbf{Case Study: AISL \cite{yue2024aisl}}
+
+\textbf{Approach}
+AISL operates in three main stages:
+
+\textbf{Stage 1 --- Provenance Graph Construction:} Heterogeneous audit data (system calls, DNS logs, network traffic) is unified through a custom Network Event Ontology with 5 core concepts (host, subject, object, event, tag) and 10 relationships. This solves the semantic gap between Windows and Linux audit formats.
+
+\textbf{Stage 2 --- Attack Intent Tagging:} Two tag types are assigned --- trustworthiness tags (BA = Benign Authentic, BE = Benign, UN = Unknown) and confidentiality tags (SC = Secret, PR = Private, PU = Public). Tags propagate through the graph using rule-based policies, identifying potential attack behaviors to increase positive samples --- a key innovation solving the APT data imbalance problem.
+
+\textbf{Stage 3 --- LSTM Sequence Model:} Attack and non-attack sequences are extracted from the provenance graph, converted to lemmatized abstract text, and fed into an LSTM classifier with Conv1D, dropout, and dense layers. Oversampling (mutation-based) and undersampling (similarity-based) balance the training set before model training.
+
+\textbf{Published Results}
+\begin{table}[H]
+\centering
+\caption{AISL Detection Results at Entity and Event Levels}
+\begin{tabular}{|l|c|c|c|c|}
+\hline
+\textbf{Method} & \textbf{Entity Precision} & \textbf{Entity Recall} & \textbf{Entity F1} & \textbf{Event F1} \\
+\hline
+Graph-traversal & 20.36\% & 100.00\% & 33.83\% & 38.51\% \\
+Non-optimized & 74.08\% & 53.12\% & 61.87\% & 65.21\% \\
+SVM & 80.32\% & 88.06\% & 84.01\% & 89.56\% \\
+ATLAS & 91.06\% & 97.29\% & 93.76\% & 99.88\% \\
+\textbf{AISL (Proposed)} & \textbf{93.05\%} & \textbf{98.12\%} & \textbf{95.36\%} & \textbf{99.91\%} \\
+\hline
+\end{tabular}
+\end{table}
+
+Accuracy per attack scenario reaches 99.96--100\% at the event level, with an average entity-level accuracy of 99.98\% across all 10 APT attacks.
+
+\subsubsection{Graph Neural Networks (GNN)}
+
+
+Graph Neural Networks (GNNs) are deep learning models designed to operate on
+graph-structured data, where information is represented as \textbf{nodes}
+(entities) and \textbf{edges} (relationships). They learn node representations
+by aggregating and transforming feature information from neighboring nodes
+across multiple layers.
+
+\subsubsection{Key Types}
+
+\begin{itemize}
+    \item \textbf{GCN (Graph Convolutional Network):} Aggregates neighbor
+    features using fixed, structure-based weights derived from the normalized
+    adjacency matrix. It is simple and computationally efficient, but treats
+    all neighbors equally.
+
+    \item \textbf{GAT (Graph Attention Network):} Extends GCN by introducing
+    a self-attention mechanism that learns to assign different importance
+    weights to different neighbors during aggregation. Multi-head attention
+    is used to stabilize and enrich the learning process.
+
+    \item \textbf{GraphSAGE:} Samples a fixed-size neighborhood for each node
+    rather than using the full graph, making it highly scalable to large
+    graph datasets.
+
+    \item \textbf{GGNN (Gated Graph Neural Network):} Incorporates Gated
+    Recurrent Units (GRUs) into the propagation step to capture long-range
+    dependencies between nodes.
+\end{itemize}
+
+\customexplication{Think of a network as a city map --- computers are buildings, connections are roads. An APT attacker does not strike once; they hop quietly from building to building toward their target. A GNN models this entire map at once, detecting suspicious \textit{patterns of movement} rather than isolated events --- making it the natural fit for APT detection.}
+
+The key distinction is that \textbf{GAT learns \textit{who} to pay attention
+to}, while GCN treats all neighbors equally --- making GAT especially suitable
+for tasks such as APT detection, where certain graph connections carry
+significantly higher suspicion than others.
+
+This sections adopts the classification by Zhong et al. (2024) \cite{zhong2024}, organizing GNN-based IDS along three axes:
+\begin{itemize}
+    \item \textbf{Graph Construction (Data $\rightarrow$ Graph):} Static graphs (original, enriched, transformed, heterogeneous) or Dynamic graphs (snapshots, sketching).
+    \item \textbf{Network Design (Graph $\rightarrow$ Feature):} Network-based IDS (NIDS) at node/edge/graph-level, or Host-based IDS (HIDS) via provenance/system call graphs.
+    \item \textbf{Model Deployment:} Strategy (centralized, federated, parallel) and Domain (IoT, CPS, etc.). Figure \ref{fig:gnn1} illustrates these core components.
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\linewidth, trim=3pt 4pt 4pt 4pt, clip]{figures/gnn1.png}
+    \caption{GNN classification axes for IDS}
+    \label{fig:gnn1}
+\end{figure}
+
+\textbf{GNN Methods Used in APT Detection:}
+Each framework uses a distinct GNN architecture applied to provenance graphs:
+
+\begin{table}[H]
+\centering
+\caption{GNN Frameworks for APT Detection}
+\medskip
+\scalebox{0.6}{%
+\begin{tabular}{|l|l|p{7cm}|l|}
+\hline
+\textbf{Framework} & \textbf{GNN Used} & \textbf{Method} & \textbf{Detection Level} \\
+\hline
+MAGIC \cite{jia2023magic} & GAT \cite{velickovic2017gat} & Masked graph autoencoder; reconstructs masked nodes/edges via self-supervised learning & Node + graph \\
+\hline
+KAIROS \cite{cheng2023kairos} & TGN \cite{rossi2020tgn} & Temporal encoder-decoder; detects anomalous edges by reconstruction error over time & Graph-level \\
+\hline
+GCA \cite{ye2023gca} & GCN \cite{kipf2016gcn} & Graph Competitive Autoencoder with separate benign/attack decoders & Graph-level \\
+\hline
+DEEPRO \cite{yan2022deepro} & MAGNN \cite{fu2020magnn} & 3-metapath MAGNN on heterogeneous process graphs & Node-level \\
+\hline
+GHUNTER \cite{cheng2023ghunter} & GIN \cite{xu2018gin} & Subgraph matching; embeds provenance nodes & Node-level \\
+\hline
+THREATRACE \cite{wang2022threatrace} & GraphSAGE \cite{hamilton2017graphsage} & Inductive node-role learning on evolving provenance graphs & Node-level \\
+\hline
+XFedGraph-Hunter \cite{son2023xfed} & TGraphSAGE + FL \cite{ying2019gnnexplainer} & Transformer-augmented GraphSAGE with Federated Learning; uses GNNExplainer & Node-level (fed.) \\
+\hline
+\end{tabular}%
+}
+\end{table}
+
+\textbf{Results (Table 3.5):}
+Key performance metrics across PIDS and datasets (MAGIC and THREATRACE perform consistently well; GCA and GHUNTER lack transparency on ground-truth details).
+
+\begin{table}[H]
+\centering
+\caption{Performance Analysis of GNN Approaches}
+\medskip
+\begin{tabular}{|l|l|c|c|c|c|}
+\hline
+\textbf{Dataset} & \textbf{PIDS} & \textbf{Precision} & \textbf{Recall} & \textbf{F1-Score} & \textbf{FPR} \\
+\hline
+Streamspot & MAGIC / KAIROS / THREATRACE & 1.0 & 1.0 & 1.0 & 0.0 \\
+E3-Cadets & MAGIC & 0.94 & 0.997 & 0.97 & 0.22 \\
+E3-Theia & MAGIC & 0.98 & 0.99 & 0.99 & 0.14 \\
+E3-Theia & KAIROS & 0.82 & 1.0 & 0.90 & 0.88 \\
+E5-Cadets & KAIROS & 0.44 & 1.0 & 0.60 & 3.54 \\
+ATLAS & DEEPRO & 0.99 & 0.99 & 0.99 & 0.006 \\
+E3-Cadets & GHunter / XFedGraph & 0.96 & 0.95--1.0 & 0.96 & --- \\
+\hline
+\end{tabular}
+\end{table}
+
+Figure \ref{fig:gnn2} visualizes the GAT usage in MAGIC.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\linewidth, trim=3pt 4pt 4pt 4pt, clip]{figures/gnn2.png}
+    \caption{GAT usage in MAGIC}
+    \label{fig:gnn2}
+\end{figure}
 
 \subsection{Generative AI Solutions}
+
+\subsubsection{Autoencoders (AE)}
+Autoencoders are deterministic neural networks composed of an encoder that compresses input data into a compact latent representation, and a decoder that reconstructs the original input. They are trained by minimizing the reconstruction error between the input $x$ and its reconstruction $\hat{x}$:
+\begin{equation}
+    \mathcal{L}(\theta, \phi; x) = \| x - f_\theta(g_\phi(x)) \|^2
+\end{equation}
+In APT detection, autoencoders are conventionally trained exclusively on benign network traffic. During inference, inputs that deviate from the learned normal patterns yield a high reconstruction error, flagging them as potential anomalies. This unsupervised nature makes autoencoders ideal for APT detection, as labeled multi-stage attack data is often scarce.
 
 \subsubsection{Variational Autoencoders (VAE)}
 VAEs are probabilistic generative models. Unlike standard autoencoders that learn a deterministic mapping, VAEs map inputs to a probability distribution (latent space). 
 \begin{equation}
     \mathcal{L}(\theta, \phi; x) = -D_{KL}(q_\phi(z|x) || p_\theta(z)) + \mathbb{E}_{q_\phi(z|x)}[\log p_\theta(x|z)]
 \end{equation}
-In APT detection, VAEs are trained on benign traffic. During inference, they reconstruct input data; a high reconstruction error combined with the probabilistic uncertainty metric indicates a potential malicious anomaly. [15] identifies VAEs as superior for modeling uncertainty in detection systems.
+In APT detection, VAEs are trained on benign traffic. During inference, they reconstruct input data; a high reconstruction error combined with the probabilistic uncertainty metric indicates a potential malicious anomaly. \cite{ankalaki2025cyber} identifies VAEs as superior for modeling uncertainty in detection systems.
 
-\subsubsection{Transformers}
-Transformers utilize self-attention mechanisms to weigh the importance of different parts of the input sequence, regardless of their distance in time. They are increasingly used to predict the \textit{next stage} of an attack sequence by analyzing logs, offering better parallelization and context understanding than LSTMs [15].
+\textbf{Case Study: Multi-Stage Autoencoder Architecture \cite{neuschmied2022apt}}
+
+\cite{neuschmied2022apt} proposed a two-stage anomaly detection architecture combining multiple autoencoder variants for APT detection.
+
+\textbf{Architecture Used:}
+The models evaluated include:
+\begin{itemize}
+    \item \textbf{Standard Autoencoder (AE):} Multiple dense layers trained exclusively on benign data.
+    \item \textbf{Convolutional Autoencoder (AE-CNN):} Combines 1D convolutional layers with dense layers. The full architecture and data processing pipeline can be seen in Figure \ref{fig:autoen}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\linewidth, trim=3pt 4pt 4pt 4pt, clip]{figures/autoen.png}
+    \caption{Architecture and Data Pipeline for the Autoencoder Model}
+    \label{fig:autoen}
+\end{figure}
+    \item \textbf{Variational Autoencoder (VAE):} A sampling-based autoencoder with dense layers.
+    \item \textbf{Probabilistic Variational Autoencoder (VAE-Prob):} Probability-based reconstruction with dense layers.
+    \item \textbf{AE + VAE-Prob (Two-Stage):} The core novel contribution. A fast AE in stage 1 filters out clearly normal traffic, then a more precise VAE or VAE-Prob in stage 2 makes the final anomaly decision.
+    \item \textbf{Baselines:} One-Class SVM (OCSVM) and AE with Custom Loss (AEC - a supervised AE).
+\end{itemize}
+
+\textbf{Methodology \& Dataset:}
+The pipeline involves data pre-processing (statistical analysis, PCA) where features were reduced from 78 to 54 after removing redundant and error values. Hyperparameter optimization was done via the Talos framework optimized on AUC-ROC. 
+Two publicly available datasets were combined: \textbf{CICIDS2017} provided the benign background data (5 days of enterprise traffic), while the \textbf{Contagio} dataset provided real APT malware campaigns (e.g., BIN\_9002, TrojanPage, etc.). These were merged using IP remapping, and CICFlowMeter extracted features from PCAP files. 
+
+\textbf{Results \cite{neuschmied2022apt}:}
+The multi-stage approach was evaluated on two test sets. The AE+VAE-Prob model provided a strong balance between performance and computational efficiency.
 
 \begin{table}[H]
 \centering
-\caption{Performance Analysis of State-of-the-Art DL Approaches for Cyber-Attack Prediction [15]}
+\caption{Results for Independent Test (18.52\% Contamination) and Zero-Day Attack Test (19.93\% Contamination) }
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{|l|c|c|c||c|c|c|}
+\hline
+& \multicolumn{3}{c||}{\textbf{Independent Test Dataset}} & \multicolumn{3}{c|}{\textbf{Zero-Day Attack Test Dataset}} \\
+\hline
+\textbf{Method} & \textbf{Balanced Accuracy} & \textbf{F1 Score} & \textbf{Time (s)} & \textbf{Balanced Accuracy} & \textbf{F1 Score} & \textbf{Time (s)} \\
+\hline
+AE & 0.870 & 0.716 & 9.56 & 0.596 & 0.346 & 10.28 \\
+AE-CNN & 0.797 & 0.708 & 14.17 & - & - & - \\
+VAE & 0.808 & 0.670 & 243.04 & - & - & - \\
+VAE-Prob & 0.847 & 0.650 & 286.31 & 0.621 & 0.394 & 250.70 \\
+\textbf{AE+VAE-Prob} & \textbf{0.873} & \textbf{0.713} & \textbf{93.25} & \textbf{0.655} & \textbf{0.452} & \textbf{79.10} \\
+OCSVM & 0.801 & 0.679 & 44,305.81 & 0.588 & 0.326 & 43,237.95 \\
+AEC (supervised) & 0.949 & 0.913 & 4.56 & - & - & - \\
+\hline
+\end{tabular}%
+}
+\end{table}
+
+\customexplication{A \textbf{zero-day test} measures whether the model can detect attacks it has never seen during training. A \textbf{contamination test} (18.52\% / 19.93\%) means that percentage of attacks were hidden inside the training data as if they were normal traffic --- models that still perform well under these conditions are the ones that hold up in the real world.}
+
+\subsubsection{Transformers}
+Transformers utilize self-attention mechanisms to weigh the importance of different parts of the input sequence, regardless of their distance in time. They are increasingly used to predict the \textit{next stage} of an attack sequence by analyzing logs, offering better parallelization and context understanding than LSTMs .
+
+\begin{table}[H]
+\centering
+\caption{Performance Analysis of State-of-the-Art DL Approaches for Cyber-Attack Prediction }
 \label{tab:dl_performance}
 \resizebox{\textwidth}{!}{%
 \begin{tabular}{|l|l|c|c|c|c|}
 \hline
 \textbf{Dataset} & \textbf{Model} & \textbf{Accuracy (\%)} & \textbf{Precision} & \textbf{Recall} & \textbf{F1-Measure} \\
 \hline
-NSL-KDD & FCN & 89.40 & 0.877 & 0.946 & 0.910 \\
+NSL-KDD \cite{vinayakumar2019deep} & FCN & 89.40 & 0.877 & 0.946 & 0.910 \\
 \hline
 PDF Documents & MLP & 97.50 & 0.991 & 0.998 & 0.994 \\
 \hline
@@ -1184,122 +1427,62 @@ X-IIoTID & GRU & 99.46 & 0.964 & 0.915 & 0.935 \\
 \end{tabular}%
 }
 \end{table}
+ 
 
 
+\subsubsection{Deep Q-Network (DQN)}
+DQN combines Q-learning \cite{watkins1989learning,watkins1992qlearning} with deep neural networks to approximate the action-value function \( Q(s,a;\theta) \approx Q^*(s,a) \), replacing the infeasible lookup table of classical Q-learning. The agent follows an $\epsilon$-greedy policy and trains by minimizing the TD loss:
 
-\subsection{Detailed Results and Case Studies on APT Datasets}
+\[ 
+L(\theta) = \mathbb{E} \left[ \left( r + \gamma \max_{a'} Q(s',a';\theta^-) - Q(s,a;\theta) \right)^2 \right] 
+\]
 
-However, related prior work on Linux log-based APT detection provides methodological context: Chen et al. (2020) proposed a detection approach based on Linux logs, using log parsing and anomaly analysis to identify advanced attacks, achieving promising results in controlled environments [1]. This work illustrates the methodological direction that future studies exploiting Linux-APT-Dataset-2024 \cite{karim2024linux} are likely to follow.
+Two key mechanisms stabilize training: a target network $\theta^-$ (frozen periodically) for stable TD targets, and experience replay (random mini-batch sampling from a replay buffer) to break temporal correlations \cite{mnih2015human}.
 
-However, related prior work is instructive: Matsuda et al. (2018) applied unsupervised anomaly detection to Windows Event logs to detect APT attacks against Active Directory using legitimate administrator accounts, achieving high precision in identifying anomalous authentication patterns [3].
+\paragraph{Case Study--- OGE-DQN: Deep Q-Network for Intrusion Detection}
+Saad, A.M.S.E. \& Yildiz, B. (2023) --- ``Reinforcement Learning for Intrusion Detection'' \cite{saad2023reinforcement}.
 
-In the broader encrypted-traffic detection domain, Yue et al. (2024) proposed \textbf{AISL} (Attack Intent-driven Sequence-based Learning), which integrates heterogeneous audit data and constructs provenance graphs annotated with attack-intent security tags. Evaluated on 10 realistic APT scenarios, AISL achieved a precision of \textbf{93.05\%}, recall of \textbf{98.12\%}, and F1-score of \textbf{95.36\%} [2].
+\textbf{Approach} \\
+The authors construct a custom OpenAI Gym environment that wraps the NSL-KDD dataset and serves network traffic records to the agent as sequential observations. The environment follows a standard RL loop: at each step, the agent receives a state $S_t$ (a 41-dimensional feature vector of one traffic record), selects an action $A_t \in \{0 \text{ (Normal)}, 1 \text{ (Intrusion)}\}$, and receives a reward $R_{t+1}$ according to a simple correctness-based reward function:
+\[
+R = \begin{cases} 
++1 & \text{if action matches the ground-truth label} \\ 
+-1 & \text{otherwise} 
+\end{cases}
+\]
 
-One important study has directly applied a deep learning model to this dataset. The paper proposes a \textbf{CNN2D-based framework} for IoT cyberattack detection on CICAPT-IIoT, following an 8-step pipeline:
+The agent is a Deep Q-Network (DQN) \cite{mnih2015human}, which uses a feed-forward neural network with two hidden layers (50 neurons $\rightarrow$ 10 neurons) to approximate the Q-value function. The network is optimized via the Bellman update using two key stability techniques:
+\begin{itemize}
+    \item \textbf{Experience Replay:} Transitions $(S_t, A_t, R_{t+1}, S_{t+1})$ are stored in a replay buffer and randomly sampled in mini-batches to break temporal correlations.
+    \item \textbf{Target Network:} A separate, slowly updated copy of the main network is used to compute target Q-values, preventing oscillating updates.
+\end{itemize}
 
-1. Data acquisition from the CICAPT-IIoT dataset (attack records + balanced normal subset)
-2. Preprocessing: null value handling, Label Encoding, shuffling, normalization
-3. Advanced feature engineering: correlation analysis, PCA for dimensionality reduction, temporal windowing
-4. Feature scaling: both Min-Max and Z-score normalization tested
-5. \textbf{2D reshaping} of feature vectors into matrix format (image-like) to enable CNN2D spatial processing
-6. Train/test split
-7. Real-time prediction deployment
+Training uses an $\epsilon$-greedy exploration strategy with $\epsilon$ decaying over time from 1.0 toward a minimum --- allowing the agent to shift from random exploration to exploitation of learned patterns. The optimal configuration was found at 800 training iterations, 100 steps per episode, batch size of 64, using the full dataset.
 
-The CNN2D architecture uses 3 convolutional layers (3$\times$3 and 5$\times$5 kernels), ReLU activation, Max-Pooling, Dropout (rate = 0.3), and Softmax output. Hyperparameters were tuned via grid search + cross-validation (batch size: 128, learning rate: 0.001, optimizer: Adam, loss: categorical cross-entropy).
-
-\textbf{Table 3.3 --- CNN2D vs. Baseline Models on CICAPT-IIoT \cite{ghiasvand2024cicapt}}
-
+\textbf{Published Results}
 \begin{table}[H]
 \centering
-\begin{tabular}{|p{0.3\linewidth}|p{0.15\linewidth}|p{0.15\linewidth}|p{0.15\linewidth}|p{0.15\linewidth}|}
+\caption{Performance comparison of OGE-DQN and literature models on NSL-KDD dataset.}
+\medskip
+\resizebox{1.0\textwidth}{!}{%
+\begin{tabular}{|l|c|c|c|c|}
 \hline
-\textbf{Algorithm} & \textbf{Accuracy (\%)} & \textbf{Precision (\%)} & \textbf{Recall (\%)} & \textbf{F1-Score (\%)} \\
-\hline
-\textbf{CNN2D (Proposed)} & \textbf{99.78} & \textbf{99.7} & \textbf{99.8} & \textbf{99.75} \\
-\hline
-Logistic Regression & 99.70 & 99.0 & 99.8 & 99.70 \\
-\hline
-Random Forest & 96.00 & 95.2 & 96.5 & 95.80 \\
-\hline
-SVM & 94.00 & 93.4 & 94.1 & 93.70 \\
-\hline
-\end{tabular}
+\textbf{Experiment} & \textbf{Accuracy} & \textbf{Precision} & \textbf{Recall} & \textbf{F1-Score} \\ \hline
+RL Experiment 1 (50\% data, 400 iter.) & 86.80\% & 82.45\% & 86.55\% & 84.45\% \\ \hline
+RL Experiment 2 (100\% data, 800 iter.) & 93.12\% & 96.83\% & 95.90\% & 96.36\% \\ \hline
+DQN --- Lopez-Martin et al. \cite{lopez2020application} & 87.87\% & 89.33\% & 89.37\% & 89.35\% \\ \hline
+DDQN --- Ma \& Shi \cite{ma2020idsgan} & 82.09\% & 84.11\% & 82.09\% & 82.43\% \\ \hline
+\end{tabular}%
+}
 \end{table}
 
-For scalability, the CNN2D model maintained \textbf{99.78\% accuracy on 50,000 records} (avg. prediction time: 1.2 s) and \textbf{99.65\% accuracy on 200,000 records} (avg. prediction time: 3.8 s), confirming strong discriminative capacity even on the highly imbalanced dataset ($\sim$95\% normal / $\sim$5\% attack). This result directly validates CICAPT-IIoT \cite{ghiasvand2024cicapt} as a viable training and evaluation benchmark and provides a strong performance reference point for our own experimental phase.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\linewidth, trim=3pt 4pt 4pt 4pt, clip]{figures/rl_resu.PNG}
+    \caption{RL Agent Learning Curve (accumulative reward over episodes)}
+    \label{fig:RL}
+\end{figure}
 
-In the broader IIoT-APT detection space, Saurabh et al. (2024) proposed \textbf{HMS-IDS}, a hybrid multi-stage IDS combining supervised and unsupervised approaches for known and zero-day attack detection in IIoT environments (evaluated on CIC-ToN-IoT), achieving \textbf{99.49\% accuracy for known attacks} and \textbf{98.32\% for zero-day attacks} [5]. Gueye et al. (2023) also achieved promising results for Modbus-protocol IoT/IIoT attack detection using deep learning [6].
+The best experiment (Experiment 2) outperforms all comparable DRL methods in the literature on the same dataset. The key contribution is the standardized OpenAI Gym IDS environment, which for the first time allows other researchers to benchmark DRL agents against a reproducible, interoperable IDS testbed \cite{saad2023reinforcement}.
 
-\subsection{Review of AI/ML Works on APT Datasets --- Methods and Results}
-
-Beyond the CNN2D result on CICAPT-IIoT \cite{ghiasvand2024cicapt} (Section 3.4.1.5), the following works represent the state-of-the-art in AI/ML-based APT detection using datasets comparable to those in our work:
-
-\textbf{Bodström \& Hämäläinen (2019) --- Novel Deep Learning Stack for APT Detection [7]}  
-Proposed a multi-layer deep learning architecture combining different DL methods adapted for APT detection using raw network flows. This work is one of the first to specifically target APT-level threats with a pure DL stack, establishing important architectural baselines for subsequent research.
-
-\textbf{Matsuda et al. (2018) --- APT Detection Against Active Directory [3]}  
-Applied unsupervised anomaly detection (machine learning on Windows Event Logs) to detect APT attacks using legitimate administrator accounts. Achieved high precision in identifying anomalous authentication sequences on Windows environments --- directly relevant to the Windows APT Persistence Techniques Dataset context \cite{rahal2025windows}.
-
-\textbf{Yue et al. (2024) --- AISL: Attack Intent-driven Sequence-based Learning [2]}  
-Constructed provenance graphs from heterogeneous audit logs and assigned security tags based on attack intent. A sequential learning model then detects APT stages from graph event sequences. Evaluated on 10 realistic APT scenarios: \textbf{Precision: 93.05\%, Recall: 98.12\%, F1: 95.36\%}. Particularly notable for its high recall, which is the priority metric in APT detection.
-
-\textbf{Saurabh et al. (2024) --- HMS-IDS for IIoT [5]}  
-Hybrid multi-stage IDS combining supervised (for known attacks) and unsupervised (for zero-day) approaches, integrating threat intelligence. Evaluated on CIC-ToN-IoT: \textbf{99.49\% accuracy for known attacks, 98.32\% for zero-day attacks}. Demonstrates the viability of hybrid detection in IIoT environments directly adjacent to the CICAPT-IIoT context \cite{ghiasvand2024cicapt}.
-
-\textbf{Layeghy \& Portmann (2023) --- Cross-Domain Evaluation of ML-based NIDS [8]}  
-Studied the transferability of ML intrusion detection models across different datasets. The key finding is that models trained on one dataset often perform significantly worse when applied to another --- a critical limitation that justifies dataset diversity in our experimental design and motivates our synthetic data generation component (ReALTabFormer).
-
-\textbf{Stojanovic et al. (2020) --- APT Datasets and Attack Modeling Review [9]}  
-A comprehensive review of APT datasets and modeling for automated detection methods. The study identified a critical shortage of realistic, standardized APT datasets --- a finding that directly motivates our use of multiple specialized datasets (MLAPT, KAPT-2024, CICAPT-IIoT) and our GenAI-based synthetic scenario generation \cite{huang2024saga}.
-
-\textbf{Summary Table --- AI/ML Works on APT-Relevant Datasets}
-
-\begin{table}[H]
-\centering
-\begin{tabular}{|p{0.25\linewidth}|p{0.3\linewidth}|p{0.2\linewidth}|p{0.25\linewidth}|}
-\hline
-\textbf{Reference} & \textbf{Method} & \textbf{Dataset} & \textbf{Key Results} \\
-\hline
-CNN2D Paper (2024) & CNN2D + PCA + grid search & CICAPT-IIoT & Acc. 99.78\%, F1 99.75\% \\
-\hline
-Yue et al. [2] (2024) & Provenance graph + AISL & Heterogeneous APT logs & Prec. 93.05\%, Rec. 98.12\%, F1 95.36\% \\
-\hline
-Saurabh et al. [5] (2024) & HMS-IDS (Hybrid) & CIC-ToN-IoT & 99.49\% known, 98.32\% zero-day \\
-\hline
-Bodström \& Hämäläinen (2019) & Deep Learning Stack & Network flows & APT-specific DL baseline \\
-\hline
-Matsuda et al. [3] (2018) & Unsupervised anomaly detection & Windows Event Logs & High precision AD-APT detection \\
-\hline
-Layeghy \& Portmann [8] (2023) & Cross-domain ML evaluation & Multi-dataset & Poor cross-dataset transferability \\
-\hline
-\end{tabular}
-\end{table}
-
-
-
-\section{Synthesis}
-\label{sec:synthesis}
-
-A comparative analysis of the described solutions reveals distinct trade-offs between interpretability, accuracy, and computational efficiency.
-
-\begin{table}[ht]
-\centering
-\caption{Synthesis of Detection Approaches based on [15]}
-\label{tab:synthesis_comparison}
-\begin{tabular}{|p{0.25\linewidth}|p{0.35\linewidth}|p{0.3\linewidth}|}
-\hline
-\textbf{Approach} & \textbf{Key Advantages} & \textbf{Limitations} \\
-\hline
-\textbf{Traditional ML} & High interpretability (DT/RF), low computational overhead, effective for signature-based threats. & High false positive rates (FPR) on complex data; requires extensive feature engineering; fails against obfuscated APTs. \\
-\hline
-\textbf{Deep Learning} & Automatic feature extraction; excellent performance on unstructured data; captures temporal dependencies (LSTM). & "Black-box" nature (low interpretability); requires massive labeled datasets which are rare for APTs; high training time. \\
-\hline
-\textbf{Generative AI} & Detects zero-day anomalies; handles uncertainty (VAE); generates synthetic training data to balance datasets. & Computationally intensive; complex hyperparameter tuning; risk of "hallucinations" in generation tasks. \\
-\hline
-\end{tabular}
-\end{table}
-
-\textbf{Conclusion of Synthesis:}
-While Traditional ML provides a baseline, it is insufficient for the stealthy nature of APTs. Deep Learning improves detection capabilities but suffers from opacity and data scarcity. Generative AI addresses the data scarcity and anomaly detection capabilities but requires careful integration. 
-Currently, a gap exists in the literature: most solutions are \textit{reactive} classifiers. There is a critical need for a framework that not only detects (Perception) but also decides on the optimal response strategy (Decision-Making) while handling the multi-stage nature of APTs mapped to the Cyber Kill Chain.
 

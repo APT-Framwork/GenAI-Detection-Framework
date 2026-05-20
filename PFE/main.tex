@@ -13,15 +13,21 @@
 \usepackage{titlesec}
 \usepackage{tikz}
 \usepackage{tikz-qtree}
+\usepackage{arabtex}       % for Arabic text (ملخص)
+\usepackage{utf8} % for Arabic UTF-8 encoding
+\setcode{utf8}
+
+
 \usetikzlibrary{trees, shapes, arrows, positioning, shapes.geometric}
 \usepackage{mathtools}
 \usepackage{amsmath}
 \usepackage{amssymb}
-\usepackage{geometry}
+\usepackage[bottom]{footmisc}
 \usepackage{algpseudocode}
 \usepackage[edges]{forest}
 \usepackage[ruled,lined]{algorithm2e}
 \usepackage[francais]{babel}
+\DeclareUnicodeCharacter{FFFD}{-}
 \usepackage{float}
 \usepackage[bookmarks, colorlinks=false, pdfborder={0 0 0}]{hyperref}
 \usepackage{apacite}
@@ -29,12 +35,20 @@
 \usepackage{fancyhdr}
 \setlength{\headheight}{14pt}
 
+% Wider margins (key change)
+\usepackage[top=2.5cm,bottom=2.5cm,right=2.5cm,left=2.5cm]{geometry}
+
+
 % Configuring the header to only show the chapter number with a line
 \pagestyle{fancy}
 \fancyhf{} 
 \fancyhead[L]{Chapter \thechapter} 
 \fancyfoot[C]{\thepage}
 \renewcommand{\headrulewidth}{0.4pt}
+
+% Slightly looser line spacing and paragraph gap
+\renewcommand{\baselinestretch}{1.05}
+\parskip=5pt
 
 % Custom components for warnings, explications, and notes
 \newcommand{\customexplication}[1]{
@@ -70,30 +84,245 @@
 \vspace{1em}
 }
 
+% Prevent excessive vertical stretching
+\raggedbottom
+
 \begin{document}
 \renewcommand\bibname{References} 
 
 \pagenumbering{roman}
 \input{title}
 
+% ---------------------------------------------------------------
+% DEDICATION
+% ---------------------------------------------------------------
+\chapter*{Dedication}
+\addcontentsline{toc}{chapter}{Dedication}
+\thispagestyle{empty}
+
+\vspace*{\fill}
+\begin{center}
+    \textit{To our families, friends, and everyone who supported us\\
+    throughout this journey.}
+\end{center}
+\vspace*{\fill}
+\newpage
+
+% ---------------------------------------------------------------
+% ACKNOWLEDGEMENTS
+% ---------------------------------------------------------------
+\chapter*{Acknowledgements}
+\addcontentsline{toc}{chapter}{Acknowledgements}
+
+We would like to express our sincere gratitude to our supervisor,
+\textbf{Professor Abdelouahid Derhab}, for his guidance, support, and
+valuable feedback throughout this project.
+
+We also thank the faculty and staff of ESI for providing the resources
+and environment necessary to carry out this work.
+
+Finally, we are grateful to our families and colleagues for their
+continuous encouragement.
+
+\newpage
+
+% ---------------------------------------------------------------
+% ABSTRACT (English)
+% ---------------------------------------------------------------
+\chapter*{Abstract}
+\addcontentsline{toc}{chapter}{Abstract}
+
+Advanced Persistent Threats (APTs) represent one of the most sophisticated
+and dangerous classes of cyberattacks, characterized by stealth, persistence,
+and coordinated multi-stage progression. This report presents a
+GenAI-Augmented Framework for Early Detection of Multi-Stage APT Attacks
+using the Cyber Kill Chain. The proposed framework integrates four deep
+learning models --- Autoencoder, Variational Autoencoder, Transformer, and
+Graph Neural Network --- with a Reinforcement Learning agent for multi-model
+fusion. SecBERT embeddings are used to exploit the semantic content of
+security logs, while REaLTabFormer generates synthetic novel APT sequences
+to improve model robustness. The framework is integrated into a Cyber Threat
+Intelligence Platform connected to Wazuh, and validated through end-to-end
+simulation using MITRE Caldera and Docker. Evaluation results demonstrate
+84.1\% accuracy, 0.842 F1-score, 16.9\% FPR, and 81\% pre-detection rate.
+
+\vspace{1em}
+\noindent\textbf{Keywords:} Advanced Persistent Threat, Cyber Kill Chain,
+MITRE ATT\&CK, Deep Learning, Generative AI, Graph Neural Network,
+Reinforcement Learning, Intrusion Detection.
+
+\newpage
+
+% ---------------------------------------------------------------
+% RÉSUMÉ (French)
+% ---------------------------------------------------------------
+\chapter*{Résumé}
+\addcontentsline{toc}{chapter}{Résumé}
+
+Les menaces persistantes avancées (APT) représentent l'une des classes
+d'attaques informatiques les plus sophistiquées, caractérisées par leur
+furtivité, leur persistance et leur progression en plusieurs étapes
+coordonnées. Ce rapport présente un cadre augmenté par l'IA générative
+pour la détection précoce des attaques APT multi-étapes à l'aide de la
+Cyber Kill Chain. Le cadre proposé intègre quatre modèles d'apprentissage
+profond --- Autoencoder, Autoencoder variationnel, Transformer et Réseau
+de neurones graphique --- avec un agent d'apprentissage par renforcement
+pour la fusion des modèles. Les embeddings SecBERT sont utilisés pour
+exploiter le contenu sémantique des journaux de sécurité, tandis que
+REaLTabFormer génère des séquences APT synthétiques pour améliorer la
+robustesse du modèle. Le cadre est intégré dans une plateforme de
+cybermenace connectée à Wazuh et validé par simulation avec MITRE
+Caldera et Docker. Les résultats montrent une précision de 84,1\%,
+un F1-score de 0,842, un taux de faux positifs de 16,9\% et un taux
+de pré-détection de 81\%.
+
+\vspace{1em}
+\noindent\textbf{Mots-clés :} Menace persistante avancée, Cyber Kill Chain,
+MITRE ATT\&CK, Apprentissage profond, IA générative, Réseau de neurones
+graphique, Apprentissage par renforcement, Détection d'intrusion.
+
+\newpage
+
+% ---------------------------------------------------------------
+% ملخص (Arabic)
+% ---------------------------------------------------------------
+\chapter*{\begin{flushright}\RL{ملخص}\end{flushright}}
+\addcontentsline{toc}{chapter}{\texorpdfstring{\RL{ملخص}}{Arabic Abstract}}
+\begin{RLtext}
+تُعدّ التهديدات المستمرة المتقدمة (\L{APT}) من أخطر فئات الهجمات الإلكترونية،
+إذ تتميز بالتخفّي والاستمرارية والتقدم عبر مراحل متعددة ومنسّقة.
+يقدّم هذا التقرير إطاراً معززاً بالذكاء الاصطناعي التوليدي للكشف المبكر
+عن هجمات (\L{APT}) متعددة المراحل باستخدام سلسلة القتل الإلكترونية.
+يدمج الإطار المقترح أربعة نماذج تعلم عميق مع عميل تعلم معزز،
+ويستخدم تضمينات \L{SecBERT} لاستغلال المحتوى الدلالي لسجلات الأمان،
+فيما يولّد \L{REaLTabFormer} تسلسلات \L{APT} اصطناعية لتحسين متانة النماذج.
+تم دمج الإطار في منصة استخبارات التهديدات الإلكترونية المتصلة بـ \L{Wazuh}،
+والتحقق منه عبر محاكاة شاملة. أظهرت نتائج التقييم دقةً بلغت 84.1\%،
+ومعامل F1 بلغ 0.842.
+\end{RLtext}
+
 \tableofcontents
 \newpage
 \pagenumbering{arabic} 
 
-\chapter*{General Introduction}
-\addcontentsline{toc}{chapter}{General Introduction}
+\chapter*{Introduction}
+\addcontentsline{toc}{chapter}{Introduction}
 
-This document uses the following formatting styles to convey supplementary information, following the Explication, Note, and Warning conventions:
+% ---------------------------------------------------------------
+\section*{General Context and Motivation}
+% ---------------------------------------------------------------
 
-\customexplication{This element signifies an explication or suggestion.}
+The rapid expansion of digital infrastructure has significantly broadened the attack
+surface available to malicious actors, giving rise to increasingly sophisticated threats.
+Among these, \textbf{Advanced Persistent Threats (APTs)} represent the most dangerous
+class of cyberattacks --- orchestrated by skilled, well-resourced adversaries such as
+nation-states or organized criminal groups, with clearly defined strategic objectives
+. Unlike conventional attacks, APTs are characterized by
+their \textbf{persistence} and \textbf{stealth}: they infiltrate target environments and
+remain undetected for extended periods, slowly advancing through a coordinated series
+of interconnected stages toward their goals .
 
-\customnote{This element signifies a general note.}
+This multi-stage nature is precisely what makes APTs so difficult to detect. Traditional
+security mechanisms --- firewalls, signature-based antivirus, and rule-based intrusion
+detection systems --- are fundamentally reactive and largely ineffective against novel or
+evolving APT techniques. While machine learning (ML) has emerged as a promising
+complement, existing solutions typically treat security events in isolation, failing to
+model the sequential attack progression that defines APT behavior, and are rarely
+integrated into deployable, operational platforms 
 
-\customwarning{This element indicates a warning or caution.}
+Two complementary frameworks guide the structured analysis of APT behavior: the
+\textbf{Cyber Kill Chain (CKC)}, which breaks an attack into seven canonical phases
+(Reconnaissance, Weaponization, Delivery, Exploitation, Installation, Command \&
+Control, and Actions on Objectives) , and the
+\textbf{MITRE ATT\&CK framework}, which provides a granular taxonomy of adversary
+Tactics, Techniques, and Procedures (TTPs) . Together, they
+provide the structural foundation for detecting \textit{where} an attack currently resides
+and disrupting it before it reaches its final objectives.
+
+This report addresses these challenges by proposing a
+\textbf{GenAI-Augmented Framework for Early Detection of Multi-Stage APT Attacks
+using the Cyber Kill Chain} --- combining deep learning, generative data augmentation,
+reinforcement learning, and SIEM integration into a complete, deployable solution.
+
+% ---------------------------------------------------------------
+\section*{Problem Statement}
+% ---------------------------------------------------------------
+
+Despite progress in ML-based intrusion detection, APT detection remains an open
+challenge along four dimensions. \textbf{First}, most existing solutions treat security
+events as independent observations, ignoring the multi-stage sequential structure that
+defines APT campaigns. \textbf{Second}, models trained on limited historical datasets
+fail to generalize to novel APT sequences, as real-world actors continuously evolve
+their TTPs to evade detection. \textbf{Third}, the rich semantic content of security
+logs --- command lines, process names, and log messages --- is largely underexploited
+by approaches that rely solely on structured numerical features. \textbf{Fourth}, the gap
+between research prototypes and operational deployment is rarely bridged: high-performing
+models seldom integrate into real-time platforms connected to live SIEM systems.
+
+This report directly addresses all four dimensions through an end-to-end framework that
+models attack sequences across the CKC, augments training data with GenAI-generated
+novel sequences, leverages SecBERT embeddings for semantic log understanding, and
+deploys the solution within an operational threat intelligence platform.
+
+% ---------------------------------------------------------------
+\section*{Research Objectives}
+% ---------------------------------------------------------------
+
+The main goal of this project is to ensure \textbf{early detection of APTs} by monitoring
+their behavior across the Cyber Kill Chain before they reach their objectives .
+The specific objectives are:
+
+\begin{itemize}
+
+    \item \textbf{Early Multi-Stage APT Detection:}
+    Develop a GenAI-augmented framework  to detect APT activity as early
+    as possible in the attack lifecycle.
+
+    \item \textbf{CKC/ATT\&CK Mapping:}
+    Build a unified mapping between the Cyber Kill Chain and MITRE ATT\&CK to
+    represent attacks in a structured, stage-based way.
+
+    \item \textbf{GenAI for Robustness:}
+    Use REaLTabFormer to generate novel APT sequences and SecBERT to enrich
+    textual log features, improving robustness and generalization.
+
+    \item \textbf{Developed CTI Platform:}
+    Develop a Cyber Threat Intelligence Platform connected to \textbf{SIEM}, and
+    validate it through simulation with MITRE Caldera and Docker.
+
+\end{itemize}
+
+% ---------------------------------------------------------------
+\section*{Report Organization}
+% ---------------------------------------------------------------
+
+The remainder of this report is structured as follows.
+
+\textbf{Chapter~\ref{chap:background}} establishes the theoretical foundations.
+It covers cybersecurity principles, the APT lifecycle, the Cyber Kill Chain and MITRE
+ATT\&CK frameworks, machine learning paradigms, Generative AI, and the five model
+architectures used in this work.
+
+\textbf{Chapter~\ref{chap:related}} surveys APT detection solutions in the literature.
+It reviews available datasets and identifies the gaps addressed by this report.
+
+\textbf{Chapter~\ref{chap:conception}} details the full framework design.
+It presents dataset selection, preprocessing, feature engineering, model architectures,
+synthetic data generation, and the RL agent.
+
+\textbf{Chapter~\ref{chap:implementation}} describes the implementation environment.
+It includes dataset statistics and the Cyber Threat Intelligence Platform with Wazuh
+integration.
+
+\textbf{Chapter~\ref{chap:evaluation}} presents the evaluation results.
+It reports per-model metrics, the ablation study, the impact of synthetic data, and the
+end-to-end simulation results.
+
+\textbf{Chapter~\ref{chap:conclusion}} summarizes the main contributions.
+It also discusses the limitations of the work and outlines future research directions.
 
 \newpage
 
-\input{ch1_introduction}
 \input{ch2_background}
 \input{ch3_related_work}
 \input{ch4_conception}
