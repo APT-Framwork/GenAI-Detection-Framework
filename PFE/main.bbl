@@ -1,0 +1,2810 @@
+\begin{thebibliography}{}
+
+\bibitem [\protect \citeauthoryear {%
+{AAG IT Services}%
+}{%
+{AAG IT Services}%
+}{%
+{\protect \APACyear {2024}}%
+}]{%
+aag2024stats}
+\APACinsertmetastar {%
+aag2024stats}%
+\begin{APACrefauthors}%
+{AAG IT Services}.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2024}{}{}.
+\newblock
+\APACrefbtitle {The Latest Cyber Crime Statistics.} {The latest cyber crime
+  statistics.}
+\newblock
+\begin{APACrefURL} \url{https://aag-it.com/the-latest-cyber-crime-statistics/}
+  \end{APACrefURL}
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+{abuse.ch}%
+}{%
+{abuse.ch}%
+}{%
+{\protect \APACyear {2024}}%
+{\protect \APACexlab {{\protect \BCnt {1}}}}}]{%
+feodotracker2024}
+\APACinsertmetastar {%
+feodotracker2024}%
+\begin{APACrefauthors}%
+{abuse.ch}.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2024{\protect \BCnt {1}}}{}{}.
+\newblock
+\APACrefbtitle {{Feodo} Tracker.} {{Feodo} tracker.}
+\newblock
+\begin{APACrefURL} \url{https://feodotracker.abuse.ch/} \end{APACrefURL}
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+{abuse.ch}%
+}{%
+{abuse.ch}%
+}{%
+{\protect \APACyear {2024}}%
+{\protect \APACexlab {{\protect \BCnt {2}}}}}]{%
+urlhaus2024}
+\APACinsertmetastar {%
+urlhaus2024}%
+\begin{APACrefauthors}%
+{abuse.ch}.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2024{\protect \BCnt {2}}}{}{}.
+\newblock
+\APACrefbtitle {{URLhaus}: Sharing malicious {URLs} used for malware
+  distribution.} {{URLhaus}: Sharing malicious {URLs} used for malware
+  distribution.}
+\newblock
+\begin{APACrefURL} \url{https://urlhaus.abuse.ch/} \end{APACrefURL}
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Ahmed%
+, Asyhari%
+\BCBL {}\ \BBA {} Rahman%
+}{%
+Ahmed%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2021}}%
+}]{%
+ahmed2021cyber}
+\APACinsertmetastar {%
+ahmed2021cyber}%
+\begin{APACrefauthors}%
+Ahmed, Y.%
+, Asyhari, A\BPBI T.%
+\BCBL {}\ \BBA {} Rahman, M\BPBI A.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2021}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {A Cyber Kill Chain Approach for Detecting Advanced
+  Persistent Threats} {A cyber kill chain approach for detecting advanced
+  persistent threats}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{Computers, Materials \& Continua}{}{}{}.
+\newblock
+\begin{APACrefDOI} \doi{10.32604/cmc.2021.014223} \end{APACrefDOI}
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Alsaheel%
+\ \protect \BOthers {.}}{%
+Alsaheel%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2021}}%
+}]{%
+alsaheel2021atlas}
+\APACinsertmetastar {%
+alsaheel2021atlas}%
+\begin{APACrefauthors}%
+Alsaheel, A.%
+, Nan, Y.%
+, Ma, S.%
+, Yu, L.%
+, Walkup, G.%
+, Celik, Z\BPBI B.%
+\BDBL {}Xu, D.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2021}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {ATLAS: A Sequence-based Learning Approach for Attack
+  Investigation} {Atlas: A sequence-based learning approach for attack
+  investigation}.{\BBCQ}
+\newblock
+\BIn{} \APACrefbtitle {Proceedings of the 30th USENIX Security Symposium
+  (USENIX Security 21)} {Proceedings of the 30th usenix security symposium
+  (usenix security 21)}\ (\BPGS\ 3005--3022).
+\newblock
+\APACaddressPublisher{}{USENIX Association}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Anjum%
+, Iqbal%
+\BCBL {}\ \BBA {} Hamelin%
+}{%
+Anjum%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2023}}%
+}]{%
+anjum2023logshield}
+\APACinsertmetastar {%
+anjum2023logshield}%
+\begin{APACrefauthors}%
+Anjum, M\BPBI M.%
+, Iqbal, S.%
+\BCBL {}\ \BBA {} Hamelin, B.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2023}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {LogShield: A Transformer-based APT Detection Framework
+  Leveraging Self-Attention} {Logshield: A transformer-based apt detection
+  framework leveraging self-attention}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{arXiv preprint arXiv:2311.05733v1}{}{}{}.
+\newblock
+\begin{APACrefURL} \url{https://arxiv.org/abs/2311.05733} \end{APACrefURL}
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Ankalaki%
+\ \protect \BOthers {.}}{%
+Ankalaki%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2025}}%
+}]{%
+ankalaki2025cyber}
+\APACinsertmetastar {%
+ankalaki2025cyber}%
+\begin{APACrefauthors}%
+Ankalaki, S.%
+, Rajesh~A, A.%
+, M, P.%
+, Hukkeri, G\BPBI S.%
+, Jan, T.%
+\BCBL {}\ \BBA {} Naik, G\BPBI R.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2025}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Cyber Attack Prediction From Traditional Machine
+  Learning to Generative Artificial Intelligence} {Cyber attack prediction from
+  traditional machine learning to generative artificial intelligence}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{IEEE Access}{}{}{}.
+\newblock
+\APACrefnote{Early Access}
+\newblock
+\begin{APACrefDOI} \doi{10.1109/ACCESS.2025.3547433} \end{APACrefDOI}
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Bayer%
+}{%
+Bayer%
+}{%
+{\protect \APACyear {2024}}%
+}]{%
+sqlalchemy2024}
+\APACinsertmetastar {%
+sqlalchemy2024}%
+\begin{APACrefauthors}%
+Bayer, M.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2024}{}{}.
+\newblock
+\APACrefbtitle {{SQLAlchemy}: The {Python} {SQL} Toolkit and {ORM}.}
+  {{SQLAlchemy}: The {Python} {SQL} toolkit and {ORM}.}
+\newblock
+\begin{APACrefURL} \url{https://www.sqlalchemy.org/} \end{APACrefURL}
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Biryukov%
+, Dinu%
+\BCBL {}\ \BBA {} Khovratovich%
+}{%
+Biryukov%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2016}}%
+}]{%
+biryukov2016argon2}
+\APACinsertmetastar {%
+biryukov2016argon2}%
+\begin{APACrefauthors}%
+Biryukov, A.%
+, Dinu, D.%
+\BCBL {}\ \BBA {} Khovratovich, D.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2016}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {{Argon2}: New Generation of Memory-Hard Functions for
+  Password Hashing and Other Applications} {{Argon2}: New generation of
+  memory-hard functions for password hashing and other applications}.{\BBCQ}
+\newblock
+\BIn{} \APACrefbtitle {IEEE European Symposium on Security and Privacy
+  (EuroS\&P)} {Ieee european symposium on security and privacy (euros\&p)}\
+  (\BPGS\ 292--302).
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Bishop%
+}{%
+Bishop%
+}{%
+{\protect \APACyear {2006}}%
+}]{%
+bishop2006pattern}
+\APACinsertmetastar {%
+bishop2006pattern}%
+\begin{APACrefauthors}%
+Bishop, C\BPBI M.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYear{2006}.
+\newblock
+\APACrefbtitle {Pattern Recognition and Machine Learning} {Pattern recognition
+  and machine learning}.
+\newblock
+\APACaddressPublisher{}{Springer}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Breiman%
+}{%
+Breiman%
+}{%
+{\protect \APACyear {2001}}%
+}]{%
+breiman2001random}
+\APACinsertmetastar {%
+breiman2001random}%
+\begin{APACrefauthors}%
+Breiman, L.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2001}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Random forests} {Random forests}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{Machine Learning}{45}{1}{5--32}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Buczak%
+\ \BBA {} Guven%
+}{%
+Buczak%
+\ \BBA {} Guven%
+}{%
+{\protect \APACyear {2016}}%
+}]{%
+buczak2016survey}
+\APACinsertmetastar {%
+buczak2016survey}%
+\begin{APACrefauthors}%
+Buczak, A\BPBI L.%
+\BCBT {}\ \BBA {} Guven, E.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2016}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {A survey of data mining and machine learning methods for
+  cybersecurity intrusion detection} {A survey of data mining and machine
+  learning methods for cybersecurity intrusion detection}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{IEEE Communications Surveys \&
+  Tutorials}{18}{2}{1153--1176}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Cains%
+\ \protect \BOthers {.}}{%
+Cains%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2022}}%
+}]{%
+cains2022cybersecurity}
+\APACinsertmetastar {%
+cains2022cybersecurity}%
+\begin{APACrefauthors}%
+Cains, M\BPBI G.%
+\BCBT {}\ \BOthersPeriod {.}
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2022}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Cybersecurity definition; {CIA} triad; multidisciplinary
+  scope} {Cybersecurity definition; {CIA} triad; multidisciplinary
+  scope}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{Risk Analysis}{}{}{}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Chandel%
+\ \protect \BOthers {.}}{%
+Chandel%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2017}}%
+}]{%
+chandel2017social}
+\APACinsertmetastar {%
+chandel2017social}%
+\begin{APACrefauthors}%
+Chandel, S.%
+\BCBT {}\ \BOthersPeriod {.}
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2017}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Social engineering, insider threats (human factor)}
+  {Social engineering, insider threats (human factor)}.{\BBCQ}
+\newblock
+\BIn{} \APACrefbtitle {Proceedings of the IEEE CyberC.} {Proceedings of the
+  ieee cyberc.}
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Chandola%
+, Banerjee%
+\BCBL {}\ \BBA {} Kumar%
+}{%
+Chandola%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2009}}%
+}]{%
+chandola2009anomaly}
+\APACinsertmetastar {%
+chandola2009anomaly}%
+\begin{APACrefauthors}%
+Chandola, V.%
+, Banerjee, A.%
+\BCBL {}\ \BBA {} Kumar, V.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2009}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Anomaly detection: A survey} {Anomaly detection: A
+  survey}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{ACM Computing Surveys}{41}{3}{1--58}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Cheng%
+\ \protect \BOthers {.}}{%
+Cheng%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2023}}%
+{\protect \APACexlab {{\protect \BCnt {1}}}}}]{%
+cheng2023ghunter}
+\APACinsertmetastar {%
+cheng2023ghunter}%
+\begin{APACrefauthors}%
+Cheng, Z.%
+\BCBT {}\ \BOthersPeriod {.}
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2023{\protect \BCnt {1}}}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {GHUNTER: Subgraph matching for intrusion detection}
+  {Ghunter: Subgraph matching for intrusion detection}.{\BBCQ}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Cheng%
+\ \protect \BOthers {.}}{%
+Cheng%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2023}}%
+{\protect \APACexlab {{\protect \BCnt {2}}}}}]{%
+cheng2023kairos}
+\APACinsertmetastar {%
+cheng2023kairos}%
+\begin{APACrefauthors}%
+Cheng, Z.%
+\BCBT {}\ \BOthersPeriod {.}
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2023{\protect \BCnt {2}}}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {KAIROS: Temporal Encoder-Decoder for Intrusion
+  Detection} {Kairos: Temporal encoder-decoder for intrusion
+  detection}.{\BBCQ}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+{Cisco}%
+}{%
+{Cisco}%
+}{%
+{\protect \APACyear {2024}}%
+}]{%
+cisco2024cyber}
+\APACinsertmetastar {%
+cisco2024cyber}%
+\begin{APACrefauthors}%
+{Cisco}.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2024}{}{}.
+\newblock
+\APACrefbtitle {What is Cybersecurity?} {What is cybersecurity?}
+\newblock
+\APAChowpublished {\url{https://www.cisco.com}}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+{Cloud Native Computing Foundation}%
+}{%
+{Cloud Native Computing Foundation}%
+}{%
+{\protect \APACyear {2024}}%
+{\protect \APACexlab {{\protect \BCnt {1}}}}}]{%
+opentelemetry2024}
+\APACinsertmetastar {%
+opentelemetry2024}%
+\begin{APACrefauthors}%
+{Cloud Native Computing Foundation}.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2024{\protect \BCnt {1}}}{}{}.
+\newblock
+\APACrefbtitle {{OpenTelemetry}: High-quality, ubiquitous, and portable
+  telemetry.} {{OpenTelemetry}: High-quality, ubiquitous, and portable
+  telemetry.}
+\newblock
+\begin{APACrefURL} \url{https://opentelemetry.io/} \end{APACrefURL}
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+{Cloud Native Computing Foundation}%
+}{%
+{Cloud Native Computing Foundation}%
+}{%
+{\protect \APACyear {2024}}%
+{\protect \APACexlab {{\protect \BCnt {2}}}}}]{%
+prometheus2024}
+\APACinsertmetastar {%
+prometheus2024}%
+\begin{APACrefauthors}%
+{Cloud Native Computing Foundation}.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2024{\protect \BCnt {2}}}{}{}.
+\newblock
+\APACrefbtitle {{Prometheus}: Monitoring system and time series database.}
+  {{Prometheus}: Monitoring system and time series database.}
+\newblock
+\begin{APACrefURL} \url{https://prometheus.io/} \end{APACrefURL}
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+{Cloudflare}%
+}{%
+{Cloudflare}%
+}{%
+{\protect \APACyear {2024}}%
+{\protect \APACexlab {{\protect \BCnt {1}}}}}]{%
+cloudflare2024payload}
+\APACinsertmetastar {%
+cloudflare2024payload}%
+\begin{APACrefauthors}%
+{Cloudflare}.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2024{\protect \BCnt {1}}}{}{}.
+\newblock
+\APACrefbtitle {What is a Malicious Payload?} {What is a malicious payload?}
+\newblock
+\APAChowpublished {\url{https://www.cloudflare.com}}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+{Cloudflare}%
+}{%
+{Cloudflare}%
+}{%
+{\protect \APACyear {2024}}%
+{\protect \APACexlab {{\protect \BCnt {2}}}}}]{%
+cloudflare2024defense}
+\APACinsertmetastar {%
+cloudflare2024defense}%
+\begin{APACrefauthors}%
+{Cloudflare}.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2024{\protect \BCnt {2}}}{}{}.
+\newblock
+\APACrefbtitle {What is Defense in Depth?} {What is defense in depth?}
+\newblock
+\APAChowpublished {\url{https://www.cloudflare.com}}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Colvin%
+}{%
+Colvin%
+}{%
+{\protect \APACyear {2024}}%
+{\protect \APACexlab {{\protect \BCnt {1}}}}}]{%
+arq2024}
+\APACinsertmetastar {%
+arq2024}%
+\begin{APACrefauthors}%
+Colvin, S.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2024{\protect \BCnt {1}}}{}{}.
+\newblock
+\APACrefbtitle {{ARQ}: Fast job queuing in {Python} with {Redis}.} {{ARQ}: Fast
+  job queuing in {Python} with {Redis}.}
+\newblock
+\begin{APACrefURL} \url{https://arq-docs.helpmanual.io/} \end{APACrefURL}
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Colvin%
+}{%
+Colvin%
+}{%
+{\protect \APACyear {2024}}%
+{\protect \APACexlab {{\protect \BCnt {2}}}}}]{%
+pydantic2024}
+\APACinsertmetastar {%
+pydantic2024}%
+\begin{APACrefauthors}%
+Colvin, S.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2024{\protect \BCnt {2}}}{}{}.
+\newblock
+\APACrefbtitle {{Pydantic}: Data validation using {Python} type hints.}
+  {{Pydantic}: Data validation using {Python} type hints.}
+\newblock
+\begin{APACrefURL} \url{https://docs.pydantic.dev/} \end{APACrefURL}
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+{CrowdStrike}%
+}{%
+{CrowdStrike}%
+}{%
+{\protect \APACyear {2024}}%
+{\protect \APACexlab {{\protect \BCnt {1}}}}}]{%
+crowdstrike2024ioa}
+\APACinsertmetastar {%
+crowdstrike2024ioa}%
+\begin{APACrefauthors}%
+{CrowdStrike}.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2024{\protect \BCnt {1}}}{}{}.
+\newblock
+\APACrefbtitle {{IOA} vs {IOC}: Understanding the Differences.} {{IOA} vs
+  {IOC}: Understanding the differences.}
+\newblock
+\APAChowpublished {\url{https://www.crowdstrike.com}}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+{CrowdStrike}%
+}{%
+{CrowdStrike}%
+}{%
+{\protect \APACyear {2024}}%
+{\protect \APACexlab {{\protect \BCnt {2}}}}}]{%
+crowdstrike2024apt}
+\APACinsertmetastar {%
+crowdstrike2024apt}%
+\begin{APACrefauthors}%
+{CrowdStrike}.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2024{\protect \BCnt {2}}}{}{}.
+\newblock
+\APACrefbtitle {What is an Advanced Persistent Threat ({APT})?} {What is an
+  advanced persistent threat ({APT})?}
+\newblock
+\APAChowpublished {\url{https://www.crowdstrike.com}}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+{Cybersecurity and Infrastructure Security Agency (CISA)}%
+}{%
+{Cybersecurity and Infrastructure Security Agency (CISA)}%
+}{%
+{\protect \APACyear {{\protect \bibnodate {}}}}%
+}]{%
+cisa202x}
+\APACinsertmetastar {%
+cisa202x}%
+\begin{APACrefauthors}%
+{Cybersecurity and Infrastructure Security Agency (CISA)}.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{{\protect \bibnodate {}}}{}{}.
+\newblock
+\APACrefbtitle {Most Common MITRE ATT\&CK Tactics and Techniques: CISA Shares
+  Most Common RVAs.} {Most common mitre att\&ck tactics and techniques: Cisa
+  shares most common rvas.}
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+{Cynet}%
+}{%
+{Cynet}%
+}{%
+{\protect \APACyear {2023}}%
+}]{%
+cynet2023basics}
+\APACinsertmetastar {%
+cynet2023basics}%
+\begin{APACrefauthors}%
+{Cynet}.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2023}{}{}.
+\newblock
+\APACrefbtitle {Cybersecurity Basics: Threats, Technologies, and Best
+  Practices.} {Cybersecurity basics: Threats, technologies, and best
+  practices.}
+\newblock
+\APAChowpublished {\url{https://www.cynet.com}}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+{Deep Instinct}%
+}{%
+{Deep Instinct}%
+}{%
+{\protect \APACyear {2023}}%
+}]{%
+deepinstinct2023zeroday}
+\APACinsertmetastar {%
+deepinstinct2023zeroday}%
+\begin{APACrefauthors}%
+{Deep Instinct}.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2023}{}{}.
+\newblock
+\APACrefbtitle {Zero-Day Vulnerability Explained.} {Zero-day vulnerability
+  explained.}
+\newblock
+\APAChowpublished {\url{https://www.deepinstinct.com}}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+{Docker Inc.}%
+}{%
+{Docker Inc.}%
+}{%
+{\protect \APACyear {2024}}%
+}]{%
+docker2024}
+\APACinsertmetastar {%
+docker2024}%
+\begin{APACrefauthors}%
+{Docker Inc.}%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2024}{}{}.
+\newblock
+\APACrefbtitle {{Docker}: Accelerated Container Application Development.}
+  {{Docker}: Accelerated container application development.}
+\newblock
+\begin{APACrefURL} \url{https://www.docker.com/} \end{APACrefURL}
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+{Elastic N.V.}%
+}{%
+{Elastic N.V.}%
+}{%
+{\protect \APACyear {2024}}%
+}]{%
+filebeat2024}
+\APACinsertmetastar {%
+filebeat2024}%
+\begin{APACrefauthors}%
+{Elastic N.V.}%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2024}{}{}.
+\newblock
+\APACrefbtitle {{Filebeat}: Lightweight Shipper for Logs.} {{Filebeat}:
+  Lightweight shipper for logs.}
+\newblock
+\begin{APACrefURL} \url{https://www.elastic.co/beats/filebeat} \end{APACrefURL}
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+{ENISA}%
+}{%
+{ENISA}%
+}{%
+{\protect \APACyear {2023}}%
+}]{%
+enisa2023threats}
+\APACinsertmetastar {%
+enisa2023threats}%
+\begin{APACrefauthors}%
+{ENISA}.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2023}{}{}.
+\newblock
+\APACrefbtitle {{ENISA} Threat Landscape: Seven Prime Threats.} {{ENISA} threat
+  landscape: Seven prime threats.}
+\newblock
+\APAChowpublished {\url{https://www.enisa.europa.eu}}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+{Expo}%
+}{%
+{Expo}%
+}{%
+{\protect \APACyear {2024}}%
+}]{%
+expo2024}
+\APACinsertmetastar {%
+expo2024}%
+\begin{APACrefauthors}%
+{Expo}.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2024}{}{}.
+\newblock
+\APACrefbtitle {{Expo}: The fastest way to build an app.} {{Expo}: The fastest
+  way to build an app.}
+\newblock
+\begin{APACrefURL} \url{https://expo.dev/} \end{APACrefURL}
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Fawcett%
+}{%
+Fawcett%
+}{%
+{\protect \APACyear {2006}}%
+}]{%
+fawcett2006roc}
+\APACinsertmetastar {%
+fawcett2006roc}%
+\begin{APACrefauthors}%
+Fawcett, T.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2006}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {An introduction to ROC analysis} {An introduction to roc
+  analysis}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{Pattern Recognition Letters}{27}{8}{861--874}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Fey%
+\ \BBA {} Lenssen%
+}{%
+Fey%
+\ \BBA {} Lenssen%
+}{%
+{\protect \APACyear {2019}}%
+}]{%
+fey2019pyg}
+\APACinsertmetastar {%
+fey2019pyg}%
+\begin{APACrefauthors}%
+Fey, M.%
+\BCBT {}\ \BBA {} Lenssen, J\BPBI E.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2019}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Fast Graph Representation Learning with {PyTorch}
+  {Geometric}} {Fast graph representation learning with {PyTorch}
+  {Geometric}}.{\BBCQ}
+\newblock
+\BIn{} \APACrefbtitle {ICLR Workshop on Representation Learning on Graphs and
+  Manifolds.} {Iclr workshop on representation learning on graphs and
+  manifolds.}
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Fu%
+, Zhang%
+, Meng%
+\BCBL {}\ \BBA {} King%
+}{%
+Fu%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2020}}%
+}]{%
+fu2020magnn}
+\APACinsertmetastar {%
+fu2020magnn}%
+\begin{APACrefauthors}%
+Fu, X.%
+, Zhang, J.%
+, Meng, Z.%
+\BCBL {}\ \BBA {} King, I.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2020}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {MAGNN: Metapath Aggregated Graph Neural Network for
+  Heterogeneous Graph Embedding} {Magnn: Metapath aggregated graph neural
+  network for heterogeneous graph embedding}.{\BBCQ}
+\newblock
+\BIn{} \APACrefbtitle {The Web Conference.} {The web conference.}
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Ghiasvand%
+\ \protect \BOthers {.}}{%
+Ghiasvand%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2024}}%
+}]{%
+ghiasvand2024cicapt}
+\APACinsertmetastar {%
+ghiasvand2024cicapt}%
+\begin{APACrefauthors}%
+Ghiasvand, M.%
+\BCBT {}\ \BOthersPeriod {.}
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2024}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {{CICAPT-IIoT}: A Provenance-based {APT} Attack Dataset
+  for {IIoT} Environment} {{CICAPT-IIoT}: A provenance-based {APT} attack
+  dataset for {IIoT} environment}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{arXiv preprint arXiv:2407.15130}{}{}{}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Goodfellow%
+, Bengio%
+\BCBL {}\ \BBA {} Courville%
+}{%
+Goodfellow%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2016}}%
+}]{%
+goodfellow2016deep}
+\APACinsertmetastar {%
+goodfellow2016deep}%
+\begin{APACrefauthors}%
+Goodfellow, I.%
+, Bengio, Y.%
+\BCBL {}\ \BBA {} Courville, A.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYear{2016}.
+\newblock
+\APACrefbtitle {Deep Learning} {Deep learning}.
+\newblock
+\APACaddressPublisher{}{MIT Press}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Hamilton%
+, Ying%
+\BCBL {}\ \BBA {} Leskovec%
+}{%
+Hamilton%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2017}}%
+}]{%
+hamilton2017graphsage}
+\APACinsertmetastar {%
+hamilton2017graphsage}%
+\begin{APACrefauthors}%
+Hamilton, W\BPBI L.%
+, Ying, R.%
+\BCBL {}\ \BBA {} Leskovec, J.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2017}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Inductive Representation Learning on Large Graphs}
+  {Inductive representation learning on large graphs}.{\BBCQ}
+\newblock
+\BIn{} \APACrefbtitle {Advances in Neural Information Processing Systems
+  (NeurIPS)} {Advances in neural information processing systems (neurips)}\
+  (\BVOL~30).
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Hastie%
+, Tibshirani%
+\BCBL {}\ \BBA {} Friedman%
+}{%
+Hastie%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2009}}%
+}]{%
+hastie2009elements}
+\APACinsertmetastar {%
+hastie2009elements}%
+\begin{APACrefauthors}%
+Hastie, T.%
+, Tibshirani, R.%
+\BCBL {}\ \BBA {} Friedman, J.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYear{2009}.
+\newblock
+\APACrefbtitle {The Elements of Statistical Learning: Data Mining, Inference,
+  and Prediction} {The elements of statistical learning: Data mining,
+  inference, and prediction}\ (\PrintOrdinal{2nd}\ \BEd).
+\newblock
+\APACaddressPublisher{}{Springer}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Hentea%
+\ \protect \BOthers {.}}{%
+Hentea%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2021}}%
+}]{%
+hentea2021risk}
+\APACinsertmetastar {%
+hentea2021risk}%
+\begin{APACrefauthors}%
+Hentea, M.%
+\BCBT {}\ \BOthersPeriod {.}
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2021}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Assets, threats, vulnerabilities, risk = T x V x Impact
+  (info-asset definitions)} {Assets, threats, vulnerabilities, risk = t x v x
+  impact (info-asset definitions)}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{Future Internet}{}{}{}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Hewapathirana%
+}{%
+Hewapathirana%
+}{%
+{\protect \APACyear {2025}}%
+}]{%
+hewapathirana2025comparative}
+\APACinsertmetastar {%
+hewapathirana2025comparative}%
+\begin{APACrefauthors}%
+Hewapathirana, I\BPBI U.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2025}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {A Comparative Study of Two-Stage Intrusion Detection
+  Using Modern {ML} on the {CSE-CIC-IDS2018} Dataset} {A comparative study of
+  two-stage intrusion detection using modern {ML} on the {CSE-CIC-IDS2018}
+  dataset}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{Knowledge}{5}{1}{}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Higgins%
+\ \protect \BOthers {.}}{%
+Higgins%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2017}}%
+}]{%
+higgins2017betavae}
+\APACinsertmetastar {%
+higgins2017betavae}%
+\begin{APACrefauthors}%
+Higgins, I.%
+, Matthey, L.%
+, Pal, A.%
+, Burgess, C\BPBI P.%
+, Glorot, X.%
+, Botvinick, M\BPBI M.%
+\BDBL {}Lerchner, A.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2017}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {beta-{VAE}: Learning Basic Visual Concepts with a
+  Constrained Variational Framework} {beta-{VAE}: Learning basic visual
+  concepts with a constrained variational framework}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{International Conference on Learning
+  Representations}{}{}{}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Hochreiter%
+\ \BBA {} Schmidhuber%
+}{%
+Hochreiter%
+\ \BBA {} Schmidhuber%
+}{%
+{\protect \APACyear {1997}}%
+}]{%
+hochreiter1997lstm}
+\APACinsertmetastar {%
+hochreiter1997lstm}%
+\begin{APACrefauthors}%
+Hochreiter, S.%
+\BCBT {}\ \BBA {} Schmidhuber, J.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{1997}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Long short-term memory} {Long short-term memory}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{Neural Computation}{9}{8}{1735--1780}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Huang%
+\ \protect \BOthers {.}}{%
+Huang%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2024}}%
+}]{%
+huang2024security}
+\APACinsertmetastar {%
+huang2024security}%
+\begin{APACrefauthors}%
+Huang%
+\BCBT {}\ \BOthersPeriod {.}
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2024}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Security modelling for cyber-physical systems: A
+  systematic literature review} {Security modelling for cyber-physical systems:
+  A systematic literature review}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{arXiv preprint arXiv:2404.07527}{}{}{}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+{Huntress}%
+}{%
+{Huntress}%
+}{%
+{\protect \APACyear {2024}}%
+}]{%
+huntress2024glossary}
+\APACinsertmetastar {%
+huntress2024glossary}%
+\begin{APACrefauthors}%
+{Huntress}.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2024}{}{}.
+\newblock
+\APACrefbtitle {Cybersecurity 101 Glossary.} {Cybersecurity 101 glossary.}
+\newblock
+\APAChowpublished {\url{https://www.huntress.com}}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Hussain%
+\ \BBA {} Talib%
+}{%
+Hussain%
+\ \BBA {} Talib%
+}{%
+{\protect \APACyear {2023}}%
+}]{%
+hussain2023mitm}
+\APACinsertmetastar {%
+hussain2023mitm}%
+\begin{APACrefauthors}%
+Hussain, A.%
+\BCBT {}\ \BBA {} Talib, S.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2023}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Man-in-the-middle attacks as example of an attack
+  vector} {Man-in-the-middle attacks as example of an attack vector}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{Journal of Computing and Artificial
+  Intelligence}{}{}{}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+{Jackaduma}%
+}{%
+{Jackaduma}%
+}{%
+{\protect \APACyear {2022}}%
+}]{%
+secbert2022}
+\APACinsertmetastar {%
+secbert2022}%
+\begin{APACrefauthors}%
+{Jackaduma}.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2022}{}{}.
+\newblock
+\APACrefbtitle {{SecBERT}: A pretrained {BERT} model for cybersecurity.}
+  {{SecBERT}: A pretrained {BERT} model for cybersecurity.}
+\newblock
+\APAChowpublished {\url{https://huggingface.co/jackaduma/SecBERT}}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Jia%
+}{%
+Jia%
+}{%
+{\protect \APACyear {2023}}%
+}]{%
+jia2023magic}
+\APACinsertmetastar {%
+jia2023magic}%
+\begin{APACrefauthors}%
+Jia, e\BPBI a.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2023}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {MAGIC: Masked Graph Autoencoder for Intrusion Detection}
+  {Magic: Masked graph autoencoder for intrusion detection}.{\BBCQ}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Jiang%
+\ \protect \BOthers {.}}{%
+Jiang%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2025}}%
+}]{%
+jiang2025mitre}
+\APACinsertmetastar {%
+jiang2025mitre}%
+\begin{APACrefauthors}%
+Jiang, Y.%
+, Meng, Q.%
+, Shang, F.%
+, Oo, N.%
+, Minh, L\BPBI T\BPBI H.%
+, Lim, H\BPBI W.%
+\BCBL {}\ \BBA {} Sikdar, B.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2025}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {MITRE ATT\&CK Applications in Cybersecurity and The Way
+  Forward} {Mitre att\&ck applications in cybersecurity and the way
+  forward}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{arXiv preprint arXiv:2502.10825}{}{}{}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Kang%
+\ \protect \BOthers {.}}{%
+Kang%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2023}}%
+}]{%
+kang2023zero}
+\APACinsertmetastar {%
+kang2023zero}%
+\begin{APACrefauthors}%
+Kang, J.%
+\BCBT {}\ \BOthersPeriod {.}
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2023}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Zero-trust survey: identity/auth, access, data, network,
+  application security} {Zero-trust survey: identity/auth, access, data,
+  network, application security}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{Entropy}{}{}{}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Karim%
+, Afzal%
+, Iqbal%
+\BCBL {}\ \BBA {} Al~Abri%
+}{%
+Karim%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2024}}%
+}]{%
+karim2024linux}
+\APACinsertmetastar {%
+karim2024linux}%
+\begin{APACrefauthors}%
+Karim, S\BPBI S.%
+, Afzal, M.%
+, Iqbal, W.%
+\BCBL {}\ \BBA {} Al~Abri, D.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2024}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Advanced Persistent Threat ({APT}) and
+  intrusion-detection evaluation dataset for {Linux} systems 2024} {Advanced
+  persistent threat ({APT}) and intrusion-detection evaluation dataset for
+  {Linux} systems 2024}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{Data in Brief}{54}{}{110290}.
+\newblock
+\begin{APACrefDOI} \doi{10.1016/j.dib.2024.110290} \end{APACrefDOI}
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Kipf%
+\ \BBA {} Welling%
+}{%
+Kipf%
+\ \BBA {} Welling%
+}{%
+{\protect \APACyear {2017}}%
+}]{%
+kipf2016gcn}
+\APACinsertmetastar {%
+kipf2016gcn}%
+\begin{APACrefauthors}%
+Kipf, T\BPBI N.%
+\BCBT {}\ \BBA {} Welling, M.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2017}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Semi-Supervised Classification with Graph Convolutional
+  Networks} {Semi-supervised classification with graph convolutional
+  networks}.{\BBCQ}
+\newblock
+\BIn{} \APACrefbtitle {ICLR.} {Iclr.}
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Krishnapriya%
+\ \BBA {} Singh%
+}{%
+Krishnapriya%
+\ \BBA {} Singh%
+}{%
+{\protect \APACyear {2024}}%
+}]{%
+krishnapriya2024comprehensive}
+\APACinsertmetastar {%
+krishnapriya2024comprehensive}%
+\begin{APACrefauthors}%
+Krishnapriya, S.%
+\BCBT {}\ \BBA {} Singh, S.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2024}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {A Comprehensive Survey on Advanced Persistent Threat
+  (APT) Detection Techniques} {A comprehensive survey on advanced persistent
+  threat (apt) detection techniques}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{Computer Modeling in Engineering \&
+  Sciences}{80}{2}{2675--2716}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Lopez-Martin%
+, Carro%
+\BCBL {}\ \BBA {} Sanchez-Esguevillas%
+}{%
+Lopez-Martin%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2020}}%
+}]{%
+lopez2020application}
+\APACinsertmetastar {%
+lopez2020application}%
+\begin{APACrefauthors}%
+Lopez-Martin, M.%
+, Carro, B.%
+\BCBL {}\ \BBA {} Sanchez-Esguevillas, A.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2020}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Application of deep reinforcement learning to intrusion
+  detection for supervised problems} {Application of deep reinforcement
+  learning to intrusion detection for supervised problems}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{Expert Systems with Applications}{141}{}{112963}.
+\newblock
+\begin{APACrefDOI} \doi{10.1016/j.eswa.2019.112963} \end{APACrefDOI}
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Ma%
+\ \BBA {} Shi%
+}{%
+Ma%
+\ \BBA {} Shi%
+}{%
+{\protect \APACyear {2020}}%
+}]{%
+ma2020idsgan}
+\APACinsertmetastar {%
+ma2020idsgan}%
+\begin{APACrefauthors}%
+Ma, X.%
+\BCBT {}\ \BBA {} Shi, W.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2020}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {IDSGAN: Generative Adversarial Networks for Attack
+  Generation against Intrusion Detection} {Idsgan: Generative adversarial
+  networks for attack generation against intrusion detection}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{Information Sciences}{}{}{}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Mabrouk%
+\ \protect \BOthers {.}}{%
+Mabrouk%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2025}}%
+}]{%
+mabrouk2025lmdg}
+\APACinsertmetastar {%
+mabrouk2025lmdg}%
+\begin{APACrefauthors}%
+Mabrouk, A.%
+\BCBT {}\ \BOthersPeriod {.}
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2025}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {{LMDG}: Advancing Lateral Movement Detection through
+  High-Fidelity Dataset Generation} {{LMDG}: Advancing lateral movement
+  detection through high-fidelity dataset generation}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{arXiv preprint arXiv:2508.02942}{}{}{}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+{MITRE Corporation}%
+}{%
+{MITRE Corporation}%
+}{%
+{\protect \APACyear {2024}}%
+{\protect \APACexlab {{\protect \BCnt {1}}}}}]{%
+mitre_attack}
+\APACinsertmetastar {%
+mitre_attack}%
+\begin{APACrefauthors}%
+{MITRE Corporation}.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2024{\protect \BCnt {1}}}{}{}.
+\newblock
+\APACrefbtitle {{MITRE ATT\&CK}: Adversarial Tactics, Techniques, and Common
+  Knowledge.} {{MITRE ATT\&CK}: Adversarial tactics, techniques, and common
+  knowledge.}
+\newblock
+\begin{APACrefURL} \url{https://attack.mitre.org/} \end{APACrefURL}
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+{MITRE Corporation}%
+}{%
+{MITRE Corporation}%
+}{%
+{\protect \APACyear {2024}}%
+{\protect \APACexlab {{\protect \BCnt {2}}}}}]{%
+caldera2024}
+\APACinsertmetastar {%
+caldera2024}%
+\begin{APACrefauthors}%
+{MITRE Corporation}.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2024{\protect \BCnt {2}}}{}{}.
+\newblock
+\APACrefbtitle {{MITRE} {CALDERA}: A scalable, automated adversary emulation
+  platform.} {{MITRE} {CALDERA}: A scalable, automated adversary emulation
+  platform.}
+\newblock
+\begin{APACrefURL} \url{https://caldera.mitre.org/} \end{APACrefURL}
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Mnih%
+\ \protect \BOthers {.}}{%
+Mnih%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2015}}%
+{\protect \APACexlab {{\protect \BCnt {1}}}}}]{%
+mnih2015human}
+\APACinsertmetastar {%
+mnih2015human}%
+\begin{APACrefauthors}%
+Mnih, V.%
+, Kavukcuoglu, K.%
+, Silver, D.%
+, Rusu, A\BPBI A.%
+, Veness, J.%
+, Bellemare, M\BPBI G.%
+\BDBL {}Hassabis, D.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2015{\protect \BCnt {1}}}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Human-level control through deep reinforcement learning}
+  {Human-level control through deep reinforcement learning}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{Nature}{518}{7540}{529--533}.
+\newblock
+\begin{APACrefDOI} \doi{10.1038/nature14236} \end{APACrefDOI}
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Mnih%
+\ \protect \BOthers {.}}{%
+Mnih%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2015}}%
+{\protect \APACexlab {{\protect \BCnt {2}}}}}]{%
+mnih2015dqn}
+\APACinsertmetastar {%
+mnih2015dqn}%
+\begin{APACrefauthors}%
+Mnih, V.%
+, Kavukcuoglu, K.%
+, Silver, D.%
+, Rusu, A\BPBI A.%
+, Veness, J.%
+, Bellemare, M\BPBI G.%
+\BDBL {}others%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2015{\protect \BCnt {2}}}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Human-level control through deep reinforcement learning}
+  {Human-level control through deep reinforcement learning}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{Nature}{518}{7540}{529--533}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Myneni%
+\ \protect \BOthers {.}}{%
+Myneni%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2020}}%
+}]{%
+myneni2020dapt}
+\APACinsertmetastar {%
+myneni2020dapt}%
+\begin{APACrefauthors}%
+Myneni, S.%
+\BCBT {}\ \BOthersPeriod {.}
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2020}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {{DAPT} 2020 -- Constructing a Benchmark Dataset for
+  Advanced Persistent Threats} {{DAPT} 2020 -- constructing a benchmark dataset
+  for advanced persistent threats}.{\BBCQ}
+\newblock
+\BIn{} \APACrefbtitle {Proceedings of MLHat 2020} {Proceedings of mlhat 2020}\
+  (\BVOL\ 1271, \BPGS\ 138--163).
+\newblock
+\APACaddressPublisher{}{Springer}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Myneni%
+\ \protect \BOthers {.}}{%
+Myneni%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2023}}%
+}]{%
+myneni2023unraveled}
+\APACinsertmetastar {%
+myneni2023unraveled}%
+\begin{APACrefauthors}%
+Myneni, S.%
+\BCBT {}\ \BOthersPeriod {.}
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2023}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Unraveled---A semi-synthetic dataset for Advanced
+  Persistent Threats} {Unraveled---a semi-synthetic dataset for advanced
+  persistent threats}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{Computer Networks}{227}{}{109688}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+{National Institute of Standards and Technology (NIST)}%
+}{%
+{National Institute of Standards and Technology (NIST)}%
+}{%
+{\protect \APACyear {2023}}%
+}]{%
+nist2023cyber}
+\APACinsertmetastar {%
+nist2023cyber}%
+\begin{APACrefauthors}%
+{National Institute of Standards and Technology (NIST)}.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2023}{}{}.
+\newblock
+\APACrefbtitle {See Yourself in Cyber.} {See yourself in cyber.}
+\newblock
+\APAChowpublished {\url{https://www.nist.gov}}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Neuschmied%
+\ \protect \BOthers {.}}{%
+Neuschmied%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2022}}%
+}]{%
+neuschmied2022apt}
+\APACinsertmetastar {%
+neuschmied2022apt}%
+\begin{APACrefauthors}%
+Neuschmied, H.%
+, Winter, M.%
+, Stojanovi{\'c}, B.%
+, Hofer-Schmitz, K.%
+, Bo{\v{z}}i{\'c}, J.%
+\BCBL {}\ \BBA {} Kleb, U.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2022}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {APT-Attack Detection Based on Multi-Stage Autoencoders}
+  {Apt-attack detection based on multi-stage autoencoders}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{Applied Sciences}{12}{13}{6816}.
+\newblock
+\begin{APACrefDOI} \doi{10.3390/app12136816} \end{APACrefDOI}
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Ouaissa%
+, Ouaissa%
+, Njah%
+, Hourani%
+\BCBL {}\ \BBA {} Mahmoud%
+}{%
+Ouaissa%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2025}}%
+}]{%
+ouaissa2025smartcity}
+\APACinsertmetastar {%
+ouaissa2025smartcity}%
+\begin{APACrefauthors}%
+Ouaissa, M.%
+, Ouaissa, M.%
+, Njah, Z.%
+, Hourani, S.%
+\BCBL {}\ \BBA {} Mahmoud, Y.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2025}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {A framework for cyber threat modeling and risk
+  assessment in smart city infrastructure} {A framework for cyber threat
+  modeling and risk assessment in smart city infrastructure}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{Frontiers in Computer Science}{}{}{}.
+\newblock
+\begin{APACrefURL} \url{https://doi.org/10.3389/fcomp.2025.1647179}
+  \end{APACrefURL}
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+{OWASP Foundation}%
+}{%
+{OWASP Foundation}%
+}{%
+{\protect \APACyear {2024}}%
+}]{%
+owasp2024threatmodeling}
+\APACinsertmetastar {%
+owasp2024threatmodeling}%
+\begin{APACrefauthors}%
+{OWASP Foundation}.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2024}{}{}.
+\newblock
+\APACrefbtitle {Threat Modeling Process.} {Threat modeling process.}
+\newblock
+\begin{APACrefURL}
+  \url{https://owasp.org/www-community/Threat_Modeling_Process}
+  \end{APACrefURL}
+\newblock
+\APACrefnote{[Accessed: May 2026]}
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+{Palo Alto Networks}%
+}{%
+{Palo Alto Networks}%
+}{%
+{\protect \APACyear {2024}}%
+}]{%
+paloalto2024dos}
+\APACinsertmetastar {%
+paloalto2024dos}%
+\begin{APACrefauthors}%
+{Palo Alto Networks}.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2024}{}{}.
+\newblock
+\APACrefbtitle {What is a Denial-of-Service ({DoS}) Attack?} {What is a
+  denial-of-service ({DoS}) attack?}
+\newblock
+\APAChowpublished {\url{https://www.paloaltonetworks.com}}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Paszke%
+\ \protect \BOthers {.}}{%
+Paszke%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2019}}%
+}]{%
+paszke2019pytorch}
+\APACinsertmetastar {%
+paszke2019pytorch}%
+\begin{APACrefauthors}%
+Paszke, A.%
+, Gross, S.%
+, Massa, F.%
+, Lerer, A.%
+, Bradbury, J.%
+, Chanan, G.%
+\BDBL {}Chintala, S.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2019}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {{PyTorch}: An Imperative Style, High-Performance Deep
+  Learning Library} {{PyTorch}: An imperative style, high-performance deep
+  learning library}.{\BBCQ}
+\newblock
+\BIn{} \APACrefbtitle {Advances in Neural Information Processing Systems}
+  {Advances in neural information processing systems}\ (\BVOL~32).
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Rahal%
+\ \protect \BOthers {.}}{%
+Rahal%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2025}}%
+}]{%
+rahal2025windows}
+\APACinsertmetastar {%
+rahal2025windows}%
+\begin{APACrefauthors}%
+Rahal, K.%
+\BCBT {}\ \BOthersPeriod {.}
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2025}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Dataset of {APT} Persistence Techniques on {Windows}
+  Platforms Mapped to {MITRE} {ATT\&CK}} {Dataset of {APT} persistence
+  techniques on {Windows} platforms mapped to {MITRE} {ATT\&CK}}.{\BBCQ}
+\newblock
+\BIn{} \APACrefbtitle {Proceedings of the IEEE International Conference on
+  Network Infrastructure and Digital Security (ICIN).} {Proceedings of the ieee
+  international conference on network infrastructure and digital security
+  (icin).}
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Ram{\'i}rez%
+}{%
+Ram{\'i}rez%
+}{%
+{\protect \APACyear {2024}}%
+}]{%
+fastapi2024}
+\APACinsertmetastar {%
+fastapi2024}%
+\begin{APACrefauthors}%
+Ram{\'i}rez, S.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2024}{}{}.
+\newblock
+\APACrefbtitle {{FastAPI}: Modern, fast web framework for building {APIs} with
+  {Python}.} {{FastAPI}: Modern, fast web framework for building {APIs} with
+  {Python}.}
+\newblock
+\begin{APACrefURL} \url{https://fastapi.tiangolo.com/} \end{APACrefURL}
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+{Rapid7}%
+}{%
+{Rapid7}%
+}{%
+{\protect \APACyear {2024}}%
+}]{%
+rapid72024mitm}
+\APACinsertmetastar {%
+rapid72024mitm}%
+\begin{APACrefauthors}%
+{Rapid7}.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2024}{}{}.
+\newblock
+\APACrefbtitle {What is a Man-in-the-Middle ({MITM}) Attack?} {What is a
+  man-in-the-middle ({MITM}) attack?}
+\newblock
+\APAChowpublished {\url{https://www.rapid7.com}}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Rathod%
+, Akram%
+\BCBL {}\ \protect \BOthers {.}}{%
+Rathod%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2025}}%
+}]{%
+akram2025social}
+\APACinsertmetastar {%
+akram2025social}%
+\begin{APACrefauthors}%
+Rathod, A.%
+, Akram, M.%
+\BCBL {}\ \BOthersPeriod {.}\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2025}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Social engineering attacks (phishing, vishing, etc.)}
+  {Social engineering attacks (phishing, vishing, etc.)}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{Information Processing \& Management}{}{}{}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+{Red Hat}%
+}{%
+{Red Hat}%
+}{%
+{\protect \APACyear {2024}}%
+}]{%
+auditd2024}
+\APACinsertmetastar {%
+auditd2024}%
+\begin{APACrefauthors}%
+{Red Hat}.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2024}{}{}.
+\newblock
+\APACrefbtitle {The {Linux} Audit Framework.} {The {Linux} audit framework.}
+\newblock
+\begin{APACrefURL} \url{https://github.com/linux-audit/audit-documentation}
+  \end{APACrefURL}
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+{Redis Ltd.}%
+}{%
+{Redis Ltd.}%
+}{%
+{\protect \APACyear {2024}}%
+}]{%
+redis2024}
+\APACinsertmetastar {%
+redis2024}%
+\begin{APACrefauthors}%
+{Redis Ltd.}%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2024}{}{}.
+\newblock
+\APACrefbtitle {{Redis}: In-memory data structure store.} {{Redis}: In-memory
+  data structure store.}
+\newblock
+\begin{APACrefURL} \url{https://redis.io/} \end{APACrefURL}
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Rossi%
+\ \protect \BOthers {.}}{%
+Rossi%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2020}}%
+}]{%
+rossi2020tgn}
+\APACinsertmetastar {%
+rossi2020tgn}%
+\begin{APACrefauthors}%
+Rossi, E.%
+, Chamberlain, B.%
+, Frasca, F.%
+, Eynard, D.%
+, Monti, F.%
+\BCBL {}\ \BBA {} Bronstein, M.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2020}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Temporal Graph Networks for Deep Learning on Dynamic
+  Graphs} {Temporal graph networks for deep learning on dynamic graphs}.{\BBCQ}
+\newblock
+\BIn{} \APACrefbtitle {ICML.} {Icml.}
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Saad%
+\ \BBA {} Yildiz%
+}{%
+Saad%
+\ \BBA {} Yildiz%
+}{%
+{\protect \APACyear {2023}}%
+}]{%
+saad2023reinforcement}
+\APACinsertmetastar {%
+saad2023reinforcement}%
+\begin{APACrefauthors}%
+Saad, A\BPBI M\BPBI S\BPBI E.%
+\BCBT {}\ \BBA {} Yildiz, B.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2023}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Reinforcement Learning for Intrusion Detection}
+  {Reinforcement learning for intrusion detection}.{\BBCQ}
+\newblock
+\BIn{} \APACrefbtitle {Proceedings of the International Conference on
+  Computational Intelligence and Data Analytics (ICCIDA 2022)} {Proceedings of
+  the international conference on computational intelligence and data analytics
+  (iccida 2022)}\ (\BVOL~643).
+\newblock
+\APACaddressPublisher{}{Springer}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+{SentinelOne}%
+}{%
+{SentinelOne}%
+}{%
+{\protect \APACyear {2024}}%
+{\protect \APACexlab {{\protect \BCnt {1}}}}}]{%
+sentinelone2024social}
+\APACinsertmetastar {%
+sentinelone2024social}%
+\begin{APACrefauthors}%
+{SentinelOne}.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2024{\protect \BCnt {1}}}{}{}.
+\newblock
+\APACrefbtitle {Social Engineering Attacks Explained.} {Social engineering
+  attacks explained.}
+\newblock
+\APAChowpublished {\url{https://www.sentinelone.com}}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+{SentinelOne}%
+}{%
+{SentinelOne}%
+}{%
+{\protect \APACyear {2024}}%
+{\protect \APACexlab {{\protect \BCnt {2}}}}}]{%
+sentinelone2024vector}
+\APACinsertmetastar {%
+sentinelone2024vector}%
+\begin{APACrefauthors}%
+{SentinelOne}.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2024{\protect \BCnt {2}}}{}{}.
+\newblock
+\APACrefbtitle {What is an Attack Vector?} {What is an attack vector?}
+\newblock
+\APAChowpublished {\url{https://www.sentinelone.com}}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Sharmila~Devi%
+\ \protect \BOthers {.}}{%
+Sharmila~Devi%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2026}}%
+}]{%
+SharmilaD2026CNN2D}
+\APACinsertmetastar {%
+SharmilaD2026CNN2D}%
+\begin{APACrefauthors}%
+Sharmila~Devi, M.%
+, Sai Guna~Varsheta, G.%
+, Sreedhar, B.%
+, Swarajya~Lakshmi, B.%
+, Sravanthi, D.%
+\BCBL {}\ \BBA {} Rubiya~Parveen, S.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2026}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {{CNN2D}-based Deep Learning Framework for {IoT}
+  Cyberattack Detection with {CICAPT-IIoT}} {{CNN2D}-based deep learning
+  framework for {IoT} cyberattack detection with {CICAPT-IIoT}}.{\BBCQ}
+\newblock
+\BIn{} \APACrefbtitle {Proceedings of the International Conference on Visual
+  Analytics and Data Visualization (ICVADV-2026)} {Proceedings of the
+  international conference on visual analytics and data visualization
+  (icvadv-2026)}\ (\BPGS\ 1459--1464).
+\newblock
+\APACaddressPublisher{}{IEEE}.
+\newblock
+\begin{APACrefDOI} \doi{10.1109/ICVADV67766.2026.11469823} \end{APACrefDOI}
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Shen%
+, Perigo%
+\BCBL {}\ \BBA {} Curry%
+}{%
+Shen%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2023}}%
+}]{%
+shen2023sr2apt}
+\APACinsertmetastar {%
+shen2023sr2apt}%
+\begin{APACrefauthors}%
+Shen, F.%
+, Perigo, L.%
+\BCBL {}\ \BBA {} Curry, J\BPBI R.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2023}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {{SR2APT}: {A} Detection and Strategic Alert Response
+  Model against Multistage {APT} Attacks} {{SR2APT}: {A} detection and
+  strategic alert response model against multistage {APT} attacks}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{Security and Communication Networks}{2023}{1}{6802359}.
+\newblock
+\begin{APACrefURL}
+  \url{https://onlinelibrary.wiley.com/doi/10.1155/2023/6802359}
+  \end{APACrefURL}
+\newblock
+\begin{APACrefDOI} \doi{10.1155/2023/6802359} \end{APACrefDOI}
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+{Simple Icons}%
+}{%
+{Simple Icons}%
+}{%
+{\protect \APACyear {2024}}%
+}]{%
+simpleicons2024}
+\APACinsertmetastar {%
+simpleicons2024}%
+\begin{APACrefauthors}%
+{Simple Icons}.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2024}{}{}.
+\newblock
+\APACrefbtitle {Simple {Icons}: Free {SVG} icons for popular brands.} {Simple
+  {Icons}: Free {SVG} icons for popular brands.}
+\newblock
+\begin{APACrefURL} \url{https://simpleicons.org/} \end{APACrefURL}
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Singh%
+, Sharma%
+, Moon%
+, Moon%
+\BCBL {}\ \BBA {} Park%
+}{%
+Singh%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2016}}%
+}]{%
+singh2016comprehensive}
+\APACinsertmetastar {%
+singh2016comprehensive}%
+\begin{APACrefauthors}%
+Singh, S.%
+, Sharma, P\BPBI K.%
+, Moon, S\BPBI Y.%
+, Moon, D.%
+\BCBL {}\ \BBA {} Park, J\BPBI H.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2016}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {A comprehensive study on APT attacks and countermeasures
+  for future networks and communications: challenges and solutions} {A
+  comprehensive study on apt attacks and countermeasures for future networks
+  and communications: challenges and solutions}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{The Journal of Supercomputing}{}{}{}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Son%
+}{%
+Son%
+}{%
+{\protect \APACyear {2023}}%
+}]{%
+son2023xfed}
+\APACinsertmetastar {%
+son2023xfed}%
+\begin{APACrefauthors}%
+Son, e\BPBI a.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2023}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {XFedGraph-Hunter: Transformer-augmented GraphSAGE}
+  {Xfedgraph-hunter: Transformer-augmented graphsage}.{\BBCQ}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Sudath~Ambalangodage%
+\ \protect \BOthers {.}}{%
+Sudath~Ambalangodage%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2024}}%
+}]{%
+ambalangodage2024kapt}
+\APACinsertmetastar {%
+ambalangodage2024kapt}%
+\begin{APACrefauthors}%
+Sudath~Ambalangodage, K.%
+\BCBT {}\ \BOthersPeriod {.}
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2024}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {A Relevant Feature Identification Approach to Detect
+  {APTs} in {HTTPS} Traffic} {A relevant feature identification approach to
+  detect {APTs} in {HTTPS} traffic}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{International Journal of Advanced Computer Science and
+  Applications ({IJACSA})}{15}{9}{}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Sutton%
+\ \BBA {} Barto%
+}{%
+Sutton%
+\ \BBA {} Barto%
+}{%
+{\protect \APACyear {2018}}%
+}]{%
+sutton2018reinforcement}
+\APACinsertmetastar {%
+sutton2018reinforcement}%
+\begin{APACrefauthors}%
+Sutton, R\BPBI S.%
+\BCBT {}\ \BBA {} Barto, A\BPBI G.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYear{2018}.
+\newblock
+\APACrefbtitle {Reinforcement Learning: An Introduction} {Reinforcement
+  learning: An introduction}\ (\PrintOrdinal{2nd}\ \BEd).
+\newblock
+\APACaddressPublisher{}{MIT Press}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Takey%
+, Tatikayala%
+, Samavedam%
+, Eswari%
+\BCBL {}\ \BBA {} Patil%
+}{%
+Takey%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2021}}%
+}]{%
+takey2021real}
+\APACinsertmetastar {%
+takey2021real}%
+\begin{APACrefauthors}%
+Takey, Y\BPBI S.%
+, Tatikayala, S\BPBI G.%
+, Samavedam, S\BPBI S.%
+, Eswari, P\BPBI R\BPBI L.%
+\BCBL {}\ \BBA {} Patil, M\BPBI U.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2021}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Real Time early Multi Stage Attack Detection} {Real time
+  early multi stage attack detection}.{\BBCQ}
+\newblock
+\BIn{} \APACrefbtitle {IEEE.} {Ieee.}
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Tatam%
+, Shanmugam%
+, Azam%
+\BCBL {}\ \BBA {} Kannoorpatti%
+}{%
+Tatam%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2021}}%
+}]{%
+tatam2021review}
+\APACinsertmetastar {%
+tatam2021review}%
+\begin{APACrefauthors}%
+Tatam, M.%
+, Shanmugam, B.%
+, Azam, S.%
+\BCBL {}\ \BBA {} Kannoorpatti, K.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2021}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {A review of threat modelling approaches for {APT}-style
+  attacks} {A review of threat modelling approaches for {APT}-style
+  attacks}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{Heliyon}{7}{}{e05969}.
+\newblock
+\begin{APACrefURL} \url{https://doi.org/10.1016/j.heliyon.2021.e05969}
+  \end{APACrefURL}
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+{The {PostgreSQL} Global Development Group}%
+}{%
+{The {PostgreSQL} Global Development Group}%
+}{%
+{\protect \APACyear {2024}}%
+}]{%
+postgres2024}
+\APACinsertmetastar {%
+postgres2024}%
+\begin{APACrefauthors}%
+{The {PostgreSQL} Global Development Group}.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2024}{}{}.
+\newblock
+\APACrefbtitle {{PostgreSQL}: The world's most advanced open source database.}
+  {{PostgreSQL}: The world's most advanced open source database.}
+\newblock
+\begin{APACrefURL} \url{https://www.postgresql.org/} \end{APACrefURL}
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+{Timescale Inc.}%
+}{%
+{Timescale Inc.}%
+}{%
+{\protect \APACyear {2024}}%
+}]{%
+timescaledb2024}
+\APACinsertmetastar {%
+timescaledb2024}%
+\begin{APACrefauthors}%
+{Timescale Inc.}%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2024}{}{}.
+\newblock
+\APACrefbtitle {{TimescaleDB}: Time-series and analytics platform on
+  {PostgreSQL}.} {{TimescaleDB}: Time-series and analytics platform on
+  {PostgreSQL}.}
+\newblock
+\begin{APACrefURL} \url{https://www.timescale.com/} \end{APACrefURL}
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Vaswani%
+\ \protect \BOthers {.}}{%
+Vaswani%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2017}}%
+}]{%
+vaswani2017attention}
+\APACinsertmetastar {%
+vaswani2017attention}%
+\begin{APACrefauthors}%
+Vaswani, A.%
+, Shazeer, N.%
+, Parmar, N.%
+, Uszkoreit, J.%
+, Jones, L.%
+, Gomez, A\BPBI N.%
+\BDBL {}Polosukhin, I.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2017}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Attention Is All You Need} {Attention is all you
+  need}.{\BBCQ}
+\newblock
+\BIn{} \APACrefbtitle {Advances in Neural Information Processing Systems}
+  {Advances in neural information processing systems}\ (\BVOL~30).
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Veli{\v{c}}kovi{\'{c}}%
+\ \protect \BOthers {.}}{%
+Veli{\v{c}}kovi{\'{c}}%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2018}}%
+}]{%
+velickovic2017gat}
+\APACinsertmetastar {%
+velickovic2017gat}%
+\begin{APACrefauthors}%
+Veli{\v{c}}kovi{\'{c}}, P.%
+, Cucurull, G.%
+, Casanova, A.%
+, Romero, A.%
+, Lio, P.%
+\BCBL {}\ \BBA {} Bengio, Y.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2018}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Graph Attention Networks} {Graph attention
+  networks}.{\BBCQ}
+\newblock
+\BIn{} \APACrefbtitle {ICLR.} {Iclr.}
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+{Vercel Inc.}%
+}{%
+{Vercel Inc.}%
+}{%
+{\protect \APACyear {2024}}%
+}]{%
+nextjs2024}
+\APACinsertmetastar {%
+nextjs2024}%
+\begin{APACrefauthors}%
+{Vercel Inc.}%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2024}{}{}.
+\newblock
+\APACrefbtitle {{Next.js}: The {React} Framework for the Web.} {{Next.js}: The
+  {React} framework for the web.}
+\newblock
+\begin{APACrefURL} \url{https://nextjs.org/} \end{APACrefURL}
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Wang%
+\ \protect \BOthers {.}}{%
+Wang%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2022}}%
+}]{%
+wang2022threatrace}
+\APACinsertmetastar {%
+wang2022threatrace}%
+\begin{APACrefauthors}%
+Wang, S.%
+\BCBT {}\ \BOthersPeriod {.}
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2022}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {THREATRACE: Inductive node-role learning} {Threatrace:
+  Inductive node-role learning}.{\BBCQ}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Watkins%
+}{%
+Watkins%
+}{%
+{\protect \APACyear {1989}}%
+}]{%
+watkins1989learning}
+\APACinsertmetastar {%
+watkins1989learning}%
+\begin{APACrefauthors}%
+Watkins, C\BPBI J\BPBI C\BPBI H.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYear{1989}.
+\unskip\
+\newblock
+\APACrefbtitle {Learning from delayed rewards} {Learning from delayed rewards}\
+  \APACtypeAddressSchool {\BUPhD}{}{}.
+\unskip\
+\newblock
+\APACaddressSchool {}{King's College, University of Cambridge}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Watkins%
+\ \BBA {} Dayan%
+}{%
+Watkins%
+\ \BBA {} Dayan%
+}{%
+{\protect \APACyear {1992}}%
+}]{%
+watkins1992qlearning}
+\APACinsertmetastar {%
+watkins1992qlearning}%
+\begin{APACrefauthors}%
+Watkins, C\BPBI J\BPBI C\BPBI H.%
+\BCBT {}\ \BBA {} Dayan, P.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{1992}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Q-learning} {Q-learning}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{Machine learning}{8}{}{279--292}.
+\newblock
+\begin{APACrefDOI} \doi{10.1007/BF00992698} \end{APACrefDOI}
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+{Wazuh Inc.}%
+}{%
+{Wazuh Inc.}%
+}{%
+{\protect \APACyear {2024}}%
+}]{%
+wazuh2024}
+\APACinsertmetastar {%
+wazuh2024}%
+\begin{APACrefauthors}%
+{Wazuh Inc.}%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2024}{}{}.
+\newblock
+\APACrefbtitle {Wazuh: The Open Source Security Platform.} {Wazuh: The open
+  source security platform.}
+\newblock
+\begin{APACrefURL} \url{https://wazuh.com/} \end{APACrefURL}
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+{Wikipedia}%
+}{%
+{Wikipedia}%
+}{%
+{\protect \APACyear {2010}}%
+}]{%
+wiki2010apt}
+\APACinsertmetastar {%
+wiki2010apt}%
+\begin{APACrefauthors}%
+{Wikipedia}.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2010}{January}{}.
+\newblock
+\APACrefbtitle {Advanced persistent threat.} {Advanced persistent threat.}
+\newblock
+\begin{APACrefURL}
+  \url{https://en.wikipedia.org/wiki/Advanced_persistent_threat}
+  \end{APACrefURL}
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+{Wikipedia}%
+}{%
+{Wikipedia}%
+}{%
+{\protect \APACyear {2021}}%
+}]{%
+wiki2021killchain}
+\APACinsertmetastar {%
+wiki2021killchain}%
+\begin{APACrefauthors}%
+{Wikipedia}.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2021}{August}{}.
+\newblock
+\APACrefbtitle {Cyber kill chain.} {Cyber kill chain.}
+\newblock
+\begin{APACrefURL} \url{https://en.wikipedia.org/wiki/Cyber_kill_chain}
+  \end{APACrefURL}
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Wolf%
+\ \protect \BOthers {.}}{%
+Wolf%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2020}}%
+}]{%
+wolf2020transformers}
+\APACinsertmetastar {%
+wolf2020transformers}%
+\begin{APACrefauthors}%
+Wolf, T.%
+, Debut, L.%
+, Sanh, V.%
+, Chaumond, J.%
+, Delangue, C.%
+, Moi, A.%
+\BDBL {}Rush, A\BPBI M.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2020}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Transformers: State-of-the-Art Natural Language
+  Processing} {Transformers: State-of-the-art natural language
+  processing}.{\BBCQ}
+\newblock
+\BIn{} \APACrefbtitle {Proceedings of the 2020 Conference on Empirical Methods
+  in Natural Language Processing: System Demonstrations} {Proceedings of the
+  2020 conference on empirical methods in natural language processing: System
+  demonstrations}\ (\BPGS\ 38--45).
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Xu%
+, Hu%
+, Leskovec%
+\BCBL {}\ \BBA {} Jegelka%
+}{%
+Xu%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2019}}%
+}]{%
+xu2018gin}
+\APACinsertmetastar {%
+xu2018gin}%
+\begin{APACrefauthors}%
+Xu, K.%
+, Hu, W.%
+, Leskovec, J.%
+\BCBL {}\ \BBA {} Jegelka, S.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2019}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {How Powerful are Graph Neural Networks?} {How powerful
+  are graph neural networks?}{\BBCQ}
+\newblock
+\BIn{} \APACrefbtitle {ICLR.} {Iclr.}
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Yan%
+\ \protect \BOthers {.}}{%
+Yan%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2022}}%
+}]{%
+yan2022deepro}
+\APACinsertmetastar {%
+yan2022deepro}%
+\begin{APACrefauthors}%
+Yan, N.%
+\BCBT {}\ \BOthersPeriod {.}
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2022}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {DEEPRO: 3-metapath MAGNN} {Deepro: 3-metapath
+  magnn}.{\BBCQ}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Ye%
+}{%
+Ye%
+}{%
+{\protect \APACyear {2023}}%
+}]{%
+ye2023gca}
+\APACinsertmetastar {%
+ye2023gca}%
+\begin{APACrefauthors}%
+Ye, e\BPBI a.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2023}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {GCA: Graph Competitive Autoencoder} {Gca: Graph
+  competitive autoencoder}.{\BBCQ}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Ying%
+, Bourgeois%
+, You%
+, Zitnik%
+\BCBL {}\ \BBA {} Leskovec%
+}{%
+Ying%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2019}}%
+}]{%
+ying2019gnnexplainer}
+\APACinsertmetastar {%
+ying2019gnnexplainer}%
+\begin{APACrefauthors}%
+Ying, Z.%
+, Bourgeois, D.%
+, You, J.%
+, Zitnik, R.%
+\BCBL {}\ \BBA {} Leskovec, J.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2019}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {GNNExplainer: Generating Explanations for Graph Neural
+  Networks} {Gnnexplainer: Generating explanations for graph neural
+  networks}.{\BBCQ}
+\newblock
+\BIn{} \APACrefbtitle {NeurIPS.} {Neurips.}
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Yue%
+, Li%
+, Wu%
+, Zhang%
+\BCBL {}\ \BBA {} Yang%
+}{%
+Yue%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2024}}%
+}]{%
+yue2024aisl}
+\APACinsertmetastar {%
+yue2024aisl}%
+\begin{APACrefauthors}%
+Yue, H.%
+, Li, T.%
+, Wu, D.%
+, Zhang, R.%
+\BCBL {}\ \BBA {} Yang, Z.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2024}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Detecting APT attacks using an attack intent-driven and
+  sequence-based learning approach} {Detecting apt attacks using an attack
+  intent-driven and sequence-based learning approach}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{Computers \& Security}{140}{}{}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Zhang%
+\ \protect \BOthers {.}}{%
+Zhang%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2021}}%
+}]{%
+techscience2021}
+\APACinsertmetastar {%
+techscience2021}%
+\begin{APACrefauthors}%
+Zhang, W.%
+\BCBT {}\ \BOthersPeriod {.}
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2021}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {A Cyber Kill Chain Approach for Detecting Advanced
+  Persistent Threats} {A cyber kill chain approach for detecting advanced
+  persistent threats}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{Computers, Materials \& Continua}{67}{2}{}.
+\newblock
+\begin{APACrefURL} \url{https://www.techscience.com/cmc/v67n2/41316/html}
+  \end{APACrefURL}
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Zhong%
+}{%
+Zhong%
+}{%
+{\protect \APACyear {2024}}%
+}]{%
+zhong2024}
+\APACinsertmetastar {%
+zhong2024}%
+\begin{APACrefauthors}%
+Zhong, e\BPBI a.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2024}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Graph Neural Networks for Intrusion Detection: A Survey}
+  {Graph neural networks for intrusion detection: A survey}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{IEEE}{}{}{}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Zhu%
+}{%
+Zhu%
+}{%
+{\protect \APACyear {2005}}%
+}]{%
+zhu2005semisupervised}
+\APACinsertmetastar {%
+zhu2005semisupervised}%
+\begin{APACrefauthors}%
+Zhu, X.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2005}{}{}.
+\newblock
+\APACrefbtitle {Semi-supervised learning literature survey} {Semi-supervised
+  learning literature survey}\ \APACbVolEdTR {}{Computer Sciences Technical
+  Report\ \BNUM\ 1530}.
+\newblock
+\APACaddressInstitution{}{University of Wisconsin--Madison}.
+\PrintBackRefs{\CurrentBib}
+
+\end{thebibliography}

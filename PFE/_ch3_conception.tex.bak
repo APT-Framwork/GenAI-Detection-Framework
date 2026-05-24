@@ -1,0 +1,458 @@
+\chapter{Conception}
+\label{chap:conception}
+\section{Introduction}
+\section{Identified Gaps and Proposed Solution Overview}
+\section{Global Architecture of the Framework}
+\section{Detection Models}
+\label{sec:detection-models}
+\subsection{Autoencoder}
+\subsection{VAE}
+\subsection{Transformer}
+\subsection{GNN}
+\section{Synthetic Data Augmentation with Generative AI}
+\label{sec:synthetic-data}
+\subsection{Motivation}
+\subsection{REaLTabFormer}
+\subsection{Timestamp Generation}
+\subsection{Validation Strategy}
+\section{Reinforcement Learning Agent}
+\label{sec:rl-agent}
+\subsection{Architecture and role}
+\subsection{Training process}
+\subsection{Ablation Study}
+\section{Platform Architecture and Design}
+\label{sec:platform-design}
+
+% --- 1. Set the scene -------------------------------------------------
+\subsection{Overview of the Platform}
+\label{sec:platform-overview}
+
+The earlier sections of this chapter described \emph{what} the framework
+has to do: ingest host telemetry, extract a feature vector, route it
+through the ensemble of detection models presented in
+section~\ref{sec:detection-models}, augment scarce attack stages with
+the synthetic generator of section~\ref{sec:synthetic-data}, and let
+the reinforcement-learning agent of section~\ref{sec:rl-agent} pick a
+response action. The present section describes \emph{how} these pieces
+are assembled into a coherent piece of software, a platform we call
+STRIX, that an analyst can actually run, observe, and trust.
+
+A platform, in our usage, is more than the collection of models. It is
+the engineering surface that surrounds them: the ingestion path that
+feeds the models with real Wazuh alerts \cite{wazuh2024}, the message
+bus that decouples slow inference from fast collection, the persistence
+layer that records every verdict for forensic review, the
+threat-intelligence enrichment that adds external context, and the
+analyst-facing applications (a web console and a mobile companion)
+that turn raw verdicts into actionable signals. Designing the
+platform is therefore an exercise in software architecture, and we
+present it as such, using the four classical concerns of structure,
+behaviour, data, and deployment.
+
+Three design goals drove every choice that follows. The first is
+\emph{reproducibility}: the same alert, replayed against the same
+weights, must produce the same verdict on any host that runs the
+platform; this rules out implicit shared state and any non-deterministic
+default in the model registry. The second is \emph{component
+replaceability}: the SIEM, the message bus, the database, the threat
+feeds, and the front-ends are each isolated behind a narrow contract,
+so that swapping one --- replacing Wazuh by another SIEM, for instance
+--- never propagates beyond its own boundary. The third is
+\emph{type-safe contracts end-to-end}: the same schema description
+that validates an incoming alert in the backend is the one that
+generates the client types used by the web and mobile applications,
+which removes a class of integration bugs that we found expensive to
+diagnose during early prototyping. We return to each goal in the
+subsections below.
+
+% --- 2. Static structure: from the big picture down to the code -------
+\subsection{System Architecture Diagram}
+\label{sec:platform-arch}
+
+The platform is organised as five logical layers, drawn in
+figure~\ref{fig:ch3:archcomp}. Each layer has one responsibility and
+communicates with the next only through a documented contract.
+
+\begin{figure}[H]
+  \centering
+  \includesvg[width=0.95\textwidth]{figures/ch3/eraser/system_architecture}
+  \caption{Logical architecture of the STRIX platform. The five layers
+  --- sensing, transport, intelligence, persistence, and presentation
+  --- are stacked vertically; arrows indicate the direction in which
+  data flows. The dashed envelope around the intelligence layer marks
+  the boundary inside which the conceptual framework of
+  sections~\ref{sec:detection-models}--\ref{sec:rl-agent} operates.}
+  \label{fig:ch3:archcomp}
+\end{figure}
+
+The \textbf{sensing layer} converts host activity into structured
+events. It combines the Linux audit subsystem
+\cite{auditd2024}, which exposes kernel syscalls of interest, and a
+Wazuh agent on each monitored host, which forwards the resulting
+alerts to a Wazuh manager. The manager applies the custom rule
+hierarchy described later in chapter~\ref{chap:implementation} and
+writes one JSON line per alert to a local file. From the platform's
+point of view, that file is the only contract with the SIEM.
+
+The \textbf{transport layer} moves alerts from the sensing layer into
+the rest of the platform. It uses a log-shipper to tail the alert file
+\cite{filebeat2024} and a stream-based message bus \cite{redis2024} as
+the durable backbone between workers. The stream-based design is a
+deliberate departure from synchronous remote-procedure calls: it
+absorbs ingestion bursts, decouples the producer's pace from the
+consumer's, and provides at-least-once semantics that make replay
+during evaluation straightforward.
+
+The \textbf{intelligence layer} is where the conceptual framework of
+the earlier sections actually runs. It hosts the normaliser that
+materialises the 55-dimensional feature vector, the inference worker
+that hosts the four detection models of section~\ref{sec:detection-models},
+the reinforcement-learning policy of section~\ref{sec:rl-agent}, and
+the deterministic gate that wraps the RL action. The intelligence
+layer never reads from or writes to the SIEM; it only consumes a
+feature stream and emits a verdict stream.
+
+The \textbf{persistence layer} records verdicts and the entities derived
+from them: hosts, alerts, attack chains, DQN actions, and threat
+indicators. We use a relational store \cite{postgres2024} extended for
+time-series workloads \cite{timescaledb2024}, because the dominant
+query pattern is "give me everything for host~$h$ in the last
+$\Delta t$ minutes", which time-partitioned tables answer
+efficiently. The schema is described in section~\ref{sec:class-diagram}.
+
+The \textbf{presentation layer} comprises the analyst-facing web
+console \cite{nextjs2024} and the mobile companion \cite{expo2024}.
+Both clients consume the same OpenAPI specification, which makes the
+backend the single source of truth for what an alert, a verdict, or a
+chain looks like. A server-sent-events channel pushes new verdicts to
+the web console; the mobile client receives push notifications for
+early-stage detections only, to avoid alert fatigue.
+
+\subsection{Platform Components}
+\label{sec:platform-components}
+
+This subsection zooms in on the four components that an analyst
+interacts with directly. The transport and persistence layers are
+treated as plumbing and are not detailed individually; the data-flow
+view of section~\ref{sec:dataflow} covers them.
+
+\subsubsection{Detection Engine}
+
+The detection engine is the only component that hosts model weights.
+It runs as a pool of inference workers, each subscribed to one shard
+of the feature stream, and is responsible for three operations: loading
+the model artefacts on startup, batching incoming feature vectors,
+and emitting a verdict on the verdict stream. The four detection
+models of section~\ref{sec:detection-models} and the RL policy of
+section~\ref{sec:rl-agent} are loaded as ordinary tensor modules; the
+deterministic gate that wraps the RL action is implemented as a
+post-processing step inside the same worker, so that no intervention
+action can leave the engine without passing through it.
+
+Two design decisions matter at this level. The engine validates the
+integrity of every artefact it loads against a registry that pins each
+weight by content hash; an artefact whose hash drifts away from the
+registry refuses to load. This is the mechanism that enforces the
+reproducibility goal of section~\ref{sec:platform-overview}. The
+engine also batches inference: the worker collects up to a fixed
+number of events from its shard before invoking the models, which
+amortises the per-batch fixed cost over many alerts. Both decisions
+trade a small amount of latency for a substantial gain in stability,
+which we judge appropriate for a platform whose verdicts have to be
+defensible after the fact.
+
+\subsubsection{Wazuh Integration}
+
+The Wazuh integration is intentionally thin. We do not patch the Wazuh
+manager binary and we do not embed Wazuh logic inside the platform.
+The integration consists of three artefacts maintained on the SIEM
+side (a set of audit rules tuned for the Linux kill chain
+\cite{auditd2024}, a custom rule file installed in the manager's
+configuration, and a muting hierarchy that silences noisy parent rules
+in favour of a small number of high-value child rules) and one
+contract on the platform side, namely the alert file that the manager
+writes. Treating Wazuh as a black box behind a file contract is what
+makes it cheap to swap the SIEM out later, and it also matches how
+real SOCs operate, where the SIEM is rarely a component the analyst
+team owns end-to-end.
+
+\subsubsection{Threat Intelligence Module}
+
+The threat-intelligence module enriches internal verdicts with
+external context. It periodically polls two open-source feeds
+\cite{urlhaus2024,feodotracker2024}, deduplicates indicators by
+\texttt{(value, type, source)}, and stores them in a single indicator
+table. When a verdict is persisted, the verdict-writer queries that
+table to flag any observable in the alert (IP, URL, domain, file
+hash) that intersects an indicator; the resulting "observable hit"
+becomes a feature in the chain forensic view exposed by the dashboard.
+
+The module is deliberately feed-agnostic. Adding a new feed is a
+single function that returns a list of indicator dictionaries;
+everything else (the polling cadence, the deduplication, the
+circuit-breaker protecting the feed call, and the staleness badge in
+the UI when a feed is degraded) is generic. This is one place where
+the component-replaceability goal pays off concretely: a new public
+or commercial feed can be plugged in without touching any other layer.
+
+\subsubsection{Analyst Dashboard}
+
+The dashboard is what makes the platform operationally useful. It
+exposes four primary views: a model-monitoring view that surfaces the
+live anomaly scores and class probabilities of the ensemble; an
+attack-analysis view that reconstructs attack chains by grouping
+consecutive alerts from the same host and matching them against the
+nine MITRE-aligned tactics \cite{mitre_attack}; a topology view that
+plots the live simulation graph against the GNN's per-node risk
+score; and a threat-intelligence view that surfaces the most recent
+observable hits.
+
+The mobile companion is a deliberate subset of the web functionality,
+not a parallel reimplementation. It exposes the vigilance feed of
+verdicts, a chain detail page, and a one-tap host-isolation control
+that re-uses the same gated endpoint as the web console. Both
+clients are generated from the same OpenAPI types; a breaking change
+to the backend therefore fails the client build before it can reach
+an analyst's screen.
+
+\subsection{Class Diagram}
+\label{sec:class-diagram}
+
+The backend domain model is small and easy to keep in mind.
+Figure~\ref{fig:ch3:classdiag} shows the six load-bearing entities and
+their relationships.
+
+\begin{figure}[H]
+  \centering
+  \includesvg[width=0.95\textwidth,height=0.78\textheight,keepaspectratio]{figures/ch3/eraser/class-diagram}
+  \caption{UML class diagram of the backend domain model. Solid edges
+  are persisted foreign-key relationships. \texttt{Alert} and
+  \texttt{Detection} are TimescaleDB hypertables (composite primary key
+  on \texttt{alert\_id}, \texttt{occurred\_at}); every other entity is
+  an ordinary relational table.}
+  \label{fig:ch3:classdiag}
+\end{figure}
+
+A \texttt{Host} represents one monitored machine, identified by its
+Wazuh agent identifier; it has a current risk score, last-seen
+timestamp, and inventory metadata. An \texttt{Alert} represents one
+Wazuh JSON line and carries the raw observables; it is referenced by
+exactly one \texttt{Detection}, which records the five model outputs
+(four anomaly scores plus the gated RL action) and the kill-chain
+stage. An \texttt{AttackChain} groups consecutive detections from the
+same host into a single investigation thread; the grouping window is
+a configuration parameter, not a hard-coded constant. A
+\texttt{DQNAction} records the action that survived the deterministic
+gate, together with the four threshold checks that authorised it; the
+action history is the audit trail an analyst consults when a
+post-mortem asks why the platform intervened. An
+\texttt{IntelIndicator} is one row from a CTI feed and is associated
+with the detections it enriches; the association is computed at
+write time, so adding a new feed does not require backfilling.
+
+On the service side, four worker classes mirror the five-stage pipeline
+of section~\ref{sec:dataflow}: the \texttt{WazuhBridge} drains the
+log-shipper's staging buffer, the \texttt{Normalizer} produces the
+feature vector, the \texttt{InferenceWorker} hosts the models and the
+RL gate, and the \texttt{VerdictWriter} persists results and fans them
+out over server-sent events and push notifications. The
+\texttt{IntelFeedsWorker} runs on its own schedule and is the only
+worker not driven by the pipeline.
+
+% --- 3. Dynamic behaviour: coarsest to finest -------------------------
+\subsection{Workflow Diagram}
+\label{sec:workflow}
+
+Figure~\ref{fig:ch3:workflow} traces a single alert through the
+platform, from the moment Wazuh writes the JSON line until the verdict
+appears on the analyst's screen.
+
+\begin{figure}[H]
+  \centering
+  \includesvg[width=0.95\textwidth]{figures/ch3/eraser/workflow-diagram}
+  \caption{End-to-end analyst-response workflow. Swim-lanes group
+  activities by actor (backend pipeline, analyst, Wazuh active
+  response); diamonds are decision points. Everything inside the
+  backend lane is replayable from the feature vector, which is why the
+  evaluation chapter can rerun historical alerts without touching the
+  SIEM.}
+  \label{fig:ch3:workflow}
+\end{figure}
+
+The workflow is decomposed into seven activities. \emph{Ingestion}
+turns the alert file into messages on the raw stream. \emph{Feature
+construction} parses the alert, looks up the host, runs the SecBERT
+embedding plus PCA reduction described in
+section~\ref{sec:detection-models}, and writes the 55-dimensional
+feature vector to the feature stream. \emph{Ensemble inference}
+runs the four detection models on a batch of vectors and assembles
+the thirteen-dimensional state vector that the RL policy consumes.
+\emph{RL decision} produces an action proposal --- monitor, low
+alert, escalate, isolate host, block user--IP. \emph{Deterministic
+gating} accepts or downgrades that action based on four threshold
+checks against the anomaly scores; this is the step that ensures a
+single high-confidence model is required for any intervention.
+\emph{Persistence} writes the alert, the detection, the optional DQN
+action, and updates the open attack chain. \emph{Fan-out} pushes the
+verdict over the server-sent-events channel to the web console and,
+for early-stage detections, sends a push notification to the mobile
+client.
+
+The activities are loosely coupled. Each one consumes from an
+upstream stream or table and emits to a downstream one; no activity
+holds state between alerts beyond the model weights it loaded at
+startup. This statelessness is what allows the intelligence layer
+to be replayed deterministically: feeding the same feature vectors
+in the same order reconstructs the same verdicts, which is the
+property the evaluation chapter relies on to compute model-level
+metrics offline.
+
+\subsection{Data Flow Design}
+\label{sec:dataflow}
+
+The data flow concretises the workflow as a sequence of stream
+transitions. Three principles shape its design.
+
+First, every transition between two workers goes through a named
+stream with a documented message schema, never through a direct
+function call. This converts the platform from a monolithic Python
+process into a set of independent processes that can be restarted,
+profiled, and scaled in isolation. The price is one serialisation
+hop per stage; the benefit is a clean failure boundary, since a
+crash in the inference worker no longer corrupts the alert that the
+normaliser is currently processing.
+
+Second, feature messages are sharded by host. The shard key is a
+hash of the agent identifier modulo the configured shard count, which
+gives the platform deterministic affinity (every alert from
+host~$h$ lands on the same inference worker) without any explicit
+routing logic. Affinity matters because the GNN of
+section~\ref{sec:detection-models} maintains a small per-host context
+that benefits from temporal locality; routing the same host's alerts
+to the same worker keeps that context warm.
+
+Third, every message schema is a versioned data class with a hash
+of its definition pinned in the message envelope. A producer that
+emits an older schema version is rejected by the consumer, rather
+than being silently coerced into the current format. We adopted this
+discipline after an early prototype produced a subtle off-by-one in
+the kill-chain stage field that survived all unit tests because the
+test fixtures had drifted away from the production schema.
+
+\paragraph{Stream layout.} The platform uses five logical streams.
+A staging buffer between the log-shipper and the bridge worker; a
+\emph{raw alerts} stream between the bridge and the normaliser; a
+sharded \emph{features} stream between the normaliser and the
+inference workers; a single \emph{verdicts} stream between the
+inference workers and the verdict writer; and a server-sent-events
+broadcast channel between the verdict writer and the dashboards.
+Only the staging buffer and the broadcast channel are bounded; the
+three internal streams are durable so that a crashing worker can
+resume from its last committed offset without losing in-flight
+messages.
+
+\subsection{Sequence Diagram}
+\label{sec:sequence}
+
+Figure~\ref{fig:ch3:sequence} captures the timed interaction between
+the actors involved in a single early-stage APT detection event ---
+specifically, the moment when a Reconnaissance burst against an
+exposed SSH service produces the first verdict of an attack chain.
+
+\begin{figure}[H]
+  \centering
+  \includesvg[width=0.95\textwidth]{figures/ch3/eraser/sequence-diagram}
+  \caption{Sequence diagram for a single early-stage detection event.
+  Vertical bars are participants; horizontal arrows are messages.
+  Time flows downward. The self-loops on the inference worker are the
+  synchronous calls into each detection model, the RL policy, and the
+  deterministic gate that is evaluated before any verdict is emitted.}
+  \label{fig:ch3:sequence}
+\end{figure}
+
+The scenario unfolds as follows. The attacker host issues a burst of
+\texttt{sshd} authentication probes against a victim. The victim's
+audit subsystem records each \texttt{execve} of the SSH daemon's
+worker; the Wazuh agent forwards the corresponding rule match to the
+manager, which appends a JSON alert to its alert file. The
+log-shipper detects the new line within its check interval and
+pushes it into the staging buffer.
+
+The bridge worker dequeues the line and writes it to the raw stream;
+the normaliser reads it, performs the feature transformation, and
+publishes the feature vector on the appropriate shard of the feature
+stream. The inference worker subscribed to that shard runs the
+ensemble synchronously, derives the state vector, queries the RL
+policy, and emits a verdict on the verdict stream. The verdict
+writer evaluates the deterministic gate against the four anomaly
+scores: in this scenario the autoencoder and the GNN both report
+above-threshold values, so the proposed \texttt{ESCALATE} action is
+authorised. The writer persists the detection and opens a new attack
+chain, broadcasts the verdict over server-sent events, and triggers
+a push notification to the analyst's mobile client because the
+kill-chain stage is S1.
+
+The diagram makes one architectural commitment visible: no participant
+holds a synchronous reference to any other across a network boundary.
+All cross-process communication is mediated by the streams or by the
+database. A failure of the dashboard, the mobile push gateway, or any
+single inference worker degrades the platform gracefully rather than
+stalling the detection pipeline.
+
+% --- 4. Where it physically runs --------------------------------------
+\subsection{Deployment Architecture}
+\label{sec:deployment}
+
+Figure~\ref{fig:ch3:deploy} shows the deployment topology used in the
+defence lab and in the evaluation of chapter~\ref{chap:evaluation}.
+
+\begin{figure}[H]
+  \centering
+  \includesvg[width=0.95\textwidth]{figures/ch3/eraser/deployment_architecture}
+  \caption{Deployment topology. Every component runs in a container
+  \protect\cite{docker2024} on a shared bridge network. The attacker, victims,
+  SIEM, and platform services are grouped into four logical zones;
+  inter-zone traffic is restricted by the bridge's firewall rules,
+  while intra-zone traffic is unrestricted so that the attacker can
+  reach the victims directly.}
+  \label{fig:ch3:deploy}
+\end{figure}
+
+Four logical zones structure the topology. The \emph{attacker zone}
+hosts a Kali container running the MITRE Caldera command-and-control
+server \cite{caldera2024}, which drives the attack scenarios used
+during evaluation. The \emph{victim zone} hosts the two Ubuntu
+containers under observation; each one carries an audit subsystem, a
+Wazuh agent, and a Caldera Sandcat implant that lets the attacker
+zone deliver abilities. The \emph{SIEM zone} hosts the Wazuh manager,
+the log-shipper, and the staging buffer; nothing else writes to the
+buffer, which keeps the contract between sensing and platform clean.
+The \emph{platform zone} hosts the relational store, the bridge, the
+normaliser, the inference worker, the verdict writer, the intel
+feeds worker, the API gateway, and the web console.
+
+The topology has two deployment postures. The \emph{single-host
+lab} posture, used throughout this thesis, runs every container on
+one workstation; this is sufficient for development, for the jury
+demonstration, and for the evaluation in chapter~\ref{chap:evaluation},
+because the alert volumes generated by Caldera in the nine-tactic
+scenario fit comfortably inside a sixteen-gigabyte machine without a
+GPU. The \emph{distributed posture}, which we describe but do not
+exercise, places the SIEM and the victim hosts on physical or virtual
+machines, retains the platform services as a container stack on a
+separate host, and adds horizontal scaling of inference workers
+behind the sharded feature stream. The transition from one posture to
+the other does not require code changes; it requires only the
+configuration of inter-host network reachability and the matching
+adjustment of the shard count.
+
+A note on operational concerns. Persistent state (the relational
+database, the threat-indicator table, the model registry, and the
+Caldera operations directory) is mounted from the host into the
+relevant containers, so that a rebuild does not destroy historical
+data. The mobile companion runs on a real device or emulator outside
+the bridge network and reaches the platform through the API gateway
+\cite{expo2024,nextjs2024}; this is the only inbound connection
+crossing the bridge boundary, which simplifies the security posture
+of the deployment.
+\section{Conclusion}

@@ -6,16 +6,16 @@
 \usepackage{tabularx}
 \usepackage{booktabs}
 \usepackage[pdftex]{graphicx}
-\usepackage{enumitem} 
+\usepackage{svg}           % \includesvg{} for Eraser exports; needs -shell-escape and Inkscape
+\svgsetup{inkscapelatex=false}  % render SVG text as paths, not via LaTeX (avoids `_` subscript errors)
+\usepackage{epstopdf}      % preloaded to avoid hyperref/arabtex group-load error
+\usepackage{enumitem}
 \usepackage[normalem]{ulem}
 \usepackage{url} 
 \usepackage{indentfirst}
 \usepackage{titlesec}
 \usepackage{tikz}
 \usepackage{tikz-qtree}
-\usepackage{arabtex}       % for Arabic text (ملخص)
-\usepackage{utf8} % for Arabic UTF-8 encoding
-\setcode{utf8}
 
 
 \usetikzlibrary{trees, shapes, arrows, positioning, shapes.geometric}
@@ -26,15 +26,25 @@
 \usepackage{algpseudocode}
 \usepackage[edges]{forest}
 \usepackage[ruled,lined]{algorithm2e}
-<<<<<<< HEAD
-\usepackage[francais]{babel}
-\DeclareUnicodeCharacter{FFFD}{-}
-=======
 \usepackage[english]{babel}
->>>>>>> f144d13dbd5151019151a8e2c8d52ed926f8ce75
 \usepackage{float}
-\usepackage[bookmarks, colorlinks=false, pdfborder={0 0 0}]{hyperref}
+\usepackage[bookmarks, colorlinks=true, linkcolor=blue!50!black, citecolor=black, urlcolor=blue!50!black]{hyperref}
+\usepackage{arabtex}       % for Arabic text (ملخص) — must be after hyperref
+\usepackage{utf8}          % for Arabic UTF-8 encoding (arabtex helper)
+\setcode{utf8}
 \usepackage{apacite}
+% arabtex's \AtBeginDocument hook triggers \RequirePackage calls inside the
+% \begin{document} group, tripping the LaTeX 2020+ kernel guard
+% "Loading a class or package in a group". Patch the kernel's
+% \@fileswithoptions to drop the group-level test; rest of the macro is
+% identical to the original in latex.ltx.
+\makeatletter
+\def\@fileswithoptions#1{%
+  \@ifnextchar[%]
+    {\@fileswith@ptions#1}%
+    {\@fileswith@ptions#1[]}}
+\@onlypreamble\@fileswithoptions
+\makeatother
 \usepackage{eurosym}
 \usepackage{fancyhdr}
 \setlength{\headheight}{14pt}
@@ -221,10 +231,10 @@ surface available to malicious actors, giving rise to increasingly sophisticated
 Among these, \textbf{Advanced Persistent Threats (APTs)} represent the most dangerous
 class of cyberattacks --- orchestrated by skilled, well-resourced adversaries such as
 nation-states or organized criminal groups, with clearly defined strategic objectives
-. Unlike conventional attacks, APTs are characterized by
+\cite{tatam2021review}. Unlike conventional attacks, APTs are characterized by
 their \textbf{persistence} and \textbf{stealth}: they infiltrate target environments and
 remain undetected for extended periods, slowly advancing through a coordinated series
-of interconnected stages toward their goals .
+of interconnected stages toward their goals \cite{wiki2010apt}.
 
 This multi-stage nature is precisely what makes APTs so difficult to detect. Traditional
 security mechanisms --- firewalls, signature-based antivirus, and rule-based intrusion
@@ -232,14 +242,14 @@ detection systems --- are fundamentally reactive and largely ineffective against
 evolving APT techniques. While machine learning (ML) has emerged as a promising
 complement, existing solutions typically treat security events in isolation, failing to
 model the sequential attack progression that defines APT behavior, and are rarely
-integrated into deployable, operational platforms 
+integrated into deployable, operational platforms \cite{myneni2023unraveled}.
 
 Two complementary frameworks guide the structured analysis of APT behavior: the
 \textbf{Cyber Kill Chain (CKC)}, which breaks an attack into seven canonical phases
 (Reconnaissance, Weaponization, Delivery, Exploitation, Installation, Command \&
-Control, and Actions on Objectives) , and the
+Control, and Actions on Objectives) \cite{wiki2021killchain,techscience2021}, and the
 \textbf{MITRE ATT\&CK framework}, which provides a granular taxonomy of adversary
-Tactics, Techniques, and Procedures (TTPs) . Together, they
+Tactics, Techniques, and Procedures (TTPs) \cite{mitre_attack,jiang2025mitre}. Together, they
 provide the structural foundation for detecting \textit{where} an attack currently resides
 and disrupting it before it reaches its final objectives.
 
@@ -273,7 +283,7 @@ deploys the solution within an operational threat intelligence platform.
 % ---------------------------------------------------------------
 
 The main goal of this project is to ensure \textbf{early detection of APTs} by monitoring
-their behavior across the Cyber Kill Chain before they reach their objectives .
+their behavior across the Cyber Kill Chain before they reach their objectives \cite{tatam2021review}.
 The specific objectives are:
 
 \begin{itemize}
@@ -327,12 +337,12 @@ It also discusses the limitations of the work and outlines future research direc
 
 \newpage
 
-\input{ch2_background}
-\input{ch3_related_work}
-\input{ch4_conception}
-\input{ch5_implementation}
-\input{ch6_evaluation}
-\input{ch7_conclusion}
+\input{ch1_background}
+\input{ch2_related_work}
+\input{ch3_conception}
+\input{ch4_implementation}
+\input{ch5_evaluation}
+\input{ch6_conclusion}
 
 \bibliographystyle{apacite}
 \bibliography{references}

@@ -1,0 +1,70 @@
+// Eraser type: flowchart-diagram
+// Paste into a new Eraser file, choose diagram type "Flowchart"
+title STRIX — Process-Level Data Flow Diagram (3.7.6.a)
+
+direction right
+
+// ── External entities (squares) ────────────────────────────
+WazuhMgr [shape: rectangle, label: "Wazuh manager", color: gray]
+URLhaus [shape: rectangle, label: "URLhaus\n(abuse.ch)", color: gray]
+Feodo [shape: rectangle, label: "Feodo Tracker\n(abuse.ch)", color: gray]
+Operator [shape: rectangle, label: "Operator\n(browser)", color: gray]
+OperatorMobile [shape: rectangle, label: "Operator\n(mobile)", color: gray]
+Claude [shape: rectangle, label: "Claude API", color: gray]
+VirusTotal [shape: rectangle, label: "VirusTotal", color: gray]
+ExpoPush [shape: rectangle, label: "Expo Push", color: gray]
+
+// ── Processes (circles, Yourdon-style) ────────────────────
+p1 [shape: oval, label: "1.0\nfilebeat", color: green]
+p2 [shape: oval, label: "2.0\nwazuh_bridge", color: green]
+p3 [shape: oval, label: "3.0\nnormalizer", color: green]
+p4 [shape: oval, label: "4.0\ninference\n(5 models + DQN)", color: green]
+p5 [shape: oval, label: "5.0\nverdicts_writer", color: green]
+p6 [shape: oval, label: "6.0\nAPI (REST + SSE)", color: green]
+p7 [shape: oval, label: "7.0\narq_tasks\n(LLM, attribution)", color: green]
+p8 [shape: oval, label: "8.0\nintel_feeds_worker", color: green]
+p9 [shape: oval, label: "9.0\npush_dispatcher", color: green]
+
+// ── Data stores (cylinders) ────────────────────────────────
+D1 [shape: cylinder, label: "D1 alerts.json\n(file)", color: yellow]
+D2 [shape: cylinder, label: "D2 strix:alerts:raw:list\n(Redis list)", color: yellow]
+D3 [shape: cylinder, label: "D3 strix:alerts:raw\n(Redis stream)", color: yellow]
+D4 [shape: cylinder, label: "D4 strix:features:{shard}\n(Redis stream)", color: yellow]
+D5 [shape: cylinder, label: "D5 strix:verdicts\n(Redis stream)", color: yellow]
+D6 [shape: cylinder, label: "D6 Detection tables\n(Postgres)", color: yellow]
+D7 [shape: cylinder, label: "D7 CTI tables\n(Postgres)", color: yellow]
+D8 [shape: cylinder, label: "D8 Cache tables\n(Postgres)", color: yellow]
+D9 [shape: cylinder, label: "D9 apps/models/\nSHA-pinned artefacts", color: yellow]
+
+// ── Flows ──────────────────────────────────────────────────
+WazuhMgr > D1: alerts.json (NDJSON)
+D1 > p1: tail (1 s)
+p1 > D2: RPUSH
+D2 > p2: BLPOP
+p2 > D3: XADD raw
+D3 > p3: XREAD
+D9 > p3: load scaler / PCA
+p3 > D4: XADD features (55-d)
+D4 > p4: XREAD batch=32
+D9 > p4: load 5 models
+p4 > D5: XADD verdict + DQN
+D5 > p5: XREAD (5 s window)
+p5 > D6: INSERT alerts + detections + dqn_actions
+p5 > p6: SSE event
+p6 > Operator: REST + SSE
+p6 > OperatorMobile: REST + SSE + Push
+Operator > p6: approve / reject action
+p6 > D6: UPDATE chain.triage_status + case_audit_log
+
+URLhaus > p8: 30 s pull
+Feodo > p8: 30 s pull
+p8 > D7: UPSERT intel_indicators
+
+p6 > Claude: summary request / response
+p6 > VirusTotal: IOC scan
+VirusTotal > p6: scan result
+p6 > D8: UPSERT ioc_lookup_cache
+p6 > p9: dispatch
+p9 > ExpoPush: push notification
+p7 > D7: attribution updates
+p7 > D8: LLM cache UPSERT

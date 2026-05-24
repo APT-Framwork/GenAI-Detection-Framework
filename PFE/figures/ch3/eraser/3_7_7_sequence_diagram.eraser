@@ -1,0 +1,34 @@
+// Eraser type: sequence-diagram
+// Paste into a new Eraser file, choose diagram type "Sequence Diagram"
+title STRIX — Sequence Diagram (3.7.7)
+
+// Caldera fires the Discovery tactic against a victim host
+
+Caldera [icon: bug, color: red] > "Sandcat (victim)" [icon: gear]: run_ability("whoami")
+"Sandcat (victim)" > auditd [icon: file-text, color: orange]: exec syscall (SYS_execve)
+auditd > "Wazuh agent" [icon: shield, color: orange]: audit-wazuh-x record
+"Wazuh agent" > "Wazuh manager" [icon: shield, color: orange]: TCP/1514 encrypted event
+"Wazuh manager" > Filebeat [icon: elastic, color: orange]: append to alerts.json
+Filebeat > "Redis Streams" [icon: redis, color: purple]: RPUSH strix:alerts:raw:list
+
+wazuh_bridge [icon: gear, color: blue] > "Redis Streams": BLPOP strix:alerts:raw:list
+wazuh_bridge > "Redis Streams": XADD strix:alerts:raw
+
+normalizer [icon: gear, color: blue] > "Redis Streams": XREAD strix:alerts:raw
+normalizer > normalizer: feature engineering (55-d)
+normalizer > "Redis Streams": XADD strix:features:shard0
+
+inference [icon: cpu, color: blue] > "Redis Streams": XREAD features (batch=32)
+inference > inference: AE forward → anomaly_score
+inference > inference: β-VAE forward → malicious_prob, uncertainty
+inference > inference: Transformer forward → pred_ckc, confidence
+inference > inference: GraphSAGE forward → node_risk
+inference > inference: DQN select_action → action_idx
+inference > inference: apply gate (deterministic thresholds)
+inference > "Redis Streams": XADD strix:verdicts (verdict + action)
+
+verdicts_writer [icon: gear, color: blue] > "Redis Streams": XREAD verdicts (5 s window)
+verdicts_writer > Postgres [icon: postgresql, color: purple]: INSERT alerts, detections, dqn_actions
+verdicts_writer > Postgres: UPSERT attack_chains (open / bump stage)
+verdicts_writer > "Web client" [icon: monitor, color: teal]: SSE event on /api/v1/streams/live-feed
+"Web client" > "Web client": render verdict + chain timeline

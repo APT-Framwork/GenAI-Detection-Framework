@@ -1,10 +1,10 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.25 (MiKTeX 24.1) (preloaded format=pdflatex 2025.12.9)  20 MAY 2026 16:32
+This is pdfTeX, Version 3.141592653-2.6-1.40.25 (MiKTeX 24.1) (preloaded format=pdflatex 2025.12.9)  23 MAY 2026 23:36
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
  %&-line parsing enabled.
-**g:/pfe/rapport/master/main.tex
-(g:/pfe/rapport/master/main.tex
+**f:/rapport/master/main.tex
+(f:/rapport/master/main.tex
 LaTeX2e <2023-11-01> patch level 1
 L3 programming layer <2024-01-04>
 (G:\latex\tex/latex/base\report.cls
@@ -852,24 +852,24 @@ Package: ifvtex 2019/10/25 v1.7 ifvtex legacy package. Use iftex instead.
  (G:\latex\tex/latex/geometry\geometry.cfg)) (main.aux)
 \openout1 = `main.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 85.
-LaTeX Font Info:    ... okay on input line 85.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 85.
-LaTeX Font Info:    ... okay on input line 85.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 85.
-LaTeX Font Info:    ... okay on input line 85.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 85.
-LaTeX Font Info:    ... okay on input line 85.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 85.
-LaTeX Font Info:    ... okay on input line 85.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 85.
-LaTeX Font Info:    ... okay on input line 85.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 85.
-LaTeX Font Info:    ... okay on input line 85.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 85.
-LaTeX Font Info:    ... okay on input line 85.
-LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 85.
-LaTeX Font Info:    ... okay on input line 85.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 87.
+LaTeX Font Info:    ... okay on input line 87.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 87.
+LaTeX Font Info:    ... okay on input line 87.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 87.
+LaTeX Font Info:    ... okay on input line 87.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 87.
+LaTeX Font Info:    ... okay on input line 87.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 87.
+LaTeX Font Info:    ... okay on input line 87.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 87.
+LaTeX Font Info:    ... okay on input line 87.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 87.
+LaTeX Font Info:    ... okay on input line 87.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 87.
+LaTeX Font Info:    ... okay on input line 87.
+LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 87.
+LaTeX Font Info:    ... okay on input line 87.
  (G:\latex\tex/context/base/mkii\supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
 \scratchcounter=\count372
@@ -889,7 +889,7 @@ Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 48
  (G:\latex\tex/latex/00miktex\epstopdf-sys.cfg
 File: epstopdf-sys.cfg 2021/03/18 v2.0 Configuration of epstopdf for MiKTeX
 ))
-Package hyperref Info: Link coloring OFF on input line 85.
+Package hyperref Info: Link coloring OFF on input line 87.
  (main.out) (main.out)
 \@outlinefile=\write5
 \openout5 = `main.out'.
@@ -934,7 +934,7 @@ Package apacite Warning: No suitable language definition file (nil.apc) found.
 * (1in=72.27pt=25.4mm, 1cm=28.453pt)
 
 (title.tex
-<esi_header.jpg, id=258, 1193.45876pt x 333.245pt>
+<esi_header.jpg, id=274, 1193.45876pt x 333.245pt>
 File: esi_header.jpg Graphic file (type jpg)
 <use esi_header.jpg>
 Package pdftex.def Info: esi_header.jpg  used on input line 4.
@@ -953,7 +953,7 @@ File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 pdfTeX warning (ext4): destination with the same identifier (name{page.i}) has been already used, duplicate ignored
 <to be read again> 
                    \relax 
-l.35 ...nd Strategic Intent}{27}{subsection.2.2.3}
+l.30 ...ponsored APT Groups}{23}{subsection.2.2.2}
                                                   % [1
 
 ] [2])
@@ -961,33 +961,23 @@ l.35 ...nd Strategic Intent}{27}{subsection.2.2.3}
 \openout6 = `main.toc'.
 
  [3] (main.lof
-Overfull \hbox (6.60316pt too wide) in paragraph at lines 13--13
- \OT1/cmr/m/n/10.95 Data source: Trellix Advanced Research Center [][]Trellix Advanced Research Center[], 
+Overfull \hbox (23.21074pt too wide) in paragraph at lines 14--14
+ [][] [][]\OT1/cmr/m/n/10.95 AI-Assisted Reconnaissance: Utility Company Infrastructure Discovered via Perplexity 
  []
 
-
-Overfull \hbox (27.43866pt too wide) in paragraph at lines 16--16
- \OT1/cmr/m/n/10.95 demonstrates substantial improvements across all attack categories, with reconnaissance 
- []
-
-
-Overfull \hbox (4.28139pt too wide) in paragraph at lines 17--17
- [][] [][]\OT1/cmr/m/n/10.95 Evolution of Cyber Threats: Ransomware and AI-Phishing (2019--2025). Temporal 
- []
-
-[4
-
-])
+)
 \tf@lof=\write7
 \openout7 = `main.lof'.
 
- [5] (main.lot
+ [4
+
+] (main.lot
 Overfull \hbox (19.37704pt too wide) in paragraph at lines 9--9
  [][] [][]\OT1/cmr/m/n/10.95 Performance Analysis of State-of-the-Art ML Approaches for Cyber-Attack Prediction 
  []
 
 
-Overfull \hbox (17.70412pt too wide) in paragraph at lines 15--15
+Overfull \hbox (17.70412pt too wide) in paragraph at lines 16--16
  [][] [][]\OT1/cmr/m/n/10.95 Performance Analysis of State-of-the-Art DL Approaches for Cyber-Attack Prediction 
  []
 
@@ -995,7 +985,7 @@ Overfull \hbox (17.70412pt too wide) in paragraph at lines 15--15
 \tf@lot=\write8
 \openout8 = `main.lot'.
 
- [6
+ [5
 
 ] [1
 
@@ -1045,7 +1035,7 @@ Overfull \hbox (1.48297pt too wide) in paragraph at lines 71--72
 []\OT1/cmr/m/n/10.95 2024b[]). This principle underlies the multi-framework approach --- combining CKC, MITRE
  []
 
-<figures/defense.jpeg, id=521, 803.0pt x 481.8pt>
+<figures/defense.jpeg, id=533, 803.0pt x 481.8pt>
 File: figures/defense.jpeg Graphic file (type jpg)
 <use figures/defense.jpeg>
 Package pdftex.def Info: figures/defense.jpeg  used on input line 76.
@@ -1076,12 +1066,12 @@ Overfull \hbox (13.04851pt too wide) in paragraph at lines 108--109
  []
 
 [8] [9]
-<figures/dwell.png, id=598, 639.89063pt x 325.96782pt>
+<figures/dwell.png, id=612, 639.89063pt x 325.96782pt>
 File: figures/dwell.png Graphic file (type png)
 <use figures/dwell.png>
 Package pdftex.def Info: figures/dwell.png  used on input line 151.
 (pdftex.def)             Requested size: 318.66948pt x 162.3369pt.
- [10 <./figures/dwell.png>]
+
 Overfull \hbox (14.75484pt too wide) in paragraph at lines 159--160
 \OT1/cmr/m/n/10.95 the target organization, its resources, employees, and relationships, often via social engineering
  []
@@ -1101,952 +1091,976 @@ Overfull \hbox (1.35368pt too wide) in paragraph at lines 161--162
 []\OT1/cmr/bx/n/10.95 Command and Control (C&C)\OT1/cmr/m/n/10.95 : A covert communication channel is established between
  []
 
-<figures/apt_steps.jpg, id=625, 752.8125pt x 270.00874pt>
+[10 <./figures/dwell.png>]
+<figures/apt_steps.jpg, id=641, 752.8125pt x 270.00874pt>
 File: figures/apt_steps.jpg Graphic file (type jpg)
 <use figures/apt_steps.jpg>
-Package pdftex.def Info: figures/apt_steps.jpg  used on input line 170.
+Package pdftex.def Info: figures/apt_steps.jpg  used on input line 169.
 (pdftex.def)             Requested size: 364.19667pt x 130.62859pt.
+
+Overfull \hbox (12.47357pt too wide) in paragraph at lines 174--175
+\OT1/cmr/m/n/10.95 For example, some sources divide the attack into: Reconnaissance, Breach, Infiltration, Exfiltration,
+ []
+
 [11 <./figures/apt_steps.jpg>]
-Overfull \hbox (11.37737pt too wide) in paragraph at lines 192--193
+Overfull \hbox (11.37737pt too wide) in paragraph at lines 193--194
 \OT1/cmr/m/n/10.95 developers at Microsoft in 1999, STRIDE is a system/software-based taxonomy for identifying
  []
 
 
-Overfull \hbox (19.48967pt too wide) in paragraph at lines 193--194
-\OT1/cmr/m/n/10.95 deliver a comprehensive, risk-based assessment of potential threats. Unlike other methodologies
+Overfull \hbox (3.21675pt too wide) in paragraph at lines 194--195
+\OT1/cmr/m/n/10.95 threats. Unlike other methodologies focused exclusively on technical vulnerabilities, PASTA
  []
 
-
-Overfull \hbox (0.24483pt too wide) in paragraph at lines 193--194
-\OT1/cmr/m/n/10.95 focused exclusively on technical vulnerabilities, PASTA let's you adopts the whole approach
- []
-
-[12]
-<figures/PASTA.png, id=679, 770.88pt x 346.29375pt>
+<figures/PASTA.png, id=685, 770.88pt x 346.29375pt>
 File: figures/PASTA.png Graphic file (type png)
 <use figures/PASTA.png>
-Package pdftex.def Info: figures/PASTA.png  used on input line 197.
+Package pdftex.def Info: figures/PASTA.png  used on input line 198.
 (pdftex.def)             Requested size: 318.66948pt x 143.14911pt.
 
-Overfull \hbox (2.23796pt too wide) in paragraph at lines 202--203
+Overfull \hbox (2.23796pt too wide) in paragraph at lines 203--204
 []\OT1/cmr/bx/n/10.95 DREAD: \OT1/cmr/m/n/10.95 Rates threats by 5 categories: Damage potential, Reproducibility, Exploitability,
  []
 
-<figures/tree-attack.png, id=688, 756.8275pt x 521.95pt>
+[12 <./figures/PASTA.png>]
+<figures/tree-attack.png, id=702, 756.8275pt x 521.95pt>
 File: figures/tree-attack.png Graphic file (type png)
 <use figures/tree-attack.png>
-Package pdftex.def Info: figures/tree-attack.png  used on input line 208.
+Package pdftex.def Info: figures/tree-attack.png  used on input line 209.
 (pdftex.def)             Requested size: 318.66948pt x 219.775pt.
-[13 <./figures/PASTA.png> <./figures/tree-attack.png>]
-Overfull \hbox (13.35486pt too wide) in paragraph at lines 217--218
+
+Overfull \hbox (13.35486pt too wide) in paragraph at lines 218--219
 []\OT1/cmr/bx/n/10.95 Diamond Model: \OT1/cmr/m/n/10.95 Focuses on the interaction between four fundamental elements: adversary,
  []
 
 
-Overfull \hbox (48.15015pt too wide) in paragraph at lines 218--219
+Overfull \hbox (48.15015pt too wide) in paragraph at lines 219--220
 []\OT1/cmr/bx/n/10.95 MITRE D3FEND: \OT1/cmr/m/n/10.95 The defensive counterpart to ATT&CK, which maps defensive countermeasures
  []
 
 
-Overfull \hbox (4.97968pt too wide) in paragraph at lines 218--219
+Overfull \hbox (4.97968pt too wide) in paragraph at lines 219--220
 \OT1/cmr/m/n/10.95 to attack techniques. D3FEND has been integrated with ATT&CK-based defense strategies,
  []
 
-[14]
-Overfull \hbox (7.56862pt too wide) in paragraph at lines 233--234
+[13 <./figures/tree-attack.png>]
+Overfull \hbox (7.56862pt too wide) in paragraph at lines 234--235
 []\OT1/cmr/bx/n/10.95 Delivery\OT1/cmr/m/n/10.95 : The payload is transmitted to the target, often via email (phishing), compromised
  []
 
-<figures/The 7 Steps -ckc.png, id=737, 2607.7425pt x 1966.34625pt>
+<figures/The 7 Steps -ckc.png, id=744, 2607.7425pt x 1966.34625pt>
 File: figures/The 7 Steps -ckc.png Graphic file (type png)
 <use figures/The 7 Steps -ckc.png>
-Package pdftex.def Info: figures/The 7 Steps -ckc.png  used on input line 242.
+Package pdftex.def Info: figures/The 7 Steps -ckc.png  used on input line 243.
 (pdftex.def)             Requested size: 409.71692pt x 308.92107pt.
-
-Overfull \hbox (2.79561pt too wide) in paragraph at lines 249--250
+[14]
+Overfull \hbox (2.79561pt too wide) in paragraph at lines 250--251
 []\OT1/cmr/m/n/10.95 MITRE ATT&CK (Adversarial Tactics, Techniques, and Common Knowledge) is a structured
  []
 
 
-Overfull \hbox (4.6451pt too wide) in paragraph at lines 249--250
+Overfull \hbox (4.6451pt too wide) in paragraph at lines 250--251
 \OT1/cmr/m/n/10.95 industrial control systems - ICS) [][]Jiang et al.[][], []2025[]). Developed in 2013, it serves as a fundamental
  []
 
-[15 <./figures/The 7 Steps -ckc.png>]
-Overfull \hbox (1.8656pt too wide) in paragraph at lines 258--259
+
+Overfull \hbox (1.8656pt too wide) in paragraph at lines 259--260
 \OT1/cmr/m/n/10.95 ATT&CK is organized into matrices representing adversary operating environments: \OT1/cmr/bx/n/10.95 Enterprise
  []
 
-<figures/MITRE.png, id=757, 1244.65pt x 833.1125pt>
+<figures/MITRE.png, id=767, 1244.65pt x 833.1125pt>
 File: figures/MITRE.png Graphic file (type png)
 <use figures/MITRE.png>
-Package pdftex.def Info: figures/MITRE.png  used on input line 262.
+Package pdftex.def Info: figures/MITRE.png  used on input line 263.
 (pdftex.def)             Requested size: 409.71692pt x 274.24152pt.
-
-Overfull \hbox (4.86942pt too wide) in paragraph at lines 268--269
+[15 <./figures/The 7 Steps -ckc.png>]
+Overfull \hbox (4.86942pt too wide) in paragraph at lines 269--270
 \OT1/cmr/m/n/10.95 supporting Cyber Threat Intelligence (CTI), incident response, attack modeling, and vulnerability
  []
 
-[16 <./figures/MITRE.png>] [17]
-Overfull \hbox (4.99619pt too wide) in paragraph at lines 303--305
+[16 <./figures/MITRE.png>]
+Overfull \hbox (4.99619pt too wide) in paragraph at lines 304--306
 []\OT1/cmr/m/n/10.95 Two fundamental challenges in ML model development [][]Hastie,
  []
 
-<figures/over_under.png, id=796, 717.68124pt x 216.81pt>
+<figures/over_under.png, id=806, 717.68124pt x 216.81pt>
 File: figures/over_under.png Graphic file (type png)
 <use figures/over_under.png>
-Package pdftex.def Info: figures/over_under.png  used on input line 311.
+Package pdftex.def Info: figures/over_under.png  used on input line 312.
 (pdftex.def)             Requested size: 364.19667pt x 110.02577pt.
-
-Overfull \hbox (27.37506pt too wide) in paragraph at lines 316--317
-$[]$
- []
-
-[18 <./figures/over_under.png>]
-Overfull \hbox (1.34264pt too wide) in paragraph at lines 322--323
+[17]
+Overfull \hbox (1.34264pt too wide) in paragraph at lines 323--324
 []\OT1/cmr/m/n/10.95 The loss function measures how far the model's predictions
  []
 
 
-Overfull \hbox (0.47487pt too wide) in paragraph at lines 324--326
+Overfull \hbox (0.47487pt too wide) in paragraph at lines 325--327
 []\OT1/cmr/m/n/10.95 Once trained, a model's performance is assessed using metrics appropriate
  []
 
-[19]
-<figures/ml_domain.png, id=822, 860.21375pt x 461.725pt>
+[18 <./figures/over_under.png>]
+<figures/ml_domain.png, id=832, 860.21375pt x 461.725pt>
 File: figures/ml_domain.png Graphic file (type png)
 <use figures/ml_domain.png>
-Package pdftex.def Info: figures/ml_domain.png  used on input line 354.
+Package pdftex.def Info: figures/ml_domain.png  used on input line 355.
 (pdftex.def)             Requested size: 364.19667pt x 195.48724pt.
 
-Overfull \hbox (19.10696pt too wide) in paragraph at lines 364--365
+Overfull \hbox (19.10696pt too wide) in paragraph at lines 365--366
 []\OT1/cmr/bx/n/10.95 Task types\OT1/cmr/m/n/10.95 : Classification (assigning a category) and Regression (predicting a continuous
  []
 
-
-Overfull \hbox (27.37506pt too wide) in paragraph at lines 369--370
-$[]$
- []
-
-[20 <./figures/ml_domain.png>]
-Overfull \hbox (30.8459pt too wide) in paragraph at lines 374--375
+[19 <./figures/ml_domain.png>]
+Overfull \hbox (30.8459pt too wide) in paragraph at lines 375--376
 []\OT1/cmr/bx/n/10.95 Common algorithms\OT1/cmr/m/n/10.95 : K-Means, DBSCAN, Hierarchical Clustering, Principal Component
  []
 
 
-Overfull \hbox (1.8738pt too wide) in paragraph at lines 378--380
+Overfull \hbox (1.8738pt too wide) in paragraph at lines 379--381
 []\OT1/cmr/m/n/10.95 Semi-supervised learning operates with a partially labeled dataset
  []
 
 
-Overfull \hbox (4.04144pt too wide) in paragraph at lines 380--381
+Overfull \hbox (4.04144pt too wide) in paragraph at lines 381--382
 []\OT1/cmr/bx/n/10.95 Why it matters\OT1/cmr/m/n/10.95 : Obtaining large quantities of labeled cybersecurity data is expensive
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 405--405
+Underfull \hbox (badness 10000) in paragraph at lines 407--407
 []|\OT1/cmr/m/n/10.95 Natural Language
  []
 
 
-Underfull \hbox (badness 7907) in paragraph at lines 405--405
+Underfull \hbox (badness 7907) in paragraph at lines 407--407
 []|\OT1/cmr/m/n/10.95 Processing and understanding
  []
 
 
-Underfull \hbox (badness 3758) in paragraph at lines 405--405
+Underfull \hbox (badness 3758) in paragraph at lines 407--407
 []|\OT1/cmr/m/n/10.95 Extracting TTPs from threat
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 405--405
+Underfull \hbox (badness 10000) in paragraph at lines 407--407
 \OT1/cmr/m/n/10.95 intelligence reports, detecting
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 406--406
+Underfull \hbox (badness 10000) in paragraph at lines 408--408
 []|\OT1/cmr/m/n/10.95 Identifying data points that
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 406--406
+Underfull \hbox (badness 10000) in paragraph at lines 408--408
 \OT1/cmr/m/n/10.95 deviate significantly from
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 406--406
+Underfull \hbox (badness 10000) in paragraph at lines 408--408
 []|\OT1/cmr/m/n/10.95 Detecting unusual network
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 407--407
+Underfull \hbox (badness 10000) in paragraph at lines 409--409
 []|\OT1/cmr/m/n/10.95 Modeling sequential, time-
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 407--407
+Underfull \hbox (badness 10000) in paragraph at lines 409--409
 []|\OT1/cmr/m/n/10.95 Detecting multi-stage APT
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 408--408
+Underfull \hbox (badness 10000) in paragraph at lines 410--410
 []|\OT1/cmr/m/n/10.95 Analyzing relationships and
  []
 
 
-Underfull \hbox (badness 3536) in paragraph at lines 409--409
+Underfull \hbox (badness 3536) in paragraph at lines 411--411
 []|\OT1/cmr/m/n/10.95 Generating new data samples
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 409--409
+Underfull \hbox (badness 10000) in paragraph at lines 411--411
 \OT1/cmr/m/n/10.95 CTI report summarization,
  []
 
 
-Overfull \hbox (14.8433pt too wide) in paragraph at lines 402--411
+Overfull \hbox (14.8433pt too wide) in paragraph at lines 404--413
  [][] 
  []
 
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-
-Overfull \hbox (6.37415pt too wide) in paragraph at lines 420--421
+[20]
+Overfull \hbox (6.37415pt too wide) in paragraph at lines 422--423
 []\OT1/cmr/m/n/10.95 When the system must adapt dynamically to evolving threats $\OMS/cmsy/m/n/10.95 !$ \OT1/cmr/bx/n/10.95 Reinforcement Learning 
  []
 
-[21] [22]
+
+Overfull \hbox (9.03647pt too wide) in paragraph at lines 425--426
+\OT1/cmr/m/n/10.95 most effective approaches --- including those proposed in Chapter 3 --- combine multiple paradigms:
+ []
+
+[21]
 Chapter 2.
 
-Overfull \hbox (0.838pt too wide) in paragraph at lines 431--432
+Overfull \hbox (0.838pt too wide) in paragraph at lines 440--441
 \OT1/cmr/m/n/10.95 the widespread availability of GenAI tools has fundamentally altered the economics and dynamics
  []
 
 
-Overfull \hbox (9.79689pt too wide) in paragraph at lines 441--442
+Overfull \hbox (9.79689pt too wide) in paragraph at lines 450--451
 \OT1/cmr/m/n/10.95 reflects both the strategic importance of these regions in global affairs and their role as technological
  []
 
-[23
+[22
 
 
 ]
-Overfull \hbox (24.4852pt too wide) in paragraph at lines 443--444
+Overfull \hbox (24.4852pt too wide) in paragraph at lines 452--453
 []\OT1/cmr/m/n/10.95 From a sectoral perspective, telecommunications infrastructure has emerged as the overwhelmingly
  []
 
 
-Overfull \hbox (2.52614pt too wide) in paragraph at lines 443--444
+Overfull \hbox (2.52614pt too wide) in paragraph at lines 452--453
 \OT1/cmr/m/n/10.95 dominant target, accounting for approximately 70.8% of observed APT activity [][]Trellix Advanced
  []
 
 
-Overfull \hbox (30.13542pt too wide) in paragraph at lines 443--444
+Overfull \hbox (30.13542pt too wide) in paragraph at lines 452--453
 \OT1/cmr/m/n/10.95 Research Center[], []2025[]). This concentration is strategically significant: control over telecommunications
  []
 
 
-Overfull \hbox (15.36317pt too wide) in paragraph at lines 443--444
+Overfull \hbox (15.36317pt too wide) in paragraph at lines 452--453
 \OT1/cmr/m/n/10.95 infrastructure provides adversaries with unparalleled opportunities for intercepting communications,
  []
 
 
-Overfull \hbox (7.40503pt too wide) in paragraph at lines 451--452
+Overfull \hbox (7.40503pt too wide) in paragraph at lines 460--461
 []\OT1/cmr/m/n/10.95 The Lazarus Group remains one of the most prolific and sophisticated APT actors, representing
  []
 
 
-Overfull \hbox (3.28777pt too wide) in paragraph at lines 451--452
+Overfull \hbox (3.28777pt too wide) in paragraph at lines 460--461
 \OT1/cmr/m/n/10.95 objectives with aggressive financially motivated operations---a characteristic relatively uncommon
  []
 
 
-Overfull \hbox (2.61559pt too wide) in paragraph at lines 453--454
+Overfull \hbox (2.61559pt too wide) in paragraph at lines 462--463
 []\OT1/cmr/m/n/10.95 Active since at least 2009, Lazarus has evolved from conducting targeted intelligence collection
  []
 
 
-Overfull \hbox (14.08269pt too wide) in paragraph at lines 455--456
+Overfull \hbox (14.08269pt too wide) in paragraph at lines 464--465
 []\OT1/cmr/m/n/10.95 The group demonstrates advanced technical capabilities including custom malware development,
  []
 
 
-Overfull \hbox (22.6632pt too wide) in paragraph at lines 455--456
+Overfull \hbox (22.6632pt too wide) in paragraph at lines 464--465
 \OT1/cmr/m/n/10.95 targeting financial institutions, cryptocurrency exchanges, defense contractors, technology companies,
  []
 
 
-Overfull \hbox (5.31549pt too wide) in paragraph at lines 455--456
+Overfull \hbox (5.31549pt too wide) in paragraph at lines 464--465
 \OT1/cmr/m/n/10.95 and government organizations across North America, Europe, and Asia. The financially motivated
  []
 
-[24]
-Overfull \hbox (3.56024pt too wide) in paragraph at lines 463--464
+[23]
+Overfull \hbox (3.56024pt too wide) in paragraph at lines 472--473
 \OT1/cmr/m/n/10.95 malicious Microsoft Office documents with embedded macros, weaponized PDF files, and carefully
  []
 
 
-Overfull \hbox (12.76636pt too wide) in paragraph at lines 467--468
+Overfull \hbox (12.76636pt too wide) in paragraph at lines 476--477
 \OT1/cmr/m/n/10.95 APT activity [][]Trellix Advanced Research Center[], []2025[]). The group primarily targets governmental,
  []
 
 
-Overfull \hbox (2.04063pt too wide) in paragraph at lines 467--468
+Overfull \hbox (2.04063pt too wide) in paragraph at lines 476--477
 \OT1/cmr/m/n/10.95 diplomatic, and non-governmental organizations with particular focus on Southeast Asia, Europe,
  []
 
 
-Overfull \hbox (4.92007pt too wide) in paragraph at lines 467--468
+Overfull \hbox (4.92007pt too wide) in paragraph at lines 476--477
 \OT1/cmr/m/n/10.95 and international organizations. Mustang Panda demonstrates sophisticated technical capabilities
  []
 
 
-Overfull \hbox (7.24191pt too wide) in paragraph at lines 471--472
+Overfull \hbox (7.24191pt too wide) in paragraph at lines 480--481
 \OT1/cmr/m/n/10.95 access while evading detection from traditional endpoint security solutions and network monitoring
  []
 
 
-Overfull \hbox (4.07436pt too wide) in paragraph at lines 475--476
+Overfull \hbox (4.07436pt too wide) in paragraph at lines 484--485
 []\OT1/cmr/m/n/10.95 Several Russian-affiliated APT groups maintain significant levels of activity, reflecting Russia's
  []
 
 
-Overfull \hbox (14.24278pt too wide) in paragraph at lines 477--478
+Overfull \hbox (14.24278pt too wide) in paragraph at lines 486--487
 \OT1/cmr/m/n/10.95 Main Intelligence Directorate (GRU), the military intelligence service. APT28 intensified operations
  []
 
 
-Overfull \hbox (14.10594pt too wide) in paragraph at lines 477--478
+Overfull \hbox (14.10594pt too wide) in paragraph at lines 486--487
 \OT1/cmr/m/n/10.95 infiltrate high-value networks [][]SOCRadar Cyber Intelligence Inc.[], []2024[]). The group has particularly
  []
 
 
-Overfull \hbox (20.22983pt too wide) in paragraph at lines 477--478
+Overfull \hbox (20.22983pt too wide) in paragraph at lines 486--487
 \OT1/cmr/m/n/10.95 with broader information operations, combining technical compromise with strategic communications
  []
 
-[25]
-Overfull \hbox (1.2803pt too wide) in paragraph at lines 481--482
+[24]
+Overfull \hbox (1.2803pt too wide) in paragraph at lines 490--491
 \OT1/cmr/m/n/10.95 targeting Ukraine, with activity levels correlating closely with military and political developments
  []
 
 
-Overfull \hbox (5.86171pt too wide) in paragraph at lines 481--482
+Overfull \hbox (5.86171pt too wide) in paragraph at lines 490--491
 [][]\OT1/cmr/m/n/10.95 ESET Research[], []2025[]). While sometimes characterized as less technically sophisticated compared
  []
 
 
-Overfull \hbox (14.48105pt too wide) in paragraph at lines 481--482
+Overfull \hbox (14.48105pt too wide) in paragraph at lines 490--491
 \OT1/cmr/m/n/10.95 Recent campaigns have demonstrated improved capabilities, including the introduction of PteroBox,
  []
 
 
-Overfull \hbox (10.2113pt too wide) in paragraph at lines 481--482
+Overfull \hbox (10.2113pt too wide) in paragraph at lines 490--491
 \OT1/cmr/m/n/10.95 enhanced obfuscation techniques [][]ESET Research[], []2025[]). The group targets Ukrainian government
  []
 
 
-Overfull \hbox (7.42438pt too wide) in paragraph at lines 485--486
+Overfull \hbox (7.42438pt too wide) in paragraph at lines 494--495
 \OT1/cmr/m/n/10.95 under ``Typhoon'' naming conventions---have demonstrated significant capabilities and operational
  []
 
 
-Overfull \hbox (14.29497pt too wide) in paragraph at lines 489--490
+Overfull \hbox (14.29497pt too wide) in paragraph at lines 498--499
 []\OT1/cmr/bx/n/10.95 Volt Typhoon\OT1/cmr/m/n/10.95 , active since at least 2021, specializes in espionage against critical infrastructure,
  []
 
 
-Overfull \hbox (22.29819pt too wide) in paragraph at lines 491--492
+Overfull \hbox (22.29819pt too wide) in paragraph at lines 500--501
 \OT1/cmr/m/n/10.95 entities, but has also been observed conducting operations against United States critical infrastructure
  []
 
 
-Overfull \hbox (4.4131pt too wide) in paragraph at lines 491--492
+Overfull \hbox (4.4131pt too wide) in paragraph at lines 500--501
 \OT1/cmr/m/n/10.95 intelligence collection, maintaining persistent access through legitimate credentials and authorized
  []
 
-<figures/fig2_1_apt_groups.png, id=913, 2409.0pt x 1606.0pt>
+<figures/fig2_1_apt_groups.png, id=924, 2409.0pt x 1606.0pt>
 File: figures/fig2_1_apt_groups.png Graphic file (type png)
 <use figures/fig2_1_apt_groups.png>
-Package pdftex.def Info: figures/fig2_1_apt_groups.png  used on input line 498.
+Package pdftex.def Info: figures/fig2_1_apt_groups.png  used on input line 507.
 (pdftex.def)             Requested size: 386.96027pt x 257.96999pt.
 
-Overfull \hbox (30.11523pt too wide) in paragraph at lines 505--506
+Overfull \hbox (30.11523pt too wide) in paragraph at lines 514--515
 \OT1/cmr/m/n/10.95 adversaries with multiple strategic advantages: the ability to intercept large volumes of communications
  []
 
-[26]
-Overfull \hbox (10.39392pt too wide) in paragraph at lines 507--508
+[25]
+Overfull \hbox (10.39392pt too wide) in paragraph at lines 516--517
 \OT1/cmr/m/n/10.95 confrontation---experience disproportionately high levels of APT activity. This pattern underscores
  []
 
 
-Overfull \hbox (20.8657pt too wide) in paragraph at lines 509--510
+Overfull \hbox (20.8657pt too wide) in paragraph at lines 518--519
 []\OT1/cmr/m/n/10.95 Another significant trend is the evolution from targeting individual organizations to compromising
  []
 
-[27 <./figures/fig2_1_apt_groups.png>]
-<figures/preplexty.png, id=935, 2135.98pt x 1513.655pt>
+[26 <./figures/fig2_1_apt_groups.png>]
+<figures/preplexty.png, id=947, 2135.98pt x 1513.655pt>
 File: figures/preplexty.png Graphic file (type png)
 <use figures/preplexty.png>
-Package pdftex.def Info: figures/preplexty.png  used on input line 521.
+Package pdftex.def Info: figures/preplexty.png  used on input line 530.
 (pdftex.def)             Requested size: 364.19667pt x 258.08012pt.
- [28 <./figures/preplexty.png>]
-<figures/chatgpt.png, id=954, 2071.74pt x 1284.8pt>
+<figures/chatgpt.png, id=959, 2071.74pt x 1284.8pt>
 File: figures/chatgpt.png Graphic file (type png)
 <use figures/chatgpt.png>
-Package pdftex.def Info: figures/chatgpt.png  used on input line 538.
+Package pdftex.def Info: figures/chatgpt.png  used on input line 547.
 (pdftex.def)             Requested size: 364.19667pt x 225.8432pt.
-
-Overfull \hbox (21.08592pt too wide) in paragraph at lines 543--544
+ [27 <./figures/preplexty.png>]
+Overfull \hbox (21.08592pt too wide) in paragraph at lines 552--553
 []\OT1/cmr/bx/n/10.95 Cyber Threat Intelligence (CTI) Generation\OT1/cmr/m/n/10.95 : LLMs can extract TTPs from unstructured
  []
 
 
-Overfull \hbox (25.45921pt too wide) in paragraph at lines 544--545
+Overfull \hbox (25.45921pt too wide) in paragraph at lines 553--554
 []\OT1/cmr/bx/n/10.95 Simulation and Training\OT1/cmr/m/n/10.95 : AI can generate realistic and diverse simulated threat environments
  []
 
 
-Overfull \hbox (16.40959pt too wide) in paragraph at lines 553--554
+Overfull \hbox (16.40959pt too wide) in paragraph at lines 562--563
 []\OT1/cmr/m/n/10.95 Generative Artificial Intelligence has emerged as a transformative technology in cyber operations,
  []
 
-[29 <./figures/chatgpt.png>]
-<figures/fig2_2_traditional_vs_ai.png, id=973, 2409.0pt x 1606.0pt>
+[28 <./figures/chatgpt.png>]
+<figures/fig2_2_traditional_vs_ai.png, id=986, 2409.0pt x 1606.0pt>
 File: figures/fig2_2_traditional_vs_ai.png Graphic file (type png)
 <use figures/fig2_2_traditional_vs_ai.png>
-Package pdftex.def Info: figures/fig2_2_traditional_vs_ai.png  used on input line 562.
+Package pdftex.def Info: figures/fig2_2_traditional_vs_ai.png  used on input line 571.
 (pdftex.def)             Requested size: 386.96027pt x 257.96999pt.
 
-Underfull \hbox (badness 1014) in paragraph at lines 563--563
-\OT1/cmr/m/n/10.95 demonstrates substantial improvements across all attack categories, with reconnaissance
- []
-
-
-Overfull \hbox (1.58145pt too wide) in paragraph at lines 569--570
+Overfull \hbox (1.58145pt too wide) in paragraph at lines 580--581
 []\OT1/cmr/m/n/10.95 Reconnaissance and intelligence gathering---traditionally time-consuming manual processes---
  []
 
 
-Overfull \hbox (4.83899pt too wide) in paragraph at lines 569--570
+Overfull \hbox (4.83899pt too wide) in paragraph at lines 580--581
 \OT1/cmr/m/n/10.95 identify key personnel, enumerate technologies and potential vulnerabilities, and develop targeting
  []
 
-[30 <./figures/fig2_2_traditional_vs_ai.png>]
-Overfull \hbox (4.67673pt too wide) in paragraph at lines 579--580
+[29 <./figures/fig2_2_traditional_vs_ai.png>]
+Overfull \hbox (4.67673pt too wide) in paragraph at lines 590--591
 [][]\OT1/cmr/m/n/10.95 DeepStrike[], []2025[]). Research from MIT's Computer Science and Artificial Intelligence Laboratory
  []
 
 
-Overfull \hbox (4.18709pt too wide) in paragraph at lines 581--582
+Overfull \hbox (4.18709pt too wide) in paragraph at lines 592--593
 []\OT1/cmr/m/n/10.95 The effectiveness of AI-powered phishing derives from several factors. LLMs can automatically
  []
 
 
-Overfull \hbox (0.97606pt too wide) in paragraph at lines 587--588
+Overfull \hbox (0.97606pt too wide) in paragraph at lines 598--599
 \OT1/cmr/m/n/10.95 The system supports unlimited character generation, has no ethical constraints, and is specifically
  []
 
 
-Overfull \hbox (11.06427pt too wide) in paragraph at lines 589--590
+Overfull \hbox (11.06427pt too wide) in paragraph at lines 600--601
 \OT1/cmr/m/n/10.95 cybercriminals [][]SCADAfence[], []2024[]). Its capabilities extend beyond phishing to include: generation
  []
 
 
-Overfull \hbox (5.11273pt too wide) in paragraph at lines 589--590
+Overfull \hbox (5.11273pt too wide) in paragraph at lines 600--601
 \OT1/cmr/m/n/10.95 essentially democratizes advanced cybercrime capabilities, making sophisticated attack techniques
  []
 
-[31]
-Overfull \hbox (11.75964pt too wide) in paragraph at lines 591--592
+
+Overfull \hbox (11.75964pt too wide) in paragraph at lines 602--603
 []\OT1/cmr/bx/n/10.95 DarkBERT and DarkBART \OT1/cmr/m/n/10.95 represent another category of malicious AI---models specifically
  []
 
-
-Overfull \hbox (6.93651pt too wide) in paragraph at lines 601--602
+[30]
+Overfull \hbox (6.93651pt too wide) in paragraph at lines 612--613
 \OT1/cmr/m/n/10.95 functionality---represents one of the most sophisticated applications of AI in malware development.
  []
 
 
-Overfull \hbox (36.9083pt too wide) in paragraph at lines 601--602
+Overfull \hbox (36.9083pt too wide) in paragraph at lines 612--613
 \OT1/cmr/m/n/10.95 Traditional polymorphic techniques relied on predefined transformation rules; AI-powered polymorphism
  []
 
 
-Overfull \hbox (14.53053pt too wide) in paragraph at lines 603--604
+Overfull \hbox (14.53053pt too wide) in paragraph at lines 614--615
 \OT1/cmr/m/n/10.95 demonstrates the potential of AI-generated polymorphic malware [][]HYAS Labs[], []2023[]). BlackMamba
  []
 
 
-Overfull \hbox (28.83484pt too wide) in paragraph at lines 605--606
+Overfull \hbox (28.83484pt too wide) in paragraph at lines 616--617
 []\OT1/cmr/m/n/10.95 Critically, BlackMamba operates without requiring traditional command-and-control infrastructure
  []
 
-[32] [33]
-Overfull \hbox (14.67635pt too wide) in paragraph at lines 643--644
+[31] [32]
+Overfull \hbox (14.67635pt too wide) in paragraph at lines 654--655
 []\OT1/cmr/bx/n/10.95 Video Deepfake Tools\OT1/cmr/m/n/10.95 : Stable Diffusion v6, Runway ML, Synthesia, DeepFaceLab, FaceSwap,
  []
 
 
-Overfull \hbox (15.45137pt too wide) in paragraph at lines 657--658
+Overfull \hbox (15.45137pt too wide) in paragraph at lines 668--669
 []\OT1/cmr/m/n/10.95 In September 2025, Anthropic disclosed the first known large-scale instance of an AI-orchestrated
  []
 
 
-Overfull \hbox (2.32545pt too wide) in paragraph at lines 663--664
+Overfull \hbox (2.32545pt too wide) in paragraph at lines 674--675
 []\OT1/cmr/bx/n/10.95 Vulnerability Identification\OT1/cmr/m/n/10.95 : Claude Code autonomously searched for security weaknesses,
  []
 
-[34]
-Overfull \hbox (4.55507pt too wide) in paragraph at lines 683--684
+[33]
+Overfull \hbox (4.55507pt too wide) in paragraph at lines 694--695
 \OT1/cmr/m/n/10.95 vector, accounting for approximately 35% of cloud-related incidents [][]CrowdStrike[], []2024a[]). Rather
  []
 
 
-Overfull \hbox (14.84608pt too wide) in paragraph at lines 683--684
+Overfull \hbox (14.84608pt too wide) in paragraph at lines 694--695
 \OT1/cmr/m/n/10.95 than exploiting software vulnerabilities, attackers compromise legitimate accounts through phishing,
  []
 
 
-Overfull \hbox (4.93025pt too wide) in paragraph at lines 687--688
+Overfull \hbox (4.93025pt too wide) in paragraph at lines 698--699
 \OT1/cmr/m/n/10.95 to additional systems---has decreased to approximately 48 minutes, with some intrusions achieving
  []
 
-[35]
-<figures/fig2_3_threat_evolution.png, id=1094, 2409.0pt x 1606.0pt>
+[34]
+<figures/fig2_3_threat_evolution.png, id=1110, 2409.0pt x 1606.0pt>
 File: figures/fig2_3_threat_evolution.png Graphic file (type png)
 <use figures/fig2_3_threat_evolution.png>
-Package pdftex.def Info: figures/fig2_3_threat_evolution.png  used on input line 700.
+Package pdftex.def Info: figures/fig2_3_threat_evolution.png  used on input line 711.
 (pdftex.def)             Requested size: 409.71692pt x 273.13892pt.
- [36 <./figures/fig2_3_threat_evolution.png>]
-Overfull \hbox (7.1202pt too wide) in paragraph at lines 713--714
-\OT1/cmr/m/n/10.95 reduces both cost and time requirements while simultaneously increasing scale and personalization.
+
+Overfull \hbox (14.72197pt too wide) in paragraph at lines 718--718
+|[]\OT1/cmr/bx/n/14.4 How AI Is Reshaping the APT Threats and the New Detection
  []
 
 
-Overfull \hbox (0.66176pt too wide) in paragraph at lines 721--722
+Overfull \hbox (7.1202pt too wide) in paragraph at lines 726--727
+\OT1/cmr/m/n/10.95 reduces both cost and time requirements while simultaneously increasing scale and personalization.
+ []
+
+[35 <./figures/fig2_3_threat_evolution.png>]
+Overfull \hbox (0.66176pt too wide) in paragraph at lines 734--735
 \OT1/cmr/m/n/10.95 mutates at runtime cannot be reliably detected through static signatures. Similarly, AI-generated
  []
 
 
-Overfull \hbox (7.42068pt too wide) in paragraph at lines 729--730
+Overfull \hbox (7.42068pt too wide) in paragraph at lines 742--743
 []\OT1/cmr/bx/n/10.95 AI Must Counter AI\OT1/cmr/m/n/10.95 : Defending against AI-augmented attacks likely requires AI-augmented
  []
 
-[37] [38]
+[36] [37]
 Chapter 3.
 
-Overfull \hbox (14.29562pt too wide) in paragraph at lines 747--748
+Overfull \hbox (14.29562pt too wide) in paragraph at lines 769--770
 []\OT1/cmr/m/n/10.95 The following datasets were selected because they carry explicit adversarial behavior annotations
  []
 
 
-Overfull \hbox (14.63194pt too wide) in paragraph at lines 751--752
+Overfull \hbox (14.63194pt too wide) in paragraph at lines 773--774
 \OT1/cmr/m/n/10.95 APT actors due to their prevalence in servers and critical infrastructure yet remain underrepresented
  []
 
-[39
+[38
 
 ]
-<figures/linux_apt.PNG, id=1124, 965.85844pt x 454.69875pt>
+<figures/linux_apt.PNG, id=1138, 965.85844pt x 454.69875pt>
 File: figures/linux_apt.PNG Graphic file (type png)
 <use figures/linux_apt.PNG>
-Package pdftex.def Info: figures/linux_apt.PNG  used on input line 757.
+Package pdftex.def Info: figures/linux_apt.PNG  used on input line 779.
 (pdftex.def)             Requested size: 455.24411pt x 214.31206pt.
 
-Overfull \hbox (4.45535pt too wide) in paragraph at lines 765--766
+Overfull \hbox (4.45535pt too wide) in paragraph at lines 787--788
 \OT1/cmr/bx/n/10.95 off-the-Land (LOTL) \OT1/cmr/m/n/10.95 APT techniques --- adversaries using legitimate system tools (PowerShell,
  []
 
-[40 <./figures/linux_apt.PNG>]
-<figures/kapt.png, id=1141, 1512.65125pt x 649.42625pt>
-File: figures/kapt.png Graphic file (type png)
-<use figures/kapt.png>
-Package pdftex.def Info: figures/kapt.png  used on input line 781.
-(pdftex.def)             Requested size: 318.66948pt x 136.80963pt.
-
-Overfull \hbox (120.17957pt too wide) in paragraph at lines 792--793
-\OT1/cmr/m/it/10.95 Advanced Persistent Threats" \OT1/cmr/m/n/10.95 (Ancona et al.), available both at the GitHub repository \OT1/cmtt/m/n/10.95 APT[]detector/MLAPT[]dataset.csv
+[39 <./figures/linux_apt.PNG>]
+Overfull \hbox (24.78685pt too wide) in paragraph at lines 797--798
+[][][]\OT1/cmr/m/n/10.95 Sudath Ambalangodage et al.[][], []2024[]) introduced KAPT-2024 in \OT1/cmr/m/it/10.95 "A Relevant Feature Identification
  []
 
-[41 <./figures/kapt.png>]
-<figures/iot.PNG, id=1161, 1011.02719pt x 395.97937pt>
+<figures/kapt.png, id=1156, 1512.65125pt x 649.42625pt>
+File: figures/kapt.png Graphic file (type png)
+<use figures/kapt.png>
+Package pdftex.def Info: figures/kapt.png  used on input line 803.
+(pdftex.def)             Requested size: 318.66948pt x 136.80963pt.
+[40 <./figures/kapt.png>]
+<figures/iot.PNG, id=1177, 1011.02719pt x 395.97937pt>
 File: figures/iot.PNG Graphic file (type png)
 <use figures/iot.PNG>
-Package pdftex.def Info: figures/iot.PNG  used on input line 806.
+Package pdftex.def Info: figures/iot.PNG  used on input line 828.
 (pdftex.def)             Requested size: 455.24411pt x 178.30386pt.
 
-Underfull \hbox (badness 1082) in paragraph at lines 820--821
+Underfull \hbox (badness 1082) in paragraph at lines 842--843
 []|\OT1/cmr/bx/n/10.95 Key Relevance to Our
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 822--822
+Underfull \hbox (badness 10000) in paragraph at lines 844--844
 []|\OT1/cmr/m/n/10.95 Linux-APT-Dataset-2024
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 826--826
+Underfull \hbox (badness 10000) in paragraph at lines 848--848
 []|\OT1/cmr/m/n/10.95 KAPT-2024
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 826--826
+Underfull \hbox (badness 10000) in paragraph at lines 848--848
 [][]\OT1/cmr/m/n/10.95 Sudath Ambalangodage
  []
 
 
-Underfull \hbox (badness 1454) in paragraph at lines 828--828
+Underfull \hbox (badness 1454) in paragraph at lines 850--850
 []|\OT1/cmr/m/n/10.95 Windows APT Persistence
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 830--830
+Underfull \hbox (badness 10000) in paragraph at lines 852--852
 []|\OT1/cmr/m/n/10.95 CICAPT-IIoT [][]Ghiasvand
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 840--841
+Underfull \hbox (badness 10000) in paragraph at lines 862--863
 []|\OT1/cmr/m/n/10.95 Lateral movement
  []
 
 
-Overfull \hbox (49.99994pt too wide) in paragraph at lines 818--843
+Overfull \hbox (49.99994pt too wide) in paragraph at lines 840--865
  [][] 
  []
 
-[42 <./figures/iot.PNG>]
-Overfull \hbox (4.79845pt too wide) in paragraph at lines 849--850
+[41 <./figures/iot.PNG>]
+Overfull \hbox (4.79845pt too wide) in paragraph at lines 871--872
 \OT1/cmr/m/n/10.95 research (Kaggle). Semi-synthetic nature means some behaviors may not faithfully represent
  []
 
 
-Overfull \hbox (16.30609pt too wide) in paragraph at lines 850--851
+Overfull \hbox (16.30609pt too wide) in paragraph at lines 872--873
 \OT1/cmr/m/n/10.95 National Laboratory containing 90 days of anonymized internal network events (authentication
  []
 
-[43]
-Overfull \hbox (5.87224pt too wide) in paragraph at lines 865--866
+[42]
+Overfull \hbox (5.87224pt too wide) in paragraph at lines 887--888
 []\OT1/cmr/bx/n/10.95 UNSW-NB15 (2015)\OT1/cmr/m/n/10.95 : Ten attack categories including backdoors and shellcode, generated
  []
 
-[44]
-Overfull \hbox (8.21405pt too wide) in paragraph at lines 897--898
+[43]
+Overfull \hbox (8.21405pt too wide) in paragraph at lines 919--920
 \OT1/cmr/m/n/10.95 benchmark datasets in [][]Ankalaki et al.[][], []2025[]) provide kill-chain phase or ATT&CK technique
  []
 
 
-Overfull \hbox (19.84776pt too wide) in paragraph at lines 911--912
+Overfull \hbox (19.84776pt too wide) in paragraph at lines 933--934
 []\OT1/cmr/bx/n/10.95 Supervised Learning: \OT1/cmr/m/n/10.95 These algorithms require fully labeled datasets (benign vs. malicious).
  []
 
-[45]
-Overfull \hbox (3.60413pt too wide) in paragraph at lines 920--922
+[44]
+Overfull \hbox (3.60413pt too wide) in paragraph at lines 942--944
 []\OT1/cmr/m/n/10.95 The most recent evolution in detection strategies involves Generative AI. Unlike discriminative
  []
 
-[46]
-Overfull \hbox (4.16986pt too wide) in paragraph at lines 940--942
+
+Overfull \hbox (4.16986pt too wide) in paragraph at lines 962--964
 \OT1/cmr/m/n/10.95 training and combines their outputs --- either by majority voting (classification) or averaging
  []
 
-
-Overfull \hbox (1.91037pt too wide) in paragraph at lines 943--944
+[45]
+Overfull \hbox (1.91037pt too wide) in paragraph at lines 965--966
 []\OT1/cmr/bx/n/10.95 Weaknesses\OT1/cmr/m/n/10.95 : Less interpretable than a single Decision Tree; computationally heavier. 
  []
 
 
-Overfull \hbox (10.80574pt too wide) in paragraph at lines 946--948
+Overfull \hbox (10.80574pt too wide) in paragraph at lines 968--970
 []\OT1/cmr/m/n/10.95 SVM finds the optimal hyperplane that maximally separates
  []
 
-<figures/artificial-neural-network-a-Brain-neuron.png, id=1257, 853.1875pt x 507.8975pt>
+<figures/artificial-neural-network-a-Brain-neuron.png, id=1277, 853.1875pt x 507.8975pt>
 File: figures/artificial-neural-network-a-Brain-neuron.png Graphic file (type png)
 <use figures/artificial-neural-network-a-Brain-neuron.png>
-Package pdftex.def Info: figures/artificial-neural-network-a-Brain-neuron.png  used on input line 963.
+Package pdftex.def Info: figures/artificial-neural-network-a-Brain-neuron.png  used on input line 985.
 (pdftex.def)             Requested size: 364.19667pt x 216.8107pt.
-[47]
-Underfull \hbox (badness 10000) in paragraph at lines 973--973
+
+Underfull \hbox (badness 10000) in paragraph at lines 997--997
 []|\OT1/cmr/m/n/10.95 Convolutional Neural
  []
 
 
-Underfull \hbox (badness 1728) in paragraph at lines 973--973
+Underfull \hbox (badness 1728) in paragraph at lines 997--997
 []|\OT1/cmr/m/n/10.95 Extracts local spatial patterns
  []
 
 
-Underfull \hbox (badness 6592) in paragraph at lines 973--973
+Underfull \hbox (badness 6592) in paragraph at lines 997--997
 []|\OT1/cmr/m/n/10.95 Malware visualization, image-
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 974--974
+Underfull \hbox (badness 10000) in paragraph at lines 998--998
 []|\OT1/cmr/m/n/10.95 Recurrent Neural
  []
 
 
-Underfull \hbox (badness 7344) in paragraph at lines 974--974
+Underfull \hbox (badness 7344) in paragraph at lines 998--998
 []|\OT1/cmr/m/n/10.95 Processes sequential data by
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 974--974
+Underfull \hbox (badness 10000) in paragraph at lines 998--998
 []|\OT1/cmr/m/n/10.95 Detecting sequential attack
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 975--975
+Underfull \hbox (badness 10000) in paragraph at lines 999--999
 []|\OT1/cmr/m/n/10.95 Long Short-Term
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 975--975
+Underfull \hbox (badness 10000) in paragraph at lines 999--999
 []|\OT1/cmr/m/n/10.95 An advanced RNN that
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 975--975
+Underfull \hbox (badness 10000) in paragraph at lines 999--999
 \OT1/cmr/m/n/10.95 captures long-range temporal
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 975--975
+Underfull \hbox (badness 10000) in paragraph at lines 999--999
 \OT1/cmr/m/n/10.95 dependencies [][]Hochreiter &
  []
 
 
-Underfull \hbox (badness 3029) in paragraph at lines 976--976
+Underfull \hbox (badness 3029) in paragraph at lines 1000--1000
 \OT1/cmr/m/n/10.95 models global relationships in
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 976--976
+Underfull \hbox (badness 10000) in paragraph at lines 1000--1000
 []|\OT1/cmr/m/n/10.95 CTI report analysis, TTP
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 977--977
+Underfull \hbox (badness 10000) in paragraph at lines 1001--1001
 []|\OT1/cmr/m/n/10.95 Learns a compressed
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 977--977
+Underfull \hbox (badness 10000) in paragraph at lines 1001--1001
 \OT1/cmr/m/n/10.95 representation of data and
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 977--977
+Underfull \hbox (badness 10000) in paragraph at lines 1001--1001
 []|\OT1/cmr/m/n/10.95 Anomaly detection --
  []
 
 
-Underfull \hbox (badness 4366) in paragraph at lines 978--978
+Underfull \hbox (badness 4366) in paragraph at lines 1002--1002
 []|\OT1/cmr/m/n/10.95 Two competing networks: a
  []
 
 
-Overfull \hbox (14.8433pt too wide) in paragraph at lines 970--980
+Overfull \hbox (14.8433pt too wide) in paragraph at lines 994--1004
  [][] 
  []
 
-[48 <./figures/artificial-neural-network-a-Brain-neuron.png>]
-Overfull \hbox (32.49861pt too wide) in paragraph at lines 995--997
+[46 <./figures/artificial-neural-network-a-Brain-neuron.png>]
+Overfull \hbox (32.49861pt too wide) in paragraph at lines 1019--1021
 []\OT1/cmr/m/n/10.95 DBSCAN groups
  []
 
-<figures/kmens_vs_dbscan.jpg, id=1273, 631.35875pt x 748.7975pt>
+<figures/kmens_vs_dbscan.jpg, id=1286, 631.35875pt x 748.7975pt>
 File: figures/kmens_vs_dbscan.jpg Graphic file (type jpg)
 <use figures/kmens_vs_dbscan.jpg>
-Package pdftex.def Info: figures/kmens_vs_dbscan.jpg  used on input line 1003.
+Package pdftex.def Info: figures/kmens_vs_dbscan.jpg  used on input line 1027.
 (pdftex.def)             Requested size: 227.62206pt x 269.9668pt.
-[49]
-Overfull \hbox (29.01503pt too wide) in paragraph at lines 1015--1016
+[47]
+Overfull \hbox (29.01503pt too wide) in paragraph at lines 1039--1040
 []\OT1/cmr/bx/n/10.95 Cybersecurity use\OT1/cmr/m/n/10.95 : Adaptive intrusion detection, automated security policy optimization,
  []
 
 
-Overfull \hbox (9.82327pt too wide) in paragraph at lines 1018--1020
+Overfull \hbox (9.82327pt too wide) in paragraph at lines 1042--1044
 []\OT1/cmr/m/n/10.95 PPO is a state-of-the-art policy gradient RL algorithm
  []
 
 
-Overfull \hbox (2.43639pt too wide) in paragraph at lines 1029--1039
+Overfull \hbox (2.43639pt too wide) in paragraph at lines 1055--1065
  [][] 
  []
 
-[50 <./figures/kmens_vs_dbscan.jpg>]
-Overfull \hbox (5.74529pt too wide) in paragraph at lines 1050--1050
+[48 <./figures/kmens_vs_dbscan.jpg>]
+Overfull \hbox (5.74529pt too wide) in paragraph at lines 1076--1076
 |[]\OT1/cmr/bx/n/14.4 Description of Solutions: Review of AI/ML on APT Datasets| 
  []
 
-
-Overfull \hbox (16.4552pt too wide) in paragraph at lines 1068--1069
+[49]
+Overfull \hbox (16.4552pt too wide) in paragraph at lines 1100--1101
 []\OT1/cmr/m/n/10.95 Based on Bayes' theorem (as shown in Equation []3.2[]) with an assumption of feature independence,
  []
 
-[51]
-Underfull \hbox (badness 1173) in paragraph at lines 1079--1079
+
+Underfull \hbox (badness 1173) in paragraph at lines 1112--1112
 []\OT1/cmr/m/n/10.95 Table 3.4: []Performance Analysis of State-of-the-Art ML Approaches for Cyber-Attack
  []
 
-[52]
-Overfull \hbox (0.71959pt too wide) in paragraph at lines 1135--1142
+
+LaTeX Warning: Reference `tab:ml_performance' on page 50 undefined on input line 1157.
+
+
+Overfull \hbox (3.8593pt too wide) in paragraph at lines 1161--1162
+\OT1/cmr/m/n/10.95 lookup table of classical Q-learning. The agent follows an $\OML/cmm/m/it/10.95 ^^O$\OT1/cmr/m/n/10.95 -greedy policy and trains by minimizing
+ []
+
+[50] [51]
+<figures/rl_resu.PNG, id=1378, 505.89pt x 412.54124pt>
+File: figures/rl_resu.PNG Graphic file (type png)
+<use figures/rl_resu.PNG>
+Package pdftex.def Info: figures/rl_resu.PNG  used on input line 1209.
+(pdftex.def)             Requested size: 318.66948pt x 258.40552pt.
+ [52 <./figures/rl_resu.PNG>]
+Overfull \hbox (0.71959pt too wide) in paragraph at lines 1228--1235
 \OT1/cmr/m/n/10.95 windowing 4. Feature scaling: both Min-Max and Z-score normalization tested 5. \OT1/cmr/bx/n/10.95 2D reshaping
  []
 
 
-Overfull \hbox (9.75513pt too wide) in paragraph at lines 1135--1142
+Overfull \hbox (9.75513pt too wide) in paragraph at lines 1228--1235
 \OT1/cmr/m/n/10.95 of feature vectors into matrix format (image-like) to enable CNN2D spatial processing 6. Train/test
  []
 
 
-Overfull \hbox (0.21027pt too wide) in paragraph at lines 1143--1144
+Overfull \hbox (0.21027pt too wide) in paragraph at lines 1236--1237
 []\OT1/cmr/m/n/10.95 The CNN2D architecture uses 3 convolutional layers (3$\OMS/cmsy/m/n/10.95 ^^B$\OT1/cmr/m/n/10.95 3 and 5$\OMS/cmsy/m/n/10.95 ^^B$\OT1/cmr/m/n/10.95 5 kernels), ReLU activation,
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1153--1153
+Underfull \hbox (badness 10000) in paragraph at lines 1245--1245
 []|\OT1/cmr/bx/n/10.95 Accuracy
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1153--1153
+Underfull \hbox (badness 10000) in paragraph at lines 1245--1245
 []|\OT1/cmr/bx/n/10.95 Precision
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1153--1154
+Underfull \hbox (badness 10000) in paragraph at lines 1245--1246
 []|\OT1/cmr/bx/n/10.95 F1-Score
  []
 
 
-Overfull \hbox (16.86578pt too wide) in paragraph at lines 1151--1164
+Overfull \hbox (16.86578pt too wide) in paragraph at lines 1243--1257
  [][] 
  []
 
+
+Overfull \hbox (0.4892pt too wide) in paragraph at lines 1262--1263
+[] [] \OT1/cmr/bx/n/10.95 Critical Analysis[] \OT1/cmr/m/n/10.95 The 2D-CNN approach achieves strong results on CICAPTIIoT (Table []3.6[]),
+ []
+
 [53]
-Overfull \hbox (14.63315pt too wide) in paragraph at lines 1172--1174
+Overfull \hbox (14.63315pt too wide) in paragraph at lines 1268--1270
 \OT1/cmr/m/n/10.95 This capability allows LSTMs to correlate a "Reconnaissance" event (Stage 1) with an "Exfiltration"
  []
 
 [54]
-Overfull \hbox (3.16309pt too wide) in paragraph at lines 1231--1234
+Overfull \hbox (3.16309pt too wide) in paragraph at lines 1331--1334
 []\OT1/cmr/bx/n/10.95 GGNN (Gated Graph Neural Network): \OT1/cmr/m/n/10.95 Incorporates Gated Recurrent Units (GRUs)
  []
 
 
-Overfull \hbox (2.63904pt too wide) in paragraph at lines 1246--1247
+Overfull \hbox (2.63904pt too wide) in paragraph at lines 1346--1347
 []\OT1/cmr/bx/n/10.95 Network Design (Graph $\OMS/cmsy/m/n/10.95 !$ \OT1/cmr/bx/n/10.95 Feature): \OT1/cmr/m/n/10.95 Network-based IDS (NIDS) at node/edge/graph-
  []
 
-<figures/gnn1.png, id=1366, 734.745pt x 294.34969pt>
+<figures/gnn1.png, id=1426, 734.745pt x 294.34969pt>
 File: figures/gnn1.png Graphic file (type png)
 <use figures/gnn1.png>
-Package pdftex.def Info: figures/gnn1.png  used on input line 1252.
+Package pdftex.def Info: figures/gnn1.png  used on input line 1352.
 (pdftex.def)             Requested size: 364.19667pt x 143.30556pt.
-
-Overfull \hbox (10.91676pt too wide) in paragraph at lines 1257--1259
+[55]
+Overfull \hbox (10.91676pt too wide) in paragraph at lines 1357--1359
 []\OT1/cmr/bx/n/10.95 GNN Methods Used in APT Detection: \OT1/cmr/m/n/10.95 Each framework uses a distinct GNN architecture
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1284--1284
+Underfull \hbox (badness 10000) in paragraph at lines 1384--1384
 []|\OT1/cmr/m/n/10.95 Temporal encoder-decoder; detects
  []
 
 
-Underfull \hbox (badness 2744) in paragraph at lines 1284--1284
+Underfull \hbox (badness 2744) in paragraph at lines 1384--1384
 []|\OT1/cmr/m/n/10.95 Graph Competitive Autoencoder with
  []
 
 
-Underfull \hbox (badness 1033) in paragraph at lines 1284--1284
+Underfull \hbox (badness 1033) in paragraph at lines 1384--1384
 []|\OT1/cmr/m/n/10.95 3-metapath MAGNN on heterogeneous
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1284--1284
+Underfull \hbox (badness 10000) in paragraph at lines 1384--1384
 []|\OT1/cmr/m/n/10.95 Transformer-augmented GraphSAGE
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1284--1284
+Underfull \hbox (badness 10000) in paragraph at lines 1384--1384
 \OT1/cmr/m/n/10.95 with Federated Learning; uses
  []
 
 
-Overfull \hbox (53.04846pt too wide) in paragraph at lines 1284--1285
+Overfull \hbox (53.04846pt too wide) in paragraph at lines 1384--1385
  [][] 
  []
 
-[55 <./figures/gnn1.png>]
-Overfull \hbox (22.84392pt too wide) in paragraph at lines 1294--1307
- [][] 
- []
-
-<figures/gnn2.png, id=1405, 670.75594pt x 210.7875pt>
+<figures/gnn2.png, id=1466, 670.75594pt x 210.7875pt>
 File: figures/gnn2.png Graphic file (type png)
 <use figures/gnn2.png>
-Package pdftex.def Info: figures/gnn2.png  used on input line 1313.
+Package pdftex.def Info: figures/gnn2.png  used on input line 1391.
 (pdftex.def)             Requested size: 364.19667pt x 111.26736pt.
-[56 <./figures/gnn2.png>]
-Overfull \hbox (2.13197pt too wide) in paragraph at lines 1324--1326
+
+Overfull \hbox (22.84392pt too wide) in paragraph at lines 1401--1415
+ [][] 
+ []
+
+[56 <./figures/gnn1.png> <./figures/gnn2.png>]
+Overfull \hbox (23.79082pt too wide) in paragraph at lines 1418--1419
+[] [] \OT1/cmr/bx/n/10.95 Critical Analysis[] \OT1/cmr/m/n/10.95 GNN-based provenance graph approaches (MAGIC, KAIROS, THREATRACE)
+ []
+
+
+Overfull \hbox (2.13197pt too wide) in paragraph at lines 1426--1428
 \OT1/cmr/m/n/10.95 During inference, inputs that deviate from the learned normal patterns yield a high reconstruction
  []
 
 
-Overfull \hbox (23.19759pt too wide) in paragraph at lines 1328--1329
+Overfull \hbox (23.19759pt too wide) in paragraph at lines 1430--1431
 []\OT1/cmr/m/n/10.95 VAEs are probabilistic generative models. Unlike standard autoencoders that learn a deterministic
  []
 
-
-Overfull \hbox (2.54715pt too wide) in paragraph at lines 1342--1343
+[57]
+Overfull \hbox (2.54715pt too wide) in paragraph at lines 1444--1445
 []\OT1/cmr/bx/n/10.95 Convolutional Autoencoder (AE-CNN): \OT1/cmr/m/n/10.95 Combines 1D convolutional layers with dense
  []
 
-<figures/autoen.png, id=1435, 520.94624pt x 392.21532pt>
+<figures/autoen.png, id=1509, 520.94624pt x 392.21532pt>
 File: figures/autoen.png Graphic file (type png)
 <use figures/autoen.png>
-Package pdftex.def Info: figures/autoen.png  used on input line 1346.
+Package pdftex.def Info: figures/autoen.png  used on input line 1448.
 (pdftex.def)             Requested size: 273.14923pt x 204.20183pt.
 
-Overfull \hbox (11.53755pt too wide) in paragraph at lines 1351--1352
+Overfull \hbox (11.53755pt too wide) in paragraph at lines 1453--1454
 []\OT1/cmr/bx/n/10.95 Probabilistic Variational Autoencoder (VAE-Prob): \OT1/cmr/m/n/10.95 Probability-based reconstruction
  []
 
-[57 <./figures/autoen.png>] [58]
-Overfull \hbox (3.8593pt too wide) in paragraph at lines 1434--1435
-\OT1/cmr/m/n/10.95 lookup table of classical Q-learning. The agent follows an $\OML/cmm/m/it/10.95 ^^O$\OT1/cmr/m/n/10.95 -greedy policy and trains by minimizing
+[58 <./figures/autoen.png>]
+Overfull \hbox (4.9021pt too wide) in paragraph at lines 1491--1492
+[] [] \OT1/cmr/bx/n/10.95 Critical Analysis[] \OT1/cmr/m/n/10.95 The multi-stage AE+VAE-Prob architecture offers a compelling compromise
+ []
+
+
+Overfull \hbox (6.2369pt too wide) in paragraph at lines 1542--1543
+\OT1/cmr/m/n/10.95 synthesizes their key characteristics across dimensions most relevant to multi-stage APT detection. 
  []
 
 [59]
-<figures/rl_resu.PNG, id=1484, 505.89pt x 412.54124pt>
-File: figures/rl_resu.PNG Graphic file (type png)
-<use figures/rl_resu.PNG>
-Package pdftex.def Info: figures/rl_resu.PNG  used on input line 1481.
-(pdftex.def)             Requested size: 318.66948pt x 258.40552pt.
-) [60 <./figures/rl_resu.PNG>]
-Overfull \hbox (9.64926pt too wide) in paragraph at lines 215--222
+Overfull \hbox (42.98814pt too wide) in paragraph at lines 1570--1571
+\OT1/cmr/bx/n/10.95 Temporal modeling \OT1/cmr/m/n/10.95 ([]) indicates the approach captures time-ordered event sequences. \OT1/cmr/bx/n/10.95 Unsupervised
+ []
+
+
+Overfull \hbox (0.63855pt too wide) in paragraph at lines 1575--1582
+[]\OT1/cmr/m/n/10.95 Across all three families of solutions reviewed --- traditional ML, deep learning, and generative
+ []
+
+) [60]
+Overfull \hbox (9.64926pt too wide) in paragraph at lines 201--208
 \OT1/cmr/m/n/10.95 mapped datasets remain scarce. The \OT1/cmr/bx/n/10.95 Linux-APT-Dataset-2024\OT1/cmr/m/n/10.95 , \OT1/cmr/bx/n/10.95 KAPT-2024\OT1/cmr/m/n/10.95 , and \OT1/cmr/bx/n/10.95 CICAPT-
  []
 
 
-Overfull \hbox (0.50317pt too wide) in paragraph at lines 215--222
+Overfull \hbox (0.50317pt too wide) in paragraph at lines 201--208
 \OT1/cmr/bx/n/10.95 IIoT \OT1/cmr/m/n/10.95 datasets represent meaningful progress, but the field still suffers from a lack of standardized,
  []
 
 
-Overfull \hbox (7.02605pt too wide) in paragraph at lines 223--226
+Overfull \hbox (7.02605pt too wide) in paragraph at lines 209--212
 []\OT1/cmr/m/n/10.95 Across the three families of solutions reviewed --- traditional Machine Learning, Deep Learning,
  []
 
 [61
 
 ]
-Overfull \hbox (2.69807pt too wide) in paragraph at lines 240--247
+Overfull \hbox (2.69807pt too wide) in paragraph at lines 226--233
 \OT1/cmr/m/n/10.95 dynamically to evolving threats. The \OT1/cmr/bx/n/10.95 OGE-DQN \OT1/cmr/m/n/10.95 model reviewed in this report exemplifies
  []
 
@@ -2122,21 +2136,25 @@ Underfull \hbox (badness 2941) in paragraph at lines 2596--2609
 LaTeX2e <2023-11-01> patch level 1
 L3 programming layer <2024-01-04>
  ***********
+
+
+LaTeX Warning: There were undefined references.
+
 Package rerunfilecheck Info: File `main.out' has not changed.
-(rerunfilecheck)             Checksum: 8BBA2844205DAE4B85796BBE5FD95006;15896.
+(rerunfilecheck)             Checksum: C3B50D7FB1803297530F9FAC1F354FD9;16533.
  ) 
 Here is how much of TeX's memory you used:
- 37663 strings out of 474485
- 792581 string characters out of 5760627
- 1951542 words of memory out of 5000000
- 59019 multiletter control sequences out of 15000+600000
- 570407 words of font info for 83 fonts, out of 8000000 for 9000
+ 37683 strings out of 474485
+ 792758 string characters out of 5760627
+ 1952542 words of memory out of 5000000
+ 59025 multiletter control sequences out of 15000+600000
+ 570434 words of font info for 84 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 84i,13n,93p,1639b,671s stack positions out of 10000i,1000n,20000p,200000b,200000s
- <C:\Users\HP\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\tcti1095.pk> <C:\Users\HP\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\tcrm1095.pk><G:/latex/fonts/type1/public/amsfonts/cm/cmbx10.pfb><G:/latex/fonts/type1/public/amsfonts/cm/cmbx12.pfb><G:/latex/fonts/type1/public/amsfonts/cm/cmbx9.pfb><G:/latex/fonts/type1/public/amsfonts/cm/cmbxti10.pfb><G:/latex/fonts/type1/public/amsfonts/cm/cmex10.pfb><G:/latex/fonts/type1/public/amsfonts/cm/cmmi10.pfb><G:/latex/fonts/type1/public/amsfonts/cm/cmmi6.pfb><G:/latex/fonts/type1/public/amsfonts/cm/cmmi8.pfb><G:/latex/fonts/type1/public/amsfonts/cm/cmr10.pfb><G:/latex/fonts/type1/public/amsfonts/cm/cmr12.pfb><G:/latex/fonts/type1/public/amsfonts/cm/cmr6.pfb><G:/latex/fonts/type1/public/amsfonts/cm/cmr8.pfb><G:/latex/fonts/type1/public/amsfonts/cm/cmr9.pfb><G:/latex/fonts/type1/public/amsfonts/cm/cmsy10.pfb><G:/latex/fonts/type1/public/amsfonts/cm/cmsy6.pfb><G:/latex/fonts/type1/public/amsfonts/cm/cmsy8.pfb><G:/latex/fonts/type1/public/amsfonts/cm/cmti10.pfb><G:/latex/fonts/type1/public/amsfonts/cm/cmtt10.pfb><G:/latex/fonts/type1/public/eurosym/feymr10.pfb><G:/latex/fonts/type1/public/amsfonts/symbols/msbm10.pfb>
-Output written on main.pdf (74 pages, 4920758 bytes).
+ 84i,13n,93p,1635b,708s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ <C:\Users\HP\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\tcti1095.pk> <C:\Users\HP\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\tcrm1095.pk><G:/latex/fonts/type1/public/amsfonts/cm/cmbx10.pfb><G:/latex/fonts/type1/public/amsfonts/cm/cmbx12.pfb><G:/latex/fonts/type1/public/amsfonts/cm/cmbx9.pfb><G:/latex/fonts/type1/public/amsfonts/cm/cmbxti10.pfb><G:/latex/fonts/type1/public/amsfonts/cm/cmex10.pfb><G:/latex/fonts/type1/public/amsfonts/cm/cmmi10.pfb><G:/latex/fonts/type1/public/amsfonts/cm/cmmi6.pfb><G:/latex/fonts/type1/public/amsfonts/cm/cmmi8.pfb><G:/latex/fonts/type1/public/amsfonts/cm/cmr10.pfb><G:/latex/fonts/type1/public/amsfonts/cm/cmr12.pfb><G:/latex/fonts/type1/public/amsfonts/cm/cmr6.pfb><G:/latex/fonts/type1/public/amsfonts/cm/cmr8.pfb><G:/latex/fonts/type1/public/amsfonts/cm/cmr9.pfb><G:/latex/fonts/type1/public/amsfonts/cm/cmsy10.pfb><G:/latex/fonts/type1/public/amsfonts/cm/cmsy6.pfb><G:/latex/fonts/type1/public/amsfonts/cm/cmsy8.pfb><G:/latex/fonts/type1/public/amsfonts/cm/cmti10.pfb><G:/latex/fonts/type1/public/amsfonts/cm/cmtt10.pfb><G:/latex/fonts/type1/public/amsfonts/cm/cmtt9.pfb><G:/latex/fonts/type1/public/eurosym/feymr10.pfb><G:/latex/fonts/type1/public/amsfonts/symbols/msam10.pfb><G:/latex/fonts/type1/public/amsfonts/symbols/msbm10.pfb>
+Output written on main.pdf (73 pages, 4955179 bytes).
 PDF statistics:
- 1759 PDF objects out of 2073 (max. 8388607)
- 352 named destinations out of 1000 (max. 500000)
- 661 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 1811 PDF objects out of 2073 (max. 8388607)
+ 365 named destinations out of 1000 (max. 500000)
+ 693 words of extra memory for PDF output out of 10000 (max. 10000000)
 

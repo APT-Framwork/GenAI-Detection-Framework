@@ -34,10 +34,12 @@
 \usepackage[top=2.5cm,bottom=2.5cm,right=2.5cm,left=2.5cm]{geometry}
 
 
+
 % Configuring the header to only show the chapter number with a line
 \pagestyle{fancy}
 \fancyhf{} 
-\fancyhead[L]{Chapter \thechapter} 
+\renewcommand{\chaptermark}[1]{\markboth{#1}{}}
+\fancyhead[L]{\leftmark}
 \fancyfoot[C]{\thepage}
 \renewcommand{\headrulewidth}{0.4pt}
 
@@ -151,22 +153,6 @@ assessments of each method's strengths and limits are all included --- not to
 overwhelm, but to give you a clear picture of where the field stands today and
 where it is headed.
 
-\section*{A Note on Style}
-
-Throughout this report, you will notice special callout blocks:
-\textbf{Explication} boxes that offer analogies and clarifying examples,
-\textbf{Note} boxes that highlight important nuances, and \textbf{Warning}
-boxes that flag common misconceptions or critical pitfalls. These are not
-decorations --- they are our way of keeping a real conversation going with you
-on every page.
-
-\customexplication{This element signifies an explication or suggestion.}
-
-
-\customnote{This element signifies a general note.}
-
-
-\customwarning{This element indicates a warning or caution.}
 
 As AI continues to reshape how knowledge is produced and consumed, most
 reports in this space have started to look and feel the same --- written by
@@ -180,7 +166,7 @@ upon.
 
 \input{presentation}
 
-\chapter*{Conclusion}
+\chapter*{General Conclusion}
 \addcontentsline{toc}{chapter}{General Conclusion}
 
 This report set out with a clear ambition: not simply to list what exists in
