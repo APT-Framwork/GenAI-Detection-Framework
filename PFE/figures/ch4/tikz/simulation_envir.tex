@@ -30,7 +30,7 @@
 % ─── Telemetry pipeline (bottom) ─────────────────────────────────
 \node[worker, minimum width=22mm] (fb) at (8.5,-7) {Filebeat};
 \node[worker, minimum width=22mm, right=8mm of fb] (wm) {Wazuh\\manager};
-\node[worker, minimum width=22mm, right=8mm of wm] (strix) {STRIX pipeline\\\scriptsize bridge $\to$ norm $\to$ inf $\to$ writer};
+\node[worker, minimum width=22mm, right=8mm of wm] (strix) {CAVIX pipeline\\\scriptsize bridge $\to$ norm $\to$ inf $\to$ writer};
 \node[ui, minimum width=22mm, right=8mm of strix] (dash) {Dashboard\\\scriptsize web + mobile};
 
 \draw[edgeStrong] (v1.south) -- ++(0,-2mm) -| (fb.north);
@@ -52,7 +52,7 @@
 \node[font=\sffamily\bfseries\footnotesize, text=strixDark, anchor=south]
   at (8.5, 2.6) {LAB VICTIMS (Docker bridge \texttt{172.18.0.0/16})};
 \node[font=\sffamily\bfseries\footnotesize, text=strixGreen]
-  at (12, -8.2) {STRIX detection pipeline};
+  at (12, -8.2) {CAVIX detection pipeline};
 
 \end{tikzpicture}
 \end{document}

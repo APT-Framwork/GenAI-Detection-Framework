@@ -1,6 +1,6 @@
 // Eraser type: entity-relationship-diagram
 // Paste into a new Eraser file, choose diagram type "Entity Relationship Diagram"
-title STRIX — Database ER Diagram (3.7.6.b)
+title CAVIX — Database ER Diagram (3.7.6.b)
 
 // ── Identity ───────────────────────────────────────────────
 users [icon: user, color: blue] {

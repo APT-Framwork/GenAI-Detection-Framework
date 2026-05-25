@@ -1,4 +1,4 @@
-title STRIX — Deployment Architecture (3.7.8)
+title CAVIX — Deployment Architecture (3.7.8)
 
 Host "Developer host (16 GB RAM · Docker engine)" {
 

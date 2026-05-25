@@ -2,7 +2,7 @@
 // (Eraser has no native UML class diagram; ER format is used to mimic it.
 //  Methods are listed as fields with type "method" — they render as labelled rows.)
 // Paste into a new Eraser file, choose diagram type "Entity Relationship Diagram"
-title STRIX — Class Diagram (3.7.4)
+title CAVIX — Class Diagram (3.7.4)
 
 // ═══ Cluster 1: Domain entities ═══════════════════════════
 
