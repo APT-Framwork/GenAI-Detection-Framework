@@ -49,7 +49,6 @@ BACKEND_GROUPED = [
     ]),
     ("Persistence", [
         ("PostgreSQL",  "postgresql", "#4169E1"),
-        ("TimescaleDB", None,         None),
         ("Redis",       "redis",      "#DC382D"),
     ]),
     ("Classical ML & data", [
@@ -57,28 +56,9 @@ BACKEND_GROUPED = [
         ("NumPy",       "numpy",      "#013243"),
         ("pandas",      "pandas",     "#150458"),
     ]),
-    ("Deep learning", [
+    ("DL and RL", [
         ("PyTorch",     "pytorch",    "#EE4C2C"),
-        ("PyTorch Geom",None,         None),
         ("HuggingFace", "huggingface","#FFD21E"),
-        ("SecBERT",     None,         None),
-    ]),
-]
-
-RL_GROUPED = [
-    ("Deep learning", [
-        ("PyTorch",     "pytorch",    "#EE4C2C"),
-    ]),
-    ("Classical ML & data", [
-        ("scikit-learn","scikitlearn","#F7931E"),
-        ("NumPy",       "numpy",      "#013243"),
-        ("pandas",      "pandas",     "#150458"),
-    ]),
-    ("Environment", [
-        ("Gym",         None,         None),
-    ]),
-    ("Diagnostics", [
-        ("Matplotlib",  None,         None),
     ]),
 ]
 
@@ -93,11 +73,6 @@ WEB_GROUPED = [
     ]),
     ("State & data", [
         ("TanStack Query","reactquery","#FF4154"),
-        ("Zustand",     None,         None),
-    ]),
-    ("Visualization", [
-        ("Recharts",    None,         None),
-        ("ReactFlow",   None,         None),
     ]),
 ]
 
@@ -109,10 +84,8 @@ MOBILE_GROUPED = [
     ]),
     ("State & data", [
         ("TanStack Query","reactquery","#FF4154"),
-        ("Zustand",     None,         None),
     ]),
     ("Notifications", [
-        ("Expo Push",   None,         None),
         ("FCM",         "firebase",   "#DD2C00"),
     ]),
 ]
@@ -241,10 +214,10 @@ def render_grouped(
     total_tile_rows = sum(r for _, _, r in cat_layout)
     n_categories = len(cat_layout)
 
-    tile_w_in = 2.2
-    tile_h_in = 1.7
-    header_h_in = 0.40
-    inner_pad_in = 0.10  # small breathing room between categories
+    tile_w_in = 1.6
+    tile_h_in = 1.25
+    header_h_in = 0.36
+    inner_pad_in = 0.08  # small breathing room between categories
 
     fig_w = cols * tile_w_in
     fig_h = (
@@ -308,12 +281,12 @@ def render_grouped(
                 img = text_tile(label)
 
             ab = AnnotationBbox(
-                OffsetImage(img, zoom=0.18),
+                OffsetImage(img, zoom=0.10),
                 (0.5, 0.62),
                 frameon=False,
             )
             ax.add_artist(ab)
-            ax.text(0.5, 0.06, label, ha="center", va="bottom", fontsize=9.5)
+            ax.text(0.5, 0.06, label, ha="center", va="bottom", fontsize=9)
 
         y_cursor -= tile_rows * single_tile_h_frac
         if cat_idx < n_categories - 1:
@@ -330,7 +303,6 @@ def render_grouped(
 if __name__ == "__main__":
     print("Generating Chapter 4 logo grids (category-grouped)...")
     render_grouped(BACKEND_GROUPED, cols=4, out_stem="stack_logos_backend")
-    render_grouped(RL_GROUPED,      cols=3, out_stem="stack_logos_rl")
     render_grouped(WEB_GROUPED,     cols=3, out_stem="stack_logos_web")
     render_grouped(MOBILE_GROUPED,  cols=3, out_stem="stack_logos_mobile")
     print("Done.")

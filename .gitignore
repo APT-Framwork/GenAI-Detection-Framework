@@ -76,3 +76,5 @@ node_modules/
 SESSION_LOG_*.md
 x.log
 docs/
+# LaTeX svg package cache
+svg-inkscape/

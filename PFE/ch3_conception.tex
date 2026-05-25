@@ -27,76 +27,35 @@
 \subsection{Overview of the Platform}
 \label{sec:platform-overview}
 
-The earlier sections of this chapter described \emph{what} the framework
-has to do: ingest host telemetry, extract a feature vector, route it
-through the ensemble of detection models presented in
-section~\ref{sec:detection-models}, augment scarce attack stages with
-the synthetic generator of section~\ref{sec:synthetic-data}, and let
-the reinforcement-learning agent of section~\ref{sec:rl-agent} pick a
-response action. The present section describes \emph{how} these pieces
-are assembled into a single platform, which we call CAVIX, that an
-analyst can run, observe, and trust.
+This section introduces CAVIX, the platform that assembles the
+detector of section~\ref{sec:detection-models}, the synthetic
+generator that augments scarce attack stages
+(section~\ref{sec:synthetic-data}), and the reinforcement-learning
+response agent (section~\ref{sec:rl-agent}) into a single system an
+analyst can run, observe, and trust. A platform here is more than the
+collection of models: it is the engineering surface around them,
+namely ingestion of real Wazuh alerts \cite{wazuh2024}, a message
+bus decoupling slow inference from fast collection, a persistence
+layer recording every verdict for forensic review, threat-intelligence
+enrichment, and analyst-facing web and mobile applications. We
+present it through four architectural concerns: structure, behaviour,
+data, and deployment.
 
-A platform, in our usage, is more than the collection of models. It is
-the engineering surface that surrounds them: the ingestion path that
-feeds the models with real Wazuh alerts \cite{wazuh2024}, the message
-bus that decouples slow inference from fast collection, the persistence
-layer that records every verdict for forensic review, the
-threat-intelligence enrichment that adds external context, and the
-analyst-facing applications (a web console and a mobile companion)
-that turn raw verdicts into signals an analyst can act on. Designing the
-platform is therefore an exercise in software architecture, and we
-present it as such, using the four classical concerns of structure,
-behaviour, data, and deployment.
+Three design goals drive the platform. Reproducibility means that a
+replayed alert yields the same verdict on a fixed configuration.
+Component replaceability means that the SIEM, the bus, the database,
+the feeds, and the front-ends sit behind narrow contracts, so that
+any one can be swapped through its adapter. Type-safe contracts
+end-to-end mean that a single schema validates backend alerts and
+generates the client types. Each goal answers a concrete APT
+requirement: re-investigating weeks-long attack chains, surviving
+heterogeneous SOCs, and keeping multi-stage investigations consistent
+across devices.
 
-Three design goals drove every choice that follows. The first is
-\emph{reproducibility}: a given alert, when replayed against a fixed
-set of model weights, should produce the same verdict on a fixed
-hardware and software configuration, up to floating-point identity
-inherent to deep-learning inference. This goal rules out implicit
-shared state and any non-deterministic default in the model registry,
-and it gives the evaluation chapter a stable basis on which to compare
-detection metrics across runs. The second is \emph{component
-replaceability}: the SIEM, the message bus, the database, the threat
-feeds, and the front-ends are each isolated behind a narrow contract,
-so that replacing one, for example substituting Wazuh by another
-SIEM, is confined to its adapter and does not require changes to the
-intelligence or persistence layers. The third is
-\emph{type-safe contracts end-to-end}: the same schema description
-that validates an incoming alert in the backend is the one that
-generates the client types used by the web and mobile applications,
-which removes a class of integration bugs that we found expensive to
-diagnose during early prototyping. We return to each goal in the
-subsections below.
-
-These three goals are not generic software-engineering hygiene;
-each addresses a concrete requirement of APT detection.
-Reproducibility allows a multi-stage attack chain, possibly spanning
-weeks of dwell, to be re-investigated long after the original alerts
-arrived: an analyst (or a regulator) can replay any stage and obtain
-the same verdict, which a non-deterministic pipeline cannot offer.
-Component replaceability lets the platform survive in heterogeneous
-SOC environments, in which the SIEM, the threat feeds, and the audit
-infrastructure are rarely the components the analyst team owns, and
-an integration that hard-codes any one vendor becomes a liability the
-moment the SOC stack changes. Type-safe contracts matter because APT
-detection is rarely the work of a single tool: an analyst confirming
-an early-stage detection on a mobile device must see exactly the same
-alert schema as the chain-forensic view on the web console. Silently
-divergent representations of the same event break the continuity of
-multi-stage investigations.
-
-\paragraph{Trust assumptions.} The platform is designed against an
-adversary who controls the attacker zone of the evaluation topology
-and who may compromise individual monitored hosts. The platform
-trusts the integrity of the Wazuh manager, of the model registry,
-and of the inference workers; the registry is content-hashed to
-detect tampering of model artefacts at load time, but the manager
-and the inference workers are considered inside the trust boundary.
-Stronger threat models (a compromised SIEM, an attacker with code
-execution on the inference worker, sensor evasion at the audit
-subsystem) are out of scope for this thesis and are noted explicitly
-where they intersect a design choice.
+\paragraph{Trust assumptions.} The adversary controls the attacker
+zone and may compromise individual hosts. The Wazuh manager, the
+model registry (content-hashed), and the inference workers are
+trusted; stronger threat models are out of scope.
 
 % --- 2. Static structure: from the big picture down to the code -------
 \subsection{System Architecture Diagram}
@@ -108,14 +67,11 @@ communicates with the next only through a documented contract.
 
 \begin{figure}[H]
   \centering
-  \includesvg[width=0.95\textwidth]{figures/ch3/eraser/system_architecture}
-  \caption{Logical architecture of the CAVIX platform. The five
-  layers (sensing, transport, intelligence, persistence, and
-  presentation) are stacked vertically; arrows indicate the direction in which
-  data flows. The dashed envelope around the intelligence layer marks
-  the boundary inside which the conceptual framework of
-  sections~\ref{sec:detection-models}--\ref{sec:rl-agent} operates.}
+  \includegraphics[width=0.95\textwidth]{figures/ch3/eraser/system-arch-diagram}
+  \caption{Logical architecture of the CAVIX platform.}
   \label{fig:ch3:archcomp}
+  \par\medskip
+  As figure~\ref{fig:ch3:archcomp} shows, the five layers (sensing, transport, intelligence, persistence, and presentation) are stacked vertically; arrows indicate the direction in which data flows. The dashed envelope around the intelligence layer marks the boundary inside which the conceptual framework of sections~\ref{sec:detection-models}--\ref{sec:rl-agent} operates.
 \end{figure}
 
 The \textbf{sensing layer} converts host activity into structured
@@ -175,15 +131,10 @@ figure~\ref{fig:ch3:archcomp}.
 \begin{figure}[H]
   \centering
   \includegraphics[width=0.95\textwidth]{figures/ch3/eraser/platform_components_v2}
-  \caption{Platform components view of CAVIX. The four analyst-facing
-  components (Wazuh Integration, Detection Engine, Threat Intelligence
-  Module, and Analyst Dashboard) are grouped in the teal Core Platform
-  cluster, with their inbound and outbound contracts shown explicitly;
-  the transport streams, persistence stores, and model registry appear
-  in light gray as the plumbing the components read from and write to.
-  External systems (Wazuh manager, CTI feeds, monitored host) sit on the
-  left; the analyst is on the right.}
+  \caption{Platform components view of CAVIX.}
   \label{fig:ch3:components}
+  \par\medskip
+  As shown in figure~\ref{fig:ch3:components}, the four analyst-facing components (Wazuh Integration, Detection Engine, Threat Intelligence Module, and Analyst Dashboard) are grouped in the teal Core Platform cluster, with their inbound and outbound contracts shown explicitly; the transport streams, persistence stores, and model registry appear in light gray as the plumbing the components read from and write to. External systems (Wazuh manager, CTI feeds, monitored host) sit on the left; the analyst is on the right.
 \end{figure}
 
 \subsubsection{Detection Engine}
@@ -296,13 +247,11 @@ relationships.
 
 \begin{figure}[H]
   \centering
-  \includesvg[width=0.95\textwidth,height=0.78\textheight,keepaspectratio]{figures/ch3/eraser/class-diagram}
-  \caption{UML class diagram of the backend domain model. Solid edges
-  are persisted foreign-key relationships. \texttt{Alert} and
-  \texttt{Detection} are TimescaleDB hypertables (composite primary key
-  on \texttt{alert\_id}, \texttt{occurred\_at}); every other entity is
-  an ordinary relational table.}
+  \includegraphics[width=0.95\textwidth,height=0.78\textheight,keepaspectratio]{figures/ch3/eraser/class-diagram}
+  \caption{UML class diagram of the backend domain model.}
   \label{fig:ch3:classdiag}
+  \par\medskip
+  In figure~\ref{fig:ch3:classdiag}, solid edges are persisted foreign-key relationships. \texttt{Alert} and \texttt{Detection} are TimescaleDB hypertables (composite primary key on \texttt{alert\_id}, \texttt{occurred\_at}); every other entity is an ordinary relational table.
 \end{figure}
 
 A \texttt{Host} represents one monitored machine, identified by its
@@ -358,14 +307,11 @@ appears on the analyst's screen.
 
 \begin{figure}[H]
   \centering
-  \includesvg[width=0.95\textwidth]{figures/ch3/eraser/workflow-diagram}
-  \caption{End-to-end analyst-response workflow. Swim-lanes group
-  activities by actor (backend pipeline, analyst, Wazuh active
-  response); diamonds are decision points. Everything inside the
-  backend lane is replayable from the feature vector, which is why the
-  evaluation chapter can rerun historical alerts without touching the
-  SIEM.}
+  \includegraphics[width=0.95\textwidth]{figures/ch3/eraser/workflow-diagram}
+  \caption{End-to-end analyst-response workflow.}
   \label{fig:ch3:workflow}
+  \par\medskip
+  As illustrated in figure~\ref{fig:ch3:workflow}, swim-lanes group activities by actor (backend pipeline, analyst, Wazuh active response); diamonds are decision points. Everything inside the backend lane is replayable from the feature vector, which is why the evaluation chapter can rerun historical alerts without touching the SIEM.
 \end{figure}
 
 The workflow is decomposed into seven activities. \emph{Ingestion}
@@ -456,13 +402,11 @@ exposed SSH service produces the first verdict of an attack chain.
 
 \begin{figure}[H]
   \centering
-  \includesvg[width=0.95\textwidth]{figures/ch3/eraser/sequence-diagram}
-  \caption{Sequence diagram for a single early-stage detection event.
-  Vertical bars are participants; horizontal arrows are messages.
-  Time flows downward. The self-loops on the inference worker are the
-  synchronous calls into each detection model, the RL policy, and the
-  deterministic gate that is evaluated before any verdict is emitted.}
+  \includegraphics[width=0.95\textwidth]{figures/ch3/eraser/sequence-diagram}
+  \caption{Sequence diagram for a single early-stage detection event.}
   \label{fig:ch3:sequence}
+  \par\medskip
+  As depicted in figure~\ref{fig:ch3:sequence}, vertical bars are participants; horizontal arrows are messages. Time flows downward. The self-loops on the inference worker are the synchronous calls into each detection model, the RL policy, and the deterministic gate that is evaluated before any verdict is emitted.
 \end{figure}
 
 The scenario unfolds as follows. The attacker host issues a burst of
@@ -505,14 +449,11 @@ defence lab and in the evaluation of chapter~\ref{chap:evaluation}.
 
 \begin{figure}[H]
   \centering
-  \includesvg[width=0.95\textwidth]{figures/ch3/eraser/deployment_architecture}
-  \caption{Deployment topology. Every component runs in a container
-  \protect\cite{docker2024} on a shared bridge network. The attacker, victims,
-  SIEM, and platform services are grouped into four logical zones;
-  inter-zone traffic is restricted by the bridge's firewall rules,
-  while intra-zone traffic is unrestricted so that the attacker can
-  reach the victims directly.}
+  \includegraphics[width=0.95\textwidth]{figures/ch3/eraser/deployment-diagram}
+  \caption{Deployment topology.}
   \label{fig:ch3:deploy}
+  \par\medskip
+  As figure~\ref{fig:ch3:deploy} shows, every component runs in a container \protect\cite{docker2024} on a shared bridge network. The attacker, victims, SIEM, and platform services are grouped into four logical zones; inter-zone traffic is restricted by the bridge's firewall rules, while intra-zone traffic is unrestricted so that the attacker can reach the victims directly.
 \end{figure}
 
 Four logical zones structure the topology. The \emph{attacker zone}

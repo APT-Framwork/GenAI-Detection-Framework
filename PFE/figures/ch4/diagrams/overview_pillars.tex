@@ -3,13 +3,13 @@
 \input{_style}
 
 \begin{document}
-\begin{tikzpicture}[node distance=12mm]
+\begin{tikzpicture}[node distance=8mm]
 
-% Central STRIX hub
-\node[comp=strixDark, minimum width=42mm, minimum height=20mm,
-      fill=strixDark, text=white, font=\sffamily\bfseries]
-  (hub) {STRIX platform\\\scriptsize\mdseries
-         OpenAPI \(\cdot\) hash-pinned weights\\\scriptsize\mdseries Docker Compose};
+% Central CAVIX hub
+\node[comp=strixDark, minimum width=30mm, minimum height=14mm,
+      fill=strixDark, text=white, font=\sffamily\bfseries\small]
+  (hub) {CAVIX platform\\[1pt]\tiny\mdseries
+         OpenAPI \(\cdot\) hash-pinned weights\\\tiny\mdseries Docker Compose};
 
 % Five pillars
 \def\R{4.6}
@@ -21,10 +21,10 @@
   4/{Lab \& sim}/{Wazuh, Caldera\\Auditd, Filebeat}/strixRed%
 } {
   \pgfmathsetmacro{\angle}{90 - \i*72}
-  \node[comp=\col, minimum width=34mm, minimum height=16mm]
+  \node[comp=\col, minimum width=26mm, minimum height=12mm, font=\sffamily\small]
     at ({\R*cos(\angle)}, {\R*sin(\angle)}) (p\i)
-    {\textbf{\name}\\\scriptsize\sub};
-  \draw[edgeStrong, draw=\col] (hub) -- (p\i);
+    {\textbf{\name}\\[1pt]\tiny\sub};
+  \draw[edgeStrong, draw=\col, shorten >=1pt, shorten <=1pt] (hub) -- (p\i);
 }
 
 \end{tikzpicture}

@@ -21,12 +21,11 @@ content hash so a silent swap is impossible.
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.95\textwidth]{figures/ch4/diagrams/overview_pillars}
-  \caption{The five implementation pillars of CAVIX. Each one is
-  documented in its own section of this chapter; the central node is the
-  contract every pillar agrees on (an OpenAPI specification, a fixed set
-  of hash-pinned model weights, and a Docker Compose orchestration).}
+  \includegraphics[width=0.55\textwidth]{figures/ch4/diagrams/overview_pillars}
+  \caption{The five implementation pillars of CAVIX.}
   \label{fig:ch4:overview}
+  \par\medskip
+  As figure~\ref{fig:ch4:overview} shows, each one is documented in its own section of this chapter; the central node is the contract every pillar agrees on (an OpenAPI specification, a fixed set of hash-pinned model weights, and a Docker Compose orchestration).
 \end{figure}
 
 Four principles drove most of the decisions described below, in order
@@ -89,14 +88,10 @@ five-second writer window introduced in section~\ref{sec:integration}.
 \begin{figure}[H]
   \centering
   \includegraphics[width=0.78\textwidth]{figures/ch4/diagrams/lab_topology}
-  \caption{Lab topology used in this chapter and in chapter~\ref{chap:evaluation} for the
-  evaluation. A single host runs every container: the attacker
-  (Kali with MITRE Caldera \protect\cite{caldera2024}), the two victims with
-  Wazuh agents and \texttt{auditd}, the backing stores (PostgreSQL,
-  Redis) and the user-facing surfaces (API, web, mobile).
-  All containers share the \texttt{172.18.0.0/16} bridge so the
-  attacker can reach the victims directly.}
+  \caption{Lab topology used in this chapter and in chapter~\ref{chap:evaluation} for the evaluation.}
   \label{fig:ch4:topology}
+  \par\medskip
+  As shown in figure~\ref{fig:ch4:topology}, a single host runs every container: the attacker (Kali with MITRE Caldera \protect\cite{caldera2024}), the two victims with Wazuh agents and \texttt{auditd}, the backing stores (PostgreSQL, Redis) and the user-facing surfaces (API, web, mobile). All containers share the \texttt{172.18.0.0/16} bridge so the attacker can reach the victims directly.
 \end{figure}
 
 Two runtime memory budgets matter operationally and are summarised
@@ -137,13 +132,11 @@ side except through the OpenAPI contract.
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.95\textwidth]{figures/ch4/logos/stack_logos_backend}
-  \caption{Backend and machine-learning libraries, grouped by
-  architectural layer: backend \& API, persistence, classical ML and
-  data tooling, and deep learning. Logos sourced from Simple Icons
-  \protect\cite{simpleicons2024}; libraries without a Simple Icons
-  entry are shown as text tiles.}
+  \includegraphics[width=0.78\textwidth]{figures/ch4/logos/stack_logos_backend}
+  \caption{Backend and machine-learning libraries, grouped by architectural layer: backend \& API, persistence, classical ML and data tooling, and DL and RL.}
   \label{fig:ch4:logos:backend}
+  \par\medskip
+  In figure~\ref{fig:ch4:logos:backend}, logos sourced from Simple Icons \protect\cite{simpleicons2024}.
 \end{figure}
 
 The backend runs on Python 3.11. FastAPI is the web framework
@@ -179,18 +172,10 @@ pillars (structured logs, metrics, traces).
 
 \subsubsection{Reinforcement-learning training stack}
 
-\begin{figure}[H]
-  \centering
-  \includegraphics[width=0.7\textwidth]{figures/ch4/logos/stack_logos_rl}
-  \caption{Libraries used by the reinforcement-learning training
-  pipeline, grouped by role: deep learning, classical ML and data
-  tooling, environment, and diagnostics.}
-  \label{fig:ch4:logos:rl}
-\end{figure}
-
-The training pipeline under \texttt{RL\_agent/} is intentionally simpler
-than the inference path. It pulls in PyTorch for the network, NumPy and
-pandas for tensor and tabular operations, scikit-learn for the
+The training pipeline under \texttt{RL\_agent/} reuses the fused DL+RL
+toolkit shown in figure~\ref{fig:ch4:logos:backend} and is intentionally
+simpler than the inference path. It pulls in PyTorch for the network,
+NumPy and pandas for tensor and tabular operations, scikit-learn for the
 balanced-threshold search, OpenAI Gym for the \texttt{APTEnv} base class,
 and Matplotlib for the diagnostic plots that come out of every training
 run. There is no FastAPI here, no database, no asynchronous code; the
@@ -201,12 +186,11 @@ attack sequences and writes a checkpoint into \texttt{RL\_agent/outputs/}.
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.95\textwidth]{figures/ch4/logos/stack_logos_web}
-  \caption{Web-console stack, grouped by role: framework and language,
-  styling, state and data, and visualization. Libraries shown as
-  text tiles (Zustand, ReactFlow, Recharts) do not currently publish
-  a Simple Icons entry, but they are part of the production build.}
+  \includegraphics[width=0.70\textwidth]{figures/ch4/logos/stack_logos_web}
+  \caption{Web-console stack, grouped by role: framework and language, styling, and state and data.}
   \label{fig:ch4:logos:web}
+  \par\medskip
+  Figure~\ref{fig:ch4:logos:web} shows only the libraries published by Simple Icons. Zustand, Recharts, and ReactFlow are also part of the production build but lack a Simple Icons entry and are omitted from the grid; they are described in the prose below.
 \end{figure}
 
 The analyst console is a Next.js 14 application using the App Router
@@ -223,13 +207,11 @@ OpenAPI specification.
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.85\textwidth]{figures/ch4/logos/stack_logos_mobile}
-  \caption{Mobile-application stack, grouped by role: framework and
-  language, state and data, and notifications. Expo provides the
-  dev-client build pipeline; Expo Push handles notifications, with a
-  fall-back path to Firebase Cloud Messaging where Expo's service is
-  not available.}
+  \includegraphics[width=0.62\textwidth]{figures/ch4/logos/stack_logos_mobile}
+  \caption{Mobile-application stack, grouped by role: framework and language, state and data, and notifications.}
   \label{fig:ch4:logos:mobile}
+  \par\medskip
+  Figure~\ref{fig:ch4:logos:mobile} captures the following. Expo provides the dev-client build pipeline; Expo Push (no Simple Icons entry, omitted from the grid) handles notifications, with a fall-back path to Firebase Cloud Messaging where Expo's service is not available.
 \end{figure}
 
 The mobile application is React Native through Expo SDK 54
@@ -262,26 +244,19 @@ in isolation but produces a runtime error in production.
 \begin{figure}[H]
   \centering
   \includegraphics[width=0.95\textwidth]{figures/ch4/diagrams/ci_pipeline}
-  \caption{Continuous-integration pipeline. A single push triggers five
-  parallel GitHub Actions workflows: \texttt{api.yml} (backend tests
-  against real PostgreSQL and Redis service containers),
-  \texttt{lint.yml} (Ruff + mypy on the Python tree), \texttt{web.yml}
-  (TypeScript compile, ESLint, and the \texttt{check:api-types} gate),
-  \texttt{mobile.yml} (Expo prebuild + Jest), and \texttt{models.yml}
-  (model-artefact hash verification). The \texttt{api.yml} job runs
-  against real service containers rather than mocks to ensure that
-  Alembic migrations, which mocked tests cannot exercise, are
-  validated on every push.}
+  \caption{Continuous-integration pipeline.}
   \label{fig:ch4:ci}
+  \par\medskip
+  As depicted in figure~\ref{fig:ch4:ci}, a single push triggers five parallel GitHub Actions workflows: \texttt{api.yml} (backend tests against real PostgreSQL and Redis service containers), \texttt{lint.yml} (Ruff + mypy on the Python tree), \texttt{web.yml} (TypeScript compile, ESLint, and the \texttt{check:api-types} gate), \texttt{mobile.yml} (Expo prebuild + Jest), and \texttt{models.yml} (model-artefact hash verification). The \texttt{api.yml} job runs against real service containers rather than mocks to ensure that Alembic migrations, which mocked tests cannot exercise, are validated on every push.
 \end{figure}
 
 \begin{figure}[H]
   \centering
   \includegraphics[width=0.85\textwidth]{figures/ch4/diagrams/type_safety_chain}
-  \caption{The type-safety chain from Pydantic to the two clients. The
-  CI gate at the centre is what catches silent drift between the
-  backend and the frontends.}
+  \caption{The type-safety chain from Pydantic to the two clients.}
   \label{fig:ch4:typesafety}
+  \par\medskip
+  As figure~\ref{fig:ch4:typesafety} shows, the CI gate at the centre is what catches silent drift between the backend and the frontends.
 \end{figure}
 
 The container images themselves are built from \texttt{python:3.11-slim}
@@ -323,11 +298,10 @@ between October 2023 and January 2024.
 \begin{figure}[H]
   \centering
   \includegraphics[width=0.95\textwidth]{figures/ch4/diagrams/dataset_timeline}
-  \caption{The 14-week collection window of the Linux APT Dataset
-  2024. The four APT campaigns overlap in time; this is deliberate
-  in the original paper, since real APT activity rarely happens in a
-  serialised, mutually-exclusive schedule.}
+  \caption{The 14-week collection window of the Linux APT Dataset 2024.}
   \label{fig:ch4:timeline}
+  \par\medskip
+  As shown in figure~\ref{fig:ch4:timeline}, the four APT campaigns overlap in time; this is deliberate in the original paper, since real APT activity rarely happens in a serialised, mutually-exclusive schedule.
 \end{figure}
 
 We materialise the dataset inside CAVIX as two parquet files under
@@ -353,14 +327,10 @@ training run that produced the shipped model weights.
   \begin{minipage}[c]{0.58\textwidth}
     \includegraphics[width=\textwidth]{figures/ch4/charts/dataset_tactic_bars}
   \end{minipage}
-  \caption{Class distribution and per-tactic distribution. The
-  binary split (left) is twenty-two percent malicious, which is
-  generous compared to the typical SIEM signal-to-noise ratio. The
-  per-tactic distribution (right) is skewed: Defense Evasion,
-  Privilege Escalation and Initial Access together account for roughly
-  half of the labelled malicious alerts, while Weaponization (S2) and
-  Command \& Control (S6) are effectively absent.}
+  \caption{Class distribution and per-tactic distribution.}
   \label{fig:ch4:datasetstats}
+  \par\medskip
+  In figure~\ref{fig:ch4:datasetstats}, the binary split (left) is twenty-two percent malicious, which is generous compared to the typical SIEM signal-to-noise ratio. The per-tactic distribution (right) is skewed: Defense Evasion, Privilege Escalation and Initial Access together account for roughly half of the labelled malicious alerts, while Weaponization (S2) and Command \& Control (S6) are effectively absent.
 \end{figure}
 
 The skew at the tail of figure \ref{fig:ch4:datasetstats} matters. With
@@ -395,11 +365,10 @@ is not measured here.
 \begin{figure}[H]
   \centering
   \includegraphics[width=\textwidth]{figures/ch4/diagrams/feature_pipeline}
-  \caption{Feature pipeline from raw Wazuh alert to the 55-dimensional
-  vector consumed by every downstream model. The two SecBERT branches
-  are responsible for embedding the unstructured text fields; the
-  central twenty-three-feature stream carries the structured signals.}
+  \caption{Feature pipeline from raw Wazuh alert to the 55-dimensional vector consumed by every downstream model.}
   \label{fig:ch4:featurepipeline}
+  \par\medskip
+  As illustrated in figure~\ref{fig:ch4:featurepipeline}, the two SecBERT branches are responsible for embedding the unstructured text fields; the central twenty-three-feature stream carries the structured signals.
 \end{figure}
 
 Every artefact in this pipeline is content-addressed. The selected-
@@ -416,13 +385,11 @@ few percent.
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=\textwidth]{figures/ch4/diagrams/apt_groups_cards}
-  \caption{The four APT groups emulated in the Linux APT Dataset 2024
-  \protect\cite{karim2024linux}. The TTP rows are drawn from
-  MITRE ATT\&CK \protect\cite{mitre_attack} and reflect the techniques the
-  paper's authors actually exercised against the Ubuntu victims;
-  the country flags are sourced from a public flag CDN.}
+  \includegraphics[width=0.78\textwidth]{figures/ch4/diagrams/apt_groups_cards}
+  \caption{The four APT groups emulated in the Linux APT Dataset 2024 \protect\cite{karim2024linux}.}
   \label{fig:ch4:aptgroups}
+  \par\medskip
+  As depicted in figure~\ref{fig:ch4:aptgroups}, the TTP rows are drawn from MITRE ATT\&CK \protect\cite{mitre_attack} and reflect the techniques the paper's authors actually exercised against the Ubuntu victims; the country flags are sourced from a public flag CDN.
 \end{figure}
 
 APT41 is a Chinese threat actor with a documented dual-use posture
@@ -502,7 +469,7 @@ attack story stakeholders can follow live on the web console.
   \label{fig:ch4:calderaarch}
 \end{figure}
 
-\subsection{Deployment}
+\subsection{Caldera Deployment}
 
 We bring Caldera up from source in a Docker container. The build
 arguments and runtime configuration live under
@@ -541,11 +508,10 @@ implant is dropped.
 \begin{figure}[H]
   \centering
   \includegraphics[width=\textwidth]{figures/ch4/diagrams/nine_tactics_kcc}
-  \caption{The nine tactics overlaid on the seven-stage Cyber Kill
-  Chain. Multiple tactics map to the same stage (Lateral Movement
-  and Persistence both anchor on Installation (S5), for instance)
-  because the kill chain is coarser than ATT\&CK.}
+  \caption{The nine tactics overlaid on the seven-stage Cyber Kill Chain.}
   \label{fig:ch4:9tactics}
+  \par\medskip
+  As figure~\ref{fig:ch4:9tactics} shows, multiple tactics map to the same stage (Lateral Movement and Persistence both anchor on Installation (S5), for instance) because the kill chain is coarser than ATT\&CK.
 \end{figure}
 
 \subsection{Topology Discovery and the Run Manifest}
@@ -559,12 +525,10 @@ the run started, and the planned tactic chain.
 \begin{figure}[H]
   \centering
   \includegraphics[width=0.95\textwidth]{figures/ch4/diagrams/topology_run_manifest}
-  \caption{Live topology (left) and the \texttt{topology.json} that
-  records it (right). Every run writes its own manifest under
-  \texttt{infra/simulation/runs/\{RUN\_ID\}/}; the chapter-6 evaluation
-  joins these manifests with the database verdicts to compute
-  per-victim metrics.}
+  \caption{Live topology (left) and the \texttt{topology.json} that records it (right).}
   \label{fig:ch4:manifest}
+  \par\medskip
+  As shown in figure~\ref{fig:ch4:manifest}, every run writes its own manifest under \texttt{infra/simulation/runs/\{RUN\_ID\}/}; the chapter-6 evaluation joins these manifests with the database verdicts to compute per-victim metrics.
 \end{figure}
 
 \subsection{Per-Tactic and Final Reports}
@@ -582,14 +546,10 @@ in the run window.
 \begin{figure}[H]
   \centering
   \includegraphics[width=0.78\textwidth]{figures/ch4/screenshots/per_tactic_report}
-  \caption{Live output of a Discovery-only run captured during the
-  writing of this chapter
-  (\texttt{bash infra/scripts/lab\_simulate.sh --only Discovery --budget 60 --dwell 15}).
-  The pre-flight section asserts every dependency is up; the per-tactic
-  section records the platform delta over the 79-second run; the final
-  report aggregates across the whole tactic chain (here, just one
-  tactic).}
+  \caption{Live output of a Discovery-only run captured during the writing of this chapter (\texttt{bash infra/scripts/lab\_simulate.sh --only Discovery --budget 60 --dwell 15}).}
   \label{fig:ch4:pertacticreport}
+  \par\medskip
+  In figure~\ref{fig:ch4:pertacticreport}, the pre-flight section asserts every dependency is up; the per-tactic section records the platform delta over the 79-second run; the final report aggregates across the whole tactic chain (here, just one tactic).
 \end{figure}
 
 \customwarning{The auditd rules under
@@ -603,13 +563,10 @@ first tactic. If that check fails, run
 \begin{figure}[H]
   \centering
   \includegraphics[width=\textwidth]{figures/ch4/diagrams/simulation_envir}
-  \caption{The simulation environment as a single picture. The attacker
-  on the left issues C2 abilities through Caldera; each victim runs a
-  Sandcat agent, the host \texttt{auditd}, and a Wazuh agent. The
-  bottom row is the CAVIX detection pipeline that consumes the
-  resulting telemetry. Every other diagram in this chapter is a
-  zoom-in on one part of this figure.}
+  \caption{The simulation environment as a single picture.}
   \label{fig:ch4:simenv}
+  \par\medskip
+  As illustrated in figure~\ref{fig:ch4:simenv}, the attacker on the left issues C2 abilities through Caldera; each victim runs a Sandcat agent, the host \texttt{auditd}, and a Wazuh agent. The bottom row is the CAVIX detection pipeline that consumes the resulting telemetry. Every other diagram in this chapter is a zoom-in on one part of this figure.
 \end{figure}
 
 \section{Platform Description}
@@ -628,12 +585,10 @@ high-value custom rules audible.
 \begin{figure}[H]
   \centering
   \includegraphics[width=0.95\textwidth]{figures/ch4/diagrams/wazuh_logo_rules}
-  \caption{Custom Wazuh rule hierarchy. Parent rules 80789, 80784 and
-  80785 are forced to \texttt{level=0} so they do not flood the alert
-  stream; the child rules 100050, 100051, 100100+ and 100200+ inherit
-  through \texttt{$\langle$if\_sid$\rangle$} and only fire when the
-  parent matches a specific attacker pattern.}
+  \caption{Custom Wazuh rule hierarchy.}
   \label{fig:ch4:wazuhrules}
+  \par\medskip
+  As depicted in figure~\ref{fig:ch4:wazuhrules}, parent rules 80789, 80784 and 80785 are forced to \texttt{level=0} so they do not flood the alert stream; the child rules 100050, 100051, 100100+ and 100200+ inherit through \texttt{$\langle$if\_sid$\rangle$} and only fire when the parent matches a specific attacker pattern.
 \end{figure}
 
 Two of the custom rules deserve a mention. Rule 100050 fires on a
@@ -675,13 +630,10 @@ sudo auditctl -l | grep audit-wazuh-x   # validation
 \begin{figure}[H]
   \centering
   \includegraphics[width=0.98\textwidth]{figures/ch4/diagrams/auditd_filebeat_flow}
-  \caption{From kernel syscalls to the Redis ingest list. Filebeat
-  \protect\cite{filebeat2024} tails Wazuh's \texttt{alerts.json} with a
-  one-second check interval and pushes each line into the Redis
-  staging list. The Filebeat registry guarantees at-least-once
-  delivery: if Redis dies, the offset is not advanced and Filebeat
-  resumes from the last successful push on recovery.}
+  \caption{From kernel syscalls to the Redis ingest list.}
   \label{fig:ch4:auditdflow}
+  \par\medskip
+  Figure~\ref{fig:ch4:auditdflow} captures the following. Filebeat \protect\cite{filebeat2024} tails Wazuh's \texttt{alerts.json} with a one-second check interval and pushes each line into the Redis staging list. The Filebeat registry guarantees at-least-once delivery: if Redis dies, the offset is not advanced and Filebeat resumes from the last successful push on recovery.
 \end{figure}
 
 We chose Filebeat over heavier alternatives such as Logstash or
@@ -720,38 +672,19 @@ through it.
 \begin{figure}[H]
   \centering
   \includesvg[width=0.95\textwidth]{figures/ch4/diagrams/platform_components_internal}
-  \caption{Backend engineering decomposition of CAVIX. The diagram
-  inventories the FastAPI route buckets (auth, live-ops, investigation,
-  response, intelligence), the 24 stateless service classes grouped by
-  domain, the repository layer that wraps the 19 ORM tables, the
-  adapter layer that isolates external dependencies (model loaders,
-  preprocessing, external APIs, Redis, AI clients), the seven worker
-  processes managed through \texttt{Procfile.host}, the five
-  SHA-pinned model artefacts under \texttt{apps/models/}, and the
-  observability stack (structlog, Prometheus, OpenTelemetry). The four
-  prose components of section~\ref{sec:platform-components} map across
-  this picture: the Detection Engine corresponds to the inference
-  worker plus model loaders plus the five model artefacts; the Wazuh
-  Integration corresponds to \texttt{wazuh\_bridge} plus the Wazuh
-  adapter; the Threat Intelligence Module corresponds to
-  \texttt{intel\_feeds\_worker} plus the intel-domain services and
-  routes; the Analyst Dashboard corresponds to the web and mobile
-  clients plus the live-ops routes and services.}
+  \caption{Backend engineering decomposition of CAVIX.}
   \label{fig:ch4:components}
+  \par\medskip
+  As figure~\ref{fig:ch4:components} shows, the diagram inventories the FastAPI route buckets (auth, live-ops, investigation, response, intelligence), the 24 stateless service classes grouped by domain, the repository layer that wraps the 19 ORM tables, the adapter layer that isolates external dependencies (model loaders, preprocessing, external APIs, Redis, AI clients), the seven worker processes managed through \texttt{Procfile.host}, the five SHA-pinned model artefacts under \texttt{apps/models/}, and the observability stack (structlog, Prometheus, OpenTelemetry). The four prose components of section~\ref{sec:platform-components} map across this picture: the Detection Engine corresponds to the inference worker plus model loaders plus the five model artefacts; the Wazuh Integration corresponds to \texttt{wazuh\_bridge} plus the Wazuh adapter; the Threat Intelligence Module corresponds to \texttt{intel\_feeds\_worker} plus the intel-domain services and routes; the Analyst Dashboard corresponds to the web and mobile clients plus the live-ops routes and services.
 \end{figure}
 
 \begin{figure}[H]
   \centering
   \includegraphics[width=\textwidth]{figures/ch4/diagrams/data_flow_master}
-  \caption{The full data flow. Stages are numbered on the left for
-  reference in the rest of this section. Stream keys (orange dashed
-  boxes) are Redis Streams \protect\cite{redis2024}; workers (green) are
-  separate Python processes managed through \texttt{Procfile.host} or
-  the Compose worker profile; the inference worker hosts the five-model
-  ensemble. The DQN action is gated downstream by deterministic
-  thresholds, marked with an asterisk and explained in
-  figure~\ref{fig:ch4:dqngating}.}
+  \caption{The full data flow.}
   \label{fig:ch4:dataflowmaster}
+  \par\medskip
+  As shown in figure~\ref{fig:ch4:dataflowmaster}, stages are numbered on the left for reference in the rest of this section. Stream keys (orange dashed boxes) are Redis Streams \protect\cite{redis2024}; workers (green) are separate Python processes managed through \texttt{Procfile.host} or the Compose worker profile; the inference worker hosts the five-model ensemble. The DQN action is gated downstream by deterministic thresholds, marked with an asterisk and explained in figure~\ref{fig:ch4:dqngating}.
 \end{figure}
 
 \paragraph{Stage 1: Bridge.} The \texttt{wazuh\_bridge} worker is
@@ -833,14 +766,10 @@ environment; the fix was to wrap its action rather than retrain it.
 \begin{figure}[H]
   \centering
   \includegraphics[width=0.62\textwidth]{figures/ch4/diagrams/dqn_gating_logic}
-  \caption{The gating logic that wraps every DQN action.
-  An intervention (\texttt{ESCALATE}, \texttt{ISOLATE\_HOST},
-  \texttt{BLOCK\_USER\_IP}) is only authorised when all four
-  deterministic checks (AE score, $\beta$-VAE probability,
-  Transformer confidence and GNN node risk) exceed their
-  thresholds. Any single failure down-grades the action to
-  \texttt{LOW\_ALERT}.}
+  \caption{The gating logic that wraps every DQN action.}
   \label{fig:ch4:dqngating}
+  \par\medskip
+  In figure~\ref{fig:ch4:dqngating}, an intervention (\texttt{ESCALATE}, \texttt{ISOLATE\_HOST}, \texttt{BLOCK\_USER\_IP}) is only authorised when all four deterministic checks (AE score, $\beta$-VAE probability, Transformer confidence and GNN node risk) exceed their thresholds. Any single failure down-grades the action to \texttt{LOW\_ALERT}.
 \end{figure}
 
 \subsection{Threat Intelligence Module}
@@ -862,12 +791,10 @@ be tuned if a future feed publishes more aggressively.
 \begin{figure}[H]
   \centering
   \includegraphics[width=0.9\textwidth]{figures/ch4/diagrams/threat_intel_schema}
-  \caption{Threat-intelligence ingestion and the observable-hit
-  surface. URLhaus and Feodo Tracker indicators land in
-  \texttt{intel\_indicators}; an internal alert is flagged as an
-  "observable hit" the moment its IP, URL, domain or file hash
-  matches any row in that table.}
+  \caption{Threat-intelligence ingestion and the observable-hit surface.}
   \label{fig:ch4:intelschema}
+  \par\medskip
+  Figure~\ref{fig:ch4:intelschema} captures the following. URLhaus and Feodo Tracker indicators land in \texttt{intel\_indicators}; an internal alert is flagged as an "observable hit" the moment its IP, URL, domain or file hash matches any row in that table.
 \end{figure}
 
 Both feeds are wrapped in \texttt{pybreaker} circuit breakers. A
@@ -905,11 +832,10 @@ composite accuracy is the same idea applied to test-set accuracy.
 \begin{figure}[H]
   \centering
   \includegraphics[width=0.95\textwidth]{figures/ch4/screenshots/dashboard_ai_engine}
-  \caption{The Model Monitoring page. Five model panels run along the
-  top, each one displaying the live anomaly score or class
-  probability as the model emits it. Underneath, the Inference Stream
-  table is a live view of the most recent thirty verdicts.}
+  \caption{The Model Monitoring page.}
   \label{fig:ch4:dashAI}
+  \par\medskip
+  As illustrated in figure~\ref{fig:ch4:dashAI}, five model panels run along the top, each one displaying the live anomaly score or class probability as the model emits it. Underneath, the Inference Stream table is a live view of the most recent thirty verdicts.
 \end{figure}
 
 \paragraph{Attack Analysis (Chains).}
@@ -921,12 +847,10 @@ group identifier G0007 on MITRE ATT\&CK \cite{mitre_attack}).
 \begin{figure}[H]
   \centering
   \includegraphics[width=0.95\textwidth]{figures/ch4/screenshots/dashboard_chains}
-  \caption{The chain forensic report for an active investigation. The
-  donut on the right is the per-stage CKC distribution the Transformer
-  predicted for this chain's next event; the Response Playbook on the
-  far right is matched against the chain's current stage and the most
-  recent DQN action.}
+  \caption{The chain forensic report for an active investigation.}
   \label{fig:ch4:dashChains}
+  \par\medskip
+  As depicted in figure~\ref{fig:ch4:dashChains}, the donut on the right is the per-stage CKC distribution the Transformer predicted for this chain's next event; the Response Playbook on the far right is matched against the chain's current stage and the most recent DQN action.
 \end{figure}
 
 \paragraph{Topology.}
@@ -939,11 +863,10 @@ per-node risk score on top of the host inventory.
 \begin{figure}[H]
   \centering
   \includegraphics[width=0.95\textwidth]{figures/ch4/screenshots/dashboard_topology}
-  \caption{The Topology tab during a paused run. Left: the simulation
-  topology, sourced from the run manifest of figure
-  \ref{fig:ch4:manifest}. Right: the GNN Victim Graph, currently
-  awaiting fresh frames from the GraphSAGE layer.}
+  \caption{The Topology tab during a paused run.}
   \label{fig:ch4:dashTopology}
+  \par\medskip
+  As figure~\ref{fig:ch4:dashTopology} shows, left: the simulation topology, sourced from the run manifest of figure \ref{fig:ch4:manifest}. Right: the GNN Victim Graph, currently awaiting fresh frames from the GraphSAGE layer.
 \end{figure}
 
 \paragraph{Mobile companion.}
