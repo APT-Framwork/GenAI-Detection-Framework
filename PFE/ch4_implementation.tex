@@ -21,7 +21,7 @@ content hash so a silent swap is impossible.
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.55\textwidth]{figures/ch4/diagrams/overview_pillars}
+  \includegraphics[width=0.55\textwidth]{figures/ch4/tikz/overview_pillars}
   \caption{The five implementation pillars of CAVIX.}
   \label{fig:ch4:overview}
   \par\medskip
@@ -87,7 +87,7 @@ five-second writer window introduced in section~\ref{sec:integration}.
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.78\textwidth]{figures/ch4/diagrams/lab_topology}
+  \includegraphics[width=0.78\textwidth]{figures/ch4/tikz/lab_topology}
   \caption{Lab topology used in this chapter and in chapter~\ref{chap:evaluation} for the evaluation.}
   \label{fig:ch4:topology}
   \par\medskip
@@ -243,7 +243,7 @@ in isolation but produces a runtime error in production.
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.95\textwidth]{figures/ch4/diagrams/ci_pipeline}
+  \includegraphics[width=0.95\textwidth]{figures/ch4/tikz/ci_pipeline}
   \caption{Continuous-integration pipeline.}
   \label{fig:ch4:ci}
   \par\medskip
@@ -252,7 +252,7 @@ in isolation but produces a runtime error in production.
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.85\textwidth]{figures/ch4/diagrams/type_safety_chain}
+  \includegraphics[width=0.85\textwidth]{figures/ch4/tikz/type_safety_chain}
   \caption{The type-safety chain from Pydantic to the two clients.}
   \label{fig:ch4:typesafety}
   \par\medskip
@@ -297,7 +297,7 @@ between October 2023 and January 2024.
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.95\textwidth]{figures/ch4/diagrams/dataset_timeline}
+  \includegraphics[width=0.95\textwidth]{figures/ch4/tikz/dataset_timeline}
   \caption{The 14-week collection window of the Linux APT Dataset 2024.}
   \label{fig:ch4:timeline}
   \par\medskip
@@ -364,7 +364,7 @@ is not measured here.
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=\textwidth]{figures/ch4/diagrams/feature_pipeline}
+  \includegraphics[width=\textwidth]{figures/ch4/tikz/feature_pipeline}
   \caption{Feature pipeline from raw Wazuh alert to the 55-dimensional vector consumed by every downstream model.}
   \label{fig:ch4:featurepipeline}
   \par\medskip
@@ -385,7 +385,7 @@ few percent.
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.78\textwidth]{figures/ch4/diagrams/apt_groups_cards}
+  \includegraphics[width=0.78\textwidth]{figures/ch4/tikz/apt_groups_cards}
   \caption{The four APT groups emulated in the Linux APT Dataset 2024 \protect\cite{karim2024linux}.}
   \label{fig:ch4:aptgroups}
   \par\medskip
@@ -461,7 +461,7 @@ attack story stakeholders can follow live on the web console.
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.85\textwidth]{figures/ch4/diagrams/caldera_architecture}
+  \includegraphics[width=0.85\textwidth]{figures/ch4/tikz/caldera_architecture}
   \caption{Caldera's deployment shape: an operator-facing web interface
   on port 8888, a C2 server that pushes abilities to Sandcat agents
   deployed on each victim, and an internal stockpile of adversaries
@@ -487,7 +487,7 @@ configuration \cite{caldera2024}.
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.45\textwidth]{figures/ch4/diagrams/caldera_ports}
+  \includegraphics[width=0.45\textwidth]{figures/ch4/tikz/caldera_ports}
   \caption{Port assignments inside the \texttt{strix\_caldera} container.}
   \label{fig:ch4:calderaports}
 \end{figure}
@@ -507,7 +507,7 @@ implant is dropped.
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=\textwidth]{figures/ch4/diagrams/nine_tactics_kcc}
+  \includegraphics[width=\textwidth]{figures/ch4/tikz/nine_tactics_kcc}
   \caption{The nine tactics overlaid on the seven-stage Cyber Kill Chain.}
   \label{fig:ch4:9tactics}
   \par\medskip
@@ -524,7 +524,7 @@ the run started, and the planned tactic chain.
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.95\textwidth]{figures/ch4/diagrams/topology_run_manifest}
+  \includegraphics[width=0.95\textwidth]{figures/ch4/tikz/topology_run_manifest}
   \caption{Live topology (left) and the \texttt{topology.json} that records it (right).}
   \label{fig:ch4:manifest}
   \par\medskip
@@ -562,7 +562,7 @@ first tactic. If that check fails, run
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=\textwidth]{figures/ch4/diagrams/simulation_envir}
+  \includegraphics[width=\textwidth]{figures/ch4/tikz/simulation_envir}
   \caption{The simulation environment as a single picture.}
   \label{fig:ch4:simenv}
   \par\medskip
@@ -584,7 +584,7 @@ high-value custom rules audible.
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.95\textwidth]{figures/ch4/diagrams/wazuh_logo_rules}
+  \includegraphics[width=0.95\textwidth]{figures/ch4/tikz/wazuh_logo_rules}
   \caption{Custom Wazuh rule hierarchy.}
   \label{fig:ch4:wazuhrules}
   \par\medskip
@@ -629,7 +629,7 @@ sudo auditctl -l | grep audit-wazuh-x   # validation
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.98\textwidth]{figures/ch4/diagrams/auditd_filebeat_flow}
+  \includegraphics[width=0.98\textwidth]{figures/ch4/tikz/auditd_filebeat_flow}
   \caption{From kernel syscalls to the Redis ingest list.}
   \label{fig:ch4:auditdflow}
   \par\medskip
@@ -671,7 +671,7 @@ through it.
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.95\textwidth]{figures/ch4/diagrams/platform_components_internal}
+  \includegraphics[width=0.95\textwidth]{figures/ch4/eraser/platform_components_internal}
   \caption{Backend engineering decomposition of CAVIX.}
   \label{fig:ch4:components}
   \par\medskip
@@ -680,7 +680,7 @@ through it.
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=\textwidth]{figures/ch4/diagrams/data_flow_master}
+  \includegraphics[width=\textwidth]{figures/ch4/tikz/data_flow_master}
   \caption{The full data flow.}
   \label{fig:ch4:dataflowmaster}
   \par\medskip
@@ -765,7 +765,7 @@ environment; the fix was to wrap its action rather than retrain it.
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.62\textwidth]{figures/ch4/diagrams/dqn_gating_logic}
+  \includegraphics[width=0.62\textwidth]{figures/ch4/tikz/dqn_gating_logic}
   \caption{The gating logic that wraps every DQN action.}
   \label{fig:ch4:dqngating}
   \par\medskip
@@ -790,7 +790,7 @@ be tuned if a future feed publishes more aggressively.
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.9\textwidth]{figures/ch4/diagrams/threat_intel_schema}
+  \includegraphics[width=0.9\textwidth]{figures/ch4/tikz/threat_intel_schema}
   \caption{Threat-intelligence ingestion and the observable-hit surface.}
   \label{fig:ch4:intelschema}
   \par\medskip
