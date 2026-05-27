@@ -1,25 +1,670 @@
 \chapter{Conception}
 \label{chap:conception}
 \section{Introduction}
-\section{Identified Gaps and Proposed Solution Overview}
+
+The previous chapter surveyed the landscape of APT detection solutions, from traditional ML classifiers operating on isolated events to hybrid frameworks that combine graph-based detection with reinforcement learning for adaptive response. The comparative analysis converged on five structural limitations shared by all reviewed approaches: limited multi-stage modeling, absence of generative augmentation, underexploitation of semantic log content, reliance on single-model architectures, and the persistent gap between research prototypes and operational deployment.
+
+This chapter presents the design of the proposed framework, \textbf{GenAI-Augmented Framework for Early Detection of Multi-Stage APT Attacks using the Cyber Kill Chain}, which addresses each of these limitations through a unified architecture. The chapter begins with a synthesis of the problem and the proposed contributions (Section~3.2), then details the global architecture of the framework (Section~3.3). Subsequent sections describe the four detection models (Section~3.4), the synthetic data augmentation pipeline (Section~3.5), the reinforcement learning agent (Section~3.6), and the platform architecture (Section~3.7).
+
+
+% ==========================================================================
+\section{Overview of the Problem Statement and Proposed Contributions}
+% ==========================================================================
+
+\subsection{Problem Reformulation}
+
+Chapter~2 established that APT detection remains an open problem along multiple dimensions. We briefly recall the core gaps before presenting our response to each.
+
+\textbf{Gap 1 --- Lack of domain-specific focus.}
+Most reviewed works do not clearly choose or isolate a specific APT domain, even though Chapter~1 showed that APTs span multiple domains such as host, network, web/application, mobile, cloud/identity, and IoT/OT. As a result, their solutions often remain generic and do not follow a clear attack-path or operational logic adapted to one domain. This makes their detection pipeline less structured and limits the clarity of the proposed approach. In contrast, our report focuses on the \textbf{host-based APT domain}, which provides a clearer path for sequence modeling, log analysis, and early detection. This choice also makes the framework easier to extend later to other domains thanks to the \textbf{multi-agent architecture}, which will be discussed in the perspectives section.
+
+\textbf{Gap 2 --- Single-model architectures.}
+The most critical structural limitation across the reviewed literature is the universal reliance on a single model to handle the full complexity of APT detection. Every solution --- whether SVM, LSTM, GCN, or Transformer --- commits to one architecture and expects it to simultaneously detect anomalies, classify malicious intent, predict sequential progression, and identify lateral movement. Yet no single architecture is equipped to handle all of these cognitive demands at once. Anomaly detection requires learning a compact representation of normality (autoencoders). Malicious intent estimation requires probabilistic modeling of the threat distribution (variational models). Sequential prediction across kill-chain stages requires attention over temporal sequences (transformers). And lateral movement detection requires reasoning over structural relationships between entities (graph neural networks). These are fundamentally different computational problems, and forcing a single model to address all of them inevitably produces blind spots --- as confirmed by the ablation study presented in Chapter~5.
+
+\textbf{Gap 3 --- No generative augmentation.}
+APT datasets are inherently scarce and biased toward the specific threat groups captured during collection. Models trained on such limited data overfit to observed TTPs and generalize poorly to novel adversarial sequences. No reviewed solution addresses this through generative synthesis of structurally valid APT data.
+
+\textbf{Gap 4 --- Underexploited semantic content.}
+Security logs contain rich textual information --- command-line arguments, process names, alert descriptions --- that is discarded by every reviewed pipeline in favor of flow-level statistics or categorical encodings.
+
+\textbf{Gap 5 --- No early detection as an explicit objective.}
+Most frameworks evaluate detection accuracy as a binary outcome (detected or missed), without distinguishing \textit{when} in the attack lifecycle detection occurs. A system that detects an APT only at Stage~7 (Actions on Objectives) has failed just as clearly as one that misses it entirely.
+
+\textbf{Gap 6 --- Research-to-deployment gap.}
+Every reviewed solution operates on offline datasets under laboratory conditions, with no integration into live SIEM systems or operational SOC workflows.
+
+% --------------------------------------------------------------------------
+\subsection{The Cognitive Analogy: Why a Single Model Cannot Suffice}
+% --------------------------------------------------------------------------
+
+To understand why a multi-model architecture is not merely preferable but necessary, consider how a human SOC analyst actually processes an APT campaign. The analyst does not engage a single cognitive faculty; rather, the brain activates distinct specialized regions, each contributing a different type of reasoning:
+
+\begin{itemize}
+    \item The \textbf{amygdala} performs rapid, instinctive threat detection --- flagging events that deviate from learned patterns of normality, before conscious analysis begins.
+    \item The \textbf{hippocampus} retrieves memories of previously encountered malicious patterns, comparing the current situation against a learned distribution of known threats.
+    \item The \textbf{temporal and visual cortices} recognize structural and relational patterns --- identifying that activity on one machine is connected to activity on another, forming a coherent picture of lateral movement.
+    \item The \textbf{prefrontal cortex (PFC)} and \textbf{basal ganglia} handle sequential reasoning and planning --- predicting what the attacker will do next based on the observed progression.
+    \item Finally, the \textbf{dorsolateral prefrontal cortex} orchestrates all of these signals into a single executive decision: what action to take, and when.
+\end{itemize}
+
+If the human brain --- the product of millions of years of evolution --- requires distinct specialized subsystems to handle the complexity of threat analysis, it is unreasonable to expect a single artificial neural network to replicate this process. The brain does not use one region for everything; it decomposes the problem into specialized sub-tasks and integrates their outputs through a central decision-making system.
+
+This biological principle directly informs our architecture. As illustrated in Figure~\ref{fig:brain_analogy}, each detection model in the proposed framework mirrors a specific cognitive function:
+
+\begin{table}[H]
+\centering
+\caption{Mapping between brain regions and the proposed detection models.}
+\label{tab:brain_mapping}
+\begin{tabular}{|l|l|l|}
+\hline
+\textbf{Brain Region} & \textbf{Cognitive Function} & \textbf{Our Model} \\
+\hline
+Amygdala & Rapid anomaly detection & Autoencoder (AE) \\
+\hline
+Hippocampus & Memory of known malicious patterns & Beta-VAE \\
+\hline
+Temporal / Visual Cortex & Relational and structural patterns & GNN (GraphSAGE) \\
+\hline
+PFC + Basal Ganglia & Sequential prediction and planning & Transformer \\
+\hline
+Dorsolateral PFC & Executive decision-making & DQN Agent \\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\linewidth]{figures/ch3/pair/brain_analogy.png}
+    \caption{Cognitive analogy: mapping brain regions to framework detection models.}
+    \label{fig:brain_analogy}
+\end{figure}
+
+This is not a superficial metaphor. The ablation study in Chapter~5 empirically confirms that removing any single model causes accuracy to drop by approximately 10 percentage points and false positive rate to triple --- demonstrating that each model captures a signal that no other model can replicate, exactly as each brain region handles a cognitive function that no other region can substitute.
+
+% --------------------------------------------------------------------------
+\subsection{Proposed Contributions}
+% --------------------------------------------------------------------------
+
+Motivated by the identified gaps and guided by the cognitive decomposition principle, this work proposes the following five contributions:
+
+\begin{enumerate}
+
+    \item \textbf{Host-based APT domain focus.}
+    The framework is designed and validated on the host-based APT domain, which offers rich system-log evidence and a clearer structure for sequence-based early detection. This choice provides a focused starting point while keeping the architecture extensible to other APT domains in future work.
+
+    \item \textbf{Multi-model ensemble for APT state representation.}
+    Rather than relying on a single architecture, the framework deploys four specialized, independently trained detection models --- an Autoencoder, a Variational Autoencoder, a Transformer, and a Graph Neural Network --- whose outputs are fused into a unified state representation. Each model targets a distinct facet of APT behavior: anomaly detection, malicious intent estimation, kill-chain stage prediction, and lateral movement risk assessment. The detailed architecture of each model is presented in Section~3.4.
+
+    \item \textbf{Reinforcement learning for autonomous response selection.}
+    A Deep Q-Network (DQN) agent receives the fused state and learns to select the optimal defensive action among a set of escalating responses, ranging from passive monitoring to active network isolation. Its reward function is explicitly designed to prioritize \textbf{early detection} --- rewarding interventions at early kill-chain stages and penalizing missed or late detections. The agent design is detailed in Section~3.6.
+
+    \item \textbf{Generative AI for data augmentation.}
+    REaLTabFormer is used to generate novel synthetic APT sequences that preserve the statistical properties and CKC-stage distributions of the real dataset while introducing previously unseen attack patterns. This augmentation is designed not to increase data volume, but to improve agent robustness against novel adversarial strategies. The augmentation pipeline is presented in Section~3.5.
+
+    \item \textbf{SecBERT-based semantic feature engineering.}
+    The textual fields of each alert --- log messages and command lines --- are encoded using SecBERT, a domain-specific language model pre-trained on cybersecurity corpora. This allows the framework to exploit the semantic content that every reviewed solution discards, transforming unstructured log text into dense numerical representations. The feature engineering pipeline is detailed in Chapter~4.
+
+    \item \textbf{End-to-end operational deployment.}
+    The framework is deployed as a Cyber Threat Intelligence platform (\textbf{CAVIX}) connected to \textbf{Wazuh SIEM}, with a mobile companion application for SOC analyst notifications. The full system is validated through simulation using Docker containers, MITRE Caldera as the adversary, and Ubuntu victim machines monitored by Wazuh agents. The platform design is presented in Section~3.7.
+\end{enumerate}
+
+Table~\ref{tab:gap_contribution} summarizes the mapping between the identified gaps and the proposed contributions.
+
+\begin{table}[H]
+\centering
+\caption{Mapping between identified gaps and proposed contributions.}
+\label{tab:gap_contribution}
+\begin{tabular}{|p{0.45\linewidth}|p{0.45\linewidth}|}
+\hline
+\textbf{Gap (Chapter 2)} & \textbf{Contribution (This Work)} \\
+\hline
+Single-model architectures & Multi-model ensemble (AE + VAE + Transformer + GNN) fused by RL agent \\
+\hline
+No generative augmentation & REaLTabFormer synthetic APT sequences \\
+\hline
+Underexploited semantic content & SecBERT embeddings for textual log fields \\
+\hline
+No early detection objective & CKC-aware reward function prioritizing early stages \\
+\hline
+Research-to-deployment gap & CAVIX platform + Wazuh integration + Caldera simulation \\
+\hline
+\end{tabular}
+\end{table}
+
+
+% ==========================================================================
 \section{Global Architecture of the Framework}
+% ==========================================================================
+
+This section provides a high-level overview of the proposed framework. The detailed design of each component is presented in the subsequent sections of this chapter. Figure~\ref{fig:global_architecture} illustrates the end-to-end architecture.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{figures/ch3/pair/global_architecture.png}
+    \caption{Global architecture of the proposed framework.}
+    \label{fig:global_architecture}
+\end{figure}
+
+The framework is organized into five functional layers that form a complete pipeline from raw SIEM data to autonomous defensive response:
+
+\textbf{Layer 1 --- Data Acquisition.}
+The monitored environment consists of Ubuntu Linux servers instrumented with \textbf{Wazuh agents}. Each agent collects host-based security events and forwards them as structured alerts to the centralized Wazuh Manager, which enriches them with MITRE ATT\&CK annotations. During training, these real alerts are complemented by synthetic sequences generated by REaLTabFormer to increase the diversity of attack patterns the agent encounters.
+
+\textbf{Layer 2 --- Feature Engineering.}
+Raw alerts undergo a feature engineering pipeline that transforms heterogeneous, partially textual SIEM data into a compact numerical vector. This pipeline combines SecBERT embeddings for textual fields, normalized numerical features, and binary-encoded categorical flags. An iterative feature selection process reduces the original 270+ raw columns to a concise set of semantically meaningful features. The full pipeline is detailed in Chapter~4.
+
+\textbf{Layer 3 --- Multi-Model Detection Ensemble.}
+The engineered feature vector is fed in parallel to four independently pre-trained detection models, each specialized for a distinct aspect of APT behavior:
+
+\begin{itemize}
+    \item \textbf{Autoencoder} --- detects anomalies by measuring deviation from learned normal patterns.
+    \item \textbf{Beta-VAE} --- estimates the probability that an alert is malicious and quantifies model uncertainty.
+    \item \textbf{Transformer} --- predicts the next kill-chain stage the attack will reach based on the observed sequence.
+    \item \textbf{GNN (GraphSAGE)} --- captures lateral movement risk by analyzing structural relationships between alerts across machines.
+\end{itemize}
+
+All four models operate in inference-only mode: their weights are frozen after pre-training and are never modified during RL agent training. Each model's architecture is detailed in Section~3.4.
+
+\textbf{Layer 4 --- RL Agent (STRIX).}
+The outputs of the four detection models are combined with contextual features to form a state vector. This vector is the input to the DQN agent, named \textbf{STRIX}, which learns to map each observed state to one of five defensive actions of increasing severity --- from passive monitoring to active network-level blocking. The agent's reward function is CKC-aware: it strongly rewards early-stage interventions and heavily penalizes missed attacks, ensuring the agent learns that acting early on ambiguous evidence is preferable to waiting for certainty at a late stage. The agent design is detailed in Section~3.6.
+
+\textbf{Layer 5 --- Platform and Deployment (CAVIX).}
+The detection engine is embedded within \textbf{CAVIX}, a Cyber Threat Intelligence platform providing a real-time dashboard, threat intelligence aggregation, Wazuh SIEM integration, and a mobile companion application for SOC analyst push notifications. The entire system is validated through a controlled simulation using Docker containers, MITRE Caldera as the adversary emulation framework, and Wazuh for real-time monitoring. The platform architecture is presented in Section~3.7.
+
+\subsection{Naming Rationale of the Proposed Models}
+
+The names chosen for the proposed models and platform were inspired by species of owls, a choice that reflects the stealth, precision, and silent hunting ability that characterize both owls and advanced APT detection systems. The GNN model was named \textbf{Otus}, a relatively smaller owl species, to reflect the structural and expressive nature of graph-based reasoning. The Autoencoder and VAE were named \textbf{Asio} and \textbf{Tyto}, respectively, while the Transformer was named \textbf{Ninox}, and the reinforcement learning agent was named \textbf{Strix}. The selection of These names also considered the size of the model in terms of parameters, as well as the size of the owl species itself, so that the naming remains consistent with their conceptual roles. All of these components are integrated within the \textbf{CAVIX} platform, a name inspired by the word \textit{cavity}, which refers to the natural shelter of owls. This naming reflects the idea of a unified environment where the different detection components coexist and collaborate to protect against stealthy threats.
+
 \section{Detection Models}
 \label{sec:detection-models}
-\subsection{Autoencoder}
-\subsection{VAE}
-\subsection{Transformer}
-\subsection{GNN}
+
+This section presents the design of the four detection models that form the perception layer of the STRIX agent. Each model addresses a fundamentally different aspect of APT detection, following the cognitive decomposition principle introduced in Section~3.2. All four models share the same input --- a 55-dimensional feature vector produced by the feature engineering pipeline --- and all operate in inference-only mode during RL training. Their individual outputs are fused into the agent's state vector, as described in Section~3.6.
+
+
+% --------------------------------------------------------------------------
+\subsection{Regularized Autoencoder (AE)}
+\label{subsec:ae}
+% --------------------------------------------------------------------------
+
+\subsubsection{Role and Objective}
+
+The Autoencoder serves as the framework's \textit{anomaly detector}. In the cognitive analogy of Section~3.2, it mirrors the function of the amygdala --- providing rapid, instinctive threat detection by flagging events that deviate from learned patterns of normality.
+
+The model is trained exclusively on benign traffic. During inference, alerts that deviate from the learned normal distribution produce a high reconstruction error, indicating a potential anomaly. This unsupervised approach is particularly suited to APT detection, where labeled attack data is scarce and adversaries continuously evolve their techniques to evade signature-based detection.
+
+\subsubsection{Architecture}
+
+The Regularized Autoencoder follows a symmetric encoder-decoder architecture with a constrained latent bottleneck, as illustrated in Figure~\ref{fig:ae_architecture}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{figures/ch3/pair/ae_architecture.png}
+    \caption{Architecture of the Regularized Autoencoder.}
+    \label{fig:ae_architecture}
+\end{figure}
+
+\textbf{Encoder.} The encoder progressively compresses the 55-dimensional input into a compact latent representation through two fully connected layers:
+\begin{itemize}
+    \item $\text{Linear}(55 \to 256) \to \text{BatchNorm} \to \text{LeakyReLU}(0.2) \to \text{Dropout}(0.2)$
+    \item $\text{Linear}(256 \to 128) \to \text{BatchNorm} \to \text{LeakyReLU}(0.2) \to \text{Dropout}(0.2)$
+\end{itemize}
+
+At the bottleneck, the 128-dimensional output is split into two parallel heads, following a VAE-style parameterization:
+\begin{itemize}
+    \item $\texttt{fc\_mu}: \text{Linear}(128 \to 32)$ --- produces the mean vector $\boldsymbol{\mu}$
+    \item $\texttt{fc\_logvar}: \text{Linear}(128 \to 32)$ --- produces the log-variance vector $\log \boldsymbol{\sigma}^2$
+\end{itemize}
+
+The latent vector $\mathbf{z}$ is obtained via the reparameterization trick: $\mathbf{z} = \boldsymbol{\mu} + \boldsymbol{\sigma} \odot \boldsymbol{\epsilon}$, where $\boldsymbol{\epsilon} \sim \mathcal{N}(\mathbf{0}, \mathbf{I})$. During inference, $\mathbf{z} = \boldsymbol{\mu}$ is used directly (no sampling).
+
+\textbf{Decoder.} The decoder mirrors the encoder, reconstructing the original 55-dimensional input from the 32-dimensional latent vector:
+\begin{itemize}
+    \item $\text{Linear}(32 \to 128) \to \text{BatchNorm} \to \text{LeakyReLU}(0.2) \to \text{Dropout}(0.2)$
+    \item $\text{Linear}(128 \to 256) \to \text{BatchNorm} \to \text{LeakyReLU}(0.2) \to \text{Dropout}(0.2)$
+    \item $\text{Linear}(256 \to 55)$ \quad (no activation)
+\end{itemize}
+
+\subsubsection{Loss Function}
+
+The model is trained using a composite loss with three terms:
+
+\begin{equation}
+    \mathcal{L}_{\text{AE}} = \underbrace{\| \mathbf{x} - \hat{\mathbf{x}} \|^2}_{\text{Reconstruction}} + \underbrace{\beta \cdot D_{\text{KL}}\big(q(\mathbf{z}|\mathbf{x}) \,\|\, \mathcal{N}(\mathbf{0}, \mathbf{I})\big)}_{\text{KL Regularization}} + \underbrace{\gamma \cdot \| \boldsymbol{\mu} - \mathbf{c} \|^2}_{\text{Center Loss}}
+    \label{eq:ae_loss}
+\end{equation}
+
+\begin{itemize}
+    \item \textbf{Reconstruction loss} (MSE): Ensures accurate input reconstruction.
+    \item \textbf{KL divergence}: Regularizes the latent distribution, preventing the encoder from memorizing individual data points and encouraging a smooth, structured latent space.
+    \item \textbf{Center loss}: Introduces a learnable center vector $\mathbf{c} \in \mathbb{R}^{32}$, pulling all benign latent representations toward a common center. During inference, malicious alerts --- which the model has never seen during training --- will be projected far from this center, amplifying their anomaly signal.
+\end{itemize}
+
+The KL weight $\beta$ follows a linear warmup schedule during the first 20\% of training epochs, preventing the regularization term from dominating early in training when the reconstruction has not yet converged.
+
+\subsubsection{Outputs}
+
+The Autoencoder provides two signals to the RL agent and one internal output:
+\begin{enumerate}
+    \item \textbf{Anomaly score}: A composite measure combining reconstruction error and distance from the learned center.
+    \item \textbf{Reconstruction error}: The raw MSE between input and reconstructed output.
+    \item \textbf{Latent vectors} ($\mathbf{z} \in \mathbb{R}^{32}$): Passed to the Transformer (Section~\ref{subsec:transformer}) as input for sequential CKC stage prediction.
+\end{enumerate}
+
+
+% --------------------------------------------------------------------------
+\subsection{Beta Variational Autoencoder (Beta-VAE)}
+\label{subsec:vae}
+% --------------------------------------------------------------------------
+
+\subsubsection{Role and Objective}
+
+The Beta-VAE serves as the framework's \textit{malicious probability estimator}. In the cognitive analogy, it mirrors the hippocampus --- retrieving memories of previously encountered malicious patterns and comparing the current alert against a learned distribution of known threats.
+
+While the Autoencoder answers the question \textit{``Is this alert abnormal?''}, the Beta-VAE answers the complementary question \textit{``How likely is this alert to be malicious, and how confident is the model?''}. Together, these two models provide a dual signal: one from the perspective of normality, and one from the perspective of threat similarity.
+
+\subsubsection{Architecture}
+
+The Beta-VAE follows a deeper encoder-decoder structure than the Autoencoder, with a 32-dimensional latent space, as illustrated in Figure~\ref{fig:vae_architecture}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{figures/ch3/pair/vae_architecture.png}
+    \caption{Architecture of the Beta-VAE.}
+    \label{fig:vae_architecture}
+\end{figure}
+
+\textbf{Encoder} (three layers):
+\begin{itemize}
+    \item $\text{Linear}(55 \to 512) \to \text{BatchNorm} \to \text{ReLU} \to \text{Dropout}(0.3)$
+    \item $\text{Linear}(512 \to 256) \to \text{BatchNorm} \to \text{ReLU} \to \text{Dropout}(0.3)$
+    \item $\text{Linear}(256 \to 128) \to \text{BatchNorm} \to \text{ReLU}$
+\end{itemize}
+
+\textbf{Latent space} (dual-head):
+\begin{itemize}
+    \item $\texttt{fc\_z\_mean}: \text{Linear}(128 \to 32) \to \boldsymbol{\mu}$
+    \item $\texttt{fc\_z\_log\_var}: \text{Linear}(128 \to 32) \to \log \boldsymbol{\sigma}^2$
+    \item $\mathbf{z} = \boldsymbol{\mu} + \boldsymbol{\sigma} \odot \boldsymbol{\epsilon}$, \quad $\boldsymbol{\epsilon} \sim \mathcal{N}(\mathbf{0}, \mathbf{I})$
+\end{itemize}
+
+\textbf{Decoder} (three layers + output):
+\begin{itemize}
+    \item $\text{Linear}(32 \to 128) \to \text{BatchNorm} \to \text{ReLU} \to \text{Dropout}(0.3)$
+    \item $\text{Linear}(128 \to 256) \to \text{BatchNorm} \to \text{ReLU} \to \text{Dropout}(0.3)$
+    \item $\text{Linear}(256 \to 512) \to \text{BatchNorm} \to \text{ReLU} \to \text{Dropout}(0.3)$
+    \item $\text{Linear}(512 \to 55)$ \quad (no activation)
+\end{itemize}
+
+\subsubsection{Loss Function}
+
+The Beta-VAE is trained with a three-component loss, similar to the Autoencoder but with a key difference --- the $\beta$ parameter:
+
+\begin{equation}
+    \mathcal{L}_{\text{VAE}} = \| \mathbf{x} - \hat{\mathbf{x}} \|^2 + \beta \cdot D_{\text{KL}}\big(q(\mathbf{z}|\mathbf{x}) \,\|\, \mathcal{N}(\mathbf{0}, \mathbf{I})\big) + \gamma \cdot \| \boldsymbol{\mu} - \mathbf{c} \|^2
+    \label{eq:vae_loss}
+\end{equation}
+
+The \textbf{$\beta$ parameter} --- which gives the model its name --- controls the degree of disentanglement in the latent space. When $\beta > 1$, the model is encouraged to learn factored, interpretable latent dimensions, where each latent unit captures a distinct and independent factor of variation in the data. This disentanglement improves the model's ability to generalize across different APT variants, as each latent dimension captures a distinct aspect of malicious behavior.
+
+As in the Autoencoder, a \textbf{learned center vector} $\mathbf{c} \in \mathbb{R}^{32}$ is maintained as a trainable parameter. During inference, the distance between a new alert's latent mean $\boldsymbol{\mu}$ and this center provides an additional discrimination signal.
+
+\subsubsection{Malicious Probability Scoring}
+
+During inference, the model computes a calibrated malicious probability through a multi-step scoring pipeline:
+
+\begin{enumerate}
+    \item \textbf{Reconstruction error}: $e_{\text{recon}} = \text{MSE}(\mathbf{x}, \hat{\mathbf{x}})$
+    \item \textbf{Center distance}: $d_{\text{center}} = \| \boldsymbol{\mu} - \mathbf{c} \|^2$
+    \item \textbf{Combined score}: $s = e_{\text{recon}} + \alpha \cdot d_{\text{center}}$
+    \item \textbf{Malicious probability}: $P_{\text{mal}} = \sigma(2s - 1)$, where $\sigma$ is the sigmoid function.
+\end{enumerate}
+
+The model also outputs an \textbf{uncertainty estimate}: $u = \frac{1}{d} \sum_{j=1}^{d} \exp(\log \sigma^2_j)$, which quantifies the model's confidence. A high uncertainty signals that the alert falls in a region of the latent space where the model has limited training experience.
+
+\subsubsection{Outputs}
+
+The Beta-VAE provides two signals to the RL agent:
+\begin{enumerate}
+    \item \textbf{Malicious probability} $\in [0, 1]$: Calibrated estimate of threat likelihood.
+    \item \textbf{Uncertainty} $\in [0, \infty)$: Model confidence indicator.
+\end{enumerate}
+
+
+% --------------------------------------------------------------------------
+\subsection{Transformer (CKC Stage Predictor)}
+\label{subsec:transformer}
+% --------------------------------------------------------------------------
+
+\subsubsection{Role and Objective}
+
+The Transformer serves as the framework's \textit{sequential predictor}. In the cognitive analogy, it mirrors the prefrontal cortex and basal ganglia --- handling sequential reasoning and planning by predicting what the attacker will do next based on the observed progression of events.
+
+Unlike the AE and VAE, which operate on individual alerts, the Transformer processes \textbf{sequences} of alerts. Given a window of consecutive events, it predicts the CKC stage of the \textit{next} alert --- a next-step prediction task that is critical for early detection. If the model predicts that the next stage is \textit{Exploitation} (S4) while the current sequence is at \textit{Delivery} (S3), the agent can preemptively escalate its response before the attack advances.
+
+\subsubsection{Architecture}
+
+The Transformer follows an encoder-only architecture with a classification head, as illustrated in Figure~\ref{fig:transformer_architecture}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\linewidth]{figures/ch3/pair/transformer_architecture.png}
+    \caption{Architecture of the Transformer CKC Stage Predictor.}
+    \label{fig:transformer_architecture}
+\end{figure}
+
+\textbf{Input.} The model does not operate on raw 55-dimensional features. Instead, it consumes \textbf{sequences of AE latent vectors} ($\mathbb{R}^{32}$) extracted from the Autoencoder. A sliding window of length $w = 4$ captures short-term temporal context: each input is a tensor of shape $(w \times 32)$ representing four consecutive alerts in latent space. This design establishes an explicit dependency between the Autoencoder and the Transformer --- the AE must produce latent vectors before the Transformer can reason over them.
+
+\textbf{Input Projection.} Each 32-dimensional latent vector is projected to the model dimension:
+$$\text{Linear}(32 \to 128) \to \text{LayerNorm}(128) \to \text{ReLU} \to \text{Dropout}(0.1)$$
+
+\textbf{Positional Encoding.} Since Transformers have no inherent notion of order, sinusoidal positional encodings are added to the projected vectors. These follow the standard formulation of Vaswani et al., using sine and cosine functions of different frequencies to encode absolute position within the sequence.
+
+\textbf{Transformer Encoder.} The core of the model consists of 4 stacked encoder layers, each comprising:
+\begin{itemize}
+    \item \textbf{Multi-Head Self-Attention} with 8 attention heads ($d_{\text{model}} = 128$, $d_{\text{head}} = 16$). The self-attention mechanism allows each alert in the sequence to attend to every other alert, learning which earlier events are most relevant for predicting the next stage.
+    \item \textbf{Position-wise Feed-Forward Network}: $\text{Linear}(128 \to 512) \to \text{GELU} \to \text{Linear}(512 \to 128)$.
+    \item \textbf{Pre-Layer Normalization} (Pre-LN) is used instead of the original Post-LN, improving training stability.
+    \item \textbf{Residual connections} and \textbf{Dropout}$(0.1)$ are applied around each sub-layer.
+\end{itemize}
+
+\textbf{Classification Head.} The output of the \textit{last position} in the sequence is extracted and passed through a two-layer MLP:
+$$\text{Linear}(128 \to 64) \to \text{ReLU} \to \text{Dropout}(0.1) \to \text{Linear}(64 \to 8)$$
+
+The output consists of 8 logits corresponding to the eight possible CKC classes: Benign (0), Reconnaissance (S1), Weaponization (S2), Delivery (S3), Exploitation (S4), Installation (S5), Command \& Control (S6), and Actions on Objectives (S7).
+
+\subsubsection{Class Imbalance Handling}
+
+APT datasets are heavily imbalanced --- benign alerts vastly outnumber malicious ones, and among malicious alerts, certain CKC stages are far more frequent than others. To address this, the model uses \textbf{weighted cross-entropy loss}, where each class weight is computed as the inverse of its frequency in the training set. This ensures that rare but critical stages receive proportionally higher gradient contributions during training.
+
+\subsubsection{Outputs}
+
+The Transformer provides two signals to the RL agent:
+\begin{enumerate}
+    \item \textbf{Predicted next CKC stage}: The most likely next stage (integer $0$--$7$).
+    \item \textbf{Prediction confidence}: $\max(\text{softmax}(\text{logits}))$, indicating how certain the model is about its prediction.
+\end{enumerate}
+
+
+% --------------------------------------------------------------------------
+\subsection{Graph Neural Network (GraphSAGE)}
+\label{subsec:gnn}
+% --------------------------------------------------------------------------
+
+\subsubsection{Role and Objective}
+
+The GNN serves as the framework's \textit{lateral movement detector}. In the cognitive analogy, it mirrors the temporal and visual cortices --- recognizing relational and structural patterns by identifying that activity on one machine is connected to activity on another, forming a coherent picture of cross-machine attack propagation.
+
+While the Autoencoder, VAE, and Transformer all process alerts either individually or as sequences within a single machine, the GNN is the only model that reasons \textbf{across machines}. APT attackers do not remain on a single host; they move laterally, pivoting from machine to machine toward their objective. The GNN captures this by constructing a graph where alerts from different machines are connected based on shared users, shared IP addresses, and temporal proximity.
+
+\subsubsection{Graph Construction}
+
+The input to the GNN is not a feature vector but a \textbf{graph}, constructed dynamically from the alert stream. As illustrated in Figure~\ref{fig:gnn_architecture}, the graph is defined as follows:
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\linewidth]{figures/ch3/pair/gnn_architecture.png}
+    \caption{Architecture of the GNN (GraphSAGE) with alert-level graph construction.}
+    \label{fig:gnn_architecture}
+\end{figure}
+
+\textbf{Nodes.} Each node represents an individual alert, carrying its 55-dimensional feature vector as node attributes.
+
+\textbf{Edges.} Three types of edges capture different propagation vectors:
+
+\begin{enumerate}
+    \item \textbf{Intra-machine temporal edges}: Connect alerts on the \textit{same machine} within a 30-minute window (limited to 3 neighbors per node). These capture the temporal progression of an attack on a single host.
+    \item \textbf{Cross-machine user edges}: Connect alerts involving the \textit{same user on different machines} within a 30-minute window (limited to 5 neighbors). These capture user-based lateral movement --- a user authenticating across multiple machines is a strong APT indicator.
+    \item \textbf{Cross-machine IP edges}: Connect alerts involving the \textit{same source IP on different machines} within a 30-minute window (limited to 5 neighbors). These capture network-level lateral movement.
+\end{enumerate}
+
+Self-loops are added to every node, ensuring that each node's own features are always included in the aggregation. All edges are bidirectional. The neighbor limits prevent excessively dense graphs that would degrade both computational performance and detection accuracy.
+
+\subsubsection{Architecture}
+
+The GNN uses \textbf{GraphSAGE} (Graph SAmple and aggreGatE) as its convolution operator. GraphSAGE was chosen over GCN and GAT for its scalability: it aggregates features from a sampled neighborhood rather than the entire graph, making it practical for large alert streams.
+
+The network consists of 3 GraphSAGE layers with residual connections:
+
+\begin{itemize}
+    \item Layer 0: $\text{SAGEConv}(55 \to 128) \to \text{BatchNorm} \to \text{ReLU} \to \text{Dropout}(0.3)$
+    \item Layer 1: $\text{SAGEConv}(128 \to 128) \to \text{BatchNorm} \to \text{ReLU} + \textbf{Residual} \to \text{Dropout}(0.3)$
+    \item Layer 2: $\text{SAGEConv}(128 \to 128) \to \text{BatchNorm} \to \text{ReLU} + \textbf{Residual} \to \text{Dropout}(0.3)$
+\end{itemize}
+
+\textbf{Residual connections} are applied from Layer~1 onwards (Layer~0 is excluded because the input dimension differs from the hidden dimension). These skip connections prevent gradient degradation across the three message-passing rounds and ensure that each layer enriches rather than replaces the node representation.
+
+\textbf{Classification Head.} A two-layer MLP produces a per-node risk score:
+$$\text{Linear}(128 \to 64) \to \text{ReLU} \to \text{Dropout}(0.3) \to \text{Linear}(64 \to 1) \to \text{Sigmoid}$$
+
+The output is a propagation risk score $\in [0, 1]$ for each alert node.
+
+\subsubsection{Loss Function}
+
+The model uses \textbf{weighted binary cross-entropy} with a positive class weight proportional to the class imbalance ratio. This ensures that the minority class (malicious alerts) receives appropriately higher gradient contributions, preventing the model from converging to a trivial ``all-benign'' prediction.
+
+\subsubsection{Outputs}
+
+The GNN provides three features to the RL agent state vector, designed to capture different scales of risk propagation:
+
+\begin{enumerate}
+    \item \textbf{Node risk (current host)}: The mean predicted risk of alerts on the target machine within the current time window. Captures the local threat level on the host under analysis.
+    \item \textbf{Neighbor risk}: The mean predicted risk of alerts on \textit{externally connected machines} --- machines linked to the current host through cross-machine user or IP edges. Captures whether the attack has spread beyond the current host.
+    \item \textbf{Risk growth}: The change in global graph-level risk compared to the previous time window ($\Delta \text{risk}$). A rising risk growth indicates an accelerating attack campaign.
+\end{enumerate}
+
 \section{Synthetic Data Augmentation with Generative AI}
 \label{sec:synthetic-data}
+
+% --------------------------------------------------------------------------
 \subsection{Motivation}
-\subsection{REaLTabFormer}
-\subsection{Timestamp Generation}
-\subsection{Validation Strategy}
-\section{Reinforcement Learning Agent}
+\label{subsec:synthetic_motivation}
+% --------------------------------------------------------------------------
+
+The reliance on purely empirical, organically collected datasets is one of the most significant bottlenecks in the development of robust machine learning models for Advanced Persistent Threat (APT) detection. While high-quality datasets provide an essential baseline for normal network behavior and known attack patterns, their inherent limitations severely constrain the generalization capabilities of deep learning architectures. The integration of Generative Artificial Intelligence into the proposed framework is driven by two primary motivations: the necessity to decouple detection logic from static Indicators of Compromise (IoCs), and the structural requirement for data volume in multi-model deep learning systems.
+
+First and foremost, the primary objective of data augmentation in this context is to generate \textbf{novel APT sequences in terms of sequence order, technique variety, and operational parameters}. Adversaries continuously mutate their Tactics, Techniques, and Procedures (TTPs) to evade signature-based defenses. A model trained exclusively on historical attacks risks memorizing the specific artifacts of those attacks rather than learning the underlying behavioral geometry of the kill chain. By generating synthetic data, we actively alter fixed information that traditionally tricks machine learning models. We synthesize novel IP addresses, mutate file paths, generate distinct executable names, and alter the sequence of commands used in exploitation and installation phases. If a detection model (such as the GraphSAGE GNN or the Transformer) relies heavily on the presence of a specific IP address \texttt{192.168.1.50} or a specific path \texttt{/tmp/malware.sh}, it will fail catastrophically in production. The generative pipeline forcefully breaks these brittle correlations, ensuring that the Reinforcement Learning agent and its perception models become robust against artifact manipulation and focus instead on the structural and semantic evolution of the attack.
+
+Secondly, we must acknowledge a fundamental reality of deep learning: \textbf{complex neural architectures require massive amounts of data to converge optimally}. Datasets containing high-fidelity, labeled APT campaigns are notoriously scarce due to privacy constraints, the difficulty of execution, and the immense effort required for accurate labeling. In the dataset used for this framework, the class imbalance is severe, with malicious events representing only a small fraction of the total traffic. While techniques like class-weighted loss functions mitigate the statistical impact of this imbalance, they do not create new information. The models require a dense, varied manifold of malicious examples to map the decision boundaries accurately. Data augmentation through Generative AI fulfills this requirement, providing the volume necessary to train high-capacity models like the 4-layer Transformer and the multi-layer GraphSAGE network, although it serves as a supporting pillar rather than the sole objective of the generation process.
+
+% --------------------------------------------------------------------------
+\subsection{REaLTabFormer: Sequential Tabular Generation}
+\label{subsec:realtabformer}
+% --------------------------------------------------------------------------
+
+To synthesize realistic APT alerts, the framework utilizes \textbf{REaLTabFormer} (Realistic Tabular Data Generation using Transformers), a state-of-the-art generative architecture specifically designed for heterogeneous tabular data. Generating cybersecurity logs presents a unique challenge: SIEM alerts are highly structured rows containing a mix of categorical variables, integer counts, float statistics, and unstructured text (such as raw log messages and command-line arguments).
+
+\subsubsection{Data Preprocessing and Truncation}
+
+Before sequence generation, the raw dataset undergoes specific preprocessing to maximize generative quality:
+\begin{itemize}
+    \item \textbf{Temporal Feature Extraction:} The raw timestamps are parsed into categorical components (\texttt{\_hour\_of\_day}, \texttt{\_day\_of\_week}, and \texttt{\_is\_night}) while preserving the original timestamp string for pattern learning.
+    \item \textbf{Boolean Flags:} Meta-features such as \texttt{has\_audit}, \texttt{has\_syscheck}, \texttt{has\_sca}, and \texttt{has\_network} are created to guide the generative model regarding which subgroups of data should be structurally present.
+    \item \textbf{Truncation:} To prevent token overflow in the Transformer, long textual columns are strictly truncated (e.g., rule descriptions and commands to 300 characters, other paths to 150 characters).
+\end{itemize}
+
+\subsubsection{Architecture and Tabular Serialization}
+
+REaLTabFormer circumvents the mixed-type generation problem by treating tabular data generation as a sequential Natural Language Processing (NLP) task. The core backbone is a customized \textbf{GPT-2 (Generative Pre-trained Transformer 2)} architecture parameterized with 6 layers, 12 attention heads, a 768-dimensional embedding space, and a vocabulary size of 43,404 tokens.
+
+The model serializes the tabular features into a tokenized sequence. For example, a row containing \texttt{user="root"} and \texttt{rule\_level=12} is serialized into a string sequence. By converting the entire row into tokens, the GPT-2 multi-head self-attention mechanism learns complex inter-column dependencies (e.g., if the user is \texttt{root}, the rule level is structurally more likely to be high). The model then generates synthetic rows autoregressively, maintaining strict statistical coherence across all generated features.
+
+The generative model is fine-tuned exclusively on the malicious subset of the training data ($25,418$ real records). The training process utilizes a batch size of 32, gradient accumulation over 4 steps, and a learning rate optimized over 150 epochs. Upon convergence, the model generates 50,836 novel synthetic malicious alerts (a synthetic ratio of 2.0).
+
+\subsubsection{SecBERT Integration and Dimensionality Reduction}
+
+A critical architectural decision is the point at which text embeddings are generated. Generative Language Models struggle to output continuous, high-dimensional dense vectors directly. Our framework solves this by leveraging REaLTabFormer's native text-generation capabilities, executing the integration in two distinct phases:
+
+\begin{enumerate}
+    \item \textbf{Generation Phase:} REaLTabFormer natively generates the \textit{raw textual fields} for 6 target columns: \texttt{rule.description}, \texttt{data.command}, \texttt{data.audit.exe}, \texttt{data.audit.command}, \texttt{syscheck.path}, and \texttt{data.url}.
+    \item \textbf{Embedding Phase:} Once the synthetic tabular data is de-tokenized, these generated strings are passed through the pre-trained \textbf{SecBERT} model, extracting 768-dimensional semantic embeddings.
+\end{enumerate}
+
+To optimize the subsequent pipeline and mitigate memory bottlenecks, these 768-dimensional embeddings are reduced via PCA to a compact 50-dimensional space before being passed to the detection models.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\linewidth]{figures/ch3/pair/ReALTabFormer_archi.png}
+    \caption{Architecture of the REaLTabFormer.}
+    \label{fig:realtabformer_architecture}
+\end{figure}
+
+\subsubsection{Engineering Challenge: Sensitivity Threshold Optimization}
+
+A notable engineering challenge encountered during implementation was REaLTabFormer's native sensitivity metric computation. The default evaluation function calculates distance matrices that are computationally prohibitive for large datasets, leading to Out-Of-Memory (OOM) errors during the quality evaluation phase.
+
+This bottleneck was resolved by writing a custom GPU-accelerated PyTorch function to calculate batched Manhattan distances directly on the PCA-reduced embeddings. The REaLTabFormer evaluation object was then dynamically patched to inject this custom metric, allowing the evaluation of the 50,000+ synthetic alerts to complete efficiently.
+
+% --------------------------------------------------------------------------
+\subsection{Timestamp Generation via Poisson Processes}
+\label{subsec:timestamp_generation}
+% --------------------------------------------------------------------------
+
+While REaLTabFormer excels at generating the content of individual alerts, it does not intrinsically model the temporal spacing between independent events in a sequence. Timestamps are arguably the most critical feature for modeling Advanced Persistent Threats. The Transformer model (Section 3.4.3) relies entirely on sequence ordering to predict kill-chain progression, and the GraphSAGE GNN (Section 3.4.4) constructs its edges based strictly on 30-minute temporal windows. If synthetic alerts are assigned arbitrary or uniformly distributed timestamps, the GNN would either fail to form structural edges or collapse into a dense, unrealistic hairball graph, destroying the lateral movement signal.
+
+To solve this, we implement a temporal generation engine based on \textbf{Poisson processes}, driven by real-world threat intelligence.
+
+\subsubsection{Mathematical Formulation and Inverse Transform Sampling}
+
+In a Poisson process, the time elapsed between consecutive events --- the inter-arrival time $\Delta t$ --- follows an \textbf{Exponential Distribution}. The mathematical generator employs \textbf{Inverse Transform Sampling} to produce these delays computationally. A uniform random variable $U \sim \text{Uniform}(0,1)$ is drawn, and the time gap is calculated as:
+
+\begin{equation}
+    \Delta t = \frac{-\ln(U)}{\lambda_{\text{technique}}}
+\end{equation}
+
+To simulate network latency and attacker randomization, additive Gaussian noise (jitter) is applied to $\Delta t$, with ceiling logic ensuring the minimum gap is strictly $\ge 1$ second.
+
+\subsubsection{Parameterizing from Mandiant Cyber Threat Intelligence}
+
+The rate parameter $\lambda_{\text{technique}}$ (events per second) is not selected arbitrarily. It is derived from empirical statistics reported in \textbf{Mandiant M-Trends} data. APT campaigns are characterized by an extended ``dwell time''. The parameters are calculated using the formula:
+
+\begin{equation}
+    \lambda_{\text{technique}} \approx \frac{f_{\text{technique}}}{\bar{T}_{\text{dwell}}}
+\end{equation}
+
+Here, $f_{\text{technique}}$ is the frequency percentage of the specific MITRE ATT\&CK technique observed in the wild, and $\bar{T}_{\text{dwell}}$ is a median dwell time constant set to 11 days ($950,400$ seconds), based on Mandiant reporting. For example:
+\begin{itemize}
+    \item \textbf{Command and Scripting Interpreter:} $\lambda \approx 5.356 \times 10^{-7}$ (expected gap $\approx 518.7$ hours)
+    \item \textbf{Remote Services:} $\lambda \approx 3.714 \times 10^{-7}$ (expected gap $\approx 747.9$ hours)
+    \item \textbf{Exploit Public-Facing Application:} $\lambda \approx 2.336 \times 10^{-7}$ (expected gap $\approx 1189.2$ hours)
+    \item \textbf{Data Destruction:} $\lambda \approx 3.367 \times 10^{-8}$ (expected gap $\approx 8250$ hours)
+\end{itemize}
+
+If a specific technique is absent from the exact mappings, a fallback $\lambda$ corresponding to its parent MITRE Tactic is used (e.g., Initial Access defaults to $0.200 / 950,400$).
+
+\subsubsection{Campaign Scaling and Span Calibration}
+
+The timestamp generator algorithm iterates sequentially over the synthetic techniques. To adapt the generic temporal model to specific campaign types, two scaling mechanisms are applied before accumulating the final timestamps ($T_k = T_{k-1} + \Delta t_k$):
+
+\textbf{1. Campaign Scale Adjustment:} The raw $\Delta t$ is multiplied by a scale factor defined by a \texttt{campaign\_mode} parameter. Modes such as \texttt{stealth} scale the gaps up to simulate incredibly slow intrusions, while \texttt{blitz} aggressively shrinks the intervals for fast-moving attacks.
+
+\textbf{2. Span Calibration (Pilot Strategy):} When synthesizing data that must perfectly mimic a historical APT timeline (e.g., APT29 or Lazarus group), a calibration algorithm is invoked:
+\begin{enumerate}
+    \item A \textit{pilot run} simulates the techniques with a standard scale of $1.0$ to check the uncalibrated total timeframe.
+    \item A \texttt{calibration\_scale} is generated: $\frac{\text{real\_campaign\_total\_seconds}}{\text{pilot\_total\_seconds}}$.
+    \item The generation function is re-executed passing in this calibration scale.
+\end{enumerate}
+
+This ensures that while individual step gaps fluctuate stochastically according to their specific $\lambda$, the overall start-to-finish synthetic timeline duration perfectly matches the reported historical attack span.
+
+% --------------------------------------------------------------------------
+\subsection{Validation Strategy: The Double Implication}
+\label{subsec:validation_strategy}
+% --------------------------------------------------------------------------
+
+Generating synthetic data introduces a critical risk: the generative model may output statistical noise that looks superficially correct but lacks the underlying structural integrity of a real cyberattack. To guarantee the quality of the REaLTabFormer outputs, we employ a rigorous validation methodology rooted in the concept of \textit{Double Implication} or functional equivalence.
+
+Instead of relying solely on statistical metrics (like Kolmogorov-Smirnov tests or marginal distributions), we validate the data functionally through two reciprocal machine learning tests:
+
+\textbf{1. TRTS (Train on Real, Test on Synthetic):}
+In this phase, a baseline detection model is trained exclusively on the original, real SIEM data. Once converged, the model is evaluated on the purely synthetic dataset. High performance in the TRTS paradigm proves that the synthetic data covers the same statistical distribution as the real data. More importantly, it verifies that REaLTabFormer has not introduced ``wild hallucinations'' or artifacts that deviate so far from reality that a real-world model cannot recognize them.
+
+\textbf{2. TSTR (Train on Synthetic, Test on Real):}
+This is the ultimate, and much stricter, test of functional equivalence. A new instance of the detection model is trained \textit{exclusively} on the synthetic data generated by REaLTabFormer. It is then evaluated on the holdout test set of \textit{real, empirical data}. If the TSTR model successfully detects real-world attacks, it definitively proves that the synthetic data contains the core, functional structural signals of an Advanced Persistent Threat, and not merely superficial statistical noise.
+
+Each test has its own distinct importance. TRTS confirms generative fidelity, while TSTR confirms generative utility. Only when the double implication holds true can the synthetic dataset be safely injected into the STRIX agent's training environment to improve its robustness against novel, unseen TTPs.
+
+
+
+\section{Reinforcement Learning Agent (DQN)}
 \label{sec:rl-agent}
-\subsection{Architecture and role}
-\subsection{Training process}
-\subsection{Ablation Study}
+
+This section details the core decision-making engine of the STRIX framework: the Reinforcement Learning (RL) agent. While the models described in Section~3.4 function as the framework's perception layer --- identifying anomalies, calculating threat probabilities, predicting sequential evolution, and mapping lateral movement --- the RL agent functions as the cognitive control center. It observes this fused intelligence and dynamically selects the optimal defensive action at each step of an Advanced Persistent Threat (APT) campaign.
+
+% --------------------------------------------------------------------------
+\subsection{Architecture and Role}
+\label{subsec:rl_architecture}
+% --------------------------------------------------------------------------
+
+The fundamental limitation of traditional Security Information and Event Management (SIEM) systems is their reliance on static, deterministic rule engines. In a conventional SIEM, if an anomaly score breaches a predefined threshold, an alert is universally triggered. However, responding to APTs is not a deterministic problem; it is a highly dynamic optimization challenge requiring trade-offs under uncertainty.
+
+The optimal response to an alert depends on multiple contextual factors: the stage of the attack, the combined confidence of multiple distinct detection models, the historical progression of the sequence, and the intrinsic cost of the intervention itself (e.g., isolating a host disrupts business operations and incurs a high false-positive penalty). Reinforcement Learning is uniquely suited to model this complexity. Instead of relying on rigid thresholds, the RL agent \textit{learns} a dynamic policy through continuous trial and error, optimizing for a delicate balance between early threat mitigation and operational continuity.
+
+\subsubsection{The State Space Representation}
+
+At each discrete time step (corresponding to the arrival of a new SIEM alert), the RL agent observes the environment through a highly compressed, semantic state vector. Rather than processing the raw 55-dimensional features directly, the agent operates on a \textbf{13-dimensional fused state space} that aggregates the insights of the four perception models along with crucial temporal context. This cognitive fusion is what allows the agent to make informed decisions.
+
+The 13-dimensional state vector comprises:
+\begin{enumerate}
+    \item \textbf{Autoencoder Signals:} The \textit{anomaly score} and \textit{reconstruction error}, providing an instinctual measure of deviation from normal baseline behavior.
+    \item \textbf{Variational Autoencoder Signals:} The calibrated \textit{malicious probability} and, critically, the model's \textit{uncertainty} (variance in the latent space). This allows the agent to adjust its trust in the VAE's assessment.
+    \item \textbf{Transformer Signals:} The \textit{predicted next Cyber Kill Chain (CKC) stage} and the \textit{prediction confidence}. This enables proactive reasoning --- allowing the agent to intervene based on what the attacker is about to do, rather than what they have already done.
+    \item \textbf{GNN Signals:} The local \textit{node risk}, the \textit{neighbor risk} (indicating cross-machine spread), and the \textit{risk growth} delta. This provides the spatial awareness necessary to detect lateral movement.
+    \item \textbf{Temporal and Contextual Counters:} The \textit{current CKC stage} of the alert, the time elapsed since the first event in the campaign, the time since the last alert, and the sequence length so far. These features give the agent a sense of the attack's pace and scale.
+\end{enumerate}
+
+\subsubsection{The Action Space}
+
+Based on the observed state, the agent selects an action from a discrete space designed to mimic the escalation ladder of a real Security Operations Center (SOC). The action space consists of five mutually exclusive choices:
+
+\begin{itemize}
+    \item \textbf{Action 0 (Monitor):} The agent continues to observe the alert stream passively. This is the optimal action for benign traffic or very early, ambiguous reconnaissance signals where intervention is unwarranted.
+    \item \textbf{Action 1 (Low Alert):} The agent flags the event for routine review by a SOC analyst. It is an informational action with low operational disruption.
+    \item \textbf{Action 2 (Escalate to SOC):} The agent raises a high-priority alert requiring immediate human intervention.
+    \item \textbf{Action 3 (Isolate Host):} An active, automated intervention. The agent logically disconnects the compromised machine from the network.
+    \item \textbf{Action 4 (Block User/IP):} An active intervention targeting the attacker's identity or origin, severing their access globally across the environment.
+\end{itemize}
+
+Actions 2, 3, and 4 are classified as \textbf{terminal interventions}. Once the agent selects one of these actions, it is assumed that the threat has been decisively addressed (or a catastrophic false positive has been committed), and the current episode terminates immediately. The ultimate goal of the agent is to execute a terminal intervention precisely before the attacker reaches the Installation stage (S5), effectively neutralizing the threat before a persistent foothold is established.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\linewidth]{figures/ch3/pair/rl_architecture.png}
+    \caption{Architecture of the Reinforcement Learning Agent (DQN).}
+    \label{fig:rl_architecture}
+\end{figure}
+
+% --------------------------------------------------------------------------
+\subsection{Training Process}
+\label{subsec:rl_training}
+% --------------------------------------------------------------------------
+
+The RL agent is implemented using a \textbf{Deep Q-Network (DQN)} architecture. DQN is a value-based reinforcement learning algorithm that uses a deep neural network to approximate the Q-function, which estimates the expected cumulative future reward for taking a specific action in a specific state.
+
+\subsubsection{The Reward Function Formulation}
+
+The behavior of any reinforcement learning agent is entirely dictated by its reward function. In the STRIX framework, the reward structure is meticulously designed to mathematically encode the priorities of enterprise cybersecurity: maximizing early detection while ruthlessly minimizing false positives.
+
+The reward logic evaluates the agent's action against the ground-truth Cyber Kill Chain stage of the underlying event:
+\begin{itemize}
+    \item \textbf{Early Intervention Rewards:} The agent receives massive positive reinforcement (e.g., high positive values) for correctly escalating or isolating during the early stages of an attack (Reconnaissance, Weaponization, and Delivery). Catching an attack at these stages prevents the exploit from ever executing.
+    \item \textbf{Late Intervention Penalties:} If the agent waits until the Command \& Control (S6) or Actions on Objectives (S7) stages to intervene, the reward drops drastically, eventually becoming negative. In these late stages, the damage has already been done, and the agent is penalized for its sluggishness.
+    \item \textbf{Missed Attack Penalty:} If an episode concludes without the agent ever intervening on a malicious sequence, it suffers a catastrophic negative reward.
+    \item \textbf{False Positive Penalty:} To prevent the agent from adopting a paranoid policy (isolating every host at the first sign of noise), intervening on a benign sequence yields a severe negative penalty. The agent must learn to be certain before disrupting business operations.
+\end{itemize}
+
+\subsubsection{Optimization and Experience Replay}
+
+Training the DQN agent on sequential alert data presents a specific challenge: consecutive alerts in an APT campaign are highly correlated temporally and structurally. Standard neural network optimization assumes that training samples are independent and identically distributed (i.i.d.). Feeding highly correlated sequential states directly into the network causes the Q-values to oscillate wildly, leading to unstable learning or catastrophic forgetting.
+
+To resolve this, the training pipeline utilizes \textbf{Experience Replay}. As the agent interacts with the environment, it stores its experiences --- formalized as transition tuples of (State, Action, Reward, Next State, Done flag) --- into a large replay buffer. During the optimization step, the network does not learn from the immediate sequence of events. Instead, it randomly samples mini-batches from the replay buffer. This random sampling breaks the temporal correlation between consecutive alerts, stabilizing the gradient updates and smoothing the learning trajectory.
+
+\subsubsection{Target Network and Exploration Strategy}
+
+In addition to Experience Replay, the DQN architecture employs a \textbf{Target Network}. In the standard Bellman equation used to update Q-values, the network attempts to update its current prediction based on its own estimation of the next state's value. This creates a moving target problem, where the network chases its own rapidly shifting weights, often leading to divergence. The agent mitigates this by maintaining a separate, slowly-updating clone of the main network (the Target Network) to calculate the future value estimates, anchoring the learning process and ensuring stable convergence.
+
+The agent navigates the environment using an \textbf{Epsilon-Greedy ($\epsilon$-greedy) exploration strategy}. At the beginning of training ($\epsilon = 1.0$), the agent ignores its neural network entirely, taking purely random actions to aggressively explore the state space and discover the consequences of late interventions and false positives. As training progresses over thousands of episodes, $\epsilon$ exponentially decays, gradually shifting the agent's behavior from random exploration to precise exploitation of its finely-tuned Q-network. By the end of the training pipeline, the agent acts almost entirely deterministically, applying its learned policy to neutralize APT sequences with calculated precision.
+
+
 \section{Platform Architecture and Design}
 \label{sec:platform-design}
 
@@ -493,4 +1138,17 @@ the bridge network and reaches the platform through the API gateway
 \cite{expo2024,nextjs2024}; this is the only inbound connection
 crossing the bridge boundary, which simplifies the security posture
 of the deployment.
+
 \section{Conclusion}
+
+This chapter laid out the conception of the proposed framework as
+a single coherent design across five concerns: the multi-model
+detection ensemble that decomposes APT detection by cognitive
+function (AE, $\beta$-VAE, Transformer, GraphSAGE GNN), the
+REaLTabFormer-based synthetic generator that breaks brittle
+correlations on scarce attack stages, the DQN agent that fuses the
+ensemble's signals into a CKC-aware response policy, and the CAVIX
+platform that embeds the three in a deployable system with
+deterministic gating, type-safe contracts, and reproducible
+artefacts. Chapter~\ref{chap:implementation} now describes how each
+of these blueprints was realised in code, hardware, and SIEM rules.
