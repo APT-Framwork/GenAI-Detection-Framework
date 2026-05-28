@@ -1,0 +1,51 @@
+\chapter{Conclusion}
+\label{chap:conclusion}
+\section{Summary}
+
+This report presented \textit{CAVIX}, a GenAI-augmented framework for the early detection of multi-stage Advanced Persistent Threats (APTs) using the Cyber Kill Chain. The work was motivated by several limitations observed in existing APT detection approaches, particularly their inability to model the sequential nature of attacks, exploit the semantic content of security logs, generalize to unseen adversarial behaviors, and operate within a deployable real-time environment. To address these challenges, the proposed solution combines multiple detection models, generative data augmentation, reinforcement learning, semantic feature engineering, and SIEM integration into a unified architecture.
+
+The framework was validated on the Linux APT Dataset 2024, which contains millions of security events collected from emulated APT campaigns. A complete preprocessing and feature engineering pipeline was applied to raw Wazuh alerts in order to transform heterogeneous logs into compact behavioral representations enriched with SecBERT embeddings. The final system was evaluated through end-to-end simulation using MITRE Caldera, Docker-based victim machines, and Wazuh as the monitoring backend, demonstrating that the proposed architecture is not only theoretically sound but also operationally deployable.
+
+\section{Main Contributions}
+
+This work introduced several contributions to the field of APT detection.
+
+First, it proposed a multi-model perception layer composed of a Regularized Autoencoder, a Beta-Variational Autoencoder, a Transformer-based CKC stage predictor, and a Graph Neural Network based on GraphSAGE. Each model was designed to capture a different aspect of APT behavior, namely anomaly detection, malicious probability estimation, sequential stage prediction, and lateral movement analysis. This specialization reflects the fact that APT detection is inherently a multi-faceted problem that cannot be solved effectively by a single architecture.
+
+Second, the report introduced STRIX, a Deep Q-Network agent responsible for fusing the outputs of the perception models and selecting the most appropriate defensive action. The reward function was designed to prioritize early intervention, encouraging the system to react as soon as sufficient evidence of malicious activity appears. This reinforcement learning component gives the framework a dynamic decision-making capability that goes beyond static classification.
+
+Third, the work incorporated REaLTabFormer to generate synthetic APT sequences, enabling data augmentation for rare and evolving attack patterns. This generative component improved robustness and helped the agent learn from a broader variety of attack behaviors. In addition, SecBERT embeddings were used to exploit the textual content of security logs, including command lines, process names, and alert descriptions, which are often ignored by conventional models.
+
+Fourth, the report established a deterministic mapping between MITRE ATT\&CK tactics and Cyber Kill Chain stages, allowing attacks to be represented in a structured and stage-aware manner. This mapping supports both model training and attack interpretation, and it strengthens the conceptual coherence of the framework.
+
+Finally, the detection pipeline was integrated into CAVIX, a Cyber Threat Intelligence platform connected to Wazuh SIEM. The platform includes a real-time dashboard, threat intelligence ingestion, alert correlation, and analyst notifications, making the solution suitable for practical SOC use.
+
+\section{Limitations}
+
+Although the results are promising, the proposed work has several limitations.
+
+The first limitation is the focus on a single domain, namely host-based APT detection. While this choice made the problem more structured and allowed a clear sequence-based modeling approach, it limits direct applicability to other environments such as cloud, mobile, network, or industrial control systems.
+
+The second limitation is the use of a single dataset for evaluation. Although the Linux APT Dataset 2024 is rich and realistic, broader validation on additional datasets would be necessary to confirm generalization across different infrastructures, operating systems, and attacker profiles.
+
+The third limitation concerns the synthetic data generation pipeline. While REaLTabFormer improved coverage of rare behaviors, synthetic sequences may still fail to reproduce all subtle characteristics of real-world attack traces. In particular, environment-specific noise and organization-specific behaviors are difficult to model perfectly.
+
+The fourth limitation is related to operational scale. The current platform was validated in a controlled laboratory setting, which provides strong proof of concept but does not fully capture the complexity, volume, and variability of a production SOC environment.
+
+\section{Future Work}
+
+This work opens several concrete research directions for extension:
+
+\begin{itemize}
+    \item \textbf{Multi-domain extension.} The framework's multi-agent architecture is naturally extensible to network, cloud, and ICS/OT APT domains. A future iteration could deploy dedicated perception models for each domain and coordinate them through a shared RL agent operating over a unified cross-domain state space.
+
+    \item \textbf{Online and continual learning.} The current framework operates with frozen model weights after pre-training. Integrating continual learning mechanisms---such as elastic weight consolidation or experience replay---would allow the perception models to adapt to evolving attacker TTPs without catastrophic forgetting.
+
+    \item \textbf{Broader ATT\&CK coverage.} The current detection pipeline covers the seven CKC stages mapped to 14 ATT\&CK tactics. Future work could extend the Transformer and GNN models to reason at the sub-technique level, increasing ATT\&CK coverage percentage and enabling more fine-grained early-stage attribution.
+
+    \item \textbf{Creation of a new dataset for unseen APTs.} Another important direction is to build a new dataset covering non-existing or previously unseen APT scenarios, in order to better evaluate generalization against novel attack behaviors. Such a dataset would help reduce dependence on known attack patterns and provide a stronger benchmark for testing early detection methods under zero-day-like conditions.
+\end{itemize}
+
+\section{Final Remarks}
+
+In conclusion, this work demonstrates that effective APT early detection requires more than a single classifier. It requires a combination of sequential reasoning, anomaly detection, semantic understanding, generative augmentation, and adaptive decision-making. By bringing these elements together in CAVIX, this report provides both a methodological contribution and a practical platform for early APT detection. The achieved results show that the proposed approach is a strong step toward more intelligent, adaptive, and operational cyber defense systems.

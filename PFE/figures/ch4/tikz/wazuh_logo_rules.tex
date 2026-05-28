@@ -1,0 +1,37 @@
+\documentclass[border=8pt,tikz]{standalone}
+\usepackage{tikz}
+\input{_style}
+
+\begin{document}
+\begin{tikzpicture}[node distance=8mm,
+  parent/.style={comp=strixGrey, minimum width=42mm},
+  muted/.style={comp=strixGrey, fill=strixGrey!8, minimum width=42mm,
+                font=\sffamily\scriptsize\itshape, text=strixGrey},
+  child/.style={comp=strixGreen, minimum width=46mm},
+  alert/.style={comp=strixRed, minimum width=46mm}]
+
+\node[font=\sffamily\bfseries\large, text=strixDark] (logo) {Wazuh};
+\node[font=\sffamily\scriptsize, text=strixGrey, anchor=north] at ([yshift=-1mm]logo.south) {Linux APT decoders};
+
+% Muted parents
+\node[muted, right=18mm of logo, yshift=8mm]  (p1) {rule 80789 (execve) \(\to\) level 0};
+\node[muted, below=4mm of p1]                  (p2) {rule 80784 (write)  \(\to\) level 0};
+\node[muted, below=4mm of p2]                  (p3) {rule 80785 (read)   \(\to\) level 0};
+
+% Children inheriting via <if_sid>
+\node[child, right=22mm of p1, yshift=6mm]   (c1) {rule 100050: SSH invalid-user burst (T1595)};
+\node[child, below=2mm of c1]                (c2) {rule 100051: nmap fingerprinting (T1595)};
+\node[child, below=2mm of c2]                (c3) {rule 100100+: Caldera Discovery cmds};
+\node[child, below=2mm of c3]                (c4) {rule 100200+: lateral mvmt / cred access};
+
+\foreach \p in {p1,p2,p3} {
+  \foreach \c in {c1,c2,c3,c4} {
+    \draw[edge, dashed] (\p.east) -- (\c.west);
+  }
+}
+
+\node[font=\sffamily\scriptsize\itshape, text=strixGrey, anchor=west]
+  at ([xshift=2mm]c4.east) {\(\langle\)if\_sid\(\rangle\) inheritance};
+
+\end{tikzpicture}
+\end{document}

@@ -1,0 +1,53 @@
+// Eraser type: flowchart-diagram
+// Paste into a new Eraser file, choose diagram type "Flowchart"
+title CAVIX — Analyst Response Workflow (3.7.5)
+
+direction right
+
+// ── Backend lane ───────────────────────────────────────────
+Backend [color: green] {
+  start [shape: oval, label: "●", color: black]
+  b1 [label: "Filebeat → Redis\n(raw alert)"]
+  b2 [label: "normalizer + inference\nverdict + DQN action"]
+  b3 [label: "verdicts_writer\npersists + opens / bumps chain"]
+  gate [shape: diamond, label: "Gate passes?\n(AE / VAE / Tx / GNN\nthresholds)", color: yellow]
+  b4_yes [label: "Flag\nrequires_approval = True"]
+  b4_no [label: "Record LOW_ALERT\n(no approval)"]
+  b5 [label: "SSE push\nweb + mobile vigilance feed"]
+  b6 [label: "Expo push\n(if CKC ≤ S2)"]
+  b7 [label: "actions_service.apply()\nvia API"]
+  b8 [label: "case_audit_log row"]
+}
+
+// ── Analyst lane ───────────────────────────────────────────
+Analyst [color: blue] {
+  a1 [label: "Sees alert on\ndashboard / phone"]
+  a2 [label: "Opens Attack Analysis\nreads forensic report"]
+  approve_dec [shape: diamond, label: "Approve\nDQN action?", color: yellow]
+  a3_no [label: "Record rejection"]
+  resolve_dec [shape: diamond, label: "Resolve or\nescalate?", color: yellow]
+  a4_resolve [label: "triage_status =\n'resolved'"]
+  end_node [shape: oval, label: "●", color: black]
+}
+
+// ── Wazuh lane ─────────────────────────────────────────────
+Wazuh [color: orange] {
+  w1 [label: "Active response —\nisolation / block"]
+}
+
+// ── Edges ──────────────────────────────────────────────────
+start > b1 > b2 > b3 > gate
+gate > b4_yes: yes (high-risk)
+gate > b4_no: no
+b4_yes > b5
+b4_no > b5
+b5 > b6 > a1: dashboard / phone
+a1 > a2 > approve_dec
+approve_dec > b7: approve
+approve_dec > a3_no: reject
+b7 > w1 > b8
+a3_no > b8
+b8 > resolve_dec
+resolve_dec > a4_resolve: resolve
+a4_resolve > end_node
+resolve_dec > a1: escalate → reassign

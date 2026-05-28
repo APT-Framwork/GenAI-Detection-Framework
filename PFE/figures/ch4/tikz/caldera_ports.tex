@@ -1,0 +1,24 @@
+\documentclass[border=8pt,tikz]{standalone}
+\usepackage{tikz}
+\input{_style}
+
+\begin{document}
+\begin{tikzpicture}[node distance=4mm]
+
+\node[ext, minimum width=72mm, minimum height=58mm]
+  (box) at (0,0) {};
+\node[title, font=\sffamily\bfseries] at ([yshift=22mm]box.center) {strix\_caldera};
+\node[font=\sffamily\scriptsize\itshape, text=strixGrey]
+  at ([yshift=17mm]box.center) {Docker container};
+
+\node[port] at ([yshift=10mm]box.center)  (p1) {\textbf{8888}\;\;Operator UI};
+\node[port, below=of p1]                  (p2) {\textbf{7010}\;\;HTTP C2 contact};
+\node[port, below=of p2]                  (p3) {\textbf{7011}\;\;UDP C2 contact};
+\node[port, below=of p3]                  (p4) {\textbf{7012}\;\;TCP C2 contact};
+\node[port, below=of p4]                  (p5) {\textbf{8080}\;\;Payload staging};
+
+\node[font=\sffamily\scriptsize\itshape, anchor=north, text=strixGrey]
+  at ([yshift=-2mm]box.south) {persistent volumes: conf/, data/};
+
+\end{tikzpicture}
+\end{document}

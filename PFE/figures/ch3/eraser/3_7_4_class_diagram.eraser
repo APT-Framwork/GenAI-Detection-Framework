@@ -1,0 +1,302 @@
+// Eraser type: entity-relationship-diagram
+// (Eraser has no native UML class diagram; ER format is used to mimic it.
+//  Methods are listed as fields with type "method" — they render as labelled rows.)
+// Paste into a new Eraser file, choose diagram type "Entity Relationship Diagram"
+title CAVIX — Class Diagram (3.7.4)
+
+// ═══ Cluster 1: Domain entities ═══════════════════════════
+
+User [icon: user, color: blue] {
+  user_id uuid pk
+  email str unique
+  password_hash str
+  role enum
+  is_active bool
+  designation str
+  set_password(plain) method
+  verify_password(plain) method
+}
+
+Host [icon: server, color: blue] {
+  host_id uuid pk
+  agent_id str unique
+  agent_name str
+  ip_address str
+  is_manager bool
+  first_seen_at datetime
+  last_seen_at datetime
+}
+
+AttackChain [icon: link, color: orange] {
+  chain_id uuid pk
+  host_id uuid fk
+  opened_at datetime
+  closed_at datetime
+  first_malicious_at datetime
+  max_ckc_stage int
+  max_vae_prob float
+  status enum
+  triage_status enum
+  campaign_id uuid fk
+  tlp enum
+  assignee_user_id uuid fk
+  close(reason) method
+  bump_stage(stage) method
+  attribute_to(campaign) method
+}
+
+Alert [icon: alert-triangle, color: orange] {
+  alert_id str pk
+  occurred_at datetime pk
+  host_id uuid fk
+  chain_id uuid fk
+  decoder_name str
+  location str
+  full_log str
+  rule_id int
+  rule_firedtimes int
+  mitre_tactics array
+  mitre_techniques array
+  ckc_stage int
+  raw_jsonb jsonb
+  acknowledged_at datetime
+  acknowledged_by uuid fk
+  acknowledge(user) method
+}
+
+Detection [icon: cpu, color: orange] {
+  alert_id str pk
+  occurred_at datetime pk
+  host_id uuid
+  chain_id uuid
+  step_in_chain int
+  ae_anomaly_score float
+  ae_recon_error float
+  vae_malicious_prob float
+  vae_uncertainty float
+  transformer_pred_ckc int
+  transformer_confidence float
+  transformer_probabilities array
+  gnn_node_risk float
+  gnn_neighbor_risk float
+  gnn_risk_growth float
+  state_vector array
+  model_versions jsonb
+}
+
+DQNAction [icon: zap, color: orange] {
+  action_id uuid pk
+  alert_id str fk
+  chain_id uuid fk
+  host_id uuid fk
+  decided_at datetime
+  action int
+  action_name enum
+  q_values array
+  ckc_stage_at_decision int
+  requires_approval bool
+  applied bool
+  applied_at datetime
+  applied_by uuid fk
+  rejected_at datetime
+  rejected_by uuid fk
+  approve(user) method
+  reject(user, reason) method
+  rollback(user, reason) method
+}
+
+DqnActionRollback [color: orange] {
+  rollback_id uuid pk
+  action_id uuid fk unique
+  rolled_back_by uuid fk
+  rolled_back_at datetime
+  reason str
+}
+
+Campaign [icon: target, color: red] {
+  campaign_id uuid pk
+  name str unique
+  actor_id uuid fk
+  tactic_chain jsonb
+  description str
+}
+
+ThreatActor [icon: skull, color: red] {
+  actor_id uuid pk
+  name str unique
+  aliases array
+  mitre_group_id str
+  country str
+  motivation str
+  description str
+}
+
+PushDevice [icon: smartphone, color: blue] {
+  device_id uuid pk
+  user_id uuid fk
+  expo_push_token str
+  platform enum
+  app_version str
+  registered_at datetime
+  last_seen_at datetime
+}
+
+FileScan [icon: file, color: blue] {
+  scan_id uuid pk
+  sha256 str unique
+  filename str
+  size_bytes int
+  uploaded_at datetime
+  uploaded_by uuid fk
+  vt_result jsonb
+  vt_scanned_at datetime
+  status enum
+}
+
+Tag [color: purple] {
+  tag_id uuid pk
+  name str unique
+  colour str
+  description str
+}
+
+TagLink [color: purple] {
+  link_id uuid pk
+  entity_type enum
+  entity_id uuid
+  tag_id uuid fk
+  created_by uuid fk
+}
+
+ChainNote [color: purple] {
+  note_id uuid pk
+  chain_id uuid fk
+  author_user_id uuid fk
+  body_md str
+}
+
+CaseAuditLog [color: purple] {
+  audit_id uuid pk
+  chain_id uuid fk
+  user_id uuid fk
+  from_status str
+  to_status str
+  note str
+  at datetime
+}
+
+HuntSavedQuery [color: blue] {
+  saved_id uuid pk
+  user_id uuid fk
+  name str
+  q str
+}
+
+IocLookupCache [color: blue] {
+  indicator str pk
+  indicator_type str pk
+  source str pk
+  reputation str
+  payload jsonb
+  checked_at datetime
+  expires_at datetime
+}
+
+LlmInsightCache [color: blue] {
+  payload_hash str pk
+  generated_at datetime
+  model_version str
+  insight str
+  recommended_actions jsonb
+  expires_at datetime
+}
+
+GnnGraphSnapshot [color: green] {
+  snapshot_id uuid pk
+  taken_at datetime pk
+  shard_id int
+  node_count int
+  edge_count int
+  nodes jsonb
+  edges jsonb
+}
+
+// ═══ Cluster 2: ML model layer ════════════════════════════
+
+ModelRegistry [icon: package, color: green] {
+  active_calibrator str
+  load(name, version) method
+  verify_sha256(path, expected) method
+}
+
+RegularizedAutoencoder [icon: cpu, color: yellow] {
+  encoder Sequential
+  fc_mu Linear_128_to_64
+  fc_logvar Linear_128_to_64
+  decoder Sequential
+  center Parameter
+  forward(x) method
+  encode(x) method
+  decode(z) method
+}
+
+BetaVAE [icon: cpu, color: yellow] {
+  encoder Sequential_55_512_256_128
+  fc_z_mean Linear_128_to_32
+  fc_z_log_var Linear_128_to_32
+  decoder Sequential_32_128_256_512_55
+  center Parameter
+  forward(x) method
+}
+
+Transformer [icon: cpu, color: yellow] {
+  input_projection Linear_64_to_128
+  pos_encoder Sinusoidal_d128_len500
+  transformer_encoder 4xEncoderLayer_8heads
+  output_head Linear_128_64_8
+  forward(seq) method
+}
+
+GraphSAGE [icon: cpu, color: yellow] {
+  convs SAGEConv_55_128_128_128
+  bns BatchNorm_128_x3
+  head Linear_128_64_1_Sigmoid
+  forward(x_edge_index) method
+}
+
+DQN [icon: cpu, color: yellow] {
+  network Sequential_13_128_64_5
+  forward(state) method
+  select_action(state) method
+}
+
+// ── Relationships ──────────────────────────────────────────
+Host.host_id < AttackChain.host_id
+AttackChain.chain_id < Alert.chain_id
+Alert.alert_id - Detection.alert_id
+Alert.alert_id < DQNAction.alert_id
+AttackChain.chain_id < DQNAction.chain_id
+DQNAction.action_id - DqnActionRollback.action_id
+User.user_id < DQNAction.applied_by
+User.user_id < DQNAction.rejected_by
+User.user_id < DqnActionRollback.rolled_back_by
+Campaign.campaign_id < AttackChain.campaign_id
+ThreatActor.actor_id < Campaign.actor_id
+AttackChain.chain_id < ChainNote.chain_id
+User.user_id < ChainNote.author_user_id
+AttackChain.chain_id < CaseAuditLog.chain_id
+User.user_id < CaseAuditLog.user_id
+Tag.tag_id < TagLink.tag_id
+User.user_id < TagLink.created_by
+User.user_id < HuntSavedQuery.user_id
+User.user_id < PushDevice.user_id
+User.user_id < FileScan.uploaded_by
+User.user_id < AttackChain.assignee_user_id
+User.user_id < Alert.acknowledged_by
+
+// ML layer dependencies (registry loads each model; Detection consumes outputs)
+ModelRegistry > RegularizedAutoencoder
+ModelRegistry > BetaVAE
+ModelRegistry > Transformer
+ModelRegistry > GraphSAGE
+ModelRegistry > DQN

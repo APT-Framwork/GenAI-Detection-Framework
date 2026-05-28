@@ -1,0 +1,44 @@
+\documentclass[border=8pt,tikz]{standalone}
+\usepackage{tikz}
+\input{_style}
+
+\begin{document}
+\begin{tikzpicture}[node distance=8mm]
+
+\node[source, minimum width=28mm] (raw) {Raw Wazuh alert\\\scriptsize JSON};
+
+\node[worker, right=of raw, minimum width=30mm] (fe25) {Feature engineer\\\scriptsize 25 conceptual features};
+
+\node[worker, right=of fe25, minimum width=30mm] (selected) {Top-25 selection\\\scriptsize XGBoost importance};
+
+% Branching
+\node[worker, above right=4mm and 14mm of selected, minimum width=46mm] (sblog)
+  {SecBERT(\texttt{full\_log})\\\scriptsize max\_len 128, mean-pool $\to$ PCA-16\\\scriptsize 77.82\% variance};
+\node[worker, below right=4mm and 14mm of selected, minimum width=46mm] (sbcmd)
+  {SecBERT(\texttt{data.command})\\\scriptsize max\_len 128, mean-pool $\to$ PCA-16\\\scriptsize 97.05\% variance};
+\node[worker, right=14mm of selected, minimum width=46mm] (ind)
+  {23 individual features\\\scriptsize 16 binary + 3 location + 4 numeric};
+
+\node[comp=strixGold, right=18mm of ind, minimum width=36mm, minimum height=14mm]
+  (concat) {55-dim canonical\\\scriptsize\bfseries [23 ind | 16 log | 16 cmd]};
+
+\node[store, right=12mm of concat, minimum width=28mm] (scaler)
+  {StandardScaler\\\scriptsize z-score};
+
+\node[model, right=12mm of scaler, minimum width=28mm] (out)
+  {to 4 supervised\\models + DQN state};
+
+% Edges
+\draw[edgeStrong] (raw) -- (fe25);
+\draw[edgeStrong] (fe25) -- (selected);
+\draw[edgeStrong] (selected.east) to[bend left=15] (sblog.west);
+\draw[edgeStrong] (selected.east) to[bend right=15] (sbcmd.west);
+\draw[edgeStrong] (selected) -- (ind);
+\draw[edgeStrong] (ind) -- (concat);
+\draw[edgeStrong] (sblog) -| (concat.north);
+\draw[edgeStrong] (sbcmd) -| (concat.south);
+\draw[edgeStrong] (concat) -- (scaler);
+\draw[edgeStrong] (scaler) -- (out);
+
+\end{tikzpicture}
+\end{document}

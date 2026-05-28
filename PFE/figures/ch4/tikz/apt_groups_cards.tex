@@ -1,0 +1,76 @@
+\documentclass[border=8pt,tikz]{standalone}
+\usepackage{tikz}
+\usepackage{graphicx}
+\input{_style}
+
+\begin{document}
+\begin{tikzpicture}[
+  card/.style={
+    rectangle, rounded corners=4pt, draw=#1, very thick,
+    fill=#1!4, minimum width=72mm, minimum height=44mm,
+    inner sep=4pt,
+  },
+  cardtitle/.style={font=\sffamily\bfseries\large, text=strixDark},
+  ttp/.style={badge=#1, font=\sffamily\footnotesize, anchor=west},
+]
+
+% ─── Row 1 ──────────────────────────────────────────────────────
+% APT41 (China)
+\node[card=strixRed] (c1) at (0,0) {};
+\node[anchor=north west, inner sep=4pt] at (c1.north west)
+  {\includegraphics[height=8mm]{flags/cn}};
+\node[cardtitle, anchor=north east, inner sep=4pt] at (c1.north east) {APT41};
+\node[font=\sffamily\footnotesize\itshape, text=strixGrey, anchor=north east]
+  at ([yshift=-5mm]c1.north east) {China \(\cdot\) MSS-linked};
+\node[font=\sffamily\footnotesize, anchor=north west, align=left]
+  at ([xshift=2mm,yshift=-14mm]c1.north west)
+  {\textbf{Motivation:} espionage + financial dual-use};
+\node[ttp=strixRed]    at ([yshift=-22mm,xshift=2mm]c1.north west) {T1190 web exploit};
+\node[ttp=strixRed]    at ([yshift=-28mm,xshift=2mm]c1.north west) {T1059.004 shell};
+\node[ttp=strixRed]    at ([yshift=-34mm,xshift=2mm]c1.north west) {T1071.001 HTTPS C2};
+
+% APT28 (Russia / GRU)
+\node[card=strixOrange, right=8mm of c1] (c2) {};
+\node[anchor=north west, inner sep=4pt] at (c2.north west)
+  {\includegraphics[height=8mm]{flags/ru}};
+\node[cardtitle, anchor=north east, inner sep=4pt] at (c2.north east) {APT28};
+\node[font=\sffamily\footnotesize\itshape, text=strixGrey, anchor=north east]
+  at ([yshift=-5mm]c2.north east) {Russia \(\cdot\) GRU 26165};
+\node[font=\sffamily\footnotesize, anchor=north west, align=left]
+  at ([xshift=2mm,yshift=-14mm]c2.north west)
+  {\textbf{Motivation:} military / political intel};
+\node[ttp=strixOrange] at ([yshift=-22mm,xshift=2mm]c2.north west) {T1078 valid accounts};
+\node[ttp=strixOrange] at ([yshift=-28mm,xshift=2mm]c2.north west) {T1003 OS cred dump};
+\node[ttp=strixOrange] at ([yshift=-34mm,xshift=2mm]c2.north west) {T1021.004 SSH lateral};
+
+% ─── Row 2 ──────────────────────────────────────────────────────
+% APT29 (Russia / SVR)
+\node[card=strixGold, below=8mm of c1] (c3) {};
+\node[anchor=north west, inner sep=4pt] at (c3.north west)
+  {\includegraphics[height=8mm]{flags/ru}};
+\node[cardtitle, anchor=north east, inner sep=4pt] at (c3.north east) {APT29};
+\node[font=\sffamily\footnotesize\itshape, text=strixGrey, anchor=north east]
+  at ([yshift=-5mm]c3.north east) {Russia \(\cdot\) SVR};
+\node[font=\sffamily\footnotesize, anchor=north west, align=left]
+  at ([xshift=2mm,yshift=-14mm]c3.north west)
+  {\textbf{Motivation:} long-dwell foreign intel};
+\node[ttp=strixGold]   at ([yshift=-22mm,xshift=2mm]c3.north west) {T1547 persistence};
+\node[ttp=strixGold]   at ([yshift=-28mm,xshift=2mm]c3.north west) {T1027 obfuscation};
+\node[ttp=strixGold]   at ([yshift=-34mm,xshift=2mm]c3.north west) {T1041 exfil over C2};
+
+% Turla (Russia / FSB)
+\node[card=strixGreen, below=8mm of c2] (c4) {};
+\node[anchor=north west, inner sep=4pt] at (c4.north west)
+  {\includegraphics[height=8mm]{flags/ru}};
+\node[cardtitle, anchor=north east, inner sep=4pt] at (c4.north east) {Turla};
+\node[font=\sffamily\footnotesize\itshape, text=strixGrey, anchor=north east]
+  at ([yshift=-5mm]c4.north east) {Russia \(\cdot\) FSB-attributed};
+\node[font=\sffamily\footnotesize, anchor=north west, align=left]
+  at ([xshift=2mm,yshift=-14mm]c4.north west)
+  {\textbf{Motivation:} custom Linux backdoors};
+\node[ttp=strixGreen]  at ([yshift=-22mm,xshift=2mm]c4.north west) {T1055 proc injection};
+\node[ttp=strixGreen]  at ([yshift=-28mm,xshift=2mm]c4.north west) {T1546 event-triggered};
+\node[ttp=strixGreen]  at ([yshift=-34mm,xshift=2mm]c4.north west) {T1071 app-layer C2};
+
+\end{tikzpicture}
+\end{document}

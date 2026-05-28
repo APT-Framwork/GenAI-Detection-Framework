@@ -1,0 +1,242 @@
+// Eraser type: entity-relationship-diagram
+// Paste into a new Eraser file, choose diagram type "Entity Relationship Diagram"
+title CAVIX — Database ER Diagram (3.7.6.b)
+
+// ── Identity ───────────────────────────────────────────────
+users [icon: user, color: blue] {
+  user_id uuid pk
+  email str unique
+  password_hash str
+  role enum
+  is_active bool
+  designation str
+  created_at datetime
+  updated_at datetime
+}
+
+push_devices [icon: smartphone, color: blue] {
+  device_id uuid pk
+  user_id uuid fk
+  expo_push_token str
+  platform enum
+  app_version str
+  registered_at datetime
+  last_seen_at datetime
+}
+
+hunt_saved_queries [color: blue] {
+  saved_id uuid pk
+  user_id uuid fk
+  name str
+  q str
+}
+
+file_scans [icon: file, color: blue] {
+  scan_id uuid pk
+  sha256 str unique
+  filename str
+  size_bytes int
+  uploaded_at datetime
+  uploaded_by uuid fk
+  vt_result jsonb
+  vt_scanned_at datetime
+  status enum
+}
+
+// ── Inventory ──────────────────────────────────────────────
+hosts [icon: server, color: green] {
+  host_id uuid pk
+  agent_id str unique
+  agent_name str
+  ip_address str
+  is_manager bool
+  first_seen_at datetime
+  last_seen_at datetime
+}
+
+gnn_graph_snapshots [color: green] {
+  snapshot_id uuid pk
+  taken_at datetime pk
+  shard_id int
+  node_count int
+  edge_count int
+  nodes jsonb
+  edges jsonb
+}
+
+// ── Detection core (TS = hypertable) ──────────────────────
+attack_chains [icon: link, color: orange] {
+  chain_id uuid pk
+  host_id uuid fk
+  opened_at datetime
+  closed_at datetime
+  first_malicious_at datetime
+  max_ckc_stage int
+  max_vae_prob float
+  status enum
+  triage_status enum
+  campaign_id uuid fk
+  tlp enum
+  assignee_user_id uuid fk
+}
+
+alerts [icon: alert-triangle, color: orange] {
+  alert_id str pk
+  occurred_at datetime pk
+  host_id uuid fk
+  chain_id uuid fk
+  decoder_name str
+  location str
+  full_log str
+  rule_id int
+  rule_firedtimes int
+  mitre_tactics array
+  mitre_techniques array
+  ckc_stage int
+  raw_jsonb jsonb
+  acknowledged_at datetime
+  acknowledged_by uuid fk
+}
+
+detections [icon: cpu, color: orange] {
+  alert_id str pk
+  occurred_at datetime pk
+  host_id uuid
+  chain_id uuid
+  step_in_chain int
+  ae_anomaly_score float
+  ae_recon_error float
+  vae_malicious_prob float
+  vae_uncertainty float
+  transformer_pred_ckc int
+  transformer_confidence float
+  transformer_probabilities array
+  gnn_node_risk float
+  gnn_neighbor_risk float
+  gnn_risk_growth float
+  state_vector array
+  model_versions jsonb
+}
+
+dqn_actions [icon: zap, color: orange] {
+  action_id uuid pk
+  alert_id str fk
+  chain_id uuid fk
+  host_id uuid fk
+  decided_at datetime
+  action int
+  action_name enum
+  q_values array
+  ckc_stage_at_decision int
+  requires_approval bool
+  applied bool
+  applied_at datetime
+  applied_by uuid fk
+  rejected_at datetime
+  rejected_by uuid fk
+}
+
+dqn_action_rollbacks [color: orange] {
+  rollback_id uuid pk
+  action_id uuid fk unique
+  rolled_back_by uuid fk
+  rolled_back_at datetime
+  reason str
+}
+
+// ── CTI ────────────────────────────────────────────────────
+threat_actors [icon: skull, color: red] {
+  actor_id uuid pk
+  name str unique
+  aliases array
+  mitre_group_id str
+  country str
+  motivation str
+  description str
+}
+
+campaigns [icon: target, color: red] {
+  campaign_id uuid pk
+  name str unique
+  actor_id uuid fk
+  tactic_chain jsonb
+  description str
+}
+
+// ── Metadata ───────────────────────────────────────────────
+tags [color: purple] {
+  tag_id uuid pk
+  name str unique
+  colour str
+  description str
+}
+
+tag_links [color: purple] {
+  link_id uuid pk
+  entity_type enum
+  entity_id uuid
+  tag_id uuid fk
+  created_by uuid fk
+}
+
+chain_notes [color: purple] {
+  note_id uuid pk
+  chain_id uuid fk
+  author_user_id uuid fk
+  body_md str
+}
+
+case_audit_log [color: purple] {
+  audit_id uuid pk
+  chain_id uuid fk
+  user_id uuid fk
+  from_status str
+  to_status str
+  note str
+  at datetime
+}
+
+// ── Cache (no outgoing FKs) ───────────────────────────────
+ioc_lookup_cache [color: blue] {
+  indicator str pk
+  indicator_type str pk
+  source str pk
+  reputation str
+  payload jsonb
+  checked_at datetime
+  expires_at datetime
+}
+
+llm_insight_cache [color: blue] {
+  payload_hash str pk
+  generated_at datetime
+  model_version str
+  insight str
+  recommended_actions jsonb
+  expires_at datetime
+}
+
+// ── Relationships (crow's-foot via < / > / <>) ────────────
+hosts.host_id < attack_chains.host_id
+hosts.host_id < alerts.host_id
+attack_chains.chain_id < alerts.chain_id
+alerts.alert_id - detections.alert_id
+alerts.alert_id < dqn_actions.alert_id
+attack_chains.chain_id < dqn_actions.chain_id
+users.user_id < dqn_actions.applied_by
+users.user_id < dqn_actions.rejected_by
+dqn_actions.action_id - dqn_action_rollbacks.action_id
+users.user_id < dqn_action_rollbacks.rolled_back_by
+campaigns.campaign_id < attack_chains.campaign_id
+threat_actors.actor_id < campaigns.actor_id
+attack_chains.chain_id < chain_notes.chain_id
+users.user_id < chain_notes.author_user_id
+attack_chains.chain_id < case_audit_log.chain_id
+users.user_id < case_audit_log.user_id
+tags.tag_id < tag_links.tag_id
+users.user_id < tag_links.created_by
+users.user_id < hunt_saved_queries.user_id
+users.user_id < push_devices.user_id
+users.user_id < file_scans.uploaded_by
+users.user_id < attack_chains.assignee_user_id
+users.user_id < alerts.acknowledged_by

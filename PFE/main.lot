@@ -1,0 +1,37 @@
+\babel@toc {nil}{}\relax 
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {1.1}{\ignorespaces Key Machine Learning Application Domains in Cybersecurity}}{22}{table.caption.20}%
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {2.1}{\ignorespaces Summary Table --- Datasets With CKC/MITRE ATT\&CK Mapping}}{27}{table.caption.32}%
+\contentsline {table}{\numberline {2.2}{\ignorespaces Performance comparison of OGE-DQN and literature models on NSL-KDD dataset.}}{33}{table.caption.45}%
+\contentsline {table}{\numberline {2.3}{\ignorespaces CNN2D vs. Baseline Models on CICAPT-IIoT \cite {ghiasvand2024cicapt}}}{34}{table.caption.48}%
+\contentsline {table}{\numberline {2.4}{\ignorespaces AISL Detection Results at Entity and Event Levels}}{35}{table.caption.50}%
+\contentsline {table}{\numberline {2.5}{\ignorespaces GNN Frameworks for APT Detection}}{37}{table.caption.54}%
+\contentsline {table}{\numberline {2.6}{\ignorespaces Performance Analysis of GNN Approaches}}{37}{table.caption.55}%
+\contentsline {table}{\numberline {2.7}{\ignorespaces Results for Independent Test (18.52\% Contamination) and Zero-Day Attack Test (19.93\% Contamination) }}{39}{table.caption.60}%
+\contentsline {table}{\numberline {2.8}{\ignorespaces Performance Comparison of LogShield with Baseline Models on DARPA Datasets}}{41}{table.caption.64}%
+\contentsline {table}{\numberline {2.9}{\ignorespaces F1-Scores of Classification Models per APT Stage \cite {shen2023sr2apt}}}{43}{table.caption.69}%
+\contentsline {table}{\numberline {2.10}{\ignorespaces DQN Agent Performance vs. Fixed-Rate Baselines \cite {shen2023sr2apt}}}{43}{table.caption.70}%
+\contentsline {table}{\numberline {2.11}{\ignorespaces Selected MSL-DEEPAPT results (excerpt) \cite {wang2025msldeepapt}}}{45}{table.caption.73}%
+\contentsline {table}{\numberline {2.12}{\ignorespaces Performance Comparison of StageFinder vs. Baselines \cite {phan2026learning}}}{47}{table.caption.77}%
+\contentsline {table}{\numberline {2.13}{\ignorespaces Mitigation Success Rate and F1 Score of DeepStage vs. Baselines \cite {phan2026deepstage}}}{47}{table.caption.78}%
+\contentsline {table}{\numberline {2.14}{\ignorespaces Comparative Analysis of Related Works}}{47}{table.caption.79}%
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {3.1}{\ignorespaces Mapping between brain regions and the proposed detection models.}}{52}{table.caption.80}%
+\contentsline {table}{\numberline {3.2}{\ignorespaces Mapping between identified gaps and proposed contributions.}}{53}{table.caption.82}%
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {4.1}{\ignorespaces Hardware and software configuration for the two supported deployment modes. Neither setup is required to run a jury demo: \texttt {jury\_demo.sh} brings up the same Compose topology on any machine that can run Docker.}}{85}{table.caption.133}%
+\contentsline {table}{\numberline {4.2}{\ignorespaces Runtime memory budgets for the load-bearing components.}}{86}{table.caption.135}%
+\contentsline {table}{\numberline {4.3}{\ignorespaces Dataset elimination process based on selection criteria}}{93}{table.caption.145}%
+\contentsline {table}{\numberline {4.4}{\ignorespaces Deterministic Mapping from MITRE ATT\&CK Tactics to Cyber Kill Chain Stages}}{99}{table.caption.150}%
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {5.1}{\ignorespaces Iterative Performance Progression of the Autoencoder Model}}{115}{table.caption.170}%
+\contentsline {table}{\numberline {5.2}{\ignorespaces Final Per-Model Detection Performance on the Holdout Test Set}}{116}{table.caption.171}%
+\contentsline {table}{\numberline {5.3}{\ignorespaces Baseline Performance — Train on Real Data, Test on Real Data (TRTR)}}{122}{table.caption.179}%
+\contentsline {table}{\numberline {5.4}{\ignorespaces Implication 1 — Train on Real Data, Test on Synthetic Data (TRTS)}}{122}{table.caption.180}%
+\contentsline {table}{\numberline {5.5}{\ignorespaces Implication 2 — Train on Synthetic Data, Test on Real Data (TSTR)}}{123}{table.caption.181}%
+\contentsline {table}{\numberline {5.6}{\ignorespaces Double Implication Summary — Synthetic Data Functional Equivalence}}{123}{table.caption.182}%
+\contentsline {table}{\numberline {5.7}{\ignorespaces STRIX RL Agent — Final Evaluation Results on Real Data (2,000 Episodes)}}{124}{table.caption.183}%
+\contentsline {table}{\numberline {5.8}{\ignorespaces Ablation Study: Impact of Removing Individual Perception Models}}{126}{table.caption.185}%
+\contentsline {table}{\numberline {5.9}{\ignorespaces Comparison of the proposed framework with state-of-the-art APT detection methods}}{127}{table.caption.186}%
+\addvspace {10\p@ }

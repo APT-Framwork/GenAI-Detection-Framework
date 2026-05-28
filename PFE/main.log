@@ -1,10 +1,10 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.25 (MiKTeX 24.1) (preloaded format=pdflatex 2025.12.9)  20 MAY 2026 15:23
+This is pdfTeX, Version 3.141592653-2.6-1.40.25 (MiKTeX 24.1) (preloaded format=pdflatex 2025.12.9)  28 MAY 2026 17:27
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
  %&-line parsing enabled.
-**g:/pfe/rapport/PFE/main.tex
-(g:/pfe/rapport/PFE/main.tex
+**f:/rapport/PFE/main.tex
+(f:/rapport/PFE/main.tex
 LaTeX2e <2023-11-01> patch level 1
 L3 programming layer <2024-01-04>
 (G:\latex\tex/latex/base\report.cls
@@ -554,6 +554,29 @@ LaTeX Info: Redefining \] on input line 2954.
 \l_MT_below_shortintertext_sep=\dimen341
 \xmathstrut@box=\box107
 \xmathstrut@dim=\dimen342
+) (G:\latex\tex/latex/caption\subcaption.sty
+Package: subcaption 2023/07/28 v1.6b Sub-captions (AR)
+ (G:\latex\tex/latex/caption\caption.sty
+Package: caption 2023/08/05 v3.6o Customizing captions (AR)
+ (G:\latex\tex/latex/caption\caption3.sty
+Package: caption3 2023/07/31 v2.4d caption3 kernel (AR)
+\caption@tempdima=\dimen343
+\captionmargin=\dimen344
+\caption@leftmargin=\dimen345
+\caption@rightmargin=\dimen346
+\caption@width=\dimen347
+\caption@indent=\dimen348
+\caption@parindent=\dimen349
+\caption@hangindent=\dimen350
+Package caption Info: Standard document class detected.
+)
+\c@caption@flags=\count345
+\c@continuedfloat=\count346
+)
+Package caption Info: New subtype `subfigure' on input line 238.
+\c@subfigure=\count347
+Package caption Info: New subtype `subtable' on input line 238.
+\c@subtable=\count348
 ) (G:\latex\tex/latex/amsfonts\amssymb.sty
 Package: amssymb 2013/01/14 v3.01 AMS font symbols
  (G:\latex\tex/latex/amsfonts\amsfonts.sty
@@ -568,8 +591,8 @@ Package: footmisc 2025/05/09 v7.0b a miscellany of footnote facilities
  (G:\latex\tex/latex/footmisc\footmisc-2022-02-14.sty
 Package: footmisc 2024/12/24 v6.0g a miscellany of footnote facilities
 \FN@temptoken=\toks64
-\footnotemargin=\dimen343
-\@outputbox@depth=\dimen344
+\footnotemargin=\dimen351
+\@outputbox@depth=\dimen352
 Package footmisc Info: Declaring symbol style bringhurst on input line 699.
 Package footmisc Info: Declaring symbol style chicago on input line 707.
 Package footmisc Info: Declaring symbol style wiley on input line 716.
@@ -584,15 +607,15 @@ Package: ifthen 2022/04/13 v1.1d Standard LaTeX ifthen package (DPC)
 Package: algorithmicx 2005/04/27 v1.2 Algorithmicx
 
 Document Style algorithmicx 1.2 - a greatly improved `algorithmic' style
-\c@ALG@line=\count345
-\c@ALG@rem=\count346
-\c@ALG@nested=\count347
+\c@ALG@line=\count349
+\c@ALG@rem=\count350
+\c@ALG@nested=\count351
 \ALG@tlm=\skip67
 \ALG@thistlm=\skip68
-\c@ALG@Lnr=\count348
-\c@ALG@blocknr=\count349
-\c@ALG@storecount=\count350
-\c@ALG@tmpcounter=\count351
+\c@ALG@Lnr=\count352
+\c@ALG@blocknr=\count353
+\c@ALG@storecount=\count354
+\c@ALG@tmpcounter=\count355
 \ALG@tmplength=\skip69
 )
 Document Style - pseudocode environments for use with the `algorithmicx' style
@@ -603,14 +626,14 @@ File: tikzlibraryfit.code.tex 2023-01-15 v3.1.10 (3.1.10)
 ) (G:\latex\tex/generic/pgf/frontendlayer/tikz/libraries\tikzlibrarycalc.code.tex
 File: tikzlibrarycalc.code.tex 2023-01-15 v3.1.10 (3.1.10)
 ) (G:\latex\tex/generic/pgf/libraries\pgflibraryintersections.code.tex (G:\latex\tex/generic/pgf/libraries\pgflibraryfpu.code.tex)
-\pgf@intersect@solutions=\count352
+\pgf@intersect@solutions=\count356
 ) (G:\latex\tex/latex/pgfopts\pgfopts.sty
 Package: pgfopts 2014/07/10 v2.1a LaTeX package options with pgfkeys
 \pgfopts@list@add@a@toks=\toks65
 \pgfopts@list@add@b@toks=\toks66
 ) (G:\latex\tex/latex/etoolbox\etoolbox.sty
 Package: etoolbox 2020/10/05 v2.5k e-TeX tools for LaTeX (JAW)
-\etb@tempcnta=\count353
+\etb@tempcnta=\count357
 ) (G:\latex\tex/latex/elocalloc\elocalloc.sty
 Package: elocalloc 2016/12/15 v0.03 local allocation for LaTeX 2015+ (DPC)
 ) (G:\latex\tex/latex/environ\environ.sty
@@ -621,70 +644,70 @@ Package: trimspaces 2009/09/17 v1.1 Trim spaces around a token list
 Package: expl3 2024-01-04 L3 programming layer (loader) 
  (G:\latex\tex/latex/l3backend\l3backend-pdftex.def
 File: l3backend-pdftex.def 2024-01-04 L3 backend support: PDF output (pdfTeX)
-\l__color_backend_stack_int=\count354
+\l__color_backend_stack_int=\count358
 \l__pdf_internal_box=\box108
 ))
 Package: xparse 2023-10-10 L3 Experimental document command parser
 ) (G:\latex\tex/latex/inlinedef\inlinedef.sty
 Package: inlinedef 2008/07/10 v1.0 Inlined expansions within definitions
 \ID@toks=\toks67
-\ID@count=\count355
+\ID@count=\count359
 )
 \ID@usercommands=\toks68
-\safeloop@depth=\count356
-\safeRKloop@depth=\count357
-\forest@temp@dimen=\dimen345
-\forest@temp@count=\count358
-\forest@n=\count359
-\forest@temp@global@count=\count360
+\safeloop@depth=\count360
+\safeRKloop@depth=\count361
+\forest@temp@dimen=\dimen353
+\forest@temp@count=\count362
+\forest@n=\count363
+\forest@temp@global@count=\count364
 \forest@temp@toks=\toks69
-\forest@temparray@M=\count361
-\forest@temparray@N=\count362
-\forest@global@temparray@M=\count363
-\forest@global@temparray@N=\count364
-\forest@isnum@count=\count365
-\forest@isdim@nonintpart=\count366
-\forest@isdim@dimen=\dimen346
-\forest@sort@m=\count367
-\forest@sort@k=\count368
-\forest@sort@p=\count369
+\forest@temparray@M=\count365
+\forest@temparray@N=\count366
+\forest@global@temparray@M=\count367
+\forest@global@temparray@N=\count368
+\forest@isnum@count=\count369
+\forest@isdim@nonintpart=\count370
+\forest@isdim@dimen=\dimen354
+\forest@sort@m=\count371
+\forest@sort@k=\count372
+\forest@sort@p=\count373
 \bracket@content=\toks70
 \bracket@afterthought=\toks71
-\forest@node@maxid=\count370
-\forest@process@left@M=\count371
-\forest@process@left@N=\count372
-\forest@process@right@M=\count373
-\forest@process@right@N=\count374
-\forest@process@saved@M=\count375
-\forest@process@saved@N=\count376
-\forest@process@result@M=\count377
-\forest@process@result@N=\count378
-\forest@process@n=\count379
+\forest@node@maxid=\count374
+\forest@process@left@M=\count375
+\forest@process@left@N=\count376
+\forest@process@right@M=\count377
+\forest@process@right@N=\count378
+\forest@process@saved@M=\count379
+\forest@process@saved@N=\count380
+\forest@process@result@M=\count381
+\forest@process@result@N=\count382
+\forest@process@n=\count383
 \forest@nodewalk@branch@toks=\toks72
 \forest@nodewalk@shortsteps@resolution=\toks73
 \forest@do@dynamics=\toks74
 \forest@box=\box109
-\forest@xg=\dimen347
-\forest@yg=\dimen348
-\forest@xs=\dimen349
-\forest@ys=\dimen350
+\forest@xg=\dimen355
+\forest@yg=\dimen356
+\forest@xs=\dimen357
+\forest@ys=\dimen358
 \forest@pi@toks=\toks75
 \forest@segment@toks=\toks76
 \forest@PIi@toks=\toks77
 \forest@PIii@toks=\toks78
 \forest@copy@in=\read3
 \forest@copy@out=\write6
-\forest@externalize@max@outer@n=\count380
-\forest@externalize@inner@n=\count381
+\forest@externalize@max@outer@n=\count384
+\forest@externalize@inner@n=\count385
 ) (G:\latex\tex/latex/forest\forest-lib-edges.sty
 Package: forest-lib-edges 2016/12/05 v0.1.1
 ) (G:\latex\tex/latex/algorithm2e\algorithm2e.sty
 Package: algorithm2e 2017/07/18 v5.2 algorithms environments
-\c@AlgoLine=\count382
+\c@AlgoLine=\count386
 \algocf@hangindent=\skip70
  (G:\latex\tex/latex/ifoddpage\ifoddpage.sty
 Package: ifoddpage 2022/10/18 v1.2 Conditionals for odd/even page detection
-\c@checkoddpage=\count383
+\c@checkoddpage=\count387
 ) (G:\latex\tex/latex/tools\xspace.sty
 Package: xspace 2014/10/28 v1.13 Space after command names (DPC,MH)
 ) (G:\latex\tex/latex/relsize\relsize.sty
@@ -698,12 +721,12 @@ Package: relsize 2013/03/29 ver 4.1
 \skiplength=\skip76
 \algomargin=\skip77
 \skipalgocfslide=\skip78
-\algowidth=\dimen351
-\inoutsize=\dimen352
-\inoutindent=\dimen353
-\interspacetitleruled=\dimen354
-\interspacealgoruled=\dimen355
-\interspacetitleboxruled=\dimen356
+\algowidth=\dimen359
+\inoutsize=\dimen360
+\inoutindent=\dimen361
+\interspacetitleruled=\dimen362
+\interspacealgoruled=\dimen363
+\interspacetitleboxruled=\dimen364
 \algocf@ruledwidth=\skip79
 \algocf@inoutbox=\box110
 \algocf@inputbox=\box111
@@ -720,19 +743,19 @@ Package: relsize 2013/03/29 ver 4.1
 \algoheightrule=\skip86
 \algotitleheightruledefault=\skip87
 \algotitleheightrule=\skip88
-\c@algocfline=\count384
-\c@algocfproc=\count385
-\c@algocf=\count386
+\c@algocfline=\count388
+\c@algocfproc=\count389
+\c@algocf=\count390
 \algocf@algoframe=\box116
 \algocf@algobox=\box117
 ) (G:\latex\tex/generic/babel\babel.sty
 Package: babel 2024/01/07 v24.1 The Babel package
-\babel@savecnt=\count387
-\U@D=\dimen357
+\babel@savecnt=\count391
+\U@D=\dimen365
 \l@unhyphenated=\language79
  (G:\latex\tex/generic/babel\txtbabel.def)
 \bbl@readstream=\read4
-\bbl@dirlevel=\count388
+\bbl@dirlevel=\count392
 
 *************************************
 * Local config file bblopts.cfg used
@@ -757,7 +780,7 @@ Language: nil 2024/01/07 v24.1 Nil language
    defining Unicode char U+FFFD (decimal 65533)
  (G:\latex\tex/latex/float\float.sty
 Package: float 2001/11/08 v1.3d Float enhancements (AL)
-\c@float@type=\count389
+\c@float@type=\count393
 \float@exts=\toks79
 \float@box=\box118
 \@float@everytoks=\toks80
@@ -801,11 +824,11 @@ Package: gettitlestring 2019/12/15 v1.6 Cleanup title references (HO)
  (G:\latex\tex/latex/kvoptions\kvoptions.sty
 Package: kvoptions 2022-06-15 v3.15 Key value format for package options (HO)
 ))
-\c@section@level=\count390
+\c@section@level=\count394
 )
-\@linkdim=\dimen358
-\Hy@linkcounter=\count391
-\Hy@pagecounter=\count392
+\@linkdim=\dimen366
+\Hy@linkcounter=\count395
+\Hy@pagecounter=\count396
  (G:\latex\tex/latex/hyperref\pd1enc.def
 File: pd1enc.def 2023-11-26 v7.01g Hyperref: PDFDocEncoding definition (HO)
 Now handling font encoding PD1 ...
@@ -813,7 +836,7 @@ Now handling font encoding PD1 ...
 ) (G:\latex\tex/generic/intcalc\intcalc.sty
 Package: intcalc 2019/12/15 v1.3 Expandable calculations with integers (HO)
 )
-\Hy@SavedSpaceFactor=\count393
+\Hy@SavedSpaceFactor=\count397
  (G:\latex\tex/latex/hyperref\puenc.def
 File: puenc.def 2023-11-26 v7.01g Hyperref: PDF Unicode definition (HO)
 Now handling font encoding PU ...
@@ -828,17 +851,17 @@ Package hyperref Info: Plain pages OFF on input line 4196.
 Package hyperref Info: Backreferencing OFF on input line 4201.
 Package hyperref Info: Implicit mode ON; LaTeX internals redefined.
 Package hyperref Info: Bookmarks ON on input line 4448.
-\c@Hy@tempcnt=\count394
+\c@Hy@tempcnt=\count398
 LaTeX Info: Redefining \url on input line 4786.
-\XeTeXLinkMargin=\dimen359
+\XeTeXLinkMargin=\dimen367
  (G:\latex\tex/generic/bitset\bitset.sty
 Package: bitset 2019/12/09 v1.3 Handle bit-vector datatype (HO)
  (G:\latex\tex/generic/bigintcalc\bigintcalc.sty
 Package: bigintcalc 2019/12/15 v1.5 Expandable calculations on big integers (HO)
 ))
-\Fld@menulength=\count395
-\Field@Width=\dimen360
-\Fld@charsize=\dimen361
+\Fld@menulength=\count399
+\Field@Width=\dimen368
+\Fld@charsize=\dimen369
 Package hyperref Info: Hyper figures OFF on input line 6065.
 Package hyperref Info: Link nesting OFF on input line 6070.
 Package hyperref Info: Hyper index ON on input line 6073.
@@ -850,9 +873,9 @@ Package hyperref Info: PDF/A mode OFF on input line 6095.
 Package: atbegshi-ltx 2021/01/10 v1.0c Emulation of the original atbegshi
 package with kernel methods
 )
-\Hy@abspage=\count396
-\c@Item=\count397
-\c@Hfootnote=\count398
+\Hy@abspage=\count400
+\c@Item=\count401
+\c@Hfootnote=\count402
 )
 Package hyperref Info: Driver (autodetected): hpdftex.
  (G:\latex\tex/latex/hyperref\hpdftex.def
@@ -861,8 +884,8 @@ File: hpdftex.def 2023-11-26 v7.01g Hyperref driver for pdfTeX
 Package: atveryend-ltx 2020/08/19 v1.0a Emulation of the original atveryend package
 with kernel methods
 )
-\Fld@listcount=\count399
-\c@bookmark@seq@number=\count400
+\Fld@listcount=\count403
+\c@bookmark@seq@number=\count404
  (G:\latex\tex/latex/rerunfilecheck\rerunfilecheck.sty
 Package: rerunfilecheck 2025-06-21 v1.11 Rerun checks for auxiliary files (HO)
  (G:\latex\tex/generic/uniquecounter\uniquecounter.sty
@@ -873,7 +896,7 @@ Package uniquecounter Info: New unique counter `rerunfilecheck' on input line 28
 \Hy@SectionHShift=\skip89
 ) (G:\latex\tex/latex/apacite\apacite.sty
 Package: apacite 2013/07/21 v6.03 APA citation
-\c@BibCnt=\count401
+\c@BibCnt=\count405
 \bibleftmargin=\skip90
 \bibindent=\skip91
 \bibparsep=\skip92
@@ -904,51 +927,51 @@ Package: geometry 2026/03/07 v6.0 Page Geometry
  (G:\latex\tex/generic/iftex\ifvtex.sty
 Package: ifvtex 2019/10/25 v1.7 ifvtex legacy package. Use iftex instead.
 )
-\Gm@cnth=\count402
-\Gm@cntv=\count403
-\c@Gm@tempcnt=\count404
-\Gm@bindingoffset=\dimen362
-\Gm@wd@mp=\dimen363
-\Gm@odd@mp=\dimen364
-\Gm@even@mp=\dimen365
-\Gm@layoutwidth=\dimen366
-\Gm@layoutheight=\dimen367
-\Gm@layouthoffset=\dimen368
-\Gm@layoutvoffset=\dimen369
+\Gm@cnth=\count406
+\Gm@cntv=\count407
+\c@Gm@tempcnt=\count408
+\Gm@bindingoffset=\dimen370
+\Gm@wd@mp=\dimen371
+\Gm@odd@mp=\dimen372
+\Gm@even@mp=\dimen373
+\Gm@layoutwidth=\dimen374
+\Gm@layoutheight=\dimen375
+\Gm@layouthoffset=\dimen376
+\Gm@layoutvoffset=\dimen377
 \Gm@dimlist=\toks82
  (G:\latex\tex/latex/geometry\geometry.cfg)) (main.aux)
 \openout1 = `main.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 90.
-LaTeX Font Info:    ... okay on input line 90.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 90.
-LaTeX Font Info:    ... okay on input line 90.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 90.
-LaTeX Font Info:    ... okay on input line 90.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 90.
-LaTeX Font Info:    ... okay on input line 90.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 90.
-LaTeX Font Info:    ... okay on input line 90.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 90.
-LaTeX Font Info:    ... okay on input line 90.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 90.
-LaTeX Font Info:    ... okay on input line 90.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 90.
-LaTeX Font Info:    ... okay on input line 90.
-LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 90.
-LaTeX Font Info:    ... okay on input line 90.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 92.
+LaTeX Font Info:    ... okay on input line 92.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 92.
+LaTeX Font Info:    ... okay on input line 92.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 92.
+LaTeX Font Info:    ... okay on input line 92.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 92.
+LaTeX Font Info:    ... okay on input line 92.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 92.
+LaTeX Font Info:    ... okay on input line 92.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 92.
+LaTeX Font Info:    ... okay on input line 92.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 92.
+LaTeX Font Info:    ... okay on input line 92.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 92.
+LaTeX Font Info:    ... okay on input line 92.
+LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 92.
+LaTeX Font Info:    ... okay on input line 92.
  (G:\latex\tex/context/base/mkii\supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
-\scratchcounter=\count405
-\scratchdimen=\dimen370
+\scratchcounter=\count409
+\scratchdimen=\dimen378
 \scratchbox=\box121
-\nofMPsegments=\count406
-\nofMParguments=\count407
+\nofMPsegments=\count410
+\nofMParguments=\count411
 \everyMPshowfont=\toks83
-\MPscratchCnt=\count408
-\MPscratchDim=\dimen371
-\MPnumerator=\count409
-\makeMPintoPDFobject=\count410
+\MPscratchCnt=\count412
+\MPscratchDim=\dimen379
+\MPnumerator=\count413
+\makeMPintoPDFobject=\count414
 \everyMPtoPDFconversion=\toks84
 ) (G:\latex\tex/latex/epstopdf-pkg\epstopdf-base.sty
 Package: epstopdf-base 2020-01-24 v2.11 Base part for package epstopdf
@@ -956,12 +979,16 @@ Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 48
  (G:\latex\tex/latex/00miktex\epstopdf-sys.cfg
 File: epstopdf-sys.cfg 2021/03/18 v2.0 Configuration of epstopdf for MiKTeX
 ))
-Package hyperref Info: Link coloring OFF on input line 90.
+Package caption Info: Begin \AtBeginDocument code.
+Package caption Info: float package is loaded.
+Package caption Info: hyperref package is loaded.
+Package caption Info: End \AtBeginDocument code.
+Package hyperref Info: Link coloring OFF on input line 92.
  (main.out) (main.out)
 \@outlinefile=\write7
 \openout7 = `main.out'.
 
-\c@maskedRefs=\count411
+\c@maskedRefs=\count415
 
 
 Package apacite Warning: No suitable language definition file (nil.apc) found.
@@ -1001,11 +1028,11 @@ Package apacite Warning: No suitable language definition file (nil.apc) found.
 * (1in=72.27pt=25.4mm, 1cm=28.453pt)
 
 (G:\latex\tex/latex/arabtex\apatch.sty
-\a@lines=\count412
-\a@Lwidth=\dimen372
-\a@displaywidth=\dimen373
+\a@lines=\count416
+\a@Lwidth=\dimen380
+\a@displaywidth=\dimen381
  (G:\latex\tex/latex/arabtex\alocal.sty (ArabTeX) 3.11 local stub, 26.02.2006) (ArabTeX) version 3.11s (02.07.2006): second phase of patching) (title.tex
-<esi_header.jpg, id=502, 1193.45876pt x 333.245pt>
+<esi_header.jpg, id=558, 1193.45876pt x 333.245pt>
 File: esi_header.jpg Graphic file (type jpg)
 <use esi_header.jpg>
 Package pdftex.def Info: esi_header.jpg  used on input line 4.
@@ -1016,82 +1043,114 @@ Package pdftex.def Info: esi_header.jpg  used on input line 4.
 pdfTeX warning (ext4): destination with the same identifier (name{page.i}) has been already used, duplicate ignored
 <to be read again> 
                    \relax 
-l.109 \newpage
-               [1
-
-] [2
+l.166 \chapter
+              *{Acknowledgements} [1
 
 ]
-Overfull \hbox (22.32854pt too wide) in paragraph at lines 135--148
-\OT1/cmr/m/n/10.95 classes of cyberattacks, characterized by stealth, persistence, and coordinated multi-stage progression.
+Overfull \hbox (0.64612pt too wide) in paragraph at lines 175--176
+\OT1/cmr/bx/n/10.95 Abdellah\OT1/cmr/m/n/10.95 , for their technical help, insightful discussions, and valuable support. Their assistance,
+ []
+
+[2
+
+]
+Overfull \hbox (4.23067pt too wide) in paragraph at lines 192--193
+\OT1/cmr/m/n/10.95 Autoencoder for anomaly detection, a Beta-Variational Autoencoder for maliciousness estimation,
+ []
+
+
+Overfull \hbox (24.9038pt too wide) in paragraph at lines 192--193
+\OT1/cmr/m/n/10.95 defensive actions while prioritizing early-stage intervention. To improve robustness and generalization,
+ []
+
+
+Overfull \hbox (15.14728pt too wide) in paragraph at lines 194--195
+[]\OT1/cmr/m/n/10.95 Experimental results show that the proposed framework achieves strong operational performance
+ []
+
+
+Overfull \hbox (12.68341pt too wide) in paragraph at lines 199--202
+[]\OT1/cmr/bx/n/10.95 Keywords: \OT1/cmr/m/n/10.95 Advanced Persistent Threat, Cyber Kill Chain, MITRE ATT&CK, Deep Learning,
  []
 
 [3
 
-]
-Overfull \hbox (13.74681pt too wide) in paragraph at lines 162--178
-[]\OT1/cmr/m/n/10.95 Les menaces persistantes avanc^^Sees (APT) repr^^Sesentent l'une des classes d'attaques informatiques
- []
-
-
-Overfull \hbox (4.89853pt too wide) in paragraph at lines 180--183
-\OT1/cmr/m/n/10.95 profond, IA g^^Sen^^Serative, R^^Seseau de neurones graphique, Apprentissage par renforcement, D^^Setection
- []
-
-[4
+] [4
 
 ]
-LaTeX Font Info:    Trying to load font information for U+xnsh on input line 189.
+LaTeX Font Info:    Trying to load font information for U+xnsh on input line 234.
  (G:\latex\tex/latex/arabtex\uxnsh.fd
 File: uxnsh.fd  1999/10/19 v3.10 ArabTeX Naskh extd. font definitions
 )
 LaTeX Font Info:    Font shape `U/xnsh/m/n' will be
-(Font)              scaled to size 35.82726pt on input line 189.
+(Font)              scaled to size 35.82726pt on input line 234.
 LaTeX Font Info:    Font shape `U/xnsh/m/n' will be
-(Font)              scaled to size 15.76802pt on input line 191.
- [5
+(Font)              scaled to size 15.76802pt on input line 236.
+
+Overfull \hbox (6.18134pt too wide) detected at line 248
+|[]
+ []
+
+[5
 
 ] (main.toc
-Underfull \hbox (badness 10000) in paragraph at lines 6--6
+Underfull \hbox (badness 10000) in paragraph at lines 5--5
  [] []  
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 6--6
+Underfull \hbox (badness 10000) in paragraph at lines 5--5
  []  
  []
 
-LaTeX Font Info:    Trying to load font information for U+msa on input line 9.
+LaTeX Font Info:    Trying to load font information for U+msa on input line 8.
 (G:\latex\tex/latex/amsfonts\umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Trying to load font information for U+msb on input line 9.
+LaTeX Font Info:    Trying to load font information for U+msb on input line 8.
  (G:\latex\tex/latex/amsfonts\umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 ) [6
 
-] [7] [8])
+] [7] [8] [9])
 \tf@toc=\write8
 \openout8 = `main.toc'.
 
- [9]
-Overfull \hbox (22.10544pt too wide) in paragraph at lines 215--224
+ [10] (main.lof [11
+
+] [12])
+\tf@lof=\write9
+\openout9 = `main.lof'.
+
+ [13] (main.lot [14
+
+]
+Overfull \hbox (1.12704pt too wide) in paragraph at lines 36--36
+ [][] [][]\OT1/cmr/m/n/10.95 Comparison of the proposed framework with state-of-the-art APT detection methods[] [][]  
+ []
+
+)
+\tf@lot=\write10
+\openout10 = `main.lot'.
+
+ [15]
+Overfull \hbox (22.10544pt too wide) in paragraph at lines 268--277
 \OT1/cmr/m/n/10.95 groups, with clearly defined strategic objectives . Unlike conventional attacks, APTs are characterized
  []
 
 
-Overfull \hbox (23.14986pt too wide) in paragraph at lines 233--241
+Overfull \hbox (23.14986pt too wide) in paragraph at lines 286--294
 \OT1/cmr/m/n/10.95 Weaponization, Delivery, Exploitation, Installation, Command & Control, and Actions on Objectives)
  []
 
 
-Overfull \hbox (2.17345pt too wide) in paragraph at lines 251--261
+Overfull \hbox (2.17345pt too wide) in paragraph at lines 304--314
 \OT1/cmr/m/n/10.95 observations, ignoring the multi-stage sequential structure that defines APT campaigns. \OT1/cmr/bx/n/10.95 Second\OT1/cmr/m/n/10.95 ,
  []
 
 [1
 
-] [2] (ch2_background.tex
+] [2] (ch1_background.tex
 Chapter 1.
 
 Overfull \hbox (9.70274pt too wide) in paragraph at lines 5--6
@@ -1137,7 +1196,7 @@ Overfull \hbox (1.48297pt too wide) in paragraph at lines 72--73
 []\OT1/cmr/m/n/10.95 2024b[]). This principle underlies the multi-framework approach --- combining CKC, MITRE
  []
 
-<figures/defense.jpeg, id=756, 803.0pt x 481.8pt>
+<figures/defense.jpeg, id=1110, 803.0pt x 481.8pt>
 File: figures/defense.jpeg Graphic file (type jpg)
 <use figures/defense.jpeg>
 Package pdftex.def Info: figures/defense.jpeg  used on input line 77.
@@ -1168,12 +1227,12 @@ Overfull \hbox (13.04851pt too wide) in paragraph at lines 109--110
  []
 
 [8] [9]
-<figures/dwell.png, id=834, 639.89063pt x 325.96782pt>
+<figures/dwell.png, id=1189, 639.89063pt x 325.96782pt>
 File: figures/dwell.png Graphic file (type png)
 <use figures/dwell.png>
 Package pdftex.def Info: figures/dwell.png  used on input line 152.
 (pdftex.def)             Requested size: 318.66948pt x 162.3369pt.
- [10 <./figures/dwell.png>]
+
 Overfull \hbox (14.75484pt too wide) in paragraph at lines 160--161
 \OT1/cmr/m/n/10.95 the target organization, its resources, employees, and relationships, often via social engineering
  []
@@ -1193,218 +1252,226 @@ Overfull \hbox (1.35368pt too wide) in paragraph at lines 162--163
 []\OT1/cmr/bx/n/10.95 Command and Control (C&C)\OT1/cmr/m/n/10.95 : A covert communication channel is established between
  []
 
-<figures/apt_steps.jpg, id=862, 752.8125pt x 270.00874pt>
+[10 <./figures/dwell.png>]
+<figures/apt_steps.jpg, id=1218, 752.8125pt x 270.00874pt>
 File: figures/apt_steps.jpg Graphic file (type jpg)
 <use figures/apt_steps.jpg>
-Package pdftex.def Info: figures/apt_steps.jpg  used on input line 171.
+Package pdftex.def Info: figures/apt_steps.jpg  used on input line 170.
 (pdftex.def)             Requested size: 364.19667pt x 130.62859pt.
+
+Overfull \hbox (12.47357pt too wide) in paragraph at lines 175--176
+\OT1/cmr/m/n/10.95 For example, some sources divide the attack into: Reconnaissance, Breach, Infiltration, Exfiltration,
+ []
+
+
+Overfull \hbox (7.87192pt too wide) in paragraph at lines 195--199
+[]\OT1/cmr/bx/n/10.95 Web/Application domain: \OT1/cmr/m/n/10.95 Targets public-facing web applications through vulnerabilities
+ []
+
 [11 <./figures/apt_steps.jpg>]
-Overfull \hbox (11.37737pt too wide) in paragraph at lines 193--194
+<figures/apt_attack_domains.png, id=1226, 2972.10374pt x 1812.7725pt>
+File: figures/apt_attack_domains.png Graphic file (type png)
+<use figures/apt_attack_domains.png>
+Package pdftex.def Info: figures/apt_attack_domains.png  used on input line 216.
+(pdftex.def)             Requested size: 409.71692pt x 249.88626pt.
+ [12 <./figures/apt_attack_domains.png>]
+Overfull \hbox (11.37737pt too wide) in paragraph at lines 241--242
 \OT1/cmr/m/n/10.95 developers at Microsoft in 1999, STRIDE is a system/software-based taxonomy for identifying
  []
 
-[12]
-Overfull \hbox (19.48967pt too wide) in paragraph at lines 194--195
-\OT1/cmr/m/n/10.95 deliver a comprehensive, risk-based assessment of potential threats. Unlike other methodologies
+
+Overfull \hbox (3.21675pt too wide) in paragraph at lines 242--243
+\OT1/cmr/m/n/10.95 threats. Unlike other methodologies focused exclusively on technical vulnerabilities, PASTA
  []
 
-
-Overfull \hbox (0.24483pt too wide) in paragraph at lines 194--195
-\OT1/cmr/m/n/10.95 focused exclusively on technical vulnerabilities, PASTA let's you adopts the whole approach
- []
-
-<figures/PASTA.png, id=916, 770.88pt x 346.29375pt>
+<figures/PASTA.png, id=1268, 770.88pt x 346.29375pt>
 File: figures/PASTA.png Graphic file (type png)
 <use figures/PASTA.png>
-Package pdftex.def Info: figures/PASTA.png  used on input line 198.
+Package pdftex.def Info: figures/PASTA.png  used on input line 246.
 (pdftex.def)             Requested size: 318.66948pt x 143.14911pt.
 
-Overfull \hbox (2.23796pt too wide) in paragraph at lines 203--204
+Overfull \hbox (2.23796pt too wide) in paragraph at lines 251--252
 []\OT1/cmr/bx/n/10.95 DREAD: \OT1/cmr/m/n/10.95 Rates threats by 5 categories: Damage potential, Reproducibility, Exploitability,
  []
 
-<figures/tree-attack.png, id=925, 756.8275pt x 521.95pt>
+[13 <./figures/PASTA.png>]
+<figures/tree-attack.png, id=1286, 756.8275pt x 521.95pt>
 File: figures/tree-attack.png Graphic file (type png)
 <use figures/tree-attack.png>
-Package pdftex.def Info: figures/tree-attack.png  used on input line 209.
+Package pdftex.def Info: figures/tree-attack.png  used on input line 257.
 (pdftex.def)             Requested size: 318.66948pt x 219.775pt.
-[13 <./figures/PASTA.png>]
-Overfull \hbox (13.35486pt too wide) in paragraph at lines 218--219
+
+Overfull \hbox (13.35486pt too wide) in paragraph at lines 266--267
 []\OT1/cmr/bx/n/10.95 Diamond Model: \OT1/cmr/m/n/10.95 Focuses on the interaction between four fundamental elements: adversary,
  []
 
 
-Overfull \hbox (48.15015pt too wide) in paragraph at lines 219--220
+Overfull \hbox (48.15015pt too wide) in paragraph at lines 267--268
 []\OT1/cmr/bx/n/10.95 MITRE D3FEND: \OT1/cmr/m/n/10.95 The defensive counterpart to ATT&CK, which maps defensive countermeasures
  []
 
 
-Overfull \hbox (4.97968pt too wide) in paragraph at lines 219--220
+Overfull \hbox (4.97968pt too wide) in paragraph at lines 267--268
 \OT1/cmr/m/n/10.95 to attack techniques. D3FEND has been integrated with ATT&CK-based defense strategies,
  []
 
 [14 <./figures/tree-attack.png>]
-Overfull \hbox (7.56862pt too wide) in paragraph at lines 234--235
+Overfull \hbox (7.56862pt too wide) in paragraph at lines 282--283
 []\OT1/cmr/bx/n/10.95 Delivery\OT1/cmr/m/n/10.95 : The payload is transmitted to the target, often via email (phishing), compromised
  []
 
-<figures/The 7 Steps -ckc.png, id=973, 2607.7425pt x 1966.34625pt>
+<figures/The 7 Steps -ckc.png, id=1327, 2607.7425pt x 1966.34625pt>
 File: figures/The 7 Steps -ckc.png Graphic file (type png)
 <use figures/The 7 Steps -ckc.png>
-Package pdftex.def Info: figures/The 7 Steps -ckc.png  used on input line 243.
+Package pdftex.def Info: figures/The 7 Steps -ckc.png  used on input line 291.
 (pdftex.def)             Requested size: 409.71692pt x 308.92107pt.
 [15]
-Overfull \hbox (2.79561pt too wide) in paragraph at lines 250--251
+Overfull \hbox (2.79561pt too wide) in paragraph at lines 298--299
 []\OT1/cmr/m/n/10.95 MITRE ATT&CK (Adversarial Tactics, Techniques, and Common Knowledge) is a structured
  []
 
 
-Overfull \hbox (4.6451pt too wide) in paragraph at lines 250--251
+Overfull \hbox (4.6451pt too wide) in paragraph at lines 298--299
 \OT1/cmr/m/n/10.95 industrial control systems - ICS) [][]Jiang et al.[][], []2025[]). Developed in 2013, it serves as a fundamental
  []
 
 
-Overfull \hbox (1.8656pt too wide) in paragraph at lines 259--260
+Overfull \hbox (1.8656pt too wide) in paragraph at lines 307--308
 \OT1/cmr/m/n/10.95 ATT&CK is organized into matrices representing adversary operating environments: \OT1/cmr/bx/n/10.95 Enterprise
  []
 
-<figures/MITRE.png, id=996, 1244.65pt x 833.1125pt>
+<figures/MITRE.png, id=1351, 1244.65pt x 833.1125pt>
 File: figures/MITRE.png Graphic file (type png)
 <use figures/MITRE.png>
-Package pdftex.def Info: figures/MITRE.png  used on input line 263.
+Package pdftex.def Info: figures/MITRE.png  used on input line 311.
 (pdftex.def)             Requested size: 409.71692pt x 274.24152pt.
 [16 <./figures/The 7 Steps -ckc.png>]
-Overfull \hbox (4.86942pt too wide) in paragraph at lines 269--270
+Overfull \hbox (4.86942pt too wide) in paragraph at lines 317--318
 \OT1/cmr/m/n/10.95 supporting Cyber Threat Intelligence (CTI), incident response, attack modeling, and vulnerability
  []
 
-[17 <./figures/MITRE.png>] [18]
-Overfull \hbox (4.99619pt too wide) in paragraph at lines 304--306
+[17 <./figures/MITRE.png>]
+Overfull \hbox (4.99619pt too wide) in paragraph at lines 352--354
 []\OT1/cmr/m/n/10.95 Two fundamental challenges in ML model development [][]Hastie,
  []
 
-<figures/over_under.png, id=1043, 717.68124pt x 216.81pt>
+<figures/over_under.png, id=1390, 717.68124pt x 216.81pt>
 File: figures/over_under.png Graphic file (type png)
 <use figures/over_under.png>
-Package pdftex.def Info: figures/over_under.png  used on input line 312.
+Package pdftex.def Info: figures/over_under.png  used on input line 360.
 (pdftex.def)             Requested size: 364.19667pt x 110.02577pt.
-
-Overfull \hbox (27.37506pt too wide) in paragraph at lines 317--318
-$[]$
- []
-
-
-Overfull \hbox (1.34264pt too wide) in paragraph at lines 323--324
+[18]
+Overfull \hbox (1.34264pt too wide) in paragraph at lines 371--372
 []\OT1/cmr/m/n/10.95 The loss function measures how far the model's predictions
  []
 
 
-Overfull \hbox (0.47487pt too wide) in paragraph at lines 325--327
+Overfull \hbox (0.47487pt too wide) in paragraph at lines 373--375
 []\OT1/cmr/m/n/10.95 Once trained, a model's performance is assessed using metrics appropriate
  []
 
 [19 <./figures/over_under.png>]
-<figures/ml_domain.png, id=1064, 860.21375pt x 461.725pt>
+<figures/ml_domain.png, id=1416, 860.21375pt x 461.725pt>
 File: figures/ml_domain.png Graphic file (type png)
 <use figures/ml_domain.png>
-Package pdftex.def Info: figures/ml_domain.png  used on input line 355.
+Package pdftex.def Info: figures/ml_domain.png  used on input line 403.
 (pdftex.def)             Requested size: 364.19667pt x 195.48724pt.
- [20]
-Overfull \hbox (19.10696pt too wide) in paragraph at lines 365--366
+
+Overfull \hbox (19.10696pt too wide) in paragraph at lines 413--414
 []\OT1/cmr/bx/n/10.95 Task types\OT1/cmr/m/n/10.95 : Classification (assigning a category) and Regression (predicting a continuous
  []
 
-
-Overfull \hbox (27.37506pt too wide) in paragraph at lines 370--371
-$[]$
- []
-
-
-Overfull \hbox (30.8459pt too wide) in paragraph at lines 375--376
+[20 <./figures/ml_domain.png>]
+Overfull \hbox (30.8459pt too wide) in paragraph at lines 423--424
 []\OT1/cmr/bx/n/10.95 Common algorithms\OT1/cmr/m/n/10.95 : K-Means, DBSCAN, Hierarchical Clustering, Principal Component
  []
 
 
-Overfull \hbox (1.8738pt too wide) in paragraph at lines 379--381
+Overfull \hbox (1.8738pt too wide) in paragraph at lines 427--429
 []\OT1/cmr/m/n/10.95 Semi-supervised learning operates with a partially labeled dataset
  []
 
-[21 <./figures/ml_domain.png>]
-Overfull \hbox (4.04144pt too wide) in paragraph at lines 381--382
+
+Overfull \hbox (4.04144pt too wide) in paragraph at lines 429--430
 []\OT1/cmr/bx/n/10.95 Why it matters\OT1/cmr/m/n/10.95 : Obtaining large quantities of labeled cybersecurity data is expensive
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 406--406
+Underfull \hbox (badness 10000) in paragraph at lines 455--455
 []|\OT1/cmr/m/n/10.95 Natural Language
  []
 
 
-Underfull \hbox (badness 7907) in paragraph at lines 406--406
+Underfull \hbox (badness 7907) in paragraph at lines 455--455
 []|\OT1/cmr/m/n/10.95 Processing and understanding
  []
 
 
-Underfull \hbox (badness 3758) in paragraph at lines 406--406
+Underfull \hbox (badness 3758) in paragraph at lines 455--455
 []|\OT1/cmr/m/n/10.95 Extracting TTPs from threat
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 406--406
+Underfull \hbox (badness 10000) in paragraph at lines 455--455
 \OT1/cmr/m/n/10.95 intelligence reports, detecting
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 407--407
+Underfull \hbox (badness 10000) in paragraph at lines 456--456
 []|\OT1/cmr/m/n/10.95 Identifying data points that
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 407--407
+Underfull \hbox (badness 10000) in paragraph at lines 456--456
 \OT1/cmr/m/n/10.95 deviate significantly from
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 407--407
+Underfull \hbox (badness 10000) in paragraph at lines 456--456
 []|\OT1/cmr/m/n/10.95 Detecting unusual network
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 408--408
+Underfull \hbox (badness 10000) in paragraph at lines 457--457
 []|\OT1/cmr/m/n/10.95 Modeling sequential, time-
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 408--408
+Underfull \hbox (badness 10000) in paragraph at lines 457--457
 []|\OT1/cmr/m/n/10.95 Detecting multi-stage APT
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 409--409
+Underfull \hbox (badness 10000) in paragraph at lines 458--458
 []|\OT1/cmr/m/n/10.95 Analyzing relationships and
  []
 
 
-Underfull \hbox (badness 3536) in paragraph at lines 410--410
+Underfull \hbox (badness 3536) in paragraph at lines 459--459
 []|\OT1/cmr/m/n/10.95 Generating new data samples
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 410--410
+Underfull \hbox (badness 10000) in paragraph at lines 459--459
 \OT1/cmr/m/n/10.95 CTI report summarization,
  []
 
 
-Overfull \hbox (14.8433pt too wide) in paragraph at lines 403--412
+Overfull \hbox (14.8433pt too wide) in paragraph at lines 452--461
  [][] 
  []
 
-[22]
-Overfull \hbox (6.37415pt too wide) in paragraph at lines 421--422
+[21]
+Overfull \hbox (6.37415pt too wide) in paragraph at lines 470--471
 []\OT1/cmr/m/n/10.95 When the system must adapt dynamically to evolving threats $\OMS/cmsy/m/n/10.95 !$ \OT1/cmr/bx/n/10.95 Reinforcement Learning 
  []
 
-[23]) (ch3_related_work.tex
+
+Overfull \hbox (9.03647pt too wide) in paragraph at lines 473--474
+\OT1/cmr/m/n/10.95 most effective approaches --- including those proposed in Chapter 3 --- combine multiple paradigms:
+ []
+
+) (ch2_related_work.tex [22]
 Chapter 2.
 
 Overfull \hbox (14.29562pt too wide) in paragraph at lines 14--15
@@ -1416,11 +1483,10 @@ Overfull \hbox (14.63194pt too wide) in paragraph at lines 18--19
 \OT1/cmr/m/n/10.95 APT actors due to their prevalence in servers and critical infrastructure yet remain underrepresented
  []
 
-[24
-
+[23
 
 ]
-<figures/linux_apt.PNG, id=1114, 965.85844pt x 454.69875pt>
+<figures/linux_apt.PNG, id=1459, 965.85844pt x 454.69875pt>
 File: figures/linux_apt.PNG Graphic file (type png)
 <use figures/linux_apt.PNG>
 Package pdftex.def Info: figures/linux_apt.PNG  used on input line 24.
@@ -1430,19 +1496,18 @@ Overfull \hbox (4.45535pt too wide) in paragraph at lines 32--33
 \OT1/cmr/bx/n/10.95 off-the-Land (LOTL) \OT1/cmr/m/n/10.95 APT techniques --- adversaries using legitimate system tools (PowerShell,
  []
 
-[25 <./figures/linux_apt.PNG>]
-<figures/kapt.png, id=1132, 1512.65125pt x 649.42625pt>
+[24 <./figures/linux_apt.PNG>]
+Overfull \hbox (24.78685pt too wide) in paragraph at lines 42--43
+[][][]\OT1/cmr/m/n/10.95 Sudath Ambalangodage et al.[][], []2024[]) introduced KAPT-2024 in \OT1/cmr/m/it/10.95 "A Relevant Feature Identification
+ []
+
+<figures/kapt.png, id=1477, 1512.65125pt x 649.42625pt>
 File: figures/kapt.png Graphic file (type png)
 <use figures/kapt.png>
 Package pdftex.def Info: figures/kapt.png  used on input line 48.
 (pdftex.def)             Requested size: 318.66948pt x 136.80963pt.
-
-Overfull \hbox (120.17957pt too wide) in paragraph at lines 59--60
-\OT1/cmr/m/it/10.95 Advanced Persistent Threats" \OT1/cmr/m/n/10.95 (Ancona et al.), available both at the GitHub repository \OT1/cmtt/m/n/10.95 APT[]detector/MLAPT[]dataset.csv
- []
-
-[26 <./figures/kapt.png>]
-<figures/iot.PNG, id=1153, 1011.02719pt x 395.97937pt>
+[25 <./figures/kapt.png>]
+<figures/iot.PNG, id=1498, 1011.02719pt x 395.97937pt>
 File: figures/iot.PNG Graphic file (type png)
 <use figures/iot.PNG>
 Package pdftex.def Info: figures/iot.PNG  used on input line 73.
@@ -1487,7 +1552,7 @@ Overfull \hbox (49.99994pt too wide) in paragraph at lines 85--110
  [][] 
  []
 
-[27 <./figures/iot.PNG>]
+[26 <./figures/iot.PNG>]
 Overfull \hbox (4.79845pt too wide) in paragraph at lines 116--117
 \OT1/cmr/m/n/10.95 research (Kaggle). Semi-synthetic nature means some behaviors may not faithfully represent
  []
@@ -1497,12 +1562,12 @@ Overfull \hbox (16.30609pt too wide) in paragraph at lines 117--118
 \OT1/cmr/m/n/10.95 National Laboratory containing 90 days of anonymized internal network events (authentication
  []
 
-[28]
+[27]
 Overfull \hbox (5.87224pt too wide) in paragraph at lines 132--133
 []\OT1/cmr/bx/n/10.95 UNSW-NB15 (2015)\OT1/cmr/m/n/10.95 : Ten attack categories including backdoors and shellcode, generated
  []
 
-[29]
+[28]
 Overfull \hbox (8.21405pt too wide) in paragraph at lines 164--165
 \OT1/cmr/m/n/10.95 benchmark datasets in [][]Ankalaki et al.[][], []2025[]) provide kill-chain phase or ATT&CK technique
  []
@@ -1512,347 +1577,1308 @@ Overfull \hbox (19.84776pt too wide) in paragraph at lines 178--179
 []\OT1/cmr/bx/n/10.95 Supervised Learning: \OT1/cmr/m/n/10.95 These algorithms require fully labeled datasets (benign vs. malicious).
  []
 
-[30]
+[29]
 Overfull \hbox (3.60413pt too wide) in paragraph at lines 187--189
 []\OT1/cmr/m/n/10.95 The most recent evolution in detection strategies involves Generative AI. Unlike discriminative
  []
 
-[31]
-Overfull \hbox (4.16986pt too wide) in paragraph at lines 207--209
-\OT1/cmr/m/n/10.95 training and combines their outputs --- either by majority voting (classification) or averaging
- []
 
-
-Overfull \hbox (1.91037pt too wide) in paragraph at lines 210--211
-[]\OT1/cmr/bx/n/10.95 Weaknesses\OT1/cmr/m/n/10.95 : Less interpretable than a single Decision Tree; computationally heavier. 
- []
-
-
-Overfull \hbox (10.80574pt too wide) in paragraph at lines 213--215
-[]\OT1/cmr/m/n/10.95 SVM finds the optimal hyperplane that maximally separates
- []
-
-<figures/artificial-neural-network-a-Brain-neuron.png, id=1251, 853.1875pt x 507.8975pt>
-File: figures/artificial-neural-network-a-Brain-neuron.png Graphic file (type png)
-<use figures/artificial-neural-network-a-Brain-neuron.png>
-Package pdftex.def Info: figures/artificial-neural-network-a-Brain-neuron.png  used on input line 230.
-(pdftex.def)             Requested size: 364.19667pt x 216.8107pt.
-[32]
-Underfull \hbox (badness 10000) in paragraph at lines 240--240
-[]|\OT1/cmr/m/n/10.95 Convolutional Neural
- []
-
-
-Underfull \hbox (badness 1728) in paragraph at lines 240--240
-[]|\OT1/cmr/m/n/10.95 Extracts local spatial patterns
- []
-
-
-Underfull \hbox (badness 6592) in paragraph at lines 240--240
-[]|\OT1/cmr/m/n/10.95 Malware visualization, image-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 241--241
-[]|\OT1/cmr/m/n/10.95 Recurrent Neural
- []
-
-
-Underfull \hbox (badness 7344) in paragraph at lines 241--241
-[]|\OT1/cmr/m/n/10.95 Processes sequential data by
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 241--241
-[]|\OT1/cmr/m/n/10.95 Detecting sequential attack
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 242--242
-[]|\OT1/cmr/m/n/10.95 Long Short-Term
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 242--242
-[]|\OT1/cmr/m/n/10.95 An advanced RNN that
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 242--242
-\OT1/cmr/m/n/10.95 captures long-range temporal
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 242--242
-\OT1/cmr/m/n/10.95 dependencies [][]Hochreiter &
- []
-
-
-Underfull \hbox (badness 3029) in paragraph at lines 243--243
-\OT1/cmr/m/n/10.95 models global relationships in
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 243--243
-[]|\OT1/cmr/m/n/10.95 CTI report analysis, TTP
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 244--244
-[]|\OT1/cmr/m/n/10.95 Learns a compressed
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 244--244
-\OT1/cmr/m/n/10.95 representation of data and
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 244--244
-[]|\OT1/cmr/m/n/10.95 Anomaly detection --
- []
-
-
-Underfull \hbox (badness 4366) in paragraph at lines 245--245
-[]|\OT1/cmr/m/n/10.95 Two competing networks: a
- []
-
-
-Overfull \hbox (14.8433pt too wide) in paragraph at lines 237--247
- [][] 
- []
-
-[33 <./figures/artificial-neural-network-a-Brain-neuron.png>]
-Overfull \hbox (32.49861pt too wide) in paragraph at lines 262--264
-[]\OT1/cmr/m/n/10.95 DBSCAN groups
- []
-
-<figures/kmens_vs_dbscan.jpg, id=1269, 631.35875pt x 748.7975pt>
-File: figures/kmens_vs_dbscan.jpg Graphic file (type jpg)
-<use figures/kmens_vs_dbscan.jpg>
-Package pdftex.def Info: figures/kmens_vs_dbscan.jpg  used on input line 270.
-(pdftex.def)             Requested size: 227.62206pt x 269.9668pt.
-[34]
-Overfull \hbox (29.01503pt too wide) in paragraph at lines 282--283
-[]\OT1/cmr/bx/n/10.95 Cybersecurity use\OT1/cmr/m/n/10.95 : Adaptive intrusion detection, automated security policy optimization,
- []
-
-
-Overfull \hbox (9.82327pt too wide) in paragraph at lines 285--287
-[]\OT1/cmr/m/n/10.95 PPO is a state-of-the-art policy gradient RL algorithm
- []
-
-
-Overfull \hbox (2.43639pt too wide) in paragraph at lines 296--306
- [][] 
- []
-
-[35 <./figures/kmens_vs_dbscan.jpg>]
-Overfull \hbox (5.74529pt too wide) in paragraph at lines 317--317
+Overfull \hbox (5.74529pt too wide) in paragraph at lines 197--197
 |[]\OT1/cmr/bx/n/14.4 Description of Solutions: Review of AI/ML on APT Datasets| 
  []
 
-
-Overfull \hbox (16.4552pt too wide) in paragraph at lines 335--336
+[30]
+Overfull \hbox (16.4552pt too wide) in paragraph at lines 215--216
 []\OT1/cmr/m/n/10.95 Based on Bayes' theorem (as shown in Equation []2.2[]) with an assumption of feature independence,
  []
 
-[36]
-Overfull \hbox (4.13576pt too wide) in paragraph at lines 347--348
+
+Overfull \hbox (4.13576pt too wide) in paragraph at lines 227--228
 \OT1/cmr/m/n/10.95 critical OS events --- Event ID 1 (Process Creation) and Event ID 15 (FileCreateStreamHash
  []
 
 
-Overfull \hbox (5.75153pt too wide) in paragraph at lines 352--353
+Overfull \hbox (5.75153pt too wide) in paragraph at lines 232--233
 \OT1/cmr/m/n/10.95 publicly available repositories, Cert-In India, and honeypots (labeled as malign), and by extracting
  []
 
-<figures/archi.PNG, id=1308, 611.28375pt x 307.1475pt>
+[31]
+<figures/archi.PNG, id=1619, 611.28375pt x 307.1475pt>
 File: figures/archi.PNG Graphic file (type png)
 <use figures/archi.PNG>
-Package pdftex.def Info: figures/archi.PNG  used on input line 358.
+Package pdftex.def Info: figures/archi.PNG  used on input line 238.
 (pdftex.def)             Requested size: 318.66948pt x 157.75317pt.
-[37]
-Overfull \hbox (3.8593pt too wide) in paragraph at lines 364--365
+
+Overfull \hbox (3.8593pt too wide) in paragraph at lines 248--249
 \OT1/cmr/m/n/10.95 lookup table of classical Q-learning. The agent follows an $\OML/cmm/m/it/10.95 ^^O$\OT1/cmr/m/n/10.95 -greedy policy and trains by minimizing
  []
 
-[38 <./figures/archi.PNG>]
-<figures/rl_resu.PNG, id=1354, 505.89pt x 412.54124pt>
+[32 <./figures/archi.PNG>]
+<figures/rl_resu.PNG, id=1659, 505.89pt x 412.54124pt>
 File: figures/rl_resu.PNG Graphic file (type png)
 <use figures/rl_resu.PNG>
-Package pdftex.def Info: figures/rl_resu.PNG  used on input line 411.
+Package pdftex.def Info: figures/rl_resu.PNG  used on input line 296.
 (pdftex.def)             Requested size: 318.66948pt x 258.40552pt.
- [39 <./figures/rl_resu.PNG>]
-Overfull \hbox (0.71959pt too wide) in paragraph at lines 431--438
+ [33 <./figures/rl_resu.PNG>]
+Overfull \hbox (0.71959pt too wide) in paragraph at lines 316--323
 \OT1/cmr/m/n/10.95 windowing 4. Feature scaling: both Min-Max and Z-score normalization tested 5. \OT1/cmr/bx/n/10.95 2D reshaping
  []
 
 
-Overfull \hbox (9.75513pt too wide) in paragraph at lines 431--438
+Overfull \hbox (9.75513pt too wide) in paragraph at lines 316--323
 \OT1/cmr/m/n/10.95 of feature vectors into matrix format (image-like) to enable CNN2D spatial processing 6. Train/test
  []
 
 
-Overfull \hbox (0.21027pt too wide) in paragraph at lines 439--440
+Overfull \hbox (0.21027pt too wide) in paragraph at lines 324--325
 []\OT1/cmr/m/n/10.95 The CNN2D architecture uses 3 convolutional layers (3$\OMS/cmsy/m/n/10.95 ^^B$\OT1/cmr/m/n/10.95 3 and 5$\OMS/cmsy/m/n/10.95 ^^B$\OT1/cmr/m/n/10.95 5 kernels), ReLU activation,
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 449--449
+Underfull \hbox (badness 10000) in paragraph at lines 333--333
 []|\OT1/cmr/bx/n/10.95 Accuracy
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 449--449
+Underfull \hbox (badness 10000) in paragraph at lines 333--333
 []|\OT1/cmr/bx/n/10.95 Precision
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 449--450
+Underfull \hbox (badness 10000) in paragraph at lines 333--334
 []|\OT1/cmr/bx/n/10.95 F1-Score
  []
 
 
-Overfull \hbox (16.86578pt too wide) in paragraph at lines 447--460
+Overfull \hbox (16.86578pt too wide) in paragraph at lines 331--344
  [][] 
  []
 
-
-Overfull \hbox (14.63315pt too wide) in paragraph at lines 468--470
+[34]
+Overfull \hbox (14.63315pt too wide) in paragraph at lines 352--354
 \OT1/cmr/m/n/10.95 This capability allows LSTMs to correlate a "Reconnaissance" event (Stage 1) with an "Exfiltration"
  []
 
-[40]
-Overfull \hbox (3.16309pt too wide) in paragraph at lines 527--530
+[35]
+Overfull \hbox (3.16309pt too wide) in paragraph at lines 411--414
 []\OT1/cmr/bx/n/10.95 GGNN (Gated Graph Neural Network): \OT1/cmr/m/n/10.95 Incorporates Gated Recurrent Units (GRUs)
  []
 
-[41]
-Overfull \hbox (2.63904pt too wide) in paragraph at lines 542--543
+
+Overfull \hbox (2.63904pt too wide) in paragraph at lines 426--427
 []\OT1/cmr/bx/n/10.95 Network Design (Graph $\OMS/cmsy/m/n/10.95 !$ \OT1/cmr/bx/n/10.95 Feature): \OT1/cmr/m/n/10.95 Network-based IDS (NIDS) at node/edge/graph-
  []
 
-<figures/gnn1.png, id=1403, 734.745pt x 294.34969pt>
+<figures/gnn1.png, id=1705, 734.745pt x 294.34969pt>
 File: figures/gnn1.png Graphic file (type png)
 <use figures/gnn1.png>
-Package pdftex.def Info: figures/gnn1.png  used on input line 548.
+Package pdftex.def Info: figures/gnn1.png  used on input line 432.
 (pdftex.def)             Requested size: 364.19667pt x 143.30556pt.
 
-Overfull \hbox (10.91676pt too wide) in paragraph at lines 553--555
+Overfull \hbox (10.91676pt too wide) in paragraph at lines 437--439
 []\OT1/cmr/bx/n/10.95 GNN Methods Used in APT Detection: \OT1/cmr/m/n/10.95 Each framework uses a distinct GNN architecture
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 580--580
+Underfull \hbox (badness 10000) in paragraph at lines 464--464
 []|\OT1/cmr/m/n/10.95 Temporal encoder-decoder; detects
  []
 
 
-Underfull \hbox (badness 2744) in paragraph at lines 580--580
+Underfull \hbox (badness 2744) in paragraph at lines 464--464
 []|\OT1/cmr/m/n/10.95 Graph Competitive Autoencoder with
  []
 
 
-Underfull \hbox (badness 1033) in paragraph at lines 580--580
+Underfull \hbox (badness 1033) in paragraph at lines 464--464
 []|\OT1/cmr/m/n/10.95 3-metapath MAGNN on heterogeneous
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 580--580
+Underfull \hbox (badness 10000) in paragraph at lines 464--464
 []|\OT1/cmr/m/n/10.95 Transformer-augmented GraphSAGE
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 580--580
+Underfull \hbox (badness 10000) in paragraph at lines 464--464
 \OT1/cmr/m/n/10.95 with Federated Learning; uses
  []
 
 
-Overfull \hbox (53.04846pt too wide) in paragraph at lines 580--581
+Overfull \hbox (60.71355pt too wide) in paragraph at lines 464--465
  [][] 
  []
 
-[42 <./figures/gnn1.png>]
-Overfull \hbox (22.84392pt too wide) in paragraph at lines 590--603
+[36 <./figures/gnn1.png>]
+Overfull \hbox (22.84392pt too wide) in paragraph at lines 474--487
  [][] 
  []
 
-<figures/gnn2.png, id=1443, 670.75594pt x 210.7875pt>
+<figures/gnn2.png, id=1745, 670.75594pt x 210.7875pt>
 File: figures/gnn2.png Graphic file (type png)
 <use figures/gnn2.png>
-Package pdftex.def Info: figures/gnn2.png  used on input line 609.
+Package pdftex.def Info: figures/gnn2.png  used on input line 493.
 (pdftex.def)             Requested size: 364.19667pt x 111.26736pt.
-[43 <./figures/gnn2.png>]
-Overfull \hbox (2.13197pt too wide) in paragraph at lines 620--622
+[37 <./figures/gnn2.png>]
+Overfull \hbox (2.13197pt too wide) in paragraph at lines 504--506
 \OT1/cmr/m/n/10.95 During inference, inputs that deviate from the learned normal patterns yield a high reconstruction
  []
 
 
-Overfull \hbox (23.19759pt too wide) in paragraph at lines 624--625
+Overfull \hbox (23.19759pt too wide) in paragraph at lines 508--509
 []\OT1/cmr/m/n/10.95 VAEs are probabilistic generative models. Unlike standard autoencoders that learn a deterministic
  []
 
 
-Overfull \hbox (2.54715pt too wide) in paragraph at lines 638--639
+Overfull \hbox (2.54715pt too wide) in paragraph at lines 522--523
 []\OT1/cmr/bx/n/10.95 Convolutional Autoencoder (AE-CNN): \OT1/cmr/m/n/10.95 Combines 1D convolutional layers with dense
  []
 
-<figures/autoen.png, id=1476, 520.94624pt x 392.21532pt>
+<figures/autoen.png, id=1775, 520.94624pt x 392.21532pt>
 File: figures/autoen.png Graphic file (type png)
 <use figures/autoen.png>
-Package pdftex.def Info: figures/autoen.png  used on input line 642.
+Package pdftex.def Info: figures/autoen.png  used on input line 526.
 (pdftex.def)             Requested size: 273.14923pt x 204.20183pt.
 
-Overfull \hbox (11.53755pt too wide) in paragraph at lines 647--648
+Overfull \hbox (11.53755pt too wide) in paragraph at lines 531--532
 []\OT1/cmr/bx/n/10.95 Probabilistic Variational Autoencoder (VAE-Prob): \OT1/cmr/m/n/10.95 Probability-based reconstruction
  []
 
-[44 <./figures/autoen.png>] [45]
-Overfull \hbox (11.71198pt too wide) in paragraph at lines 697--698
+[38 <./figures/autoen.png>]
+Overfull \hbox (11.19603pt too wide) in paragraph at lines 570--571
+\OT1/cmr/m/n/10.95 graph-derived event traces, addressing the limitations of RNN/LSTM-based approaches in handling
+ []
+
+[39]
+Overfull \hbox (11.71198pt too wide) in paragraph at lines 579--580
 \OT1/cmr/m/n/10.95 detecting APT attacks due to their characteristically slow-and-steady temporal patterns.
  []
 
+<figures/te_archi.png, id=1801, 8833.0pt x 2143.00626pt>
+File: figures/te_archi.png Graphic file (type png)
+<use figures/te_archi.png>
+Package pdftex.def Info: figures/te_archi.png  used on input line 586.
+(pdftex.def)             Requested size: 500.77129pt x 128.77103pt.
 
-Overfull \hbox (3.88467pt too wide) in paragraph at lines 702--703
+Overfull \hbox (45.52718pt too wide) in paragraph at lines 586--587
+ [][] 
+ []
+
+
+Overfull \hbox (3.88467pt too wide) in paragraph at lines 591--592
 []\OT1/cmr/bx/n/10.95 Methodology & Dataset: \OT1/cmr/m/n/10.95 Two publicly available DARPA datasets were used for validation: 
  []
 
 
-Overfull \hbox (11.3154pt too wide) in paragraph at lines 705--706
+Overfull \hbox (11.3154pt too wide) in paragraph at lines 594--595
 []\OT1/cmr/bx/n/10.95 DARPA OpTC Dataset: \OT1/cmr/m/n/10.95 Event logs from 3 Windows hosts (SysClient0201, SysClient0321,
  []
 
-
-Overfull \hbox (1.09653pt too wide) in paragraph at lines 729--730
+[40 <./figures/te_archi.png>]
+Overfull \hbox (1.09653pt too wide) in paragraph at lines 618--619
 \OT1/cmr/m/n/10.95 LSTM remains competitive for shorter traces and memory-constrained environments, as language
  []
 
-[46]) (ch4_conception.tex [47]
+
+Overfull \hbox (3.6042pt too wide) in paragraph at lines 622--623
+[][][]\OT1/cmr/m/n/10.95 Albayrak et al.[][], []2025[]) proposed a GenAI/LLM-based threat intelligence system for classifying
+ []
+
+
+Overfull \hbox (0.8222pt too wide) in paragraph at lines 628--629
+[]\OT1/cmr/bx/n/10.95 Feature extraction and vectorization layer: \OT1/cmr/m/n/10.95 Text and structured data are transformed
+ []
+
+
+Overfull \hbox (52.07483pt too wide) in paragraph at lines 632--633
+\OT1/cmr/m/n/10.95 multiple sources, including MITRE ATT&CK, VirusTotal, AlienVault OTX, CICIDS2017/2018/2019/2023,
+ []
+
+
+Overfull \hbox (7.7476pt too wide) in paragraph at lines 632--633
+\OT1/cmr/m/n/10.95 MalwareBazaar, PhishTank, CTI reports, and honeypot data. The authors also used preprocessing
+ []
+
+<figures/genai.PNG, id=1819, 234.1247pt x 346.29375pt>
+File: figures/genai.PNG Graphic file (type png)
+<use figures/genai.PNG>
+Package pdftex.def Info: figures/genai.PNG  used on input line 636.
+(pdftex.def)             Requested size: 136.57462pt x 203.73647pt.
+[41 <./figures/genai.PNG>]
+Overfull \hbox (1.42264pt too wide) in paragraph at lines 658--659
+[]\OT1/cmr/bx/n/10.95 Baselines (Detection): \OT1/cmr/m/n/10.95 Support Vector Machine (SVM), 1D Convolutional Neural Network
+ []
+
+<figures/S2apt_architecture.png, id=1838, 492.1587pt x 278.4804pt>
+File: figures/S2apt_architecture.png Graphic file (type png)
+<use figures/S2apt_architecture.png>
+Package pdftex.def Info: figures/S2apt_architecture.png  used on input line 664.
+(pdftex.def)             Requested size: 409.71692pt x 231.83128pt.
+[42 <./figures/S2apt_architecture.png>]
+Overfull \hbox (1.89236pt too wide) in paragraph at lines 676--677
+[]\OT1/cmr/bx/n/10.95 Results [][]Shen et al.[][], []2023[]): \OT1/cmr/m/n/10.95 The GCN detection engine was evaluated on the semisynthetic
+ []
+
+
+Overfull \hbox (43.76718pt too wide) in paragraph at lines 696--705
+ [][] 
+ []
+
+[43]
+Overfull \hbox (7.48444pt too wide) in paragraph at lines 716--717
+[]\OT1/cmr/bx/n/10.95 Log normalization: \OT1/cmr/m/n/10.95 Ontology-based parsing and sliding time windows (default 10 minutes)
+ []
+
+
+Overfull \hbox (24.99512pt too wide) in paragraph at lines 721--722
+\OT1/cmr/m/n/10.95 phase labels via hierarchical softmax. Composite loss balances detection and phase classification. 
+ []
+
+
+Overfull \hbox (8.85516pt too wide) in paragraph at lines 729--730
+[]\OT1/cmr/bx/n/10.95 Dataset: \OT1/cmr/m/n/10.95 Hybrid cloud testbed (42 VMs: Windows Server 2019, Ubuntu 20.04, Kubernetes);
+ []
+
+<figures/msl.png, id=1870, 805.50937pt x 49.68562pt>
+File: figures/msl.png Graphic file (type png)
+<use figures/msl.png>
+Package pdftex.def Info: figures/msl.png  used on input line 734.
+(pdftex.def)             Requested size: 409.71692pt x 22.38736pt.
+
+Overfull \hbox (13.5599pt too wide) in paragraph at lines 742--743
+[]\OT1/cmr/bx/n/10.95 Global test detection accuracy: \OT1/cmr/m/n/10.95 92.3% (MSL-DEEPAPT) vs lower single-source baselines. 
+ []
+
+[44 <./figures/msl.png>]
+<figures/stagefinder.png, id=1896, 754.31813pt x 174.6525pt>
+File: figures/stagefinder.png Graphic file (type png)
+<use figures/stagefinder.png>
+Package pdftex.def Info: figures/stagefinder.png  used on input line 776.
+(pdftex.def)             Requested size: 455.24411pt x 105.40524pt.
+
+Overfull \hbox (5.6581pt too wide) in paragraph at lines 784--785
+\OT1/cmr/m/n/10.95 dropout 0.3) processes the sequence of graph embeddings $\OML/cmm/m/it/10.95 g[]; [] ; g[]$ \OT1/cmr/m/n/10.95 and outputs a probability
+ []
+
+[45 <./figures/stagefinder.png>]
+<figures/deepstage.png, id=1909, 750.55406pt x 284.56313pt>
+File: figures/deepstage.png Graphic file (type png)
+<use figures/deepstage.png>
+Package pdftex.def Info: figures/deepstage.png  used on input line 789.
+(pdftex.def)             Requested size: 455.24411pt x 172.60193pt.
+
+Overfull \hbox (7.51566pt too wide) in paragraph at lines 796--797
+\OT1/cmr/m/n/10.95 MFA), Containment (e.g., isolate hosts, block malicious IPs, kill processes), and Remediation
+ []
+
+[46 <./figures/deepstage.png>]
+Overfull \hbox (2.54758pt too wide) in paragraph at lines 875--876
+\OT1/cmr/m/n/10.95 ($[]$) means the approach does not require labeled attack data. APT-Specific ($[]$) means evaluation
+ []
+
+[47]
+Overfull \hbox (8.09056pt too wide) in paragraph at lines 879--880
+[]\OT1/cmr/m/n/10.95 Deep learning models represent a significant step forward, particularly graph-based approaches.
+ []
+
+
+Overfull \hbox (6.14395pt too wide) in paragraph at lines 881--882
+[]\OT1/cmr/m/n/10.95 The transformer-based LogShield confirms that sequential log modeling benefits from attention
+ []
+
+
+Overfull \hbox (14.54274pt too wide) in paragraph at lines 883--884
+[]\OT1/cmr/m/n/10.95 Generative AI solutions occupy a distinct niche. The AE+VAE-Prob architecture of Neuschmied
+ []
+
+
+Overfull \hbox (1.58142pt too wide) in paragraph at lines 885--886
+[]\OT1/cmr/m/n/10.95 The hybrid solutions --- SR2APT, MSL-DEEPAPT, and StageFinder/DeepStage --- represent
+ []
+
+[48]
+Overfull \hbox (17.03612pt too wide) in paragraph at lines 899--900
+\OT1/cmr/m/n/10.95 forgoing the complementary strengths of autoencoders (anomaly detection), transformers (sequential
+ []
+
+
+Overfull \hbox (12.09846pt too wide) in paragraph at lines 899--900
+\OT1/cmr/m/n/10.95 dependencies), and graph neural networks (structural relationships). No work learns to dynamically
+ []
+
+) (ch3_conception.tex
+Overfull \hbox (10.61812pt too wide) in paragraph at lines 903--1
+\OT1/cmr/m/n/10.95 dimension through an integrated combination of sequential deep learning, generative augmentation,
+ []
+
+[49]
 Chapter 3.
-) (ch5_implementation.tex [48
+
+Overfull \hbox (13.69357pt too wide) in paragraph at lines 7--8
+[]\OT1/cmr/m/n/10.95 This chapter presents the design of the proposed framework, \OT1/cmr/bx/n/10.95 GenAI-Augmented Framework
+ []
+
+
+Overfull \hbox (31.84366pt too wide) in paragraph at lines 11--11
+|[]\OT1/cmr/bx/n/14.4 Overview of the Problem Statement and Proposed Contributions| 
+ []
+
+
+Overfull \hbox (6.08192pt too wide) in paragraph at lines 16--17
+[]\OT1/cmr/m/n/10.95 Chapter 2 established that APT detection remains an open problem along multiple dimensions.
+ []
+
+[50
 
 ]
-Overfull \vbox (281.79176pt too high) has occurred while \output is active []
+Overfull \hbox (11.21312pt too wide) in paragraph at lines 27--29
+[]\OT1/cmr/bx/n/10.95 Gap 4 --- Underexploited semantic content. \OT1/cmr/m/n/10.95 Security logs contain rich textual information
+ []
 
- [49]
+
+Overfull \hbox (1.7639pt too wide) in paragraph at lines 40--41
+[]\OT1/cmr/m/n/10.95 To understand why a multi-model architecture is not merely preferable but necessary, consider
+ []
+
+
+Overfull \hbox (23.31808pt too wide) in paragraph at lines 44--45
+[]\OT1/cmr/m/n/10.95 The \OT1/cmr/bx/n/10.95 hippocampus \OT1/cmr/m/n/10.95 retrieves memories of previously encountered malicious patterns, comparing
+ []
+
+[51]
+<figures/brain_analogy.png, id=1954, 2312.64pt x 1862.96pt>
+File: figures/brain_analogy.png Graphic file (type png)
+<use figures/brain_analogy.png>
+Package pdftex.def Info: figures/brain_analogy.png  used on input line 77.
+(pdftex.def)             Requested size: 318.66948pt x 256.69078pt.
+ [52 <./figures/brain_analogy.png>]
+Overfull \hbox (0.33733pt too wide) in paragraph at lines 95--97
+\OT1/cmr/m/n/10.95 single architecture, the framework deploys four specialized, independently trained detection
+ []
+
+
+Overfull \hbox (8.00111pt too wide) in paragraph at lines 101--103
+\OT1/cmr/m/n/10.95 synthetic APT sequences that preserve the statistical properties and CKC-stage distributions
+ []
+
+
+Overfull \hbox (4.71431pt too wide) in paragraph at lines 111--112
+[]\OT1/cmr/m/n/10.95 Table []3.2[] summarizes the mapping between the identified gaps and the proposed contributions. 
+ []
+
+
+Underfull \hbox (badness 2065) in paragraph at lines 121--122
+[]|\OT1/cmr/m/n/10.95 Multi-model ensemble (AE + VAE +
+ []
+
+
+Underfull \hbox (badness 1668) in paragraph at lines 127--128
+[]|\OT1/cmr/m/n/10.95 CKC-aware reward function prioritizing
+ []
+
+[53]
+<figures/global_architecture.png, id=1972, 2312.64pt x 1635.10875pt>
+File: figures/global_architecture.png Graphic file (type png)
+<use figures/global_architecture.png>
+Package pdftex.def Info: figures/global_architecture.png  used on input line 143.
+(pdftex.def)             Requested size: 455.24411pt x 321.85136pt.
+ [54 <./figures/global_architecture.png>]
+Overfull \hbox (17.7247pt too wide) in paragraph at lines 163--164
+[]\OT1/cmr/bx/n/10.95 GNN (GraphSAGE) \OT1/cmr/m/n/10.95 --- captures lateral movement risk by analyzing structural relationships
+ []
+
+[55]
+Overfull \hbox (25.58018pt too wide) in paragraph at lines 197--198
+[]\OT1/cmr/m/n/10.95 The Regularized Autoencoder follows a symmetric encoder-decoder architecture with a constrained
+ []
+
+<figures/ae_architecture.png, id=1983, 2312.64pt x 1862.96pt>
+File: figures/ae_architecture.png Graphic file (type png)
+<use figures/ae_architecture.png>
+Package pdftex.def Info: figures/ae_architecture.png  used on input line 201.
+(pdftex.def)             Requested size: 341.43307pt x 275.02585pt.
+[56 <./figures/ae_architecture.png>]
+Overfull \hbox (13.81755pt too wide) in paragraph at lines 238--239
+[]\OT1/cmr/bx/n/10.95 KL divergence\OT1/cmr/m/n/10.95 : Regularizes the latent distribution, preventing the encoder from memorizing
+ []
+
+[57]
+<figures/vae_architecture.png, id=2005, 1758.57pt x 1774.63pt>
+File: figures/vae_architecture.png Graphic file (type png)
+<use figures/vae_architecture.png>
+Package pdftex.def Info: figures/vae_architecture.png  used on input line 271.
+(pdftex.def)             Requested size: 341.43307pt x 344.5486pt.
+ [58 <./figures/vae_architecture.png>]
+Overfull \hbox (4.12454pt too wide) in paragraph at lines 307--308
+[]\OT1/cmr/m/n/10.95 The $\OML/cmm/m/it/10.95 ^^L$ \OT1/cmr/bx/n/10.95 parameter \OT1/cmr/m/n/10.95 --- which gives the model its name --- controls the degree of disentanglement
+ []
+
+[59]
+<figures/transformer_architecture.png, id=2025, 2312.64pt x 1862.96pt>
+File: figures/transformer_architecture.png Graphic file (type png)
+<use figures/transformer_architecture.png>
+Package pdftex.def Info: figures/transformer_architecture.png  used on input line 350.
+(pdftex.def)             Requested size: 364.19667pt x 293.3609pt.
+ [60 <./figures/transformer_architecture.png>] [61]
+<figures/gnn_architecture.png, id=2043, 2346.7675pt x 1862.96pt>
+File: figures/gnn_architecture.png Graphic file (type png)
+<use figures/gnn_architecture.png>
+Package pdftex.def Info: figures/gnn_architecture.png  used on input line 405.
+(pdftex.def)             Requested size: 386.96027pt x 307.17615pt.
+ [62 <./figures/gnn_architecture.png>]
+Overfull \hbox (2.33495pt too wide) in paragraph at lines 416--417
+[]\OT1/cmr/bx/n/10.95 Cross-machine user edges\OT1/cmr/m/n/10.95 : Connect alerts involving the \OT1/cmr/m/it/10.95 same user on different machines
+ []
+
+[63]
+Overfull \hbox (4.47237pt too wide) in paragraph at lines 465--466
+\OT1/cmr/bx/n/10.95 parameters\OT1/cmr/m/n/10.95 . Adversaries continuously mutate their Tactics, Techniques, and Procedures (TTPs)
+ []
+
+
+Overfull \hbox (11.98755pt too wide) in paragraph at lines 467--468
+\OT1/cmr/bx/n/10.95 architectures require massive amounts of data to converge optimally\OT1/cmr/m/n/10.95 . Datasets containing
+ []
+
+[64]
+Overfull \hbox (11.18082pt too wide) in paragraph at lines 474--475
+\OT1/cmr/m/n/10.95 Tabular Data Generation using Transformers), a state-of-the-art generative architecture specifically
+ []
+
+
+Overfull \hbox (18.12975pt too wide) in paragraph at lines 480--481
+[]\OT1/cmr/bx/n/10.95 Temporal Feature Extraction: \OT1/cmr/m/n/10.95 The raw timestamps are parsed into categorical components
+ []
+
+
+Overfull \hbox (18.47864pt too wide) in paragraph at lines 481--482
+[]\OT1/cmr/bx/n/10.95 Boolean Flags: \OT1/cmr/m/n/10.95 Meta-features such as `has[]audit`, `has[]syscheck`, `has[]sca`, and `has[]network`
+ []
+
+
+Overfull \hbox (10.7407pt too wide) in paragraph at lines 495--496
+[]\OT1/cmr/m/n/10.95 A critical architectural decision is the point at which text embeddings are generated. Generative
+ []
+
+
+Overfull \hbox (12.99062pt too wide) in paragraph at lines 495--496
+\OT1/cmr/m/n/10.95 framework solves this by leveraging REaLTabFormer's native text-generation capabilities, executing
+ []
+
+[65]
+Overfull \hbox (50.64664pt too wide) in paragraph at lines 498--499
+\OT1/cmr/m/n/10.95 columns: `rule.description`, `data.command`, `data.audit.exe`, `data.audit.command`, `syscheck.path`,
+ []
+
+<figures/realtabformer_archi.png, id=2077, 2312.64pt x 1862.96pt>
+File: figures/realtabformer_archi.png Graphic file (type png)
+<use figures/realtabformer_archi.png>
+Package pdftex.def Info: figures/realtabformer_archi.png  used on input line 506.
+(pdftex.def)             Requested size: 386.96027pt x 311.69595pt.
+
+Overfull \hbox (32.08212pt too wide) in paragraph at lines 515--516
+\OT1/cmr/m/n/10.95 calculate batched Manhattan distances directly on the PCA-reduced embeddings. The REaLTabFormer
+ []
+
+[66 <./figures/realtabformer_archi.png>]
+Overfull \hbox (5.0113pt too wide) in paragraph at lines 522--523
+\OT1/cmr/m/n/10.95 are arguably the most critical feature for modeling Advanced Persistent Threats. The Transformer
+ []
+
+[67] [68]
+Overfull \hbox (15.32855pt too wide) in paragraph at lines 591--592
+[]\OT1/cmr/m/n/10.95 This section details the core decision-making engine of the STRIX framework: the Reinforcement
+ []
+
+
+Overfull \hbox (14.78903pt too wide) in paragraph at lines 608--609
+[]\OT1/cmr/bx/n/10.95 Autoencoder Signals: \OT1/cmr/m/n/10.95 The \OT1/cmr/m/it/10.95 anomaly score \OT1/cmr/m/n/10.95 and \OT1/cmr/m/it/10.95 reconstruction error\OT1/cmr/m/n/10.95 , providing an instinctual
+ []
+
+
+Overfull \hbox (6.79967pt too wide) in paragraph at lines 610--611
+[]\OT1/cmr/bx/n/10.95 Transformer Signals: \OT1/cmr/m/n/10.95 The \OT1/cmr/m/it/10.95 predicted next Cyber Kill Chain (CKC) stage \OT1/cmr/m/n/10.95 and the \OT1/cmr/m/it/10.95 prediction
+ []
+
+[69]
+<figures/rl_architecture.png, id=2111, 2312.64pt x 1862.96pt>
+File: figures/rl_architecture.png Graphic file (type png)
+<use figures/rl_architecture.png>
+Package pdftex.def Info: figures/rl_architecture.png  used on input line 631.
+(pdftex.def)             Requested size: 364.19667pt x 293.3609pt.
+ [70] [71 <./figures/rl_architecture.png>]
+Overfull \hbox (4.68689pt too wide) in paragraph at lines 664--665
+\OT1/cmr/m/n/10.95 taking purely random actions to aggressively explore the state space and discover the consequences
+ []
+
+[72]
+Overfull \hbox (0.5631pt too wide) in paragraph at lines 698--702
+[] [] \OT1/cmr/bx/n/10.95 Trust assumptions.[] \OT1/cmr/m/n/10.95 The adversary controls the attacker zone and may compromise individual
+ []
+
+<figures/ch3/eraser/system-arch-diagram.png, id=2138, 7003.16376pt x 1469.49pt>
+File: figures/ch3/eraser/system-arch-diagram.png Graphic file (type png)
+<use figures/ch3/eraser/system-arch-diagram.png>
+Package pdftex.def Info: figures/ch3/eraser/system-arch-diagram.png  used on input line 713.
+(pdftex.def)             Requested size: 432.48051pt x 90.74419pt.
+
+Overfull \hbox (3.50066pt too wide) in paragraph at lines 738--746
+\OT1/cmr/m/n/10.95 that hosts the four detection models of section []3.4[], the reinforcement-learning policy of section []3.6[],
+ []
+
+[73 <./figures/ch3/eraser/system-arch-diagram.png>]
+<figures/ch3/eraser/platform_components_v2.png, id=2174, 4517.87875pt x 2843.62375pt>
+File: figures/ch3/eraser/platform_components_v2.png Graphic file (type png)
+<use figures/ch3/eraser/platform_components_v2.png>
+Package pdftex.def Info: figures/ch3/eraser/platform_components_v2.png  used on input line 776.
+(pdftex.def)             Requested size: 432.48051pt x 272.1864pt.
+ [74]
+Overfull \hbox (3.10803pt too wide) in paragraph at lines 808--821
+\OT1/cmtt/m/n/10.95 BLOCK[]USER[]IP\OT1/cmr/m/n/10.95 ) is authorised only when all four detection-side scores (autoencoder reconstruction
+ []
+
+[75 <./figures/ch3/eraser/platform_components_v2.png>]
+Overfull \hbox (2.39255pt too wide) in paragraph at lines 846--854
+[]\OT1/cmr/m/n/10.95 The threat-intelligence module enriches internal verdicts with external context. It periodically
+ []
+
+
+Overfull \hbox (36.77356pt too wide) in paragraph at lines 875--882
+[]\OT1/cmr/m/n/10.95 The mobile companion is a deliberate subset of the web functionality, not a parallel reimplementation.
+ []
+
+[76]
+<figures/ch3/eraser/class-diagram.png, id=2215, 5729.405pt x 9126.095pt>
+File: figures/ch3/eraser/class-diagram.png Graphic file (type png)
+<use figures/ch3/eraser/class-diagram.png>
+Package pdftex.def Info: figures/ch3/eraser/class-diagram.png  used on input line 893.
+(pdftex.def)             Requested size: 344.09917pt x 548.09909pt.
+ [77] [78 <./figures/ch3/eraser/class-diagram.png>]
+<figures/ch3/eraser/workflow-diagram.png, id=2233, 6090.755pt x 1082.0425pt>
+File: figures/ch3/eraser/workflow-diagram.png Graphic file (type png)
+<use figures/ch3/eraser/workflow-diagram.png>
+Package pdftex.def Info: figures/ch3/eraser/workflow-diagram.png  used on input line 953.
+(pdftex.def)             Requested size: 432.48051pt x 76.8239pt.
+ [79 <./figures/ch3/eraser/workflow-diagram.png>]
+<figures/ch3/eraser/sequence-diagram.png, id=2244, 5575.83125pt x 4004.9625pt>
+File: figures/ch3/eraser/sequence-diagram.png Graphic file (type png)
+<use figures/ch3/eraser/sequence-diagram.png>
+Package pdftex.def Info: figures/ch3/eraser/sequence-diagram.png  used on input line 1048.
+(pdftex.def)             Requested size: 432.48051pt x 310.62584pt.
+ [80]
+Overfull \hbox (0.42854pt too wide) in paragraph at lines 1077--1085
+\OT1/cmr/m/n/10.95 communication along the pipeline is mediated by streams or by the database, while the dashboard
+ []
+
+[81 <./figures/ch3/eraser/sequence-diagram.png>]
+<figures/ch3/eraser/deployment-diagram.png, id=2259, 5702.30376pt x 2589.675pt>
+File: figures/ch3/eraser/deployment-diagram.png Graphic file (type png)
+<use figures/ch3/eraser/deployment-diagram.png>
+Package pdftex.def Info: figures/ch3/eraser/deployment-diagram.png  used on input line 1095.
+(pdftex.def)             Requested size: 432.48051pt x 196.39058pt.
+ [82 <./figures/ch3/eraser/deployment-diagram.png>]) (ch4_implementation.tex [83]
 Chapter 4.
-) (ch6_evaluation.tex [50
 
-]
-Overfull \vbox (393.39934pt too high) has occurred while \output is active []
 
- [51]
+pdfTeX warning: pdflatex (file ./figures/ch4/tikz/overview_pillars.pdf): PDF inclusion: found PDF version <1.7>, but at most version <1.5> allowed
+<figures/ch4/tikz/overview_pillars.pdf, id=2281, 357.53374pt x 292.96953pt>
+File: figures/ch4/tikz/overview_pillars.pdf Graphic file (type pdf)
+<use figures/ch4/tikz/overview_pillars.pdf>
+Package pdftex.def Info: figures/ch4/tikz/overview_pillars.pdf  used on input line 24.
+(pdftex.def)             Requested size: 250.38564pt x 205.17114pt.
+[84
+
+ <./figures/ch4/tikz/overview_pillars.pdf>]
+
+pdfTeX warning: pdflatex (file ./figures/ch4/tikz/lab_topology.pdf): PDF inclusion: found PDF version <1.7>, but at most version <1.5> allowed
+<figures/ch4/tikz/lab_topology.pdf, id=2330, 330.18054pt x 299.88235pt>
+File: figures/ch4/tikz/lab_topology.pdf Graphic file (type pdf)
+<use figures/ch4/tikz/lab_topology.pdf>
+Package pdftex.def Info: figures/ch4/tikz/lab_topology.pdf  used on input line 90.
+(pdftex.def)             Requested size: 355.08984pt x 322.52739pt.
+[85] [86 <./figures/ch4/tikz/lab_topology.pdf>]
+<figures/ch4/logos/stack_logos_backend.pdf, id=2384, 463.10617pt x 488.4915pt>
+File: figures/ch4/logos/stack_logos_backend.pdf Graphic file (type pdf)
+<use figures/ch4/logos/stack_logos_backend.pdf>
+Package pdftex.def Info: figures/ch4/logos/stack_logos_backend.pdf  used on input line 135.
+(pdftex.def)             Requested size: 355.08984pt x 374.5594pt.
+
+Overfull \hbox (10.00868pt too wide) in paragraph at lines 142--151
+\OT1/cmr/m/n/10.95 v2 [][]Colvin[], []2024b[]) handles validation and is the single source of truth for the OpenAPI specification
+ []
+
+[87 <./figures/ch4/logos/stack_logos_backend.pdf>]
+Overfull \hbox (17.56848pt too wide) in paragraph at lines 164--172
+[]\OT1/cmr/m/n/10.95 A few smaller dependencies do important load-bearing work and are worth naming. \OT1/cmtt/m/n/10.95 argon2-cffi
+ []
+
+
+Overfull \hbox (2.575pt too wide) in paragraph at lines 164--172
+\OT1/cmr/m/n/10.95 back-pressure the rest of the platform. \OT1/cmtt/m/n/10.95 structlog\OT1/cmr/m/n/10.95 , \OT1/cmtt/m/n/10.95 prometheus-client \OT1/cmr/m/n/10.95 and \OT1/cmtt/m/n/10.95 opentelemetry-sdk
+ []
+
+
+Overfull \hbox (17.52278pt too wide) in paragraph at lines 164--172
+[][]\OT1/cmr/m/n/10.95 Cloud Native Computing Foundation[], []2024b[], []2024a[]) cover the three observability pillars (structured
+ []
+
+<figures/ch4/logos/stack_logos_web.pdf, id=2464, 350.94312pt x 366.44147pt>
+File: figures/ch4/logos/stack_logos_web.pdf Graphic file (type pdf)
+<use figures/ch4/logos/stack_logos_web.pdf>
+Package pdftex.def Info: figures/ch4/logos/stack_logos_web.pdf  used on input line 189.
+(pdftex.def)             Requested size: 318.66948pt x 332.74654pt.
+[88]
+Overfull \hbox (17.30861pt too wide) in paragraph at lines 196--205
+\OT1/cmr/m/n/10.95 the build fails if the TypeScript bindings drift away from the backend's actual OpenAPI specification. 
+ []
+
+<figures/ch4/logos/stack_logos_mobile.pdf, id=2482, 350.94312pt x 366.44147pt>
+File: figures/ch4/logos/stack_logos_mobile.pdf Graphic file (type pdf)
+<use figures/ch4/logos/stack_logos_mobile.pdf>
+Package pdftex.def Info: figures/ch4/logos/stack_logos_mobile.pdf  used on input line 210.
+(pdftex.def)             Requested size: 282.24911pt x 294.71356pt.
+[89 <./figures/ch4/logos/stack_logos_web.pdf>]
+
+pdfTeX warning: pdflatex (file ./figures/ch4/tikz/ci_pipeline.pdf): PDF inclusion: found PDF version <1.7>, but at most version <1.5> allowed
+<figures/ch4/tikz/ci_pipeline.pdf, id=2516, 442.60455pt x 228.78374pt>
+File: figures/ch4/tikz/ci_pipeline.pdf Graphic file (type pdf)
+<use figures/ch4/tikz/ci_pipeline.pdf>
+Package pdftex.def Info: figures/ch4/tikz/ci_pipeline.pdf  used on input line 246.
+(pdftex.def)             Requested size: 432.48051pt x 223.5537pt.
+[90 <./figures/ch4/logos/stack_logos_mobile.pdf>]
+
+pdfTeX warning: pdflatex (file ./figures/ch4/tikz/type_safety_chain.pdf): PDF inclusion: found PDF version <1.7>, but at most version <1.5> allowed
+<figures/ch4/tikz/type_safety_chain.pdf, id=2548, 498.80653pt x 127.5164pt>
+File: figures/ch4/tikz/type_safety_chain.pdf Graphic file (type pdf)
+<use figures/ch4/tikz/type_safety_chain.pdf>
+Package pdftex.def Info: figures/ch4/tikz/type_safety_chain.pdf  used on input line 255.
+(pdftex.def)             Requested size: 386.96027pt x 98.9273pt.
+[91 <./figures/ch4/tikz/ci_pipeline.pdf> <./figures/ch4/tikz/type_safety_chain.pdf>] [92]
+Underfull \hbox (badness 1117) in paragraph at lines 410--410
+[]|\OT1/cmr/m/n/10 Meets all criteria: multi-stage, MITRE-labeled, rich
+ []
+
+
+Underfull \hbox (badness 1748) in paragraph at lines 410--410
+[]|\OT1/cmr/m/n/10 Covers cloud-based APT steps; simulation of cloud
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 410--410
+\OT1/cmr/m/n/10 infrastructure requires dedicated remote resources
+ []
+
+
+Underfull \hbox (badness 2970) in paragraph at lines 410--410
+\OT1/cmr/m/n/10 rather than multi-stage APT campaigns; no CKC
+ []
+
+
+Overfull \hbox (0.56065pt too wide) in paragraph at lines 413--425
+[]\OT1/cmr/m/n/10.95 The elimination process was guided by two main observations. First, the \OT1/cmr/bx/n/10.95 domain constraint
+ []
+
+
+Overfull \hbox (12.32034pt too wide) in paragraph at lines 413--425
+\OT1/cmr/m/n/10.95 domain is a legitimate APT attack surface, the simulation viability criterion immediately eliminated
+ []
+
+
+Overfull \hbox (2.34476pt too wide) in paragraph at lines 413--425
+\OT1/cmr/m/n/10.95 firmware emulators that were not available, while cloud simulation demands remote infrastructure
+ []
+
+[93]
+Overfull \hbox (10.70525pt too wide) in paragraph at lines 426--433
+[]\OT1/cmr/m/n/10.95 Second, many datasets that appeared promising based on their MITRE labeling were eliminated
+ []
+
+[94]
+
+pdfTeX warning: pdflatex (file ./figures/ch4/tikz/dataset_timeline.pdf): PDF inclusion: found PDF version <1.7>, but at most version <1.5> allowed
+<figures/ch4/tikz/dataset_timeline.pdf, id=2619, 443.19879pt x 205.1404pt>
+File: figures/ch4/tikz/dataset_timeline.pdf Graphic file (type pdf)
+<use figures/ch4/tikz/dataset_timeline.pdf>
+Package pdftex.def Info: figures/ch4/tikz/dataset_timeline.pdf  used on input line 493.
+(pdftex.def)             Requested size: 432.48051pt x 200.18166pt.
+<figures/ch4/charts/dataset_class_split.pdf, id=2623, 377.8055pt x 390.95432pt>
+File: figures/ch4/charts/dataset_class_split.pdf Graphic file (type pdf)
+<use figures/ch4/charts/dataset_class_split.pdf>
+Package pdftex.def Info: figures/ch4/charts/dataset_class_split.pdf  used on input line 518.
+(pdftex.def)             Requested size: 182.09486pt x 188.43144pt.
+<figures/ch4/charts/dataset_tactic_bars.pdf, id=2624, 642.11824pt x 428.05968pt>
+File: figures/ch4/charts/dataset_tactic_bars.pdf Graphic file (type pdf)
+<use figures/ch4/charts/dataset_tactic_bars.pdf>
+Package pdftex.def Info: figures/ch4/charts/dataset_tactic_bars.pdf  used on input line 521.
+(pdftex.def)             Requested size: 264.0424pt x 176.02159pt.
+[95 <./figures/ch4/tikz/dataset_timeline.pdf>]
+
+pdfTeX warning: pdflatex (file ./figures/ch4/tikz/feature_pipeline.pdf): PDF inclusion: found PDF version <1.7>, but at most version <1.5> allowed
+<figures/ch4/tikz/feature_pipeline.pdf, id=2654, 882.7961pt x 143.25119pt>
+File: figures/ch4/tikz/feature_pipeline.pdf Graphic file (type pdf)
+<use figures/ch4/tikz/feature_pipeline.pdf>
+Package pdftex.def Info: figures/ch4/tikz/feature_pipeline.pdf  used on input line 560.
+(pdftex.def)             Requested size: 455.24411pt x 73.87244pt.
+[96 <./figures/ch4/charts/dataset_class_split.pdf> <./figures/ch4/charts/dataset_tactic_bars.pdf>]
+
+pdfTeX warning: pdflatex (file ./figures/ch4/tikz/apt_groups_cards.pdf): PDF inclusion: found PDF version <1.7>, but at most version <1.5> allowed
+<figures/ch4/tikz/apt_groups_cards.pdf, id=2683, 450.88148pt x 291.54622pt>
+File: figures/ch4/tikz/apt_groups_cards.pdf Graphic file (type pdf)
+<use figures/ch4/tikz/apt_groups_cards.pdf>
+Package pdftex.def Info: figures/ch4/tikz/apt_groups_cards.pdf  used on input line 581.
+(pdftex.def)             Requested size: 355.08984pt x 229.6072pt.
+[97 <./figures/ch4/tikz/feature_pipeline.pdf> <./figures/ch4/tikz/apt_groups_cards.pdf>]
+Overfull \hbox (46.11777pt too wide) in paragraph at lines 626--627
+\OT1/cmr/m/n/10.95 agent identifiers ([]\OT1/cmtt/m/n/10.95 source.agent.id\OT1/cmr/m/n/10.95 , []\OT1/cmtt/m/n/10.95 source.agent.name\OT1/cmr/m/n/10.95 ), rule metadata ([]\OT1/cmtt/m/n/10.95 source.rule.description\OT1/cmr/m/n/10.95 ,
+ []
+
+
+Overfull \hbox (14.55482pt too wide) in paragraph at lines 626--627
+[]\OT1/cmtt/m/n/10.95 source.rule.level\OT1/cmr/m/n/10.95 , []\OT1/cmtt/m/n/10.95 source.rule.firedtimes\OT1/cmr/m/n/10.95 ), decoder information ([]\OT1/cmtt/m/n/10.95 source.decoder.name\OT1/cmr/m/n/10.95 ),
+ []
+
+
+Overfull \hbox (54.6346pt too wide) in paragraph at lines 626--627
+\OT1/cmr/m/n/10.95 network context ([]\OT1/cmtt/m/n/10.95 source.data.srcip\OT1/cmr/m/n/10.95 , []\OT1/cmtt/m/n/10.95 source.data.srcuser\OT1/cmr/m/n/10.95 ), file integrity data ([]\OT1/cmtt/m/n/10.95 source.syscheck.*\OT1/cmr/m/n/10.95 ),
+ []
+
+
+Overfull \hbox (92.2554pt too wide) in paragraph at lines 626--627
+\OT1/cmr/m/n/10.95 and critically, the MITRE ATT&CK annotations ([]\OT1/cmtt/m/n/10.95 source.rule.mitre.tactic\OT1/cmr/m/n/10.95 , []\OT1/cmtt/m/n/10.95 source.rule.mitre.technique\OT1/cmr/m/n/10.95 ,
+ []
+
+[98]
+Overfull \hbox (38.48184pt too wide) in paragraph at lines 636--654
+ [][] 
+ []
+
+
+Overfull \hbox (24.78735pt too wide) in paragraph at lines 660--661
+[]\OT1/cmr/bx/n/10.95 TA0005 (Defense Evasion) $\OMS/cmsy/m/n/10.95 !$ \OT1/cmr/bx/n/10.95 S5 (Installation): \OT1/cmr/m/n/10.95 While Defense Evasion could conceptually
+ []
+
+[99]
+Overfull \hbox (13.882pt too wide) in paragraph at lines 679--680
+[]\OT1/cmr/bx/n/10.95 Attack Sequence Construction: \OT1/cmr/m/n/10.95 The sorted per-agent timeline allows the \OT1/cmtt/m/n/10.95 CKC[]Generation
+ []
+
+
+Overfull \hbox (3.34859pt too wide) in paragraph at lines 679--680
+\OT1/cmr/m/n/10.95 campaigns --- ordered progressions from Reconnaissance (S1) through Actions on Objectives
+ []
+
+
+Overfull \hbox (16.76454pt too wide) in paragraph at lines 683--684
+[]\OT1/cmr/m/n/10.95 The final preprocessed outputs are saved as structured files: \OT1/cmtt/m/n/10.95 apt[]attack[]events[]processed.csv
+ []
+
+
+Overfull \hbox (10.01422pt too wide) in paragraph at lines 683--684
+\OT1/cmr/m/n/10.95 (all events with parsed timestamps and CKC labels), \OT1/cmtt/m/n/10.95 apt[]mitre[]data[]sorted.csv \OT1/cmr/m/n/10.95 (chronologically
+ []
+
+[100]
+Overfull \hbox (12.97823pt too wide) in paragraph at lines 703--705
+[]\OT1/cmr/bx/n/10.95 Numerical Features. \OT1/cmr/m/n/10.95 Four continuous variables are derived to capture quantitative behavioral
+ []
+
+
+Overfull \hbox (0.67064pt too wide) in paragraph at lines 707--708
+\OT1/cmtt/m/n/10.95 wget | chmod | bash \OT1/cmr/m/n/10.95 pipelines) tend to be significantly longer than benign administrative
+ []
+
+
+Overfull \hbox (2.49632pt too wide) in paragraph at lines 708--709
+[]\OT1/cmtt/m/n/10.95 path[]depth\OT1/cmr/m/n/10.95 : The depth of the file path (e.g., \OT1/cmtt/m/n/10.95 /etc/passwd \OT1/cmr/m/n/10.95 = 2, \OT1/cmtt/m/n/10.95 /tmp/.hidden/payload.sh
+ []
+
+
+Overfull \hbox (4.2591pt too wide) in paragraph at lines 714--715
+[]\OT1/cmr/m/it/10.95 Log source location \OT1/cmr/m/n/10.95 (4 flags): Identifies the originating log file (\OT1/cmtt/m/n/10.95 /var/log/audit/audit.log\OT1/cmr/m/n/10.95 ,
+ []
+
+
+Overfull \hbox (2.88945pt too wide) in paragraph at lines 724--725
+[]\OT1/cmr/m/n/10.95 Numerical features and binary flags capture the structural metadata of an alert but completely
+ []
+
+[101]
+Overfull \hbox (9.59628pt too wide) in paragraph at lines 729--730
+[]\OT1/cmr/m/n/10.95 16 features from the command embedding: \OT1/cmtt/m/n/10.95 cmd[]secbert[]emb[]0 \OT1/cmr/m/n/10.95 through \OT1/cmtt/m/n/10.95 cmd[]secbert[]emb[]15 
+ []
+
+
+Overfull \hbox (37.83815pt too wide) in paragraph at lines 732--733
+[]\OT1/cmr/m/n/10.95 The total feature vector is therefore composed of: $16[] + 16[] +
+ []
+
+<figures/feature selection.png, id=2763, 1796.7125pt x 1281.78876pt>
+File: figures/feature selection.png Graphic file (type png)
+<use figures/feature selection.png>
+Package pdftex.def Info: figures/feature selection.png  used on input line 755.
+(pdftex.def)             Requested size: 364.19667pt x 259.81506pt.
+
+Overfull \hbox (77.51456pt too wide) in paragraph at lines 768--775
+\OT1/cmr/m/n/10.95 chain [][]Red Hat[], []2024[]; []Karim et al.[][], []2024[]), a local rule file deployed at \OT1/cmtt/m/n/10.95 /var/ossec/etc/rules/local[]rules.xml\OT1/cmr/m/n/10.95 ,
+ []
+
+
+
+pdfTeX warning: pdflatex (file ./figures/ch4/tikz/wazuh_logo_rules.pdf): PDF inclusion: found PDF version <1.7>, but at most version <1.5> allowed
+<figures/ch4/tikz/wazuh_logo_rules.pdf, id=2769, 555.2434pt x 128.92064pt>
+File: figures/ch4/tikz/wazuh_logo_rules.pdf Graphic file (type pdf)
+<use figures/ch4/tikz/wazuh_logo_rules.pdf>
+Package pdftex.def Info: figures/ch4/tikz/wazuh_logo_rules.pdf  used on input line 778.
+(pdftex.def)             Requested size: 432.48051pt x 100.41998pt.
+[102]
+Overfull \hbox (61.49876pt too wide) in paragraph at lines 794--799
+[]\OT1/cmr/m/n/10.95 The Wazuh manager writes alerts as newline-delimited JSON to \OT1/cmtt/m/n/10.95 /var/ossec/logs/alerts/alerts.json\OT1/cmr/m/n/10.95 .
+ []
+
+
+Overfull \hbox (2.0075pt too wide) in paragraph at lines 802--814
+\OT1/cmr/m/n/10.95 execve, \OT1/cmtt/m/n/10.95 audit-wazuh-w \OT1/cmr/m/n/10.95 for write, \OT1/cmtt/m/n/10.95 audit-wazuh-r \OT1/cmr/m/n/10.95 for read, \OT1/cmtt/m/n/10.95 audit-wazuh-a \OT1/cmr/m/n/10.95 for attribute changes)
+ []
+
+[103 <./figures/feature selection.png> <./figures/ch4/tikz/wazuh_logo_rules.pdf>]
+
+pdfTeX warning: pdflatex (file ./figures/ch4/tikz/auditd_filebeat_flow.pdf): PDF inclusion: found PDF version <1.7>, but at most version <1.5> allowed
+<figures/ch4/tikz/auditd_filebeat_flow.pdf, id=2809, 647.26314pt x 147.07045pt>
+File: figures/ch4/tikz/auditd_filebeat_flow.pdf Graphic file (type pdf)
+<use figures/ch4/tikz/auditd_filebeat_flow.pdf>
+Package pdftex.def Info: figures/ch4/tikz/auditd_filebeat_flow.pdf  used on input line 823.
+(pdftex.def)             Requested size: 446.13727pt x 101.37099pt.
+[104 <./figures/ch4/tikz/auditd_filebeat_flow.pdf>]
+<figures/ch4/eraser/platform_components_internal.png, id=2848, 4746.73375pt x 3614.50375pt>
+File: figures/ch4/eraser/platform_components_internal.png Graphic file (type png)
+<use figures/ch4/eraser/platform_components_internal.png>
+Package pdftex.def Info: figures/ch4/eraser/platform_components_internal.png  used on input line 865.
+(pdftex.def)             Requested size: 432.48051pt x 329.31746pt.
+
+
+pdfTeX warning: pdflatex (file ./figures/ch4/tikz/data_flow_master.pdf): PDF inclusion: found PDF version <1.7>, but at most version <1.5> allowed
+<figures/ch4/tikz/data_flow_master.pdf, id=2851, 568.84824pt x 328.33867pt>
+File: figures/ch4/tikz/data_flow_master.pdf Graphic file (type pdf)
+<use figures/ch4/tikz/data_flow_master.pdf>
+Package pdftex.def Info: figures/ch4/tikz/data_flow_master.pdf  used on input line 874.
+(pdftex.def)             Requested size: 455.24411pt x 262.76648pt.
+[105 <./figures/ch4/eraser/platform_components_internal.png>]
+LaTeX Font Info:    Trying to load font information for OMS+cmtt on input line 898.
+LaTeX Font Info:    No file OMScmtt.fd. on input line 898.
+
+
+LaTeX Font Warning: Font shape `OMS/cmtt/m/n' undefined
+(Font)              using `OMS/cmsy/m/n' instead
+(Font)              for symbol `textbraceleft' on input line 898.
+
+
+Overfull \hbox (59.31593pt too wide) in paragraph at lines 891--907
+\OT1/cmtt/m/n/10.95 selected[]features[]top25.json\OT1/cmr/m/n/10.95 , and writes a \OT1/cmtt/m/n/10.95 FeatureMessage \OT1/cmr/m/n/10.95 onto a shard of the \OT1/cmtt/m/n/10.95 strix:features:\OMS/cmtt/m/n/10.95 f\OT1/cmtt/m/n/10.95 0..N\OMS/cmtt/m/n/10.95 g
+ []
+
+
+Overfull \hbox (13.82967pt too wide) in paragraph at lines 908--922
+\OT1/cmr/m/n/10.95 (autoencoder reconstruction error, $\OML/cmm/m/it/10.95 ^^L$\OT1/cmr/m/n/10.95 -VAE malicious probability, Transformer next-stage confidence,
+ []
+
+
+Overfull \hbox (26.21072pt too wide) in paragraph at lines 908--922
+\OT1/cmr/m/n/10.95 time-since-last-alert counter. The five verdicts plus the chosen action are emitted as a \OT1/cmtt/m/n/10.95 VerdictMessage
+ []
+
+[106 <./figures/ch4/tikz/data_flow_master.pdf>]
+
+pdfTeX warning: pdflatex (file ./figures/ch4/tikz/dqn_gating_logic.pdf): PDF inclusion: found PDF version <1.7>, but at most version <1.5> allowed
+<figures/ch4/tikz/dqn_gating_logic.pdf, id=2908, 291.52615pt x 358.2665pt>
+File: figures/ch4/tikz/dqn_gating_logic.pdf Graphic file (type pdf)
+<use figures/ch4/tikz/dqn_gating_logic.pdf>
+Package pdftex.def Info: figures/ch4/tikz/dqn_gating_logic.pdf  used on input line 959.
+(pdftex.def)             Requested size: 282.24911pt x 346.89487pt.
+[107]
+
+pdfTeX warning: pdflatex (file ./figures/ch4/tikz/threat_intel_schema.pdf): PDF inclusion: found PDF version <1.7>, but at most version <1.5> allowed
+<figures/ch4/tikz/threat_intel_schema.pdf, id=2920, 595.56003pt x 160.37315pt>
+File: figures/ch4/tikz/threat_intel_schema.pdf Graphic file (type pdf)
+<use figures/ch4/tikz/threat_intel_schema.pdf>
+Package pdftex.def Info: figures/ch4/tikz/threat_intel_schema.pdf  used on input line 984.
+(pdftex.def)             Requested size: 409.71692pt x 110.3321pt.
+[108 <./figures/ch4/tikz/dqn_gating_logic.pdf>]
+Overfull \hbox (6.82861pt too wide) in paragraph at lines 1015--1020
+[] [] \OT1/cmr/bx/n/10.95 Model Monitoring (AI Engine).[] \OT1/cmr/m/n/10.95 The page directly under the "Model Monitoring" navigation
+ []
+
+<figures/ch4/screenshots/dashboard_ai_engine.png, id=2961, 1606.0pt x 1003.75pt>
+File: figures/ch4/screenshots/dashboard_ai_engine.png Graphic file (type png)
+<use figures/ch4/screenshots/dashboard_ai_engine.png>
+Package pdftex.def Info: figures/ch4/screenshots/dashboard_ai_engine.png  used on input line 1023.
+(pdftex.def)             Requested size: 432.48051pt x 270.29626pt.
+[109 <./figures/ch4/tikz/threat_intel_schema.pdf>]
+<figures/ch4/screenshots/dashboard_chains.png, id=2987, 1606.0pt x 1003.75pt>
+File: figures/ch4/screenshots/dashboard_chains.png Graphic file (type png)
+<use figures/ch4/screenshots/dashboard_chains.png>
+Package pdftex.def Info: figures/ch4/screenshots/dashboard_chains.png  used on input line 1038.
+(pdftex.def)             Requested size: 432.48051pt x 270.29626pt.
+ [110 <./figures/ch4/screenshots/dashboard_ai_engine.png (PNG copy)>]
+<figures/ch4/screenshots/dashboard_topology.png, id=2994, 1606.0pt x 1003.75pt>
+File: figures/ch4/screenshots/dashboard_topology.png Graphic file (type png)
+<use figures/ch4/screenshots/dashboard_topology.png>
+Package pdftex.def Info: figures/ch4/screenshots/dashboard_topology.png  used on input line 1054.
+(pdftex.def)             Requested size: 432.48051pt x 270.29626pt.
+ [111 <./figures/ch4/screenshots/dashboard_chains.png (PNG copy)>]
+Overfull \hbox (11.70177pt too wide) in paragraph at lines 1084--1093
+\OT1/cmr/m/n/10.95 artefact means we cannot accidentally deploy a stale calibrator. Treating the OpenAPI specification
+ []
+
+) (ch5_evaluation.tex
+Overfull \hbox (4.07854pt too wide) in paragraph at lines 1094--1
+\OT1/cmr/m/n/10.95 sequences, and system-level metrics (detection latency, false-positive rate, end-to-end throughput)
+ []
+
+[112 <./figures/ch4/screenshots/dashboard_topology.png (PNG copy)>] [113]
 Chapter 5.
-) (ch7_conclusion.tex [52
+
+Overfull \hbox (4.11955pt too wide) in paragraph at lines 12--16
+\OT1/cmr/m/n/10.95 generated by REaLTabFormer. 3. \OT1/cmr/bx/n/10.95 System-level validation\OT1/cmr/m/n/10.95 : Evaluating the final Reinforcement
+ []
+
+[114
 
 ]
+Overfull \hbox (9.73306pt too wide) in paragraph at lines 42--43
+[]\OT1/cmr/m/n/10.95 The development of the perception layer was highly iterative, driven by continuous architectural
+ []
+
+
+Overfull \hbox (17.3069pt too wide) in paragraph at lines 76--77
+[]\OT1/cmr/m/n/10.95 After iterative optimization, hyperparameter tuning, and integration of the SecBERT-augmented
+ []
+
+[115]
+<figures/resultat/loss ae.png, id=3028, 571.6557pt x 322.3242pt>
+File: figures/resultat/loss ae.png Graphic file (type png)
+<use figures/resultat/loss ae.png>
+Package pdftex.def Info: figures/resultat/loss ae.png  used on input line 114.
+(pdftex.def)             Requested size: 236.72888pt x 133.47679pt.
+<figures/resultat/ae_matrix.png, id=3029, 575.9919pt x 490.7133pt>
+File: figures/resultat/ae_matrix.png Graphic file (type png)
+<use figures/resultat/ae_matrix.png>
+Package pdftex.def Info: figures/resultat/ae_matrix.png  used on input line 121.
+(pdftex.def)             Requested size: 213.96529pt x 182.28738pt.
+
+Overfull \hbox (24.30562pt too wide) in paragraph at lines 129--130
+\OT1/cmr/m/n/10.95 excellent discriminative power across all thresholds, validating the iterative improvements documented
+ []
+
+[116 <./figures/resultat/loss ae.png> <./figures/resultat/ae_matrix.png>]
+<figures/resultat/ae_tsne.png, id=3037, 570.933pt x 426.393pt>
+File: figures/resultat/ae_tsne.png Graphic file (type png)
+<use figures/resultat/ae_tsne.png>
+Package pdftex.def Info: figures/resultat/ae_tsne.png  used on input line 133.
+(pdftex.def)             Requested size: 273.14923pt x 204.00267pt.
+
+Overfull \hbox (8.30502pt too wide) in paragraph at lines 138--139
+[]\OT1/cmr/bx/n/10.95 5.2[] \OT1/cmr/m/n/10.95 The latent-space t-SNE shows a clearer organization, where malicious samples are concentrated
+ []
+
+[117 <./figures/resultat/ae_tsne.png>]
+<figures/resultat/loss_vae.png, id=3048, 540.5796pt x 320.1561pt>
+File: figures/resultat/loss_vae.png Graphic file (type png)
+<use figures/resultat/loss_vae.png>
+Package pdftex.def Info: figures/resultat/loss_vae.png  used on input line 161.
+(pdftex.def)             Requested size: 241.27881pt x 142.89157pt.
+<figures/resultat/vae_matri.png, id=3049, 570.2103pt x 495.0495pt>
+File: figures/resultat/vae_matri.png Graphic file (type png)
+<use figures/resultat/vae_matri.png>
+Package pdftex.def Info: figures/resultat/vae_matri.png  used on input line 168.
+(pdftex.def)             Requested size: 209.41534pt x 181.81331pt.
+<figures/resultat/vae_tsne.png, id=3054, 642.4803pt x 482.0409pt>
+File: figures/resultat/vae_tsne.png Graphic file (type png)
+<use figures/resultat/vae_tsne.png>
+Package pdftex.def Info: figures/resultat/vae_tsne.png  used on input line 183.
+(pdftex.def)             Requested size: 273.14923pt x 204.9419pt.
+
+Overfull \hbox (4.2496pt too wide) in paragraph at lines 192--193
+\OT1/cmr/m/n/10.95 intentional: the disentangled latent space enforced by the $\OML/cmm/m/it/10.95 ^^L$ \OT1/cmr/m/n/10.95 parameter produces more conservative
+ []
+
+[118 <./figures/resultat/loss_vae.png> <./figures/resultat/vae_matri.png> <./figures/resultat/vae_tsne.png>]
+Overfull \hbox (15.63394pt too wide) in paragraph at lines 198--199
+[]\OT1/cmr/m/n/10.95 The Transformer addresses a fundamentally different detection dimension: temporal progression.
+ []
+
+<figures/resultat/loss te.png, id=3063, 411.5375pt x 311.1625pt>
+File: figures/resultat/loss te.png Graphic file (type png)
+<use figures/resultat/loss te.png>
+Package pdftex.def Info: figures/resultat/loss te.png  used on input line 205.
+(pdftex.def)             Requested size: 223.07211pt x 168.66621pt.
+<figures/resultat/te_matrix.png, id=3064, 771.88374pt x 592.2125pt>
+File: figures/resultat/te_matrix.png Graphic file (type png)
+<use figures/resultat/te_matrix.png>
+Package pdftex.def Info: figures/resultat/te_matrix.png  used on input line 212.
+(pdftex.def)             Requested size: 223.07211pt x 171.14081pt.
+[119 <./figures/resultat/loss te.png> <./figures/resultat/te_matrix.png>]
+<figures/resultat/graph2_attack_scenario.png, id=3071, 1582.713pt x 756.426pt>
+File: figures/resultat/graph2_attack_scenario.png Graphic file (type png)
+<use figures/resultat/graph2_attack_scenario.png>
+Package pdftex.def Info: figures/resultat/graph2_attack_scenario.png  used on input line 238.
+(pdftex.def)             Requested size: 364.19667pt x 174.05511pt.
+<figures/resultat/gnn_loss.png, id=3072, 471.2004pt x 419.166pt>
+File: figures/resultat/gnn_loss.png Graphic file (type png)
+<use figures/resultat/gnn_loss.png>
+Package pdftex.def Info: figures/resultat/gnn_loss.png  used on input line 255.
+(pdftex.def)             Requested size: 223.07211pt x 198.44073pt.
+<figures/resultat/gnn_matrix.png, id=3073, 466.8642pt x 409.0482pt>
+File: figures/resultat/gnn_matrix.png Graphic file (type png)
+<use figures/resultat/gnn_matrix.png>
+Package pdftex.def Info: figures/resultat/gnn_matrix.png  used on input line 262.
+(pdftex.def)             Requested size: 223.07211pt x 195.44835pt.
+ [120 <./figures/resultat/graph2_attack_scenario.png> <./figures/resultat/gnn_loss.png> <./figures/resultat/gnn_matrix.png>]
+Overfull \hbox (0.82092pt too wide) in paragraph at lines 272--273
+[]\OT1/cmr/m/n/10.95 The three-type edge construction (intra-machine temporal, cross-machine user, cross-machine
+ []
+
+
+Overfull \hbox (2.97212pt too wide) in paragraph at lines 272--273
+\OT1/cmr/m/n/10.95 IP) proved critical. During evaluation, the cross-machine user edges were responsible for detecting
+ []
+
+[121]
+Overfull \hbox (7.51447pt too wide) in paragraph at lines 315--316
+\OT1/cmr/m/n/10.95 alerts faithfully reproduce the statistical structure and semantic patterns of genuine APT behavior,
+ []
+
+
+Overfull \hbox (1.97571pt too wide) in paragraph at lines 334--335
+[]\OT1/cmr/m/n/10.95 The larger drops in Accuracy ($\OMS/cmtt/m/n/10.95 ^^@\OT1/cmr/m/n/10.95 0\OML/cmm/m/it/10.95 :\OT1/cmr/m/n/10.95 227$) and ROC-AUC ($\OMS/cmtt/m/n/10.95 ^^@\OT1/cmr/m/n/10.95 0\OML/cmm/m/it/10.95 :\OT1/cmr/m/n/10.95 200$) are expected and attributable
+ []
+
+[122]
+Overfull \hbox (6.48149pt too wide) in paragraph at lines 364--365
+[]\OT1/cmr/m/n/10.95 The Precision of 0.68 reflects the expected difficulty of learning the exact noise characteristics
+ []
+
+
+Overfull \hbox (3.65259pt too wide) in paragraph at lines 386--387
+\OT1/cmr/m/n/10.95 ($[] \OMS/cmtt/m/n/10.95 ) []$\OT1/cmr/m/n/10.95 ), and the real manifold is representable within the synthetic manifold ($[] \OMS/cmtt/m/n/10.95 )
+ []
+
+[123] [124]
+Overfull \hbox (1.78719pt too wide) in paragraph at lines 441--442
+\OT1/cmr/m/n/10.95 catastrophic performance degradation observed when isolating individual components. Figure []5.8[]
+ []
+
+<figures/resultat/ablation.png, id=3109, 1148.3703pt x 643.203pt>
+File: figures/resultat/ablation.png Graphic file (type png)
+<use figures/resultat/ablation.png>
+Package pdftex.def Info: figures/resultat/ablation.png  used on input line 445.
+(pdftex.def)             Requested size: 364.19667pt x 203.98404pt.
+[125 <./figures/resultat/ablation.png>]
+Overfull \hbox (0.51291pt too wide) in paragraph at lines 479--480
+\OT1/cmr/m/it/10.95 pre-detection rate\OT1/cmr/m/n/10.95 , which measures how often an attack is detected before reaching the installation
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 491--491
+[]|\OT1/cmr/bx/n/10 Dataset /
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 493--493
+[]|\OT1/cmr/m/n/10 ML / RF-
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 493--493
+[]|\OT1/cmr/m/n/10 Windows PE
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 493--493
+\OT1/cmr/m/n/10 malware,
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 493--493
+\OT1/cmr/m/n/10 MITRE
+ []
+
+
+Overfull \hbox (3.1936pt too wide) in paragraph at lines 494--494
+[]|\OT1/cmr/m/n/10 Reinforcement
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 495--495
+[]|\OT1/cmr/m/n/10 CNN2D on
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 495--495
+\OT1/cmr/m/n/10 CICAPT-IIoT
+ []
+
+
+Underfull \hbox (badness 3219) in paragraph at lines 496--496
+[]|\OT1/cmr/m/n/10 AISL (Yue et al.,
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 496--496
+[]|\OT1/cmr/m/n/10 LSTM /
+ []
+
+
+Underfull \hbox (badness 4217) in paragraph at lines 498--498
+[]|\OT1/cmr/m/n/10 SR2APT (Shen et
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 498--498
+[]|\OT1/cmr/m/n/10 Semi-synthetic
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 499--499
+[]|\OT1/cmr/m/n/10 MSL-DEEPAPT
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 499--499
+[]|\OT1/cmr/m/n/10 Hybrid
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 500--500
+[]|\OT1/cmr/m/n/10 StageFinder /
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 500--500
+[]|\OT1/cmr/m/n/10 Graph +
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 500--500
+\OT1/cmr/m/n/10 temporal /
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 501--501
+[]|\OT1/cmr/bx/n/10 Proposed
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 501--501
+[]|\OT1/cmr/bx/n/10 AE +
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 501--501
+\OT1/cmr/bx/n/10 VAE +
+ []
+
+
+Overfull \hbox (2.13206pt too wide) in paragraph at lines 501--501
+\OT1/cmr/bx/n/10 Transformer
+ []
+
+
+Underfull \hbox (badness 5652) in paragraph at lines 501--501
+[]|\OT1/cmr/bx/n/10 Real Wazuh
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 501--501
+\OT1/cmr/bx/n/10 data +
+ []
+
+
+Overfull \hbox (277.64835pt too wide) in paragraph at lines 489--504
+ [][] 
+ []
+
+[126]
+Overfull \hbox (9.82726pt too wide) in paragraph at lines 514--522
+\OT1/cmr/m/n/10.95 measurements in this thesis: the model-level metrics of the earlier sections evaluate each component
+ []
+
+
+Overfull \hbox (3.68315pt too wide) in paragraph at lines 514--522
+\OT1/cmr/m/n/10.95 through detection, reinforcement-learning decision, deterministic gating, persistence, and analyst-
+ []
+
+[127]
+Overfull \hbox (1.98256pt too wide) in paragraph at lines 536--561
+\OT1/cmtt/m/n/10.95 strix[]lab[]net \OT1/cmr/m/n/10.95 hosted the four-container attack range and the sensing stack: a MITRE ATT&CK
+ []
+
+
+Overfull \hbox (27.06705pt too wide) in paragraph at lines 536--561
+\OT1/cmr/m/n/10.95 tailed by a co-located Filebeat sidecar [][]Elastic N.V.[], []2024[]). The second network, \OT1/cmtt/m/n/10.95 strix[]platform[]net\OT1/cmr/m/n/10.95 ,
+ []
+
+
+
+pdfTeX warning: pdflatex (file ./figures/ch5/tikz/lab_environment.pdf): PDF inclusion: found PDF version <1.7>, but at most version <1.5> allowed
+<figures/ch5/tikz/lab_environment.pdf, id=3147, 508.9143pt x 323.71841pt>
+File: figures/ch5/tikz/lab_environment.pdf Graphic file (type pdf)
+<use figures/ch5/tikz/lab_environment.pdf>
+Package pdftex.def Info: figures/ch5/tikz/lab_environment.pdf  used on input line 564.
+(pdftex.def)             Requested size: 432.48051pt x 275.10266pt.
+[128] [129 <./figures/ch5/tikz/lab_environment.pdf>]
+Overfull \hbox (4.74475pt too wide) in paragraph at lines 615--627
+[]\OT1/cmr/m/n/10.95 Figure []5.10[] captures the dashboard during the active attack window, before any reinforcement-
+ []
+
+<figures/ch5/simulation-screenshots/1-during-attack.png, id=3190, 1927.2pt x 932.48375pt>
+File: figures/ch5/simulation-screenshots/1-during-attack.png Graphic file (type png)
+<use figures/ch5/simulation-screenshots/1-during-attack.png>
+Package pdftex.def Info: figures/ch5/simulation-screenshots/1-during-attack.png  used on input line 630.
+(pdftex.def)             Requested size: 432.48051pt x 209.24487pt.
+<figures/ch5/simulation-screenshots/2-attack-topology-and-gnn.png, id=3194, 1927.2pt x 932.48375pt>
+File: figures/ch5/simulation-screenshots/2-attack-topology-and-gnn.png Graphic file (type png)
+<use figures/ch5/simulation-screenshots/2-attack-topology-and-gnn.png>
+Package pdftex.def Info: figures/ch5/simulation-screenshots/2-attack-topology-and-gnn.png  used on input line 653.
+(pdftex.def)             Requested size: 432.48051pt x 209.24487pt.
+[130 <./figures/ch5/simulation-screenshots/1-during-attack.png>]
+<figures/ch5/simulation-screenshots/4-models-monitoring-results.png, id=3203, 1927.2pt x 932.48375pt>
+File: figures/ch5/simulation-screenshots/4-models-monitoring-results.png Graphic file (type png)
+<use figures/ch5/simulation-screenshots/4-models-monitoring-results.png>
+Package pdftex.def Info: figures/ch5/simulation-screenshots/4-models-monitoring-results.png  used on input line 682.
+(pdftex.def)             Requested size: 432.48051pt x 209.24487pt.
+ [131 <./figures/ch5/simulation-screenshots/2-attack-topology-and-gnn.png>]
+<figures/ch5/simulation-screenshots/3-after-rl-intervention.png, id=3211, 1927.2pt x 932.48375pt>
+File: figures/ch5/simulation-screenshots/3-after-rl-intervention.png Graphic file (type png)
+<use figures/ch5/simulation-screenshots/3-after-rl-intervention.png>
+Package pdftex.def Info: figures/ch5/simulation-screenshots/3-after-rl-intervention.png  used on input line 706.
+(pdftex.def)             Requested size: 432.48051pt x 209.24487pt.
+ [132 <./figures/ch5/simulation-screenshots/4-models-monitoring-results.png> <./figures/ch5/simulation-screenshots/3-after-rl-intervention.png>]) (ch6_conclusion.tex [133]
 Chapter 6.
-) (main.bbl [53
 
-] [54
+Overfull \hbox (1.70183pt too wide) in paragraph at lines 17--18
+[]\OT1/cmr/m/n/10.95 Third, the work incorporated REaLTabFormer to generate synthetic APT sequences, enabling
+ []
 
-] [55] [56]) [57] (main.aux)
+
+Overfull \hbox (5.65898pt too wide) in paragraph at lines 17--18
+\OT1/cmr/m/n/10.95 SecBERT embeddings were used to exploit the textual content of security logs, including command
+ []
+
+[134
+
+]
+Overfull \hbox (18.45543pt too wide) in paragraph at lines 31--32
+\OT1/cmr/m/n/10.95 characteristics of real-world attack traces. In particular, environment-specific noise and organization-
+ []
+
+
+Overfull \hbox (11.01912pt too wide) in paragraph at lines 40--41
+[]\OT1/cmr/bx/n/10.95 Multi-domain extension. \OT1/cmr/m/n/10.95 The framework's multi-agent architecture is naturally extensible
+ []
+
+[135]) (main.bbl [136] [137
+
+] [138] [139] [140]) [141] (main.aux)
  ***********
 LaTeX2e <2023-11-01> patch level 1
 L3 programming layer <2024-01-04>
@@ -1941,6 +2967,9 @@ mathtools.sty    2024/10/04 v1.31 mathematical typesetting tools
   amsgen.sty    1999/11/30 v2.0 generic functions
   amsbsy.sty    1999/11/29 v1.2d Bold Symbols
   amsopn.sty    2022/04/08 v2.04 operator names
+subcaption.sty    2023/07/28 v1.6b Sub-captions (AR)
+ caption.sty    2023/08/05 v3.6o Customizing captions (AR)
+caption3.sty    2023/07/31 v2.4d caption3 kernel (AR)
  amssymb.sty    2013/01/14 v3.01 AMS font symbols
 amsfonts.sty    2013/01/14 v3.01 Basic AMSFonts support
 footmisc.sty    2024/12/24 v6.0g a miscellany of footnote facilities
@@ -2012,53 +3041,114 @@ esi_header.jpg    Graphic file (type jpg)
    uxnsh.fd     1999/10/19 v3.10 ArabTeX Naskh extd. font definitions
     umsa.fd    2013/01/14 v3.01 AMS symbols A
     umsb.fd    2013/01/14 v3.01 AMS symbols B
-ch2_background.tex
+ch1_background.tex
 figures/defense.jpeg
 figures/dwell.png
 figures/apt_steps.jpg
+figures/apt_attack_domains.png
 figures/PASTA.png
 figures/tree-attack.png
 figures/The 7 Steps -ckc.png
 figures/MITRE.png
 figures/over_under.png
 figures/ml_domain.png
-ch3_related_work.tex
+ch2_related_work.tex
 figures/linux_apt.PNG
 figures/kapt.png
 figures/iot.PNG
-figures/artificial-neural-network-a-Brain-neuron.png
-figures/kmens_vs_dbscan.jpg
 figures/archi.PNG
 figures/rl_resu.PNG
 figures/gnn1.png
 figures/gnn2.png
 figures/autoen.png
-ch4_conception.tex
-ch5_implementation.tex
-ch6_evaluation.tex
-ch7_conclusion.tex
+figures/te_archi.png
+figures/genai.PNG
+figures/S2apt_architecture.png
+figures/msl.png
+figures/stagefinder.png
+figures/deepstage.png
+ch3_conception.tex
+figures/brain_analogy.png
+figures/global_architecture.png
+figures/ae_architecture.png
+figures/vae_architecture.png
+figures/transformer_architecture.png
+figures/gnn_architecture.png
+figures/realtabformer_archi.png
+figures/rl_architecture.png
+figures/ch3/eraser/system-arch-diagram.png
+figures/ch3/eraser/platform_components_v2.png
+figures/ch3/eraser/class-diagram.png
+figures/ch3/eraser/workflow-diagram.png
+figures/ch3/eraser/sequence-diagram.png
+figures/ch3/eraser/deployment-diagram.png
+ch4_implementation.tex
+figures/ch4/tikz/overview_pillars.pdf
+figures/ch4/tikz/lab_topology.pdf
+figures/ch4/logos/stack_logos_backend.pdf
+figures/ch4/logos/stack_logos_web.pdf
+figures/ch4/logos/stack_logos_mobile.pdf
+figures/ch4/tikz/ci_pipeline.pdf
+figures/ch4/tikz/type_safety_chain.pdf
+figures/ch4/tikz/dataset_timeline.pdf
+figures/ch4/charts/dataset_class_split.pdf
+figures/ch4/charts/dataset_tactic_bars.pdf
+figures/ch4/tikz/feature_pipeline.pdf
+figures/ch4/tikz/apt_groups_cards.pdf
+figures/feature selection.png
+figures/ch4/tikz/wazuh_logo_rules.pdf
+figures/ch4/tikz/auditd_filebeat_flow.pdf
+figures/ch4/eraser/platform_components_internal.png
+figures/ch4/tikz/data_flow_master.pdf
+figures/ch4/tikz/dqn_gating_logic.pdf
+figures/ch4/tikz/threat_intel_schema.pdf
+figures/ch4/screenshots/dashboard_ai_engine.png
+figures/ch4/screenshots/dashboard_chains.png
+figures/ch4/screenshots/dashboard_topology.png
+ch5_evaluation.tex
+figures/resultat/loss ae.png
+figures/resultat/ae_matrix.png
+figures/resultat/ae_tsne.png
+figures/resultat/loss_vae.png
+figures/resultat/vae_matri.png
+figures/resultat/vae_tsne.png
+figures/resultat/loss te.png
+figures/resultat/te_matrix.png
+figures/resultat/graph2_attack_scenario.png
+figures/resultat/gnn_loss.png
+figures/resultat/gnn_matrix.png
+figures/resultat/ablation.png
+figures/ch5/tikz/lab_environment.pdf
+figures/ch5/simulation-screenshots/1-during-attack.png
+figures/ch5/simulation-screenshots/2-attack-topology-and-gnn.png
+figures/ch5/simulation-screenshots/4-models-monitoring-results.png
+figures/ch5/simulation-screenshots/3-after-rl-intervention.png
+ch6_conclusion.tex
     main.bbl
  ***********
 
+
+LaTeX Font Warning: Some font shapes were not available, defaults substituted.
+
 Package rerunfilecheck Info: File `main.out' has not changed.
-(rerunfilecheck)             Checksum: 64AB739A579A19BE34A802DF0965E290;22502.
+(rerunfilecheck)             Checksum: B59DA70ADDAC21EE3A6270B0EC0E0691;27767.
  )
 (\end occurred inside a group at level 1)
 
-### semi simple group (level 1) entered at line 90 (\begingroup)
+### semi simple group (level 1) entered at line 92 (\begingroup)
 ### bottom level 
 Here is how much of TeX's memory you used:
- 40325 strings out of 474485
- 821614 string characters out of 5760627
- 1947542 words of memory out of 5000000
- 61570 multiletter control sequences out of 15000+600000
- 570880 words of font info for 84 fonts, out of 8000000 for 9000
+ 42999 strings out of 474485
+ 884628 string characters out of 5760627
+ 1973542 words of memory out of 5000000
+ 63897 multiletter control sequences out of 15000+600000
+ 577861 words of font info for 110 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 84i,12n,93p,1636b,2898s stack positions out of 10000i,1000n,20000p,200000b,200000s
- <C:\Users\HP\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\tcrm0900.pk> <C:\Users\HP\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\tcrm1095.pk><G:/latex/fonts/type1/public/amsfonts/cm/cmbx10.pfb><G:/latex/fonts/type1/public/amsfonts/cm/cmbx12.pfb><G:/latex/fonts/type1/public/amsfonts/cm/cmbx9.pfb><G:/latex/fonts/type1/public/amsfonts/cm/cmbxti10.pfb><G:/latex/fonts/type1/public/amsfonts/cm/cmex10.pfb><G:/latex/fonts/type1/public/amsfonts/cm/cmmi10.pfb><G:/latex/fonts/type1/public/amsfonts/cm/cmmi6.pfb><G:/latex/fonts/type1/public/amsfonts/cm/cmmi8.pfb><G:/latex/fonts/type1/public/amsfonts/cm/cmr10.pfb><G:/latex/fonts/type1/public/amsfonts/cm/cmr12.pfb><G:/latex/fonts/type1/public/amsfonts/cm/cmr6.pfb><G:/latex/fonts/type1/public/amsfonts/cm/cmr8.pfb><G:/latex/fonts/type1/public/amsfonts/cm/cmr9.pfb><G:/latex/fonts/type1/public/amsfonts/cm/cmsy10.pfb><G:/latex/fonts/type1/public/amsfonts/cm/cmsy6.pfb><G:/latex/fonts/type1/public/amsfonts/cm/cmsy8.pfb><G:/latex/fonts/type1/public/amsfonts/cm/cmti10.pfb><G:/latex/fonts/type1/public/amsfonts/cm/cmtt10.pfb><G:/latex/fonts/type1/public/amsfonts/symbols/msbm10.pfb><G:/latex/fonts/type1/public/arabtex/xnsh14.pfb>
-Output written on main.pdf (67 pages, 2669750 bytes).
+ 84i,16n,93p,1632b,3347s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ <C:\Users\HP\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\tcrm1095.pk><G:/latex/fonts/type1/public/amsfonts/cm/cmbx10.pfb><G:/latex/fonts/type1/public/amsfonts/cm/cmbx12.pfb><G:/latex/fonts/type1/public/amsfonts/cm/cmbx9.pfb><G:/latex/fonts/type1/public/amsfonts/cm/cmbxti10.pfb><G:/latex/fonts/type1/public/amsfonts/cm/cmcsc10.pfb><G:/latex/fonts/type1/public/amsfonts/cm/cmex10.pfb><G:/latex/fonts/type1/public/amsfonts/cm/cmmi10.pfb><G:/latex/fonts/type1/public/amsfonts/cm/cmmi5.pfb><G:/latex/fonts/type1/public/amsfonts/cm/cmmi6.pfb><G:/latex/fonts/type1/public/amsfonts/cm/cmmi7.pfb><G:/latex/fonts/type1/public/amsfonts/cm/cmmi8.pfb><G:/latex/fonts/type1/public/amsfonts/cm/cmmib10.pfb><G:/latex/fonts/type1/public/amsfonts/cm/cmr10.pfb><G:/latex/fonts/type1/public/amsfonts/cm/cmr6.pfb><G:/latex/fonts/type1/public/amsfonts/cm/cmr7.pfb><G:/latex/fonts/type1/public/amsfonts/cm/cmr8.pfb><G:/latex/fonts/type1/public/amsfonts/cm/cmr9.pfb><G:/latex/fonts/type1/public/amsfonts/cm/cmss8.pfb><G:/latex/fonts/type1/public/amsfonts/cm/cmss9.pfb><G:/latex/fonts/type1/public/amsfonts/cm/cmssbx10.pfb><G:/latex/fonts/type1/public/amsfonts/cm/cmssi8.pfb><G:/latex/fonts/type1/public/amsfonts/cm/cmsy10.pfb><G:/latex/fonts/type1/public/amsfonts/cm/cmsy5.pfb><G:/latex/fonts/type1/public/amsfonts/cm/cmsy6.pfb><G:/latex/fonts/type1/public/amsfonts/cm/cmsy7.pfb><G:/latex/fonts/type1/public/amsfonts/cm/cmsy8.pfb><G:/latex/fonts/type1/public/amsfonts/cm/cmsy9.pfb><G:/latex/fonts/type1/public/amsfonts/cm/cmti10.pfb><G:/latex/fonts/type1/public/amsfonts/cm/cmti12.pfb><G:/latex/fonts/type1/public/amsfonts/cm/cmtt10.pfb><G:/latex/fonts/type1/public/amsfonts/cm/cmtt8.pfb><G:/latex/fonts/type1/public/amsfonts/cm/cmtt9.pfb><G:/latex/fonts/type1/public/amsfonts/symbols/msam10.pfb><G:/latex/fonts/type1/public/amsfonts/symbols/msbm10.pfb><G:/latex/fonts/type1/public/arabtex/xnsh14.pfb>
+Output written on main.pdf (157 pages, 45187762 bytes).
 PDF statistics:
- 1755 PDF objects out of 2073 (max. 8388607)
- 361 named destinations out of 1000 (max. 500000)
- 1135 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 3576 PDF objects out of 3580 (max. 8388607)
+ 681 named destinations out of 1000 (max. 500000)
+ 1555 words of extra memory for PDF output out of 10000 (max. 10000000)
 

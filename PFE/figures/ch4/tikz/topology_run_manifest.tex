@@ -1,0 +1,43 @@
+\documentclass[border=8pt,tikz]{standalone}
+\usepackage{tikz}
+\input{_style}
+
+\begin{document}
+\begin{tikzpicture}[node distance=10mm]
+
+% ── Diagram side (left) ─────────────────────────────────────────
+\node[ext, minimum width=22mm]               (att) at (0,0)         {Caldera\\\scriptsize attacker};
+\node[source, minimum width=22mm]            (v1)  at (3.8,-1.2)    {victim1\\\scriptsize 172.18.0.y};
+\node[source, minimum width=22mm]            (v2)  at (3.8,-3.4)    {victim2\\\scriptsize 172.18.0.z};
+
+\draw[edgeStrong, dashed, draw=strixRed] (att) -- (v1) node[midway,above,font=\sffamily\scriptsize,text=strixRed]{C2};
+\draw[edgeStrong, dashed, draw=strixRed] (att) -- (v2);
+
+\node[font=\sffamily\bfseries\footnotesize, anchor=north]
+  at (1.9,-5) {(a)~Live topology};
+
+% ── JSON side (right, well clear of victims) ────────────────────
+\node[group, minimum width=86mm, minimum height=68mm, anchor=north west]
+  (jsonbox) at (7.5, 1) {};
+\node[anchor=north west, inner sep=4pt] at (jsonbox.north west) {
+  \begin{minipage}{82mm}\ttfamily\scriptsize
+  \{\\
+  \hspace*{2mm}"run\_id": "20260518T143022Z-1234",\\
+  \hspace*{2mm}"started\_at": "2026-05-18T14:30:22Z",\\
+  \hspace*{2mm}"attacker\_ip": "172.18.0.x",\\
+  \hspace*{2mm}"victims": [\\
+  \hspace*{4mm}\{"ip":"172.18.0.y","hostname":"victim1",\\
+  \hspace*{6mm}"agents":["wazuh","sandcat","auditd"]\},\\
+  \hspace*{4mm}\{"ip":"172.18.0.z","hostname":"victim2",\\
+  \hspace*{6mm}"agents":["wazuh","sandcat","auditd"]\}\\
+  \hspace*{2mm}],\\
+  \hspace*{2mm}"apt\_group": "APT29",\\
+  \hspace*{2mm}"tactics\_planned": ["Discovery", ...]\\
+  \}
+  \end{minipage}
+};
+\node[font=\sffamily\bfseries\footnotesize, anchor=north, below=2mm of jsonbox.south]
+  {(b)~\texttt{topology.json}};
+
+\end{tikzpicture}
+\end{document}

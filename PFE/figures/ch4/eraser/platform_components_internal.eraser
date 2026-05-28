@@ -1,0 +1,79 @@
+title CAVIX — Platform Components (3.7.3)
+
+Clients [color: teal] {
+  web    [icon: monitor, label: "Web console"]
+  mobile [icon: smartphone, label: "Mobile app"]
+}
+
+API [color: blue, label: "API · 5 route buckets (~20 modules)"] {
+  auth_routes       [icon: lock,      label: "Auth & system\n(auth, health, admin)"]
+  liveops_routes    [icon: activity,  label: "Live ops\n(alerts, streams, dashboard, monitoring)"]
+  investigation     [icon: search,    label: "Investigation\n(analysis, chains, cases, hunt, mitre, topology)"]
+  response_routes   [icon: zap,       label: "Response\n(actions, playbooks)"]
+  intel_routes      [icon: globe,     label: "Intelligence\n(intel, threat_intel, ueba, hosts, simulation)"]
+}
+
+Services [color: blue, label: "Services (24 stateless classes)"] {
+  svc_core      [icon: package, label: "Auth · Alert · Analysis\nChainInvestigation · Actions"]
+  svc_intel     [icon: package, label: "ThreatIntel · Attribution\nUeba · Mitre · Intel · Hunt"]
+  svc_ops       [icon: package, label: "Dashboard · LiveFeed · Drift\nTopology · HostDetail"]
+  svc_response  [icon: package, label: "Case · KillSwitch · Playbooks\nPushDispatcher · IocExtractor\nInsight · Cache"]
+}
+
+Repos [color: purple, label: "Repositories"] {
+  models_py        [icon: database, label: "ORM models\n(19 tables)"]
+  repos_py         [icon: database, label: "Per-entity repos\n(Alert·Chain·Host·Detection·\nIndicator·Action)"]
+  extras           [icon: database, label: "ioc · file_scan · push_device\nuser · llm_insight"]
+}
+
+Adapters [color: blue, label: "Adapters"] {
+  model_loaders     [icon: cpu,     label: "5 model loaders\n(AE · VAE · Tx · GNN · DQN)"]
+  preprocess        [icon: layers,  label: "preprocessing_pipeline"]
+  external_apis     [icon: cloud,   label: "wazuh · virustotal\nxposedornot"]
+  cache_session     [icon: redis,   label: "redis_adapter\nsession_store"]
+  ai_clients        [icon: cloud,   label: "llm_adapter\nexpo_push_adapter\nmodel_registry"]
+}
+
+Observ [color: gray, label: "Observability"] {
+  logging  [icon: file-text, label: "structlog"]
+  metrics  [icon: bar-chart, label: "Prometheus"]
+  tracing  [icon: activity,  label: "OpenTelemetry"]
+}
+
+DataStores [color: purple] {
+  postgres [icon: postgresql, label: "PostgreSQL\n+ TimescaleDB"]
+  redis    [icon: redis,      label: "Redis"]
+}
+
+Workers [color: green, label: "Worker layer (7 processes — Procfile.host)"] {
+  wazuh_bridge       [icon: gear, label: "wazuh_bridge\nFilebeat list → raw stream"]
+  normalizer         [icon: gear, label: "normalizer\nfeature engineering"]
+  inference          [icon: cpu,  label: "inference\n5-model + DQN ensemble"]
+  verdicts_writer    [icon: gear, label: "verdicts_writer\npersist + SSE fan-out"]
+  arq                [icon: gear, label: "arq tasks\nintel · attribution · LLM"]
+  intel_feeds_worker [icon: gear, label: "intel_feeds_worker\nURLhaus + Feodo · 30 s"]
+  demo_isolation     [icon: gear, label: "demo_isolation\n(demo-mode)"]
+}
+
+Models [color: yellow, label: "ML artefacts (SHA-pinned, apps/models/)"] {
+  ae   [icon: cpu, label: "Regularized AE"]
+  vae  [icon: cpu, label: "β-VAE"]
+  tx   [icon: cpu, label: "Transformer"]
+  gnn  [icon: cpu, label: "GraphSAGE"]
+  dqn  [icon: cpu, label: "DQN"]
+}
+
+// edges
+Clients     > API               : "HTTP/JSON + SSE"
+API         > Services          : "Python call"
+Services    > Repos             : "ORM"
+Repos       > postgres          : "SQLAlchemy async"
+Services    > Adapters          : "delegate"
+Adapters    > redis             : "Streams + cache"
+Adapters    > external_apis     : "outbound"
+Workers     <> redis            : "Streams (XADD/XREAD)"
+inference   > Models            : "load + forward"
+Workers     > Repos             : "INSERT verdicts"
+Services    --> Observ          : "emit (one-way)"
+Workers     --> Observ          : "emit"
+API         --> Observ          : "emit"

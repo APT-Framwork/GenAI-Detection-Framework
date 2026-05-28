@@ -1,0 +1,51 @@
+\documentclass[border=8pt,tikz]{standalone}
+\usepackage{tikz}
+\input{_style}
+
+\begin{document}
+\begin{tikzpicture}[x=1cm, y=1cm]
+
+% ─── Time axis: Oct 2023 → Jan 2024 (14 weeks) ────────────────────
+\def\W{1.0}                          % 1cm per week
+\def\WEEKS{14}
+\def\AXISY{0}
+
+% Ticks for week boundaries (every 2 weeks labelled)
+\foreach \w in {0,...,14} {
+  \draw[draw=strixGrey] (\w*\W,\AXISY) -- (\w*\W,\AXISY-0.12);
+}
+\foreach \w/\lbl in {0/{01 Oct\\2023}, 4/{29 Oct}, 8/{26 Nov}, 12/{24 Dec}, 14/{07 Jan\\2024}} {
+  \node[font=\sffamily\scriptsize, text=strixDark, anchor=north]
+    at (\w*\W, \AXISY-0.15) {\lbl};
+}
+\draw[very thick, draw=strixDark, ->] (0,\AXISY) -- (\WEEKS*\W+0.5,\AXISY);
+
+% ─── Ribbons: one per APT actor, stacked above the axis ───────────
+% Format: name / colour / start week / end week / row (0=closest to axis)
+\foreach \name/\col/\s/\e/\r in {
+  APT41/strixRed/0/5/0,
+  APT28/strixOrange/2/9/1,
+  APT29/strixGold/3/12/2,
+  Turla/strixGreen/6/14/3%
+} {
+  \pgfmathsetmacro{\Y}{1.0 + \r*0.9}
+  \fill[\col!70, rounded corners=4pt]
+    (\s*\W,\Y) rectangle (\e*\W, \Y+0.55);
+  \draw[draw=\col, very thick, rounded corners=4pt]
+    (\s*\W,\Y) rectangle (\e*\W, \Y+0.55);
+  \node[font=\sffamily\bfseries\scriptsize, text=white, anchor=west]
+    at (\s*\W+0.1, \Y+0.27) {\name};
+}
+
+% ─── Annotation: total volume + collection note ──────────────────
+\node[font=\sffamily\scriptsize\itshape, text=strixGrey, anchor=north west]
+  at (0, \AXISY-0.95)
+  {Collection lab: 1 Kali attacker $\to$ 3 Ubuntu 22.04 victims \(\cdot\) Wazuh 4.5.2 \(\cdot\) Caldera orchestration};
+\node[badge=strixDark, anchor=north east]
+  at (\WEEKS*\W+0.5,\AXISY-0.95) {115\,726 alerts \(\cdot\) 25\,418 malicious};
+
+\node[font=\sffamily\bfseries, anchor=south, text=strixDark]
+  at (\WEEKS*\W*0.5, 4.8) {Linux APT Dataset 2024 \(\cdot\) emulated actors over 14 weeks};
+
+\end{tikzpicture}
+\end{document}

@@ -1,22 +1,22 @@
 \babel@toc {nil}{}\relax 
-\contentsline {chapter}{Dedication}{i}{chapter*.1}%
 \contentsline {chapter}{Acknowledgements}{ii}{chapter*.2}%
 \contentsline {chapter}{Abstract}{iii}{chapter*.3}%
 \contentsline {chapter}{Résumé}{iv}{chapter*.4}%
 \contentsline {chapter}{\a@RL {ملخص}}{v}{chapter*.5}%
-\contentsline {chapter}{Introduction}{1}{chapter*.7}%
+\contentsline {chapter}{Introduction}{1}{chapter*.9}%
 \contentsline {chapter}{\numberline {1}Background}{3}{chapter.1}%
-\contentsline {section}{\numberline {1.1}Introduction to Fundamental Concepts}{3}{section.1.1}%
+\contentsline {section}{\numberline {1.1}Introduction}{3}{section.1.1}%
 \contentsline {section}{\numberline {1.2}Overview of Cybersecurity}{3}{section.1.2}%
 \contentsline {subsection}{\numberline {1.2.1}Definition and Scope of Cybersecurity}{3}{subsection.1.2.1}%
 \contentsline {subsection}{\numberline {1.2.2}Key Cybersecurity Concepts and Terminology}{5}{subsection.1.2.2}%
 \contentsline {subsection}{\numberline {1.2.3}Major Categories of Cyber Threats}{7}{subsection.1.2.3}%
 \contentsline {section}{\numberline {1.3}Advanced Persistent Threats (APT)}{9}{section.1.3}%
 \contentsline {subsection}{\numberline {1.3.1}Definition and Characteristics}{9}{subsection.1.3.1}%
-\contentsline {subsection}{\numberline {1.3.2}Modeling APT Phases}{11}{subsection.1.3.2}%
+\contentsline {subsection}{\numberline {1.3.2}Modeling APT Phases}{10}{subsection.1.3.2}%
+\contentsline {subsection}{\numberline {1.3.3}APT Attack Domains}{11}{subsection.1.3.3}%
 \contentsline {section}{\numberline {1.4}Introduction to Threat Modeling Frameworks}{12}{section.1.4}%
 \contentsline {subsection}{\numberline {1.4.1}Category 1: Attack Lifecycle Models}{12}{subsection.1.4.1}%
-\contentsline {subsection}{\numberline {1.4.2}Category 2: Threat Modeling Frameworks}{12}{subsection.1.4.2}%
+\contentsline {subsection}{\numberline {1.4.2}Category 2: Threat Modeling Frameworks}{13}{subsection.1.4.2}%
 \contentsline {subsection}{\numberline {1.4.3}Category 3: Adversary Behavior \& Incident Analysis Models}{14}{subsection.1.4.3}%
 \contentsline {section}{\numberline {1.5}The Cyber Kill Chain (CKC)}{15}{section.1.5}%
 \contentsline {subsection}{\numberline {1.5.1}Structure and Objective of the Model}{15}{subsection.1.5.1}%
@@ -27,125 +27,193 @@
 \contentsline {section}{\numberline {1.7}Introduction to Machine Learning}{18}{section.1.7}%
 \contentsline {subsection}{\numberline {1.7.1}Definition and Core Concepts of Machine Learning}{18}{subsection.1.7.1}%
 \contentsline {subsection}{\numberline {1.7.2}Domains and Learning Paradigms}{20}{subsection.1.7.2}%
-\contentsline {chapter}{\numberline {2}Related Work}{24}{chapter.2}%
-\contentsline {section}{\numberline {2.1}Introduction}{24}{section.2.1}%
-\contentsline {section}{\numberline {2.2}Existing Datasets for APT Detection: A Critical Study}{24}{section.2.2}%
-\contentsline {subsection}{\numberline {2.2.1}APT-Specific Datasets With CKC/MITRE ATT\&CK Mapping}{24}{subsection.2.2.1}%
-\contentsline {subsubsection}{Linux-APT-Dataset-2024}{24}{subsubsection*.8}%
-\contentsline {subsubsection}{LOTL APT Red Team Dataset}{25}{subsubsection*.9}%
-\contentsline {subsubsection}{Windows APT Persistence Techniques Dataset (2025)}{25}{subsubsection*.10}%
-\contentsline {subsubsection}{KAPT-2024}{26}{subsubsection*.11}%
-\contentsline {subsubsection}{CloudAPT Dataset}{26}{subsubsection*.12}%
-\contentsline {subsubsection}{MLAPT Dataset}{26}{subsubsection*.13}%
-\contentsline {subsubsection}{ATLAS audit logs}{26}{subsubsection*.14}%
-\contentsline {subsubsection}{CICAPT-IIoT}{27}{subsubsection*.15}%
-\contentsline {subsection}{\numberline {2.2.2}APT-Specific Datasets Without Explicit Mapping}{28}{subsection.2.2.2}%
-\contentsline {subsection}{\numberline {2.2.3}Broader Cybersecurity Datasets --- Not Directly Suited for APT}{28}{subsection.2.2.3}%
-\contentsline {subsubsection}{Network Traffic-Based Datasets}{29}{subsubsection*.16}%
-\contentsline {subsubsection}{Malware and Android-Based Datasets}{29}{subsubsection*.17}%
-\contentsline {subsubsection}{IoT Traffic-Based Datasets}{29}{subsubsection*.18}%
-\contentsline {subsubsection}{Systemic Limitations for APT Stage-Aware Detection}{30}{subsubsection*.19}%
-\contentsline {section}{\numberline {2.3}Classification of Solutions}{30}{section.2.3}%
-\contentsline {subsection}{\numberline {2.3.1}Traditional Machine Learning (ML) Approaches}{30}{subsection.2.3.1}%
-\contentsline {subsection}{\numberline {2.3.2}Deep Learning (DL) Approaches}{31}{subsection.2.3.2}%
-\contentsline {subsection}{\numberline {2.3.3}Generative Artificial Intelligence (GenAI) Approaches}{31}{subsection.2.3.3}%
-\contentsline {section}{\numberline {2.4}Key ML Algorithms Overview}{31}{section.2.4}%
-\contentsline {subsection}{\numberline {2.4.1}Definition and Capabilities in Cybersecurity}{36}{subsection.2.4.1}%
-\contentsline {section}{\numberline {2.5}Description of Solutions: Review of AI/ML on APT Datasets}{36}{section.2.5}%
-\contentsline {subsection}{\numberline {2.5.1}Machine Learning Solutions}{36}{subsection.2.5.1}%
-\contentsline {subsubsection}{Support Vector Machines (SVM)}{36}{subsubsection*.20}%
-\contentsline {subsubsection}{Random Forest (RF) and Decision Trees}{36}{subsubsection*.21}%
-\contentsline {subsubsection}{Naive Bayes (NB)}{37}{subsubsection*.22}%
-\contentsline {paragraph}{Case Study 1: Real-Time Early Multi-Stage Attack Detection \cite {takey2021real}}{37}{paragraph*.23}%
-\contentsline {subsubsection}{Deep Q-Network (DQN)}{38}{subsubsection*.24}%
-\contentsline {paragraph}{Case Study--- OGE-DQN: Deep Q-Network for Intrusion Detection}{38}{paragraph*.25}%
-\contentsline {subsection}{\numberline {2.5.2}Deep Learning Solutions}{39}{subsection.2.5.2}%
-\contentsline {subsubsection}{Convolutional Neural Networks (CNN)}{39}{subsubsection*.26}%
-\contentsline {subsubsection}{Recurrent Neural Networks (RNN) and LSTM}{40}{subsubsection*.27}%
-\contentsline {subsubsection}{Graph Neural Networks (GNN)}{41}{subsubsection*.28}%
-\contentsline {subsubsection}{Key Types}{41}{subsubsection*.29}%
-\contentsline {subsection}{\numberline {2.5.3}Generative AI Solutions}{43}{subsection.2.5.3}%
-\contentsline {subsubsection}{Autoencoders (AE)}{43}{subsubsection*.30}%
-\contentsline {subsubsection}{Variational Autoencoders (VAE)}{44}{subsubsection*.31}%
-\contentsline {subsubsection}{Transformers}{45}{subsubsection*.32}%
-\contentsline {paragraph}{Case Study 2: LogShield --- Transformer-Based APT Detection via Provenance Graphs \cite {anjum2023logshield}}{45}{paragraph*.33}%
-\contentsline {chapter}{\numberline {3}Conception}{48}{chapter.3}%
-\contentsline {section}{\numberline {3.1}Introduction}{49}{section.3.1}%
-\contentsline {section}{\numberline {3.2}Identified Gaps and Proposed Solution Overview}{49}{section.3.2}%
-\contentsline {section}{\numberline {3.3}Global Architecture of the Framework}{49}{section.3.3}%
-\contentsline {section}{\numberline {3.4}Detection Models}{49}{section.3.4}%
-\contentsline {subsection}{\numberline {3.4.1}Autoencoder}{49}{subsection.3.4.1}%
-\contentsline {subsection}{\numberline {3.4.2}VAE}{49}{subsection.3.4.2}%
-\contentsline {subsection}{\numberline {3.4.3}Transformer}{49}{subsection.3.4.3}%
-\contentsline {subsection}{\numberline {3.4.4}GNN}{49}{subsection.3.4.4}%
-\contentsline {section}{\numberline {3.5}Synthetic Data Augmentation with Generative AI}{49}{section.3.5}%
-\contentsline {subsection}{\numberline {3.5.1}Motivation}{49}{subsection.3.5.1}%
-\contentsline {subsection}{\numberline {3.5.2}REaLTabFormer}{49}{subsection.3.5.2}%
-\contentsline {subsection}{\numberline {3.5.3}Timestamp Generation}{49}{subsection.3.5.3}%
-\contentsline {subsection}{\numberline {3.5.4}Validation Strategy}{49}{subsection.3.5.4}%
-\contentsline {section}{\numberline {3.6}Reinforcement Learning Agent}{49}{section.3.6}%
-\contentsline {subsection}{\numberline {3.6.1}Architecture and role}{49}{subsection.3.6.1}%
-\contentsline {subsection}{\numberline {3.6.2}Training process}{49}{subsection.3.6.2}%
-\contentsline {subsection}{\numberline {3.6.3}Ablation Study}{49}{subsection.3.6.3}%
-\contentsline {section}{\numberline {3.7}Platform Architecture and Design}{49}{section.3.7}%
-\contentsline {subsection}{\numberline {3.7.1}Overview of the Platform}{49}{subsection.3.7.1}%
-\contentsline {subsection}{\numberline {3.7.2}System Architecture Diagram}{49}{subsection.3.7.2}%
-\contentsline {subsection}{\numberline {3.7.3}Platform Components}{49}{subsection.3.7.3}%
-\contentsline {subsection}{\numberline {3.7.4}Data Flow Design}{49}{subsection.3.7.4}%
-\contentsline {subsection}{\numberline {3.7.5}Use Case Diagram}{49}{subsection.3.7.5}%
-\contentsline {subsection}{\numberline {3.7.6}Class Diagram}{49}{subsection.3.7.6}%
-\contentsline {subsection}{\numberline {3.7.7}Sequence Diagram}{49}{subsection.3.7.7}%
-\contentsline {subsection}{\numberline {3.7.8}Deployment Architecture}{49}{subsection.3.7.8}%
-\contentsline {section}{\numberline {3.8}Conclusion}{49}{section.3.8}%
-\contentsline {chapter}{\numberline {4}Implementation}{50}{chapter.4}%
-\contentsline {section}{\numberline {4.1}Introduction}{51}{section.4.1}%
-\contentsline {section}{\numberline {4.2}Hardware and Software Environment}{51}{section.4.2}%
-\contentsline {subsection}{\numberline {4.2.1}Hardware}{51}{subsection.4.2.1}%
-\contentsline {subsection}{\numberline {4.2.2}Libraries}{51}{subsection.4.2.2}%
-\contentsline {subsection}{\numberline {4.2.3}Dev tools}{51}{subsection.4.2.3}%
-\contentsline {section}{\numberline {4.3}Dataset Selection and Justification}{51}{section.4.3}%
-\contentsline {subsection}{\numberline {4.3.1}Selection Criteria}{51}{subsection.4.3.1}%
-\contentsline {subsection}{\numberline {4.3.2}Elimination Process}{51}{subsection.4.3.2}%
-\contentsline {subsection}{\numberline {4.3.3}Final Selection}{51}{subsection.4.3.3}%
-\contentsline {section}{\numberline {4.4}Dataset Description}{51}{section.4.4}%
-\contentsline {subsection}{\numberline {4.4.1}Linux APT Dataset 2024}{51}{subsection.4.4.1}%
-\contentsline {subsection}{\numberline {4.4.2}Statistics}{51}{subsection.4.4.2}%
-\contentsline {subsection}{\numberline {4.4.3}Simulated APT groups}{51}{subsection.4.4.3}%
-\contentsline {section}{\numberline {4.5}Data Preprocessing Pipeline}{51}{section.4.5}%
-\contentsline {subsection}{\numberline {4.5.1}CSV Repair}{51}{subsection.4.5.1}%
-\contentsline {subsection}{\numberline {4.5.2}Field Extraction and MITRE Filtering}{51}{subsection.4.5.2}%
-\contentsline {subsection}{\numberline {4.5.3}Timestamp Parsing and Chronological Sorting per Agent}{51}{subsection.4.5.3}%
-\contentsline {subsection}{\numberline {4.5.4}Attack Sequence Graph Construction}{51}{subsection.4.5.4}%
-\contentsline {subsection}{\numberline {4.5.5}Attack Pattern Analysis}{51}{subsection.4.5.5}%
-\contentsline {subsection}{\numberline {4.5.6}Exported Artifacts}{51}{subsection.4.5.6}%
-\contentsline {section}{\numberline {4.6}Feature Engineering}{51}{section.4.6}%
-\contentsline {subsection}{\numberline {4.6.1}Phase 1}{51}{subsection.4.6.1}%
-\contentsline {subsection}{\numberline {4.6.2}Phase 2}{51}{subsection.4.6.2}%
-\contentsline {subsection}{\numberline {4.6.3}SecBERT Embedding}{51}{subsection.4.6.3}%
-\contentsline {subsection}{\numberline {4.6.4}Feature Selection with XGBoost/RandomForest}{51}{subsection.4.6.4}%
-\contentsline {section}{\numberline {4.7}Platform Description}{51}{section.4.7}%
-\contentsline {subsection}{\numberline {4.7.1}Wazuh SIEM}{51}{subsection.4.7.1}%
-\contentsline {subsection}{\numberline {4.7.2}Integration}{51}{subsection.4.7.2}%
-\contentsline {subsection}{\numberline {4.7.3}Threat Intelligence Module}{51}{subsection.4.7.3}%
-\contentsline {subsection}{\numberline {4.7.4}APT Early Detection Dashboard}{51}{subsection.4.7.4}%
-\contentsline {section}{\numberline {4.8}Conclusion}{51}{section.4.8}%
-\contentsline {chapter}{\numberline {5}Evaluation and Results}{52}{chapter.5}%
-\contentsline {section}{\numberline {5.1}Introduction}{52}{section.5.1}%
-\contentsline {section}{\numberline {5.2}Evaluation Metrics}{52}{section.5.2}%
-\contentsline {section}{\numberline {5.3}Iterative Results Summary}{52}{section.5.3}%
-\contentsline {section}{\numberline {5.4}Final Per-Model Results}{52}{section.5.4}%
-\contentsline {section}{\numberline {5.5}Ablation Study}{52}{section.5.5}%
-\contentsline {section}{\numberline {5.6}Synthetic Data Impact}{52}{section.5.6}%
-\contentsline {section}{\numberline {5.7}RL Agent Final Results}{52}{section.5.7}%
-\contentsline {section}{\numberline {5.8}Comparison with State-of-the-Art}{52}{section.5.8}%
-\contentsline {section}{\numberline {5.9}Simulation Results}{52}{section.5.9}%
-\contentsline {subsection}{\numberline {5.9.1}Environment}{52}{subsection.5.9.1}%
-\contentsline {subsection}{\numberline {5.9.2}Attack Scenarios}{52}{subsection.5.9.2}%
-\contentsline {subsection}{\numberline {5.9.3}Discussion of Results}{52}{subsection.5.9.3}%
-\contentsline {section}{\numberline {5.10}Conclusion}{52}{section.5.10}%
-\contentsline {chapter}{\numberline {6}Conclusion}{53}{chapter.6}%
-\contentsline {section}{\numberline {6.1}Summary}{53}{section.6.1}%
-\contentsline {section}{\numberline {6.2}Main Contributions}{53}{section.6.2}%
-\contentsline {section}{\numberline {6.3}Limitations}{53}{section.6.3}%
-\contentsline {section}{\numberline {6.4}Future Work}{53}{section.6.4}%
-\contentsline {chapter}{References}{54}{chapter*.34}%
+\contentsline {subsection}{\numberline {1.7.3}Conclusion}{22}{subsection.1.7.3}%
+\contentsline {chapter}{\numberline {2}Related Work}{23}{chapter.2}%
+\contentsline {section}{\numberline {2.1}Introduction}{23}{section.2.1}%
+\contentsline {section}{\numberline {2.2}Existing Datasets for APT Detection: A Critical Study}{23}{section.2.2}%
+\contentsline {subsection}{\numberline {2.2.1}APT-Specific Datasets With CKC/MITRE ATT\&CK Mapping}{23}{subsection.2.2.1}%
+\contentsline {subsubsection}{Linux-APT-Dataset-2024}{23}{subsubsection*.21}%
+\contentsline {subsubsection}{LOTL APT Red Team Dataset}{24}{subsubsection*.23}%
+\contentsline {subsubsection}{Windows APT Persistence Techniques Dataset (2025)}{24}{subsubsection*.24}%
+\contentsline {subsubsection}{KAPT-2024}{25}{subsubsection*.25}%
+\contentsline {subsubsection}{CloudAPT Dataset}{25}{subsubsection*.27}%
+\contentsline {subsubsection}{MLAPT Dataset}{25}{subsubsection*.28}%
+\contentsline {subsubsection}{ATLAS audit logs}{26}{subsubsection*.29}%
+\contentsline {subsubsection}{CICAPT-IIoT}{26}{subsubsection*.30}%
+\contentsline {subsection}{\numberline {2.2.2}APT-Specific Datasets Without Explicit Mapping}{27}{subsection.2.2.2}%
+\contentsline {subsection}{\numberline {2.2.3}Broader Cybersecurity Datasets --- Not Directly Suited for APT}{27}{subsection.2.2.3}%
+\contentsline {subsubsection}{Network Traffic-Based Datasets}{28}{subsubsection*.33}%
+\contentsline {subsubsection}{Malware and Android-Based Datasets}{28}{subsubsection*.34}%
+\contentsline {subsubsection}{IoT Traffic-Based Datasets}{28}{subsubsection*.35}%
+\contentsline {subsubsection}{Limitations of APT Stage-Aware Detection}{29}{subsubsection*.36}%
+\contentsline {section}{\numberline {2.3}Classification of Solutions}{29}{section.2.3}%
+\contentsline {subsection}{\numberline {2.3.1}Traditional Machine Learning (ML) Approaches}{29}{subsection.2.3.1}%
+\contentsline {subsection}{\numberline {2.3.2}Deep Learning (DL) Approaches}{30}{subsection.2.3.2}%
+\contentsline {subsection}{\numberline {2.3.3}Generative Artificial Intelligence (GenAI) Approaches}{30}{subsection.2.3.3}%
+\contentsline {section}{\numberline {2.4}Description of Solutions: Review of AI/ML on APT Datasets}{30}{section.2.4}%
+\contentsline {subsection}{\numberline {2.4.1}Machine Learning Solutions}{30}{subsection.2.4.1}%
+\contentsline {subsubsection}{Support Vector Machines (SVM)}{30}{subsubsection*.37}%
+\contentsline {subsubsection}{Random Forest (RF) and Decision Trees}{31}{subsubsection*.38}%
+\contentsline {subsubsection}{Naive Bayes (NB)}{31}{subsubsection*.39}%
+\contentsline {paragraph}{Case Study 1: Real-Time Early Multi-Stage Attack Detection \cite {takey2021real}}{31}{paragraph*.40}%
+\contentsline {paragraph}{}{32}{paragraph*.42}%
+\contentsline {subsubsection}{Deep Q-Network (DQN)}{32}{subsubsection*.43}%
+\contentsline {paragraph}{Case Study--- OGE-DQN: Deep Q-Network for Intrusion Detection}{32}{paragraph*.44}%
+\contentsline {subsection}{\numberline {2.4.2}Deep Learning Solutions}{34}{subsection.2.4.2}%
+\contentsline {subsubsection}{Convolutional Neural Networks (CNN)}{34}{subsubsection*.47}%
+\contentsline {subsubsection}{Recurrent Neural Networks (RNN) and LSTM}{35}{subsubsection*.49}%
+\contentsline {subsubsection}{Graph Neural Networks (GNN)}{35}{subsubsection*.51}%
+\contentsline {subsubsection}{Key Types}{36}{subsubsection*.52}%
+\contentsline {subsection}{\numberline {2.4.3}Generative AI Solutions}{37}{subsection.2.4.3}%
+\contentsline {subsubsection}{Autoencoders (AE)}{37}{subsubsection*.57}%
+\contentsline {subsubsection}{Variational Autoencoders (VAE)}{38}{subsubsection*.58}%
+\contentsline {subsubsection}{Transformers}{39}{subsubsection*.61}%
+\contentsline {paragraph}{Case Study 2: LogShield --- Transformer-Based APT Detection via Provenance Graphs \cite {anjum2023logshield}}{39}{paragraph*.62}%
+\contentsline {subsubsection}{Case Study 2: GenAI-Based Threat Intelligence Model \cite {albayrak2025genai}}{41}{subsubsection*.65}%
+\contentsline {subsection}{\numberline {2.4.4}Hybrid Solutions}{42}{subsection.2.4.4}%
+\contentsline {subsubsection}{Case Study: GCN-Based Detection and DQN Strategic Response Model \cite {shen2023sr2apt}}{42}{subsubsection*.67}%
+\contentsline {subsubsection}{Case Study: MSL-DEEPAPT Multimodal Fusion \cite {wang2025msldeepapt}}{43}{subsubsection*.71}%
+\contentsline {subsubsection}{Case Study: StageFinder \& DeepStage --- Provenance-Graph APT Detection and Defense \cite {phan2026learning, phan2026deepstage}}{45}{subsubsection*.74}%
+\contentsline {section}{\numberline {2.5}Comparative Analysis}{47}{section.2.5}%
+\contentsline {subsection}{\numberline {2.5.1}Limitations of Existing Solutions}{49}{subsection.2.5.1}%
+\contentsline {chapter}{\numberline {3}Conception}{50}{chapter.3}%
+\contentsline {section}{\numberline {3.1}Introduction}{50}{section.3.1}%
+\contentsline {section}{\numberline {3.2}Overview of the Problem Statement and Proposed Contributions}{50}{section.3.2}%
+\contentsline {subsection}{\numberline {3.2.1}Problem Reformulation}{50}{subsection.3.2.1}%
+\contentsline {subsection}{\numberline {3.2.2}The Cognitive Analogy: Why a Single Model Cannot Suffice}{51}{subsection.3.2.2}%
+\contentsline {subsection}{\numberline {3.2.3}Proposed Contributions}{52}{subsection.3.2.3}%
+\contentsline {section}{\numberline {3.3}Global Architecture of the Framework}{54}{section.3.3}%
+\contentsline {subsection}{\numberline {3.3.1}Naming Rationale of the Proposed Models}{55}{subsection.3.3.1}%
+\contentsline {section}{\numberline {3.4}Detection Models}{55}{section.3.4}%
+\contentsline {subsection}{\numberline {3.4.1}Regularized Autoencoder (AE)}{56}{subsection.3.4.1}%
+\contentsline {subsubsection}{Role and Objective}{56}{subsubsection*.84}%
+\contentsline {subsubsection}{Architecture}{56}{subsubsection*.85}%
+\contentsline {subsubsection}{Loss Function}{57}{subsubsection*.87}%
+\contentsline {subsubsection}{Outputs}{57}{subsubsection*.88}%
+\contentsline {subsection}{\numberline {3.4.2}Beta Variational Autoencoder (Beta-VAE)}{58}{subsection.3.4.2}%
+\contentsline {subsubsection}{Role and Objective}{58}{subsubsection*.89}%
+\contentsline {subsubsection}{Architecture}{58}{subsubsection*.90}%
+\contentsline {subsubsection}{Loss Function}{59}{subsubsection*.92}%
+\contentsline {subsubsection}{Malicious Probability Scoring}{59}{subsubsection*.93}%
+\contentsline {subsubsection}{Outputs}{60}{subsubsection*.94}%
+\contentsline {subsection}{\numberline {3.4.3}Transformer (CKC Stage Predictor)}{60}{subsection.3.4.3}%
+\contentsline {subsubsection}{Role and Objective}{60}{subsubsection*.95}%
+\contentsline {subsubsection}{Architecture}{60}{subsubsection*.96}%
+\contentsline {subsubsection}{Class Imbalance Handling}{61}{subsubsection*.98}%
+\contentsline {subsubsection}{Outputs}{61}{subsubsection*.99}%
+\contentsline {subsection}{\numberline {3.4.4}Graph Neural Network (GraphSAGE)}{62}{subsection.3.4.4}%
+\contentsline {subsubsection}{Role and Objective}{62}{subsubsection*.100}%
+\contentsline {subsubsection}{Graph Construction}{62}{subsubsection*.101}%
+\contentsline {subsubsection}{Architecture}{63}{subsubsection*.103}%
+\contentsline {subsubsection}{Loss Function}{63}{subsubsection*.104}%
+\contentsline {subsubsection}{Outputs}{64}{subsubsection*.105}%
+\contentsline {section}{\numberline {3.5}Synthetic Data Augmentation with Generative AI}{64}{section.3.5}%
+\contentsline {subsection}{\numberline {3.5.1}Motivation}{64}{subsection.3.5.1}%
+\contentsline {subsection}{\numberline {3.5.2}REaLTabFormer: Sequential Tabular Generation}{65}{subsection.3.5.2}%
+\contentsline {subsubsection}{Data Preprocessing and Truncation}{65}{subsubsection*.106}%
+\contentsline {subsubsection}{Architecture and Tabular Serialization}{65}{subsubsection*.107}%
+\contentsline {subsubsection}{SecBERT Integration and Dimensionality Reduction}{66}{subsubsection*.108}%
+\contentsline {subsubsection}{Engineering Challenge: Sensitivity Threshold Optimization}{66}{subsubsection*.110}%
+\contentsline {subsection}{\numberline {3.5.3}Timestamp Generation via Poisson Processes}{67}{subsection.3.5.3}%
+\contentsline {subsubsection}{Mathematical Formulation and Inverse Transform Sampling}{67}{subsubsection*.111}%
+\contentsline {subsubsection}{Parameterizing from Mandiant Cyber Threat Intelligence}{67}{subsubsection*.112}%
+\contentsline {subsubsection}{Campaign Scaling and Span Calibration}{68}{subsubsection*.113}%
+\contentsline {subsection}{\numberline {3.5.4}Validation Strategy: The Double Implication}{68}{subsection.3.5.4}%
+\contentsline {section}{\numberline {3.6}Reinforcement Learning Agent (DQN)}{69}{section.3.6}%
+\contentsline {subsection}{\numberline {3.6.1}Architecture and Role}{69}{subsection.3.6.1}%
+\contentsline {subsubsection}{The State Space Representation}{69}{subsubsection*.114}%
+\contentsline {subsubsection}{The Action Space}{70}{subsubsection*.115}%
+\contentsline {subsection}{\numberline {3.6.2}Training Process}{71}{subsection.3.6.2}%
+\contentsline {subsubsection}{The Reward Function Formulation}{71}{subsubsection*.117}%
+\contentsline {subsubsection}{Optimization and Experience Replay}{72}{subsubsection*.118}%
+\contentsline {subsubsection}{Target Network and Exploration Strategy}{72}{subsubsection*.119}%
+\contentsline {section}{\numberline {3.7}Platform Architecture and Design}{72}{section.3.7}%
+\contentsline {subsection}{\numberline {3.7.1}Overview of the Platform}{72}{subsection.3.7.1}%
+\contentsline {paragraph}{Trust assumptions.}{73}{paragraph*.120}%
+\contentsline {subsection}{\numberline {3.7.2}System Architecture Diagram}{73}{subsection.3.7.2}%
+\contentsline {subsection}{\numberline {3.7.3}Platform Components}{74}{subsection.3.7.3}%
+\contentsline {subsubsection}{Detection Engine}{75}{subsubsection*.123}%
+\contentsline {subsubsection}{Wazuh Integration}{76}{subsubsection*.124}%
+\contentsline {subsubsection}{Threat Intelligence Module}{76}{subsubsection*.125}%
+\contentsline {subsubsection}{Analyst Dashboard}{76}{subsubsection*.126}%
+\contentsline {subsection}{\numberline {3.7.4}Class Diagram}{77}{subsection.3.7.4}%
+\contentsline {subsection}{\numberline {3.7.5}Workflow Diagram}{79}{subsection.3.7.5}%
+\contentsline {subsection}{\numberline {3.7.6}Data Flow Design}{80}{subsection.3.7.6}%
+\contentsline {paragraph}{Stream layout.}{80}{paragraph*.129}%
+\contentsline {subsection}{\numberline {3.7.7}Sequence Diagram}{80}{subsection.3.7.7}%
+\contentsline {subsection}{\numberline {3.7.8}Deployment Architecture}{82}{subsection.3.7.8}%
+\contentsline {section}{\numberline {3.8}Conclusion}{83}{section.3.8}%
+\contentsline {chapter}{\numberline {4}Implementation}{84}{chapter.4}%
+\contentsline {section}{\numberline {4.1}Introduction}{84}{section.4.1}%
+\contentsline {section}{\numberline {4.2}Hardware and Software Environment}{85}{section.4.2}%
+\contentsline {subsection}{\numberline {4.2.1}Hardware}{85}{subsection.4.2.1}%
+\contentsline {subsection}{\numberline {4.2.2}Libraries}{87}{subsection.4.2.2}%
+\contentsline {subsubsection}{Backend and machine-learning stack}{87}{subsubsection*.136}%
+\contentsline {subsubsection}{Reinforcement-learning training stack}{88}{subsubsection*.138}%
+\contentsline {subsubsection}{Web console}{89}{subsubsection*.139}%
+\contentsline {subsubsection}{Mobile companion}{90}{subsubsection*.141}%
+\contentsline {subsection}{\numberline {4.2.3}Development Tools}{90}{subsection.4.2.3}%
+\contentsline {section}{\numberline {4.3}Dataset Selection and Justification}{92}{section.4.3}%
+\contentsline {subsection}{\numberline {4.3.1}Selection Criteria}{92}{subsection.4.3.1}%
+\contentsline {subsection}{\numberline {4.3.2}Elimination Process}{93}{subsection.4.3.2}%
+\contentsline {subsection}{\numberline {4.3.3}Final Selection: Linux APT Dataset 2024}{94}{subsection.4.3.3}%
+\contentsline {section}{\numberline {4.4}Dataset Description}{95}{section.4.4}%
+\contentsline {subsection}{\numberline {4.4.1}Linux APT Dataset 2024}{95}{subsection.4.4.1}%
+\contentsline {subsection}{\numberline {4.4.2}Statistics}{96}{subsection.4.4.2}%
+\contentsline {subsection}{\numberline {4.4.3}Simulated APT Groups}{97}{subsection.4.4.3}%
+\contentsline {section}{\numberline {4.5}Data Preprocessing Pipeline}{98}{section.4.5}%
+\contentsline {subsection}{\numberline {4.5.1}CSV Repair}{98}{subsection.4.5.1}%
+\contentsline {subsection}{\numberline {4.5.2}Field Extraction and MITRE--CKC Mapping}{98}{subsection.4.5.2}%
+\contentsline {subsection}{\numberline {4.5.3}Timestamp Parsing and Chronological Sorting per Agent}{100}{subsection.4.5.3}%
+\contentsline {section}{\numberline {4.6}Feature Engineering}{100}{section.4.6}%
+\contentsline {subsection}{\numberline {4.6.1}From Raw Logs to Behavioral Features}{100}{subsection.4.6.1}%
+\contentsline {subsection}{\numberline {4.6.2}SecBERT Embedding}{101}{subsection.4.6.2}%
+\contentsline {subsection}{\numberline {4.6.3}Feature Selection with Ensemble Consensus Ranking}{102}{subsection.4.6.3}%
+\contentsline {section}{\numberline {4.7}Platform Description}{102}{section.4.7}%
+\contentsline {subsection}{\numberline {4.7.1}Wazuh SIEM}{102}{subsection.4.7.1}%
+\contentsline {subsection}{\numberline {4.7.2}Auditd $\rightarrow $ Filebeat Ingestion}{104}{subsection.4.7.2}%
+\contentsline {subsection}{\numberline {4.7.3}Backend Integration: Workers and Redis Streams}{104}{subsection.4.7.3}%
+\contentsline {paragraph}{Stage 1: Bridge.}{106}{paragraph*.156}%
+\contentsline {paragraph}{Stage 2: Normalize.}{106}{paragraph*.157}%
+\contentsline {paragraph}{Stage 3: Inference.}{106}{paragraph*.158}%
+\contentsline {paragraph}{Stage 4: Persist.}{107}{paragraph*.159}%
+\contentsline {paragraph}{Stage 5: Fan out.}{107}{paragraph*.160}%
+\contentsline {subsection}{\numberline {4.7.4}Threat Intelligence Module}{108}{subsection.4.7.4}%
+\contentsline {subsection}{\numberline {4.7.5}APT Early-Detection Dashboard}{109}{subsection.4.7.5}%
+\contentsline {paragraph}{Model Monitoring (AI Engine).}{109}{paragraph*.163}%
+\contentsline {paragraph}{Attack Analysis (Chains).}{110}{paragraph*.165}%
+\contentsline {paragraph}{Topology.}{111}{paragraph*.167}%
+\contentsline {paragraph}{Mobile companion.}{112}{paragraph*.169}%
+\contentsline {section}{\numberline {4.8}Conclusion}{112}{section.4.8}%
+\contentsline {chapter}{\numberline {5}Evaluation and Results}{114}{chapter.5}%
+\contentsline {section}{\numberline {5.1}Introduction}{114}{section.5.1}%
+\contentsline {section}{\numberline {5.2}Evaluation Metrics}{114}{section.5.2}%
+\contentsline {section}{\numberline {5.3}Iterative Results Summary}{115}{section.5.3}%
+\contentsline {section}{\numberline {5.4}Final Per-Model Results}{115}{section.5.4}%
+\contentsline {subsection}{\numberline {5.4.1}Regularized Autoencoder (Anomaly Detection)}{116}{subsection.5.4.1}%
+\contentsline {subsection}{\numberline {5.4.2}Beta-VAE (Malicious Probability Estimation)}{117}{subsection.5.4.2}%
+\contentsline {subsection}{\numberline {5.4.3}Transformer (CKC Sequence Prediction)}{119}{subsection.5.4.3}%
+\contentsline {subsection}{\numberline {5.4.4}GraphSAGE GNN (Lateral Movement Detection)}{120}{subsection.5.4.4}%
+\contentsline {subsection}{\numberline {5.4.5}Complementarity Analysis}{121}{subsection.5.4.5}%
+\contentsline {section}{\numberline {5.5}Synthetic Data Validation Results}{121}{section.5.5}%
+\contentsline {subsection}{\numberline {5.5.1}Baseline: Train Real, Test Real (TRTR)}{121}{subsection.5.5.1}%
+\contentsline {subsection}{\numberline {5.5.2}Implication 1 — Train Real, Test Synthetic (TRTS)}{122}{subsection.5.5.2}%
+\contentsline {subsection}{\numberline {5.5.3}Implication 2 — Train Synthetic, Test Real (TSTR)}{122}{subsection.5.5.3}%
+\contentsline {subsection}{\numberline {5.5.4}Double Implication: Synthesis}{123}{subsection.5.5.4}%
+\contentsline {section}{\numberline {5.6}RL Agent Final Results}{124}{section.5.6}%
+\contentsline {subsection}{\numberline {5.6.1}Evaluation Protocol}{124}{subsection.5.6.1}%
+\contentsline {subsection}{\numberline {5.6.2}Final Performance Metrics}{124}{subsection.5.6.2}%
+\contentsline {subsection}{\numberline {5.6.3}Interpretation of Results}{124}{subsection.5.6.3}%
+\contentsline {section}{\numberline {5.7}Ablation Study}{125}{section.5.7}%
+\contentsline {section}{\numberline {5.8}Comparison with State-of-the-Art}{126}{section.5.8}%
+\contentsline {section}{\numberline {5.9}Simulation Results}{127}{section.5.9}%
+\contentsline {subsection}{\numberline {5.9.1}Environment}{128}{subsection.5.9.1}%
+\contentsline {subsection}{\numberline {5.9.2}Attack Scenarios}{130}{subsection.5.9.2}%
+\contentsline {subsection}{\numberline {5.9.3}Discussion of Results}{131}{subsection.5.9.3}%
+\contentsline {chapter}{\numberline {6}Conclusion}{134}{chapter.6}%
+\contentsline {section}{\numberline {6.1}Summary}{134}{section.6.1}%
+\contentsline {section}{\numberline {6.2}Main Contributions}{134}{section.6.2}%
+\contentsline {section}{\numberline {6.3}Limitations}{135}{section.6.3}%
+\contentsline {section}{\numberline {6.4}Future Work}{135}{section.6.4}%
+\contentsline {section}{\numberline {6.5}Final Remarks}{136}{section.6.5}%
+\contentsline {chapter}{References}{137}{chapter*.192}%

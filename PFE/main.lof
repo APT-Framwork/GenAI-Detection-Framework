@@ -1,0 +1,79 @@
+\babel@toc {nil}{}\relax 
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {1.1}{\ignorespaces Illustration of the Defense in Depth security strategy.}}{7}{figure.caption.10}%
+\contentsline {figure}{\numberline {1.2}{\ignorespaces Dwell time in APT attacks}}{10}{figure.caption.11}%
+\contentsline {figure}{\numberline {1.3}{\ignorespaces Stages of an APT attack}}{11}{figure.caption.12}%
+\contentsline {figure}{\numberline {1.4}{\ignorespaces Major APT attack domains}}{12}{figure.caption.13}%
+\contentsline {figure}{\numberline {1.5}{\ignorespaces Steps of the PASTA methodology}}{13}{figure.caption.14}%
+\contentsline {figure}{\numberline {1.6}{\ignorespaces Example of an Attack Tree structure}}{14}{figure.caption.15}%
+\contentsline {figure}{\numberline {1.7}{\ignorespaces The 7 Steps of the Cyber Kill Chain (CKC)}}{16}{figure.caption.16}%
+\contentsline {figure}{\numberline {1.8}{\ignorespaces The MITRE ATT\&CK Framework matrix}}{17}{figure.caption.17}%
+\contentsline {figure}{\numberline {1.9}{\ignorespaces Visual representation of Underfitting, Optimal Fit, and Overfitting.}}{19}{figure.caption.18}%
+\contentsline {figure}{\numberline {1.10}{\ignorespaces Machine Learning domains and learning paradigms.}}{20}{figure.caption.19}%
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {2.1}{\ignorespaces Visual representation of the Linux-APT-Dataset-2024}}{24}{figure.caption.22}%
+\contentsline {figure}{\numberline {2.2}{\ignorespaces Visual overview of the KAPT-2024 dataset}}{25}{figure.caption.26}%
+\contentsline {figure}{\numberline {2.3}{\ignorespaces Visual overview of the CICAPT-IIoT dataset}}{26}{figure.caption.31}%
+\contentsline {figure}{\numberline {2.4}{\ignorespaces Overall Architecture of Real-Time Early Multi-Stage Attack Detection \cite {takey2021real}}}{32}{figure.caption.41}%
+\contentsline {figure}{\numberline {2.5}{\ignorespaces RL Agent Learning Curve (accumulative reward over episodes)}}{33}{figure.caption.46}%
+\contentsline {figure}{\numberline {2.6}{\ignorespaces GNN classification axes for IDS}}{36}{figure.caption.53}%
+\contentsline {figure}{\numberline {2.7}{\ignorespaces GAT usage in MAGIC}}{37}{figure.caption.56}%
+\contentsline {figure}{\numberline {2.8}{\ignorespaces Architecture and Data Pipeline for the Autoencoder Model}}{38}{figure.caption.59}%
+\contentsline {figure}{\numberline {2.9}{\ignorespaces Overview of LogShield's Architecture \cite {anjum2023logshield}}}{40}{figure.caption.63}%
+\contentsline {figure}{\numberline {2.10}{\ignorespaces Overview of GBTI Architecture \cite {albayrak2025genai}}}{41}{figure.caption.66}%
+\contentsline {figure}{\numberline {2.11}{\ignorespaces Overview of SR2APT Architecture \cite {anjum2023logshield}}}{42}{figure.caption.68}%
+\contentsline {figure}{\numberline {2.12}{\ignorespaces MSL-DEEPAPT System Architecture}}{44}{figure.caption.72}%
+\contentsline {figure}{\numberline {2.13}{\ignorespaces Architecture and workflow of StageFinder \cite {phan2026learning}}}{45}{figure.caption.75}%
+\contentsline {figure}{\numberline {2.14}{\ignorespaces Architecture and workflow of DeepStage \cite {phan2026deepstage}}}{46}{figure.caption.76}%
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {3.1}{\ignorespaces Cognitive analogy: mapping brain regions to framework detection models.}}{52}{figure.caption.81}%
+\contentsline {figure}{\numberline {3.2}{\ignorespaces Global architecture of the proposed framework.}}{54}{figure.caption.83}%
+\contentsline {figure}{\numberline {3.3}{\ignorespaces Architecture of the Regularized Autoencoder.}}{56}{figure.caption.86}%
+\contentsline {figure}{\numberline {3.4}{\ignorespaces Architecture of the Beta-VAE.}}{58}{figure.caption.91}%
+\contentsline {figure}{\numberline {3.5}{\ignorespaces Architecture of the Transformer CKC Stage Predictor.}}{60}{figure.caption.97}%
+\contentsline {figure}{\numberline {3.6}{\ignorespaces Architecture of the GNN (GraphSAGE) with alert-level graph construction.}}{62}{figure.caption.102}%
+\contentsline {figure}{\numberline {3.7}{\ignorespaces Architecture of the REaLTabFormer.}}{66}{figure.caption.109}%
+\contentsline {figure}{\numberline {3.8}{\ignorespaces Architecture of the Reinforcement Learning Agent (DQN).}}{71}{figure.caption.116}%
+\contentsline {figure}{\numberline {3.9}{\ignorespaces Logical architecture of the CAVIX platform.}}{73}{figure.caption.121}%
+\contentsline {figure}{\numberline {3.10}{\ignorespaces Platform components view of CAVIX.}}{75}{figure.caption.122}%
+\contentsline {figure}{\numberline {3.11}{\ignorespaces UML class diagram of the backend domain model.}}{78}{figure.caption.127}%
+\contentsline {figure}{\numberline {3.12}{\ignorespaces End-to-end analyst-response workflow.}}{79}{figure.caption.128}%
+\contentsline {figure}{\numberline {3.13}{\ignorespaces Sequence diagram for a single early-stage detection event.}}{81}{figure.caption.130}%
+\contentsline {figure}{\numberline {3.14}{\ignorespaces Deployment topology.}}{82}{figure.caption.131}%
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {4.1}{\ignorespaces The five implementation pillars of CAVIX.}}{84}{figure.caption.132}%
+\contentsline {figure}{\numberline {4.2}{\ignorespaces Lab topology used in this chapter and in chapter~\ref {chap:evaluation} for the evaluation.}}{86}{figure.caption.134}%
+\contentsline {figure}{\numberline {4.3}{\ignorespaces Backend and machine-learning libraries, grouped by architectural layer: backend \& API, persistence, classical ML and data tooling, and DL and RL.}}{87}{figure.caption.137}%
+\contentsline {figure}{\numberline {4.4}{\ignorespaces Web-console stack, grouped by role: framework and language, styling, and state and data.}}{89}{figure.caption.140}%
+\contentsline {figure}{\numberline {4.5}{\ignorespaces Mobile-application stack, grouped by role: framework and language, state and data, and notifications.}}{90}{figure.caption.142}%
+\contentsline {figure}{\numberline {4.6}{\ignorespaces Continuous-integration pipeline.}}{91}{figure.caption.143}%
+\contentsline {figure}{\numberline {4.7}{\ignorespaces The type-safety chain from Pydantic to the two clients.}}{91}{figure.caption.144}%
+\contentsline {figure}{\numberline {4.8}{\ignorespaces The 14-week collection window of the Linux APT Dataset 2024.}}{95}{figure.caption.146}%
+\contentsline {figure}{\numberline {4.9}{\ignorespaces Class distribution and per-tactic distribution.}}{96}{figure.caption.147}%
+\contentsline {figure}{\numberline {4.10}{\ignorespaces Feature pipeline from raw Wazuh alert to the 55-dimensional vector consumed by every downstream model.}}{97}{figure.caption.148}%
+\contentsline {figure}{\numberline {4.11}{\ignorespaces The four APT groups emulated in the Linux APT Dataset 2024 \cite {karim2024linux}.}}{97}{figure.caption.149}%
+\contentsline {figure}{\numberline {4.12}{\ignorespaces Consensus feature ranking across six methods. The top 25 features (highlighted) are selected for model training.}}{103}{figure.caption.151}%
+\contentsline {figure}{\numberline {4.13}{\ignorespaces Custom Wazuh rule hierarchy.}}{103}{figure.caption.152}%
+\contentsline {figure}{\numberline {4.14}{\ignorespaces From kernel syscalls to the Redis ingest list.}}{104}{figure.caption.153}%
+\contentsline {figure}{\numberline {4.15}{\ignorespaces Backend engineering decomposition of CAVIX.}}{105}{figure.caption.154}%
+\contentsline {figure}{\numberline {4.16}{\ignorespaces The full data flow.}}{106}{figure.caption.155}%
+\contentsline {figure}{\numberline {4.17}{\ignorespaces The gating logic that wraps every DQN action.}}{108}{figure.caption.161}%
+\contentsline {figure}{\numberline {4.18}{\ignorespaces Threat-intelligence ingestion and the observable-hit surface.}}{109}{figure.caption.162}%
+\contentsline {figure}{\numberline {4.19}{\ignorespaces The Model Monitoring page.}}{110}{figure.caption.164}%
+\contentsline {figure}{\numberline {4.20}{\ignorespaces The chain forensic report for an active investigation.}}{111}{figure.caption.166}%
+\contentsline {figure}{\numberline {4.21}{\ignorespaces The Topology tab during a paused run.}}{112}{figure.caption.168}%
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {5.1}{\ignorespaces AE results}}{116}{figure.caption.172}%
+\contentsline {figure}{\numberline {5.2}{\ignorespaces t-SNE visualization of the Autoencoder latent space.}}{117}{figure.caption.173}%
+\contentsline {figure}{\numberline {5.3}{\ignorespaces Beta-VAE results}}{118}{figure.caption.174}%
+\contentsline {figure}{\numberline {5.4}{\ignorespaces t-SNE visualization of the Beta-VAE latent space.}}{118}{figure.caption.175}%
+\contentsline {figure}{\numberline {5.5}{\ignorespaces Transformer results}}{119}{figure.caption.176}%
+\contentsline {figure}{\numberline {5.6}{\ignorespaces Attack scenario representation.}}{120}{figure.caption.177}%
+\contentsline {figure}{\numberline {5.7}{\ignorespaces GraphSAGE GNN results}}{120}{figure.caption.178}%
+\contentsline {figure}{\numberline {5.8}{\ignorespaces Ablation study comparing the performance of the full framework against degraded configurations.}}{125}{figure.caption.184}%
+\contentsline {figure}{\numberline {5.9}{\ignorespaces Two-network layout of the evaluation laboratory.}}{129}{figure.caption.187}%
+\contentsline {figure}{\numberline {5.10}{\ignorespaces The CAVIX dashboard during an active attack.}}{130}{figure.caption.188}%
+\contentsline {figure}{\numberline {5.11}{\ignorespaces Simulation topology and GNN victim-graph view of the active run.}}{131}{figure.caption.189}%
+\contentsline {figure}{\numberline {5.12}{\ignorespaces Model monitoring view of the inference engine during the run.}}{132}{figure.caption.190}%
+\contentsline {figure}{\numberline {5.13}{\ignorespaces Dashboard view after the reinforcement-learning agent issued its interventions.}}{132}{figure.caption.191}%
+\addvspace {10\p@ }

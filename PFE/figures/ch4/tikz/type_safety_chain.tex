@@ -1,0 +1,27 @@
+\documentclass[border=8pt,tikz]{standalone}
+\usepackage{tikz}
+\input{_style}
+
+\begin{document}
+\begin{tikzpicture}[node distance=18mm]
+
+\node[comp=strixGreen, minimum width=30mm] (pyd) {Pydantic v2\\\scriptsize models};
+\node[worker, right=of pyd, minimum width=30mm] (api) {FastAPI\\\scriptsize OpenAPI spec};
+\node[worker, right=of api, minimum width=30mm] (gen) {openapi-typescript\\\scriptsize generator};
+\node[ui, right=of gen, minimum width=24mm] (webc) {Web client\\\scriptsize generated TS};
+\node[ui, below=8mm of webc, minimum width=24mm] (mobc) {Mobile client\\\scriptsize generated TS};
+
+\draw[edgeStrong] (pyd) -- (api);
+\draw[edgeStrong] (api) -- (gen);
+\draw[edgeStrong] (gen) -- (webc);
+\draw[edgeStrong] (gen) |- (mobc);
+
+% CI gate
+\node[badge=strixRed, anchor=south] at ([yshift=8mm]gen.north) (gate) {CI gate: check:api-types};
+\draw[edge, draw=strixRed] (gate) -- (gen);
+
+\node[font=\sffamily\scriptsize\itshape, text=strixGrey, anchor=north]
+  at ([yshift=-8mm]gen.south) {fails the PR on backend\(\leftrightarrow\)frontend drift};
+
+\end{tikzpicture}
+\end{document}

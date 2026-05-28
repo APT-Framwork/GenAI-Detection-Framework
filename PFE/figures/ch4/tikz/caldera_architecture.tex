@@ -1,0 +1,26 @@
+\documentclass[border=8pt,tikz]{standalone}
+\usepackage{tikz}
+\input{_style}
+
+\begin{document}
+\begin{tikzpicture}[node distance=10mm]
+
+\node[ui, minimum width=30mm] (op) {Operator UI\\\scriptsize :8888};
+\node[ext, minimum width=42mm, minimum height=22mm, right=20mm of op] (server) {};
+\node[title, font=\sffamily\bfseries\small] at ([yshift=6mm]server.north) {Caldera C2 server};
+\node[font=\sffamily\scriptsize] at ([yshift=2mm]server.center) {plugin engine};
+\node[badge=strixGold, anchor=center] at ([yshift=-3mm]server.center) {stockpile};
+\node[font=\sffamily\scriptsize, anchor=north] at ([yshift=-4mm]server.south) {adversaries \(\cdot\) abilities};
+
+\node[source, minimum width=22mm, right=22mm of server,yshift=10mm] (s1) {Sandcat\\\scriptsize victim1};
+\node[source, minimum width=22mm, right=22mm of server] (s2) {Sandcat\\\scriptsize victim2};
+\node[source, minimum width=22mm, right=22mm of server,yshift=-10mm] (s3) {Sandcat\\\scriptsize victim3};
+
+\draw[edgeStrong] (op) -- (server);
+\foreach \s/\b in {s1/10,s2/0,s3/-10} {
+  \draw[edgeStrong, dashed, draw=strixRed]
+    (server.east) to[bend left=\b] node[midway,above,font=\sffamily\scriptsize, text=strixRed] {C2} (\s.west);
+}
+
+\end{tikzpicture}
+\end{document}

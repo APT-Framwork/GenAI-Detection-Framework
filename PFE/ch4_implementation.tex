@@ -1,0 +1,1100 @@
+\chapter{Implementation}
+\label{chap:implementation}
+
+\section{Introduction}
+
+The previous chapter described what CAVIX should do: the dataset to learn
+from, the preprocessing pipeline, the five models in the ensemble, the
+synthetic-data generator, and the reinforcement-learning agent that ties
+their verdicts into a single response decision. This chapter shows how all
+of that was built. We move from boxes-and-arrows to real
+container images, real database tables, real network ports.
+
+The system has five visible parts and they all sit in the same monorepo:
+a backend service that serves an OpenAPI surface, a web analyst console,
+a mobile companion application, a stack of pre-trained model artefacts
+loaded by an inference worker, and a reproducible lab that exercises the
+entire pipeline end-to-end. We tried hard to make each part replaceable
+without breaking the others, and we tried harder to make every binary
+artefact (a model weight, a feature scaler, a PCA basis) pinned by
+content hash so a silent swap is impossible.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.55\textwidth]{figures/ch4/tikz/overview_pillars}
+  \caption{The five implementation pillars of CAVIX.}
+  \label{fig:ch4:overview}
+  \par\medskip
+  As figure~\ref{fig:ch4:overview} shows, each one is documented in its own section of this chapter; the central node is the contract every pillar agrees on (an OpenAPI specification, a fixed set of hash-pinned model weights, and a Docker Compose orchestration).
+\end{figure}
+
+Four principles drove most of the decisions described below, in order
+of priority. First, reproducibility: every Python dependency is
+version-pinned, every model weight has a known SHA-256, and the lab
+boots from a single shell script. Second, type safety end-to-end: the
+Pydantic models behind FastAPI \cite{fastapi2024,pydantic2024} are the
+only source of truth for what an alert or a verdict looks like, and
+the web and mobile clients consume the generated TypeScript types.
+Third, black-box integration of third-party components: every external
+dependency (the SIEM, the message bus, the database, each CTI feed)
+is consumed through a narrow contract so that replacing one cannot
+propagate beyond its own boundary. Fourth, operational maturity of
+load-bearing dependencies: a Linux audit subsystem \cite{auditd2024}
+that has shipped with the mainline kernel since the 2.6 series, a
+Wazuh manager \cite{wazuh2024} already deployed in production SOCs,
+and a PostgreSQL database \cite{postgres2024} extended with TimescaleDB
+\cite{timescaledb2024} for the time-partitioned detection table.
+
+\section{Hardware and Software Environment}
+
+\subsection{Hardware}
+
+CAVIX targets commodity hardware. Table~\ref{tab:ch4:hardware} lists
+the two supported configurations: a development / demonstration
+workstation, on which the full Docker \cite{docker2024} Compose
+topology runs without a GPU, and an optional training configuration
+that benefits from CUDA when one is available. The CPU-only PyTorch
+build \cite{paszke2019pytorch} is the default because the CUDA
+variant adds roughly three gigabytes to the API image, which is
+justified only above the throughput the lab generates. The inference
+worker batches up to thirty-two events at a time, a value chosen so
+that the per-batch fixed cost of the five-model forward pass is
+amortised across enough events to dominate the per-event
+serialisation cost, while the batch still drains within the
+five-second writer window introduced in section~\ref{sec:integration}.
+
+\begin{table}[H]
+  \centering
+  \caption{Hardware and software configuration for the two supported
+  deployment modes. Neither setup is required to run a jury demo:
+  \texttt{jury\_demo.sh} brings up the same Compose topology on any
+  machine that can run Docker.}
+  \label{tab:ch4:hardware}
+  \begin{tabular}{lll}
+    \toprule
+    \textbf{Resource}    & \textbf{Development / demo}  & \textbf{Training (optional)} \\
+    \midrule
+    Host                 & x86\_64 workstation          & x86\_64 workstation \\
+    CPU                  & 8 cores recommended          & 8+ cores recommended \\
+    RAM                  & 16\,GB                       & 16\,GB \\
+    GPU                  & None (CPU-only)              & NVIDIA, via \texttt{--device cuda} \\
+    Container runtime    & Docker (Compose)             & Docker (Compose) \\
+    PyTorch build        & \texttt{torch==2.4.1+cpu}    & \texttt{torch==2.4.1+cu*} \\
+    Inference batch size & 32 events                    & not applicable \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.78\textwidth]{figures/ch4/tikz/lab_topology}
+  \caption{Lab topology used in this chapter and in chapter~\ref{chap:evaluation} for the evaluation.}
+  \label{fig:ch4:topology}
+  \par\medskip
+  As shown in figure~\ref{fig:ch4:topology}, a single host runs every container: the attacker (Kali with MITRE Caldera \protect\cite{caldera2024}), the two victims with Wazuh agents and \texttt{auditd}, the backing stores (PostgreSQL, Redis) and the user-facing surfaces (API, web, mobile). All containers share the \texttt{172.18.0.0/16} bridge so the attacker can reach the victims directly.
+\end{figure}
+
+Two runtime memory budgets matter operationally and are summarised
+in table~\ref{tab:ch4:memory}. The inference worker stays around
+600\,MB resident under normal load and peaks at roughly 1.2\,GB
+during a busy lab run. The Redis \cite{redis2024} memory cap is
+deliberately conservative at 512\,MB with a \texttt{noeviction}
+policy, so that the writer errors loudly rather than silently
+discarding a verdict; because the working-set size scales with
+alert volume rather than with a fixed bound, the cap is exposed
+through the \texttt{REDIS\_MAXMEMORY} environment variable, and
+four gigabytes is sufficient for the longest soak tests we run.
+
+\begin{table}[H]
+  \centering
+  \caption{Runtime memory budgets for the load-bearing components.}
+  \label{tab:ch4:memory}
+  \begin{tabular}{llll}
+    \toprule
+    \textbf{Component}       & \textbf{Default} & \textbf{Tunable via}       & \textbf{Notes} \\
+    \midrule
+    Inference worker (RSS)   & $\sim$600\,MB    & ---                        & Peaks $\sim$1.2\,GB under attack load \\
+    Redis memory cap         & 512\,MB          & \texttt{REDIS\_MAXMEMORY}  & Eviction policy = \texttt{noeviction} \\
+    Redis (soak tests)       & 4\,GB            & \texttt{REDIS\_MAXMEMORY}  & Scales with alert volume \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\subsection{Libraries}
+
+The dependencies fall naturally into four stacks that mostly do not
+overlap. Splitting them like this also makes it easier to upgrade one
+side without disturbing the other. A change to the React Native
+\cite{expo2024} version, for example, has no influence on the Python
+side except through the OpenAPI contract.
+
+\subsubsection{Backend and machine-learning stack}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.78\textwidth]{figures/ch4/logos/stack_logos_backend}
+  \caption{Backend and machine-learning libraries, grouped by architectural layer: backend \& API, persistence, classical ML and data tooling, and DL and RL.}
+  \label{fig:ch4:logos:backend}
+  \par\medskip
+  In figure~\ref{fig:ch4:logos:backend}, logos sourced from Simple Icons \protect\cite{simpleicons2024}.
+\end{figure}
+
+The backend runs on Python 3.11. FastAPI is the web framework
+\cite{fastapi2024}; Pydantic v2 \cite{pydantic2024} handles
+validation and is the single source of truth for the OpenAPI
+specification consumed downstream by the web and mobile clients.
+Persistence is SQLAlchemy 2 \cite{sqlalchemy2024} in its async mode,
+backed by \texttt{asyncpg} against a PostgreSQL 16 instance running the
+TimescaleDB extension for the time-partitioned \texttt{detections}
+hypertable. Job queuing is handled by ARQ \cite{arq2024}, an
+asynchronous job-queue library that sits on top of Redis.
+
+For the machine-learning side, PyTorch is the workhorse: every model in
+the ensemble (autoencoder, $\beta$-VAE \cite{higgins2017betavae},
+Transformer next-stage predictor \cite{vaswani2017attention},
+GraphSAGE graph neural network \cite{hamilton2017graphsage}, DQN
+policy network \cite{mnih2015dqn}) is a \texttt{torch.nn.Module}. The
+graph layers come from PyTorch Geometric \cite{fey2019pyg}. Natural-
+language tokens (raw Wazuh log messages and shell commands) are
+embedded by SecBERT \cite{secbert2022} through the \texttt{transformers}
+library \cite{wolf2020transformers}, then reduced to sixteen
+principal components by scikit-learn before joining the rest of the
+feature vector.
+
+A few smaller dependencies do important load-bearing work and are worth
+naming. \texttt{argon2-cffi} \cite{biryukov2016argon2} hashes
+operator passwords. \texttt{pybreaker} wraps every outgoing call to an
+external API in a circuit breaker so a transient URLhaus outage does
+not back-pressure the rest of the platform. \texttt{structlog},
+\texttt{prometheus-client} and \texttt{opentelemetry-sdk}
+\cite{prometheus2024,opentelemetry2024} cover the three observability
+pillars (structured logs, metrics, traces).
+
+\subsubsection{Reinforcement-learning training stack}
+
+The training pipeline under \texttt{RL\_agent/} reuses the fused DL+RL
+toolkit shown in figure~\ref{fig:ch4:logos:backend} and is intentionally
+simpler than the inference path. It pulls in PyTorch for the network,
+NumPy and pandas for tensor and tabular operations, scikit-learn for the
+balanced-threshold search, OpenAI Gym for the \texttt{APTEnv} base class,
+and Matplotlib for the diagnostic plots that come out of every training
+run. There is no FastAPI here, no database, no asynchronous code; the
+training is a long-running CPU loop that reads a few thousand carved
+attack sequences and writes a checkpoint into \texttt{RL\_agent/outputs/}.
+
+\subsubsection{Web console}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.70\textwidth]{figures/ch4/logos/stack_logos_web}
+  \caption{Web-console stack, grouped by role: framework and language, styling, and state and data.}
+  \label{fig:ch4:logos:web}
+  \par\medskip
+  Figure~\ref{fig:ch4:logos:web} shows only the libraries published by Simple Icons. Zustand, Recharts, and ReactFlow are also part of the production build but lack a Simple Icons entry and are omitted from the grid; they are described in the prose below.
+\end{figure}
+
+The analyst console is a Next.js 14 application using the App Router
+\cite{nextjs2024}. Server-side state is managed by TanStack Query;
+client-side state by Zustand. Tailwind CSS gives us a single utility
+language for styling. Recharts and ReactFlow cover the two distinct
+visualization styles we need: time-series telemetry on one side, the
+host/process graph rendered with a force-directed layout on the other.
+Generated API types come from \texttt{openapi-typescript}: the build
+fails if the TypeScript bindings drift away from the backend's actual
+OpenAPI specification.
+
+\subsubsection{Mobile companion}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.62\textwidth]{figures/ch4/logos/stack_logos_mobile}
+  \caption{Mobile-application stack, grouped by role: framework and language, state and data, and notifications.}
+  \label{fig:ch4:logos:mobile}
+  \par\medskip
+  Figure~\ref{fig:ch4:logos:mobile} captures the following. Expo provides the dev-client build pipeline; Expo Push (no Simple Icons entry, omitted from the grid) handles notifications, with a fall-back path to Firebase Cloud Messaging where Expo's service is not available.
+\end{figure}
+
+The mobile application is React Native through Expo SDK 54
+\cite{expo2024}. The dev-client build pipeline gives us native modules
+without the burden of maintaining a custom iOS or Android project.
+Push notifications go through Expo Push rather than bare Firebase
+Cloud Messaging because Expo Push offers a single delivery surface
+across iOS and Android, removing the need for separate APNs
+provisioning on Apple devices while still routing through the same
+FCM infrastructure on Android. Data fetching, store layout, and the
+OpenAPI-derived types are mirrored from the web side, which means
+the two clients share an intuitive mental model even though they
+share no actual code.
+
+\subsection{Development Tools}
+
+Both halves of the codebase have a single quality gate. On the Python
+side, \texttt{ruff} is the linter and formatter (targeting Python 3.11,
+line length one hundred), \texttt{mypy --strict} is the type checker,
+\texttt{pytest} is the test runner, and \texttt{hypothesis} and
+\texttt{schemathesis} drive property-based tests against the OpenAPI
+schema. On the TypeScript side, \texttt{eslint} and \texttt{tsc}
+handle the same job. The web build also enforces a \texttt{check:api-
+types} command that fails the pipeline if the generated TypeScript
+types are out of date with the backend's OpenAPI specification.
+This is how we prevent the most common form of backend--frontend
+drift, where a renamed field passes the type checker on each side
+in isolation but produces a runtime error in production.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.95\textwidth]{figures/ch4/tikz/ci_pipeline}
+  \caption{Continuous-integration pipeline.}
+  \label{fig:ch4:ci}
+  \par\medskip
+  As depicted in figure~\ref{fig:ch4:ci}, a single push triggers five parallel GitHub Actions workflows: \texttt{api.yml} (backend tests against real PostgreSQL and Redis service containers), \texttt{lint.yml} (Ruff + mypy on the Python tree), \texttt{web.yml} (TypeScript compile, ESLint, and the \texttt{check:api-types} gate), \texttt{mobile.yml} (Expo prebuild + Jest), and \texttt{models.yml} (model-artefact hash verification). The \texttt{api.yml} job runs against real service containers rather than mocks to ensure that Alembic migrations, which mocked tests cannot exercise, are validated on every push.
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.85\textwidth]{figures/ch4/tikz/type_safety_chain}
+  \caption{The type-safety chain from Pydantic to the two clients.}
+  \label{fig:ch4:typesafety}
+  \par\medskip
+  As figure~\ref{fig:ch4:typesafety} shows, the CI gate at the centre is what catches silent drift between the backend and the frontends.
+\end{figure}
+
+The container images themselves are built from \texttt{python:3.11-slim}
+for everything Python and \texttt{node:20-bookworm-slim} for the web
+build. Both use multi-stage builds so the final runtime layer does not
+carry the compiler toolchain. The Compose stacks live under
+\texttt{infra/} (six of them, each scoped to a specific concern:
+API, lab, victim, simulation, chaos, platform-deps), and there is a
+\texttt{Procfile.host} for the alternative workflow where the API and
+workers run directly on the developer's machine under Honcho rather
+than inside Docker.
+
+
+% ---------------------------------------------------------------
+\section{Dataset Selection and Justification}
+% ---------------------------------------------------------------
+
+Before any model can be trained or any pipeline designed, the dataset must be chosen
+carefully. In the domain of APT detection, this is not a trivial decision. Unlike general
+cybersecurity datasets where any labeled traffic collection may suffice, APT detection
+imposes strict structural requirements on the data. A poor dataset choice leads not
+only to poor results, but to a fundamentally flawed experimental setup where what is
+being modeled does not correspond to the real nature of APT behavior. This section
+describes the criteria used to evaluate candidate datasets, the elimination process
+applied to narrow the field, and the final selection that underlies all experiments
+in this report.
+
+% ---------------------------------------------------------------
+\subsection{Selection Criteria}
+% ---------------------------------------------------------------
+
+Five criteria were defined prior to any dataset evaluation. Each criterion targets a
+structural property that is strictly necessary for the proposed framework to function
+correctly.
+
+\begin{enumerate}
+
+    \item \textbf{Multi-stage sequential attack structure.}
+    The most fundamental requirement is that the dataset must reflect the multi-stage,
+    sequential nature of APT attacks. A dataset containing only isolated attack events
+    --- single intrusion attempts, individual malware executions, or one-shot
+    network anomalies --- is structurally incompatible with a framework that models
+    the progression of an attack across Cyber Kill Chain stages. The data must contain
+    sequences of events that build upon one another chronologically, representing a
+    coherent attack campaign rather than a collection of independent records. Datasets
+    that contain only a single attack vector, regardless of how well labeled they are,
+    were disqualified under this criterion.
+
+    \item \textbf{MITRE ATT\&CK or CKC labeling.}
+    For a detection model to learn stage-aware representations of APT behavior, the
+    dataset must provide ground-truth annotations aligned with either the MITRE ATT\&CK
+    framework or the Cyber Kill Chain. Without such labels, it is impossible to evaluate
+    whether the model detects an attack \textit{early} (at Reconnaissance or Initial
+    Access) versus \textit{late} (at Exfiltration). The pre-detection rate, which is one
+    of our primary evaluation metrics, cannot be computed without stage-level labels.
+    Datasets that provide only binary benign/malicious labels, without indicating
+    \textit{which phase} of an attack each record corresponds to, are fundamentally
+    insufficient for our framework.
+
+    \item \textbf{Feature richness and diversity of columns.}
+    The number and quality of features in a dataset directly determines what the models
+    can learn. Several datasets encountered during this survey contain as few as five
+    columns, of which a large proportion are either useless identifiers (IP addresses,
+    port numbers, MAC addresses) or metadata that carries no behavioral signal
+    recognizable by a machine learning model. An IP address, for example, is a
+    meaningless number to a model: it cannot generalize from specific IP values to
+    attack behavior patterns. A dataset where the majority of columns fall into this
+    category provides little material for feature engineering and forces models to
+    learn from noise. Datasets were therefore evaluated on the number, variety, and
+    behavioral relevance of their available features.
+
+    \item \textbf{Feasible dataset size given available resources.}
+    While scale is generally desirable in machine learning, computational constraints
+    impose a practical upper bound on the dataset size that can be processed, trained
+    on, and validated within the scope of this project. Several candidate datasets
+    reached sizes of several hundred gigabytes --- one exceeding 900 GB of raw data.
+    Processing such volumes requires distributed computing infrastructure that is not
+    available in our experimental setup. Datasets that cannot be fully loaded,
+    preprocessed, and trained on using the available hardware were excluded on
+    feasibility grounds.
+
+    \item \textbf{Simulation viability.}
+    A central objective of this report is to validate the detection framework through
+    end-to-end simulation. This requires that the APT domain covered by the selected
+    dataset can be realistically reproduced using available simulation tools such as
+    MITRE Caldera, Docker, and Wazuh. Certain domains, such as IoT and cloud
+    infrastructure, are significantly more difficult to simulate in a controlled
+    laboratory setting: they require specialized hardware, dedicated cloud accounts,
+    or proprietary device firmware that is not accessible. This criterion therefore
+    favors datasets from domains that can be faithfully reproduced in a local
+    virtualized environment.
+
+\end{enumerate}
+
+% ---------------------------------------------------------------
+\subsection{Elimination Process}
+% ---------------------------------------------------------------
+
+Starting from a broad collection of publicly available APT-related datasets --- both
+those with explicit CKC/MITRE ATT\&CK mapping and those without --- a systematic
+elimination process was conducted. Table~\ref{tab:dataset_elimination} summarizes
+the main candidates and the criteria that led to their elimination or retention.
+
+\begin{table}[H]
+\centering
+\caption{Dataset elimination process based on selection criteria}
+\label{tab:dataset_elimination}
+\small
+\begin{tabularx}{\textwidth}{|p{0.26\linewidth}|X|l|}
+\hline
+\textbf{Dataset} & \textbf{Reason for Elimination} & \textbf{Status} \\
+\hline
+Linux-APT-Dataset-2024 & Meets all criteria: multi-stage, MITRE-labeled,
+rich features, feasible size, host-based simulation possible &
+\textbf{Retained} \\
+\hline
+MLAPT & CKC-labeled, but limited feature diversity and
+insufficient sequential depth for multi-stage modeling &
+Eliminated \\
+\hline
+KAPT-2024 & MITRE-labeled HTTPS traffic; focused on a single
+attack vector (encrypted C2), not a full multi-stage campaign &
+Eliminated \\
+\hline
+Windows APT Persistence 2025 & MITRE-labeled but covers only the
+Persistence tactic (TA0003); insufficient multi-stage coverage &
+Eliminated \\
+\hline
+CICAPT-IIoT & MITRE-labeled and rich in features (9.8 GB), but
+targets the IoT domain, which is extremely difficult to simulate
+in a local lab environment &
+Eliminated \\
+\hline
+Cloud APT Dataset & Covers cloud-based APT steps; simulation of cloud
+infrastructure requires dedicated remote resources unavailable
+in our setup &
+Eliminated \\
+\hline
+DAPT 2020 & No explicit MITRE ATT\&CK or CKC mapping; binary labels
+only, insufficient for stage-aware detection &
+Eliminated \\
+\hline
+LANL Multi-Source Events & Real-world data but no APT-specific labels
+or CKC annotations; not suited for stage-aware evaluation &
+Eliminated \\
+\hline
+CIC-IDS2018 & Covers individual attack types (DoS, brute force, etc.)
+rather than multi-stage APT campaigns; no CKC mapping &
+Eliminated \\
+\hline
+\end{tabularx}
+\end{table}
+
+The elimination process was guided by two main observations. First, the \textbf{domain
+constraint} proved to be one of the most decisive filters. As presented in
+Section~1.3, APT attacks span multiple domains: host, network, web/application,
+mobile, cloud, and IoT/OT. While each domain is a legitimate APT attack surface,
+the simulation viability criterion immediately eliminated IoT and cloud datasets.
+Simulating an IoT environment requires physical devices or accurate firmware emulators
+that were not available, while cloud simulation demands remote infrastructure and
+dedicated accounts. The mobile APT domain presented an even more fundamental issue:
+no adequate public dataset currently exists for mobile APT attack sequences. This is
+a significant gap in the research landscape and represents an important opportunity
+for future work --- the construction of a labeled, multi-stage mobile APT dataset
+would be a valuable contribution to the community.
+
+Second, many datasets that appeared promising based on their MITRE labeling were
+eliminated because they cover only a \textbf{single tactic or phase}. Persistence
+datasets, for example, are useful for studying how attackers maintain access, but
+they do not provide the multi-stage progression across at least three or four
+Kill Chain phases that is needed to train and evaluate a sequential detection model.
+A model trained on such data would learn to detect one specific behavior, not an
+APT campaign.
+
+% ---------------------------------------------------------------
+\subsection{Final Selection: Linux APT Dataset 2024}
+% ---------------------------------------------------------------
+
+After the elimination process, the \textbf{Linux APT Dataset 2024}
+\cite{karim2024linux} was selected as the primary dataset for all experiments in
+this report. This choice was motivated by the convergence of all five selection
+criteria in a single dataset, as well as by a broader strategic consideration
+regarding the APT domain.
+
+\textbf{Domain justification.} The Linux APT Dataset covers the \textbf{host-based
+APT domain} on Linux systems. This domain was particularly appealing for two
+complementary reasons. From a security relevance standpoint, Linux systems constitute
+the backbone of modern server and cloud infrastructure. The vast majority of production
+servers, cloud virtual machines, and containerized workloads run on Linux, making
+it a primary target for APT actors seeking to compromise critical infrastructure.
+From a simulation standpoint, the host-based Linux domain is the most accessible
+for our experimental setup: victim machines can be instantiated as standard Ubuntu
+Docker containers, Wazuh agents can be deployed natively, and MITRE Caldera can
+execute its adversary emulation playbooks against Linux targets out of the box.
+This alignment between the dataset domain and our simulation infrastructure
+was a decisive factor in the final selection.
+
+\textbf{Technical justification.} The dataset provides system and network logs
+from a Linux environment where each event is annotated against the MITRE ATT\&CK
+framework, covering a diverse range of adversary techniques across multiple kill
+chain phases. The data includes rich feature columns beyond simple IP-based
+identifiers, providing the behavioral signal --- process names, command lines,
+alert descriptions, file operations --- necessary for the feature engineering
+pipeline described in Section~4.6. Its size is manageable within our available
+hardware (GPU-accelerated workstation), and its structure is conducive to the
+chronological, per-agent attack sequence representation required by the Transformer
+and GNN models.
+
+As of 2025--2026, the Linux APT Dataset 2024 has not yet been used
+independently by any published ML/AI study beyond its original description paper
+--- a direct consequence of the typical 6--18 month publication cycle. This report
+constitutes one of the first independent applications of this dataset for
+multi-model deep learning-based APT detection.
+
+
+
+
+\section{Dataset Description}
+
+\subsection{Linux APT Dataset 2024}
+
+The training data comes from a single source: the Linux APT
+intrusion-detection dataset published in 2024 by Karim, Afzal, Iqbal
+and Al Abri in \emph{Data in Brief} \cite{karim2024linux}. Their
+collection setup matches what CAVIX targets very closely: a Kali
+attacker host emulating four real-world APT actors (APT41, APT28,
+APT29 and Turla) against three Ubuntu 22.04 victims, with a Wazuh 4.5.2
+manager collecting alerts and Kaspersky Security Center 14.2 acting as
+a complementary endpoint sensor. The collection ran for fourteen weeks,
+between October 2023 and January 2024.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.95\textwidth]{figures/ch4/tikz/dataset_timeline}
+  \caption{The 14-week collection window of the Linux APT Dataset 2024.}
+  \label{fig:ch4:timeline}
+  \par\medskip
+  As shown in figure~\ref{fig:ch4:timeline}, the four APT campaigns overlap in time; this is deliberate in the original paper, since real APT activity rarely happens in a serialised, mutually-exclusive schedule.
+\end{figure}
+
+We materialise the dataset inside CAVIX as two parquet files under
+\texttt{apps/models/} (all repository paths in this chapter are
+relative to the monorepo root): a feature matrix with 115\,726 rows
+by 119 columns (\texttt{feature\_matrix\_no\_leakage.parquet}), and
+an alignment table with the binary label and the cyber-kill-chain
+stage encoded as integers (\texttt{labels.parquet}). Both files are
+the output of the preprocessing pipeline whose
+\emph{conceptual} design is given in chapter~\ref{chap:conception}
+and whose \emph{implementation} is described in
+section~\ref{sec:preprocessing} of this chapter. They are versioned
+in the repository, which means a fresh checkout reproduces the exact
+training run that produced the shipped model weights.
+
+\subsection{Statistics}
+
+\begin{figure}[H]
+  \centering
+  \begin{minipage}[c]{0.40\textwidth}
+    \includegraphics[width=\textwidth]{figures/ch4/charts/dataset_class_split}
+  \end{minipage}\hfill
+  \begin{minipage}[c]{0.58\textwidth}
+    \includegraphics[width=\textwidth]{figures/ch4/charts/dataset_tactic_bars}
+  \end{minipage}
+  \caption{Class distribution and per-tactic distribution.}
+  \label{fig:ch4:datasetstats}
+  \par\medskip
+  In figure~\ref{fig:ch4:datasetstats}, the binary split (left) is twenty-two percent malicious, which is generous compared to the typical SIEM signal-to-noise ratio. The per-tactic distribution (right) is skewed: Defense Evasion, Privilege Escalation and Initial Access together account for roughly half of the labelled malicious alerts, while Weaponization (S2) and Command \& Control (S6) are effectively absent.
+\end{figure}
+
+The skew at the tail of figure \ref{fig:ch4:datasetstats} matters. With
+only two C\&C events and zero Weaponization events in the entire
+training set, the Transformer's output heads for those two CKC stages
+cannot learn anything meaningful. We deal with this in two places: at
+training time, by setting the class weights of S2 and S6 to zero in
+the cross-entropy loss (whose formulation is given in
+chapter~\ref{chap:conception} together with the rest of the
+Transformer's training objective), and at inference time, by adding
+a deterministic gate in front of the DQN that refuses to fire an
+intervention purely on the basis of a low-confidence S2 or S6
+prediction. We expand on this gate in section
+\ref{sec:integration}.
+
+The 55-column feature vector consumed by every model is the
+concatenation of three blocks: twenty-three individual features (binary
+indicators, location flags, four numeric quantities), sixteen
+principal components of the SecBERT embedding of the raw log message,
+and sixteen principal components of the SecBERT embedding of the shell
+command. The component count of sixteen on each text branch was
+chosen as the smallest value that retains above 95\,\% of the
+variance on at least one branch while keeping the embedding's
+contribution to the 55-dimensional vector roughly balanced against
+the twenty-three structured features. The variance retained by the
+PCA reduction is 77.82\,\% on the log side and 97.05\,\% on the
+command side; we attribute this asymmetry to the narrower lexical
+distribution of shell commands relative to the multi-source log
+messages, although the precise type--token ratio of the two corpora
+is not measured here.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth]{figures/ch4/tikz/feature_pipeline}
+  \caption{Feature pipeline from raw Wazuh alert to the 55-dimensional vector consumed by every downstream model.}
+  \label{fig:ch4:featurepipeline}
+  \par\medskip
+  As illustrated in figure~\ref{fig:ch4:featurepipeline}, the two SecBERT branches are responsible for embedding the unstructured text fields; the central twenty-three-feature stream carries the structured signals.
+\end{figure}
+
+Every artefact in this pipeline is content-addressed. The selected-
+features manifest, the standard scaler, both SecBERT PCA bases, the
+probability calibrators, and the GNN metadata bundle are all listed in
+\texttt{apps/models/registry.json} (registry version 4) together with
+their SHA-256 digests. The inference worker refuses to start if any of
+those hashes drift away from the manifest, a safeguard we added
+after an accidental notebook re-run had once silently overwritten the
+calibrator and shifted every $\beta$-VAE malicious-probability by a
+few percent.
+
+\subsection{Simulated APT Groups}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.78\textwidth]{figures/ch4/tikz/apt_groups_cards}
+  \caption{The four APT groups emulated in the Linux APT Dataset 2024 \protect\cite{karim2024linux}.}
+  \label{fig:ch4:aptgroups}
+  \par\medskip
+  As depicted in figure~\ref{fig:ch4:aptgroups}, the TTP rows are drawn from MITRE ATT\&CK \protect\cite{mitre_attack} and reflect the techniques the paper's authors actually exercised against the Ubuntu victims; the country flags are sourced from a public flag CDN.
+\end{figure}
+
+APT41 is a Chinese threat actor with a documented dual-use posture
+(state-sponsored espionage alongside financially motivated intrusions).
+APT28, APT29 and Turla are all Russian, attributed respectively to the
+GRU, the SVR and the FSB. Three of the four cards in
+figure \ref{fig:ch4:aptgroups} carry the same flag because the
+attributed-actor distribution during the dataset's collection window
+skews that way; this is not a sampling artefact. The TTPs listed under each card are
+specifically those exercised by the dataset authors against the
+victims; they are not a generic summary of each group's full
+arsenal.
+
+
+
+% --------------------------------------------------------------------------
+\section{Data Preprocessing Pipeline}
+\label{sec:preprocessing}
+% --------------------------------------------------------------------------
+
+The raw data source for the STRIX framework is the \textit{Linux APT Dataset 2024}, a collection of Wazuh SIEM alerts exported as CSV files from an Elasticsearch cluster. These alerts were generated by multiple monitored Ubuntu agents over several months of controlled APT attack simulations and normal operations. Before any feature engineering or model training can occur, the raw export requires a rigorous three-stage preprocessing pipeline to resolve structural corruption, extract semantic fields, and establish temporal ordering.
+
+% --------------------------------------------------------------------------
+\subsection{CSV Repair}
+\label{subsec:csv_repair}
+% --------------------------------------------------------------------------
+
+Wazuh alerts exported from Elasticsearch via CSV encoding suffer from two systematic structural corruption issues that must be resolved before parsing.
+
+\textbf{Problem 1: Multiline Log Field Merging.} The most critical corruption arises from the \texttt{full\_log} and \texttt{rule.description} fields, which frequently contain unescaped newline characters, commas, and special characters embedded within the log message itself. When exported to CSV, these internal newlines cause a single logical alert row to fragment across multiple physical CSV lines. A standard CSV parser interprets each physical line as a separate record, producing phantom rows filled with partial data fragments. For instance, a single Wazuh alert containing a multi-line audit log entry may span 3--5 physical lines in the CSV, with each fragment misinterpreted as an independent alert with most columns empty.
+
+\textbf{Problem 2: Column Shifting (D\'{e}calage).} The second corruption mode is column misalignment. When an unescaped delimiter (comma) appears inside a text field, all subsequent column values in that row are shifted rightward by one or more positions. This produces structurally valid but semantically corrupted rows --- for example, a source IP address appearing in the destination port column, or a file path value occupying the rule description field. These shifted rows pass basic validation checks (correct number of columns, no null values) but introduce systematic label noise if not detected and corrected.
+
+\textbf{Resolution.} The repair pipeline uses dedicated Python scripts with custom parsing rules to reconstruct fragmented rows, realign shifted fields, and correct malformed records. It combines field-level validation checks that verify type constraints, for example ensuring that IP addresses match IPv4/IPv6 patterns, port numbers remain within the valid range \\([0, 65535]\\), and timestamps can be parsed as valid ISO 8601 dates. Rows that exhibit misalignment are programmatically repaired by reassigning displaced values to their correct columns, while inconsistent records are normalized or removed only when recovery is not possible. After repair, the dataset retains 115,133 structurally valid alerts from the initial raw export.
+
+% --------------------------------------------------------------------------
+\subsection{Field Extraction and MITRE--CKC Mapping}
+\label{subsec:mitre_ckc_mapping}
+% --------------------------------------------------------------------------
+
+Each Wazuh alert contains a nested JSON structure with over 176 raw columns. The field extraction stage selects the operationally relevant subset: timestamps (\texttt{\_source.@timestamp}), agent identifiers (\texttt{\_source.agent.id}, \texttt{\_source.agent.name}), rule metadata (\texttt{\_source.rule.description}, \texttt{\_source.rule.level}, \texttt{\_source.rule.firedtimes}), decoder information (\texttt{\_source.decoder.name}), network context (\texttt{\_source.data.srcip}, \texttt{\_source.data.srcuser}), file integrity data (\texttt{\_source.syscheck.*}), and critically, the MITRE ATT\&CK annotations (\texttt{\_source.rule.mitre.tactic}, \texttt{\_source.rule.mitre.technique}, \texttt{\_source.rule.mitre.id}).
+
+Of the 115,133 valid alerts, \textbf{89,447} contain MITRE ATT\&CK tactic or technique annotations assigned by the Wazuh rule engine. These annotations identify the observed behavior according to the MITRE ATT\&CK Enterprise matrix (e.g., \texttt{TA0005} --- Defense Evasion, \texttt{T1562} --- Impair Defenses). However, the MITRE ATT\&CK framework and the Lockheed Martin Cyber Kill Chain (CKC) model operate at different levels of abstraction. The ATT\&CK matrix describes \textit{individual adversary techniques}, while the CKC describes \textit{strategic phases of a campaign}. To train the RL agent and the Transformer on sequential phase progression, a deterministic mapping from MITRE ATT\&CK tactics to CKC stages is required.
+
+Table~\ref{tab:mitre_ckc_mapping} presents the mapping implemented in the preprocessing pipeline.
+
+\begin{table}[H]
+    \centering
+    \caption{Deterministic Mapping from MITRE ATT\&CK Tactics to Cyber Kill Chain Stages}
+    \label{tab:mitre_ckc_mapping}
+    \begin{tabular}{clll}
+        \toprule
+        \textbf{MITRE ID} & \textbf{MITRE Tactic} & \textbf{CKC Stage} & \textbf{Rationale} \\
+        \midrule
+        TA0043 & Reconnaissance & S1 — Reconnaissance & Direct semantic match \\
+        TA0001 & Initial Access & S3 — Delivery & Entry vector = payload delivery \\
+        TA0002 & Execution & S4 — Exploitation & Code execution = exploit fired \\
+        TA0004 & Privilege Escalation & S4 — Exploitation & Escalation requires exploitation \\
+        TA0003 & Persistence & S5 — Installation & Maintaining access = installation \\
+        TA0005 & Defense Evasion & S5 — Installation & Evasion secures the foothold \\
+        TA0008 & Lateral Movement & S5 — Installation & Spreading = extending installation \\
+        TA0011 & Command \& Control & S6 — C2 & Direct semantic match \\
+        TA0006 & Credential Access & S7 — Actions on Obj. & Credential theft = objective \\
+        TA0007 & Discovery & S7 — Actions on Obj. & Internal recon = pre-exfiltration \\
+        TA0009 & Collection & S7 — Actions on Obj. & Data staging = objective \\
+        TA0040 & Impact & S7 — Actions on Obj. & Damage/disruption = final objective \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+Several design decisions in this mapping warrant justification:
+
+\begin{itemize}
+    \item \textbf{No S2 (Weaponization):} The Weaponization stage occurs entirely on the attacker's infrastructure (building exploit payloads, crafting phishing emails). By definition, no SIEM alert is generated during this phase, as the defender's network has not yet been contacted. The mapping therefore skips S2 entirely.
+    \item \textbf{TA0005 (Defense Evasion) $\rightarrow$ S5 (Installation):} While Defense Evasion could conceptually occur at any stage, the vast majority of evasion techniques in the dataset (e.g., \texttt{T1562} --- Impair Defenses, \texttt{T1548} --- Abuse Elevation Control) are deployed \textit{after} the initial exploit to protect the installed malware. Mapping them to S5 reflects this operational reality.
+    \item \textbf{TA0008 (Lateral Movement) $\rightarrow$ S5 (Installation):} Lateral movement is the process of extending the attacker's foothold across the network. Each lateral hop is functionally equivalent to a new installation event on a previously uncompromised host.
+    \item \textbf{Multi-tactic alerts:} When an alert is annotated with multiple MITRE tactics (e.g., both \texttt{TA0002} and \texttt{TA0004}), the highest CKC stage is retained. This conservative strategy ensures that the alert is labeled according to the most advanced phase of the attack it represents.
+\end{itemize}
+
+After mapping, alerts without MITRE annotations are labeled as \textbf{S0 (Benign)} --- normal operational traffic. The final class distribution comprises 25,418 malicious alerts (stages S1--S7) and 90,308 benign alerts (S0), reflecting the severe class imbalance characteristic of real-world SIEM environments.
+
+% --------------------------------------------------------------------------
+\subsection{Timestamp Parsing and Chronological Sorting per Agent}
+\label{subsec:timestamp_sorting}
+% --------------------------------------------------------------------------
+
+APT campaigns unfold as temporal sequences: an attacker progresses through CKC stages over hours, days, or weeks on a specific host. To preserve this sequential structure for the Transformer and RL environment, the preprocessing pipeline performs timestamp parsing and per-agent chronological sorting.
+
+Each alert's \texttt{\_source.@timestamp} field (ISO 8601 format, e.g., \texttt{2023-10-01T00:49:29.507Z}) is parsed into a Python \texttt{datetime} object with millisecond precision. The entire dataset is then grouped by \texttt{\_source.agent.id} (the unique identifier of the monitored Ubuntu host) and sorted in ascending chronological order within each group.
+
+This per-agent sorting serves two critical downstream functions:
+
+\begin{enumerate}
+    \item \textbf{Attack Sequence Construction:} The sorted per-agent timeline allows the \texttt{CKC\_Generation} pipeline to extract contiguous subsequences of malicious alerts that form coherent attack campaigns --- ordered progressions from Reconnaissance (S1) through Actions on Objectives (S7) on a single host.
+    \item \textbf{GNN Edge Construction:} The GraphSAGE model's temporal edges (intra-machine and cross-machine) rely on the chronological ordering to identify alerts occurring within 30-minute windows. Without correct timestamp sorting, the edge construction would produce spurious connections between temporally distant events, corrupting the propagation graph.
+\end{enumerate}
+
+The final preprocessed outputs are saved as structured files: \texttt{apt\_attack\_events\_processed.csv} (all events with parsed timestamps and CKC labels), \texttt{apt\_mitre\_data\_sorted.csv} (chronologically sorted MITRE-annotated events per agent), and \texttt{attack\_sequence\_edges.csv} (the temporal edge list for graph construction).
+
+
+
+% --------------------------------------------------------------------------
+\section{Feature Engineering}
+\label{sec:feature_engineering}
+% --------------------------------------------------------------------------
+
+The feature engineering pipeline transforms raw Wazuh JSON alert documents --- containing over 176 heterogeneous fields --- into a compact, semantically rich 55-dimensional numerical vector suitable for deep learning. This pipeline is the foundation upon which all four perception models operate, and its design directly determines the upper bound of detection performance.
+
+% --------------------------------------------------------------------------
+\subsection{From Raw Logs to Behavioral Features}
+\label{subsec:raw_to_features}
+% --------------------------------------------------------------------------
+
+Each Wazuh alert arrives as a nested JSON document containing metadata fields (agent name, timestamp, rule ID), categorical identifiers (decoder type, log source location), free-text fields (full log message, executed command, file path), and optional sub-documents (syscheck file integrity data, audit trails, SCA compliance results). The original dataset comprises 115,726 alerts across 176 raw columns.
+
+The first stage of the pipeline extracts two categories of hand-crafted behavioral features from this raw data:
+
+\textbf{Numerical Features.} Four continuous variables are derived to capture quantitative behavioral signals:
+\begin{itemize}
+    \item \texttt{firedtimes}: The cumulative count of how many times a specific Wazuh rule has triggered historically. A rule that fires thousands of times (e.g., SSH login) carries a different risk profile than one that fires once (e.g., rootkit detection).
+    \item \texttt{firedtimes\_log}: The log-transformed fire count, reducing the impact of extreme outliers.
+    \item \texttt{cmd\_length}: The character length of the command string. APT commands (e.g., chained \texttt{wget | chmod | bash} pipelines) tend to be significantly longer than benign administrative commands.
+    \item \texttt{path\_depth}: The depth of the file path (e.g., \texttt{/etc/passwd} = 2, \texttt{/tmp/.hidden/payload.sh} = 3). Deeper, non-standard paths are strong indicators of malicious file staging.
+\end{itemize}
+
+\textbf{Binary Flags (19 features).} A set of one-hot encoded categorical indicators captures the structural context of each alert:
+\begin{itemize}
+    \item \textit{Decoder type} (8 flags): Identifies the Wazuh decoder that parsed the alert (e.g., \texttt{auditd}, \texttt{syscheck\_integrity\_changed}, \texttt{web-accesslog}, \texttt{dpkg-decoder}). The decoder type is a strong proxy for the category of activity observed.
+    \item \textit{Log source location} (4 flags): Identifies the originating log file (\texttt{/var/log/audit/audit.log}, \texttt{/var/log/auth.log}, \texttt{/var/log/apache2/access.log}, \texttt{syscheck}).
+    \item \textit{Syscheck events} (3 flags): File integrity events --- \texttt{added}, \texttt{modified}, or \texttt{deleted}. File modification and deletion in sensitive directories are hallmark APT indicators.
+    \item \textit{Contextual indicators} (4 flags): \texttt{srcip\_is\_private}, \texttt{path\_is\_sensitive} (paths in \texttt{/etc}, \texttt{/root}), \texttt{path\_is\_temp} (\texttt{/tmp}), and hash presence flags (\texttt{has\_md5}, \texttt{has\_sha256}).
+\end{itemize}
+
+% --------------------------------------------------------------------------
+\subsection{SecBERT Embedding}
+\label{subsec:secbert_embedding}
+% --------------------------------------------------------------------------
+
+Numerical features and binary flags capture the structural metadata of an alert but completely ignore its semantic content --- the actual text describing \textit{what happened}. Two critical free-text fields carry the richest behavioral information: the \texttt{full\_log} message and the \texttt{command} string. A benign log entry such as ``\textit{Accepted publickey for admin from 10.0.0.1}'' occupies a fundamentally different semantic space than a malicious entry such as ``\textit{wget http://c2.evil.com/shell.sh \&\& chmod +x shell.sh \&\& ./shell.sh}''. Capturing this distinction requires a language model trained on cybersecurity-domain text.
+
+The pipeline uses \textbf{SecBERT} (\texttt{jackaduma/SecBERT}), a BERT model pre-trained on a large corpus of cybersecurity literature, vulnerability reports, and threat intelligence documents. Each of the two text fields is independently tokenized and passed through SecBERT, producing a 768-dimensional dense embedding vector per field. To reduce dimensionality while preserving the dominant variance, Principal Component Analysis (PCA) is applied to compress each 768-dimensional embedding down to \textbf{16 dimensions}. This yields:
+\begin{itemize}
+    \item 16 features from the full log embedding: \texttt{log\_secbert\_emb\_0} through \texttt{log\_secbert\_emb\_15}
+    \item 16 features from the command embedding: \texttt{cmd\_secbert\_emb\_0} through \texttt{cmd\_secbert\_emb\_15}
+\end{itemize}
+
+The total feature vector is therefore composed of: $16 \text{ (log embeddings)} + 16 \text{ (command embeddings)} + 4 \text{ (numerical)} + 19 \text{ (binary flags)} = 55 \text{ features}$.
+
+% --------------------------------------------------------------------------
+\subsection{Feature Selection with Ensemble Consensus Ranking}
+\label{subsec:feature_selection}
+% --------------------------------------------------------------------------
+
+The original Wazuh dataset contains 176 raw columns. Directly feeding all 176 features into the detection models introduces noise, multicollinearity, and the risk of overfitting --- particularly for the latent-space models (AE and VAE) where irrelevant dimensions pollute the learned manifold. A rigorous, multi-method feature selection pipeline was therefore applied to identify the most discriminative subset.
+
+Six complementary feature importance methods were employed, spanning embedded, filter, and model-agnostic paradigms:
+\begin{enumerate}
+    \item \textbf{Random Forest} feature importance (Gini impurity-based) \textbf{98.7\% } accuracy
+    \item \textbf{XGBoost} feature importance (gain-based) \textbf{97.8\%} accuracy
+    \item \textbf{LightGBM} feature importance (split-based) \textbf{97.5\%} accuracy
+    \item \textbf{Permutation Importance} (model-agnostic, measures accuracy drop when a feature is shuffled)
+    \item \textbf{Mutual Information} (filter method, measures statistical dependency with the target)
+    \item \textbf{F-Score} (ANOVA F-statistic between each feature and the binary malicious label)
+\end{enumerate}
+
+Each method independently ranks all features. To eliminate the bias of any single estimator, a \textbf{consensus ranking} is computed: for each feature, its rank from each of the six methods is averaged, producing a single \texttt{Average\_Rank} score. The top 25 features by consensus rank are selected as the final feature set. Combined with the 32 SecBERT PCA dimensions (16 per text field), this produces the 55-column input vector used by all downstream models.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{figures/feature selection.png}
+    \caption{Consensus feature ranking across six methods. The top 25 features (highlighted) are selected for model training.}
+    \label{fig:consensus_ranking}
+\end{figure}
+
+This consensus approach proved critical: as demonstrated in Section~\ref{sec:iterative_results}, reducing the feature space from 119 columns (after removing leakage) to the Top 25 consensus features improved the Autoencoder's ROC-AUC from 0.9773 to 0.9849 and its Precision from 0.7659 to 0.8034, while maintaining Recall above 0.95. The feature selection eliminated noisy, low-information columns that were causing the latent space to overfit to deployment-specific artifacts rather than learning generalizable attack behavioral patterns.
+
+
+\section{Platform Description}
+\label{sec:platform}
+
+\subsection{Wazuh SIEM}
+
+We deliberately did not modify the Wazuh manager binary. Instead, the
+manager runs upstream and CAVIX adds three things on top of it: a set
+of auditd rules tuned for the Linux kill chain
+\cite{auditd2024,karim2024linux}, a local rule file deployed at
+\texttt{/var/ossec/etc/rules/local\_rules.xml}, and a muting hierarchy
+that silences the noisy parent rules while keeping a small number of
+high-value custom rules audible.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.95\textwidth]{figures/ch4/tikz/wazuh_logo_rules}
+  \caption{Custom Wazuh rule hierarchy.}
+  \label{fig:ch4:wazuhrules}
+  \par\medskip
+  As depicted in figure~\ref{fig:ch4:wazuhrules}, parent rules 80789, 80784 and 80785 are forced to \texttt{level=0} so they do not flood the alert stream; the child rules 100050, 100051, 100100+ and 100200+ inherit through \texttt{$\langle$if\_sid$\rangle$} and only fire when the parent matches a specific attacker pattern.
+\end{figure}
+
+Two of the custom rules deserve a mention. Rule 100050 fires on a
+burst of \texttt{sshd} invalid-user attempts and rule 100051 on a
+short-window port scan; both are mapped to T1595 in MITRE ATT\&CK
+\cite{mitre_attack}, which puts them at Reconnaissance, the first
+stage of the kill chain, where signature-based SIEMs typically have
+nothing to say. Catching anything at this stage is the difference
+between an "early-detection" platform and a "post-mortem" platform,
+and these two rules are how we get there.
+
+The Wazuh manager writes alerts as newline-delimited JSON to
+\texttt{/var/ossec/logs/alerts/alerts.json}. From the CAVIX side, that
+file is the only contract with Wazuh: everything downstream is owned
+by us, which makes it easy to swap Wazuh out for another SIEM
+without rewriting the detection pipeline.
+
+\subsection{Auditd \texorpdfstring{$\rightarrow$}{->} Filebeat Ingestion}
+
+The actual kernel-level signal comes from \texttt{auditd}, configured
+through 52 rules grouped by CKC phase in
+\texttt{infra/auditd/strix.rules}. The rule count is not arbitrary:
+it is the union of the kernel-syscall watchpoints needed to capture
+the nine MITRE-aligned tactics introduced
+(roughly five to six watchpoints per tactic, depending on whether
+the tactic touches file, process, or attribute primitives). The
+rules use the Wazuh naming convention (\texttt{audit-wazuh-x} for
+execve, \texttt{audit-wazuh-w} for write, \texttt{audit-wazuh-r}
+for read, \texttt{audit-wazuh-a} for attribute changes) so the Wazuh
+manager picks them up without further configuration. Installation
+is a two-step affair documented in the script header:
+
+\begin{verbatim}
+sudo cp infra/auditd/strix.rules /etc/audit/rules.d/strix.rules
+sudo augenrules --load
+sudo auditctl -l | grep audit-wazuh-x   # validation
+\end{verbatim}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.98\textwidth]{figures/ch4/tikz/auditd_filebeat_flow}
+  \caption{From kernel syscalls to the Redis ingest list.}
+  \label{fig:ch4:auditdflow}
+  \par\medskip
+  Figure~\ref{fig:ch4:auditdflow} captures the following. Filebeat \protect\cite{filebeat2024} tails Wazuh's \texttt{alerts.json} with a one-second check interval and pushes each line into the Redis staging list. The Filebeat registry guarantees at-least-once delivery: if Redis dies, the offset is not advanced and Filebeat resumes from the last successful push on recovery.
+\end{figure}
+
+We chose Filebeat over heavier alternatives such as Logstash or
+Fluentd because the shipper sits on the victim host: a Go binary
+with a sub-50\,MB resident footprint and a single registry file is
+operationally cheaper to deploy at scale than a JVM-based shipper,
+and the at-least-once delivery semantics required from the shipper
+are already provided by the registry without an external broker.
+
+A small JavaScript processor on Filebeat tags events from UID 4242,
+the \texttt{strixbenign} user under which the benign-traffic generator
+\texttt{infra/simulation/benign\_traffic.py} runs, with
+\texttt{strix.synthetic\_benign=true}. The generator issues a
+randomised mix of routine shell, file, and network activity against
+the victim hosts and is started by \texttt{lab\_simulate.sh}
+alongside the attack tactics; its purpose is to give the test set a
+realistic ratio of benign to malicious traffic so that the
+false-positive rate is measured against representative noise. The
+downstream workers honour the tag and filter the synthetic traffic
+out of the metrics the dashboard reports, while still feeding it
+through the model layer.
+
+\subsection{Backend Integration: Workers and Redis Streams}
+\label{sec:integration}
+
+This is the heart of the platform: a five-stage pipeline that turns a
+raw Wazuh JSON line into a database row, an SSE event, and possibly a
+mobile push notification, in less than two seconds on the developer's
+laptop. Figure~\ref{fig:ch4:components} shows the static
+decomposition of the backend, the FastAPI routes, services, repos,
+adapters, workers, model artefacts, and observability that section
+3.7.3 of the conception chapter described at the four-component level.
+Figure~\ref{fig:ch4:dataflowmaster} then traces the runtime flow
+through it.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.95\textwidth]{figures/ch4/eraser/platform_components_internal}
+  \caption{Backend engineering decomposition of CAVIX.}
+  \label{fig:ch4:components}
+  \par\medskip
+  As figure~\ref{fig:ch4:components} shows, the diagram inventories the FastAPI route buckets (auth, live-ops, investigation, response, intelligence), the 24 stateless service classes grouped by domain, the repository layer that wraps the 19 ORM tables, the adapter layer that isolates external dependencies (model loaders, preprocessing, external APIs, Redis, AI clients), the seven worker processes managed through \texttt{Procfile.host}, the five SHA-pinned model artefacts under \texttt{apps/models/}, and the observability stack (structlog, Prometheus, OpenTelemetry). The four prose components of section~\ref{sec:platform-components} map across this picture: the Detection Engine corresponds to the inference worker plus model loaders plus the five model artefacts; the Wazuh Integration corresponds to \texttt{wazuh\_bridge} plus the Wazuh adapter; the Threat Intelligence Module corresponds to \texttt{intel\_feeds\_worker} plus the intel-domain services and routes; the Analyst Dashboard corresponds to the web and mobile clients plus the live-ops routes and services.
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth]{figures/ch4/tikz/data_flow_master}
+  \caption{The full data flow.}
+  \label{fig:ch4:dataflowmaster}
+  \par\medskip
+  As shown in figure~\ref{fig:ch4:dataflowmaster}, stages are numbered on the left for reference in the rest of this section. Stream keys (orange dashed boxes) are Redis Streams \protect\cite{redis2024}; workers (green) are separate Python processes managed through \texttt{Procfile.host} or the Compose worker profile; the inference worker hosts the five-model ensemble. The DQN action is gated downstream by deterministic thresholds, marked with an asterisk and explained in figure~\ref{fig:ch4:dqngating}.
+\end{figure}
+
+\paragraph{Stage 1: Bridge.} The \texttt{wazuh\_bridge} worker is
+intentionally tiny: it does a blocking \texttt{BLPOP} on the staging
+list, wraps the raw JSON in a \texttt{RawAlertMessage} envelope, and
+\texttt{XADD}s it onto the \texttt{strix:alerts:raw} stream. On any
+failure during the \texttt{XADD}, it pushes the message back to the
+head of the list so no event is lost. The bridge is the only
+component where data loss is structurally possible (it is the single
+point at which the staging list is consumed without an offset
+mechanism), which is why we kept it as small as we could.
+
+\paragraph{Stage 2: Normalize.} The \texttt{normalizer} consumes
+the raw stream, builds the 55-dimensional feature vector through the
+pipeline whose conceptual design is given in
+chapter~\ref{chap:conception} and whose implementation lives under
+\texttt{apps/normalizer/}, applies the canonical column ordering
+listed in \texttt{selected\_features\_top25.json}, and writes a
+\texttt{FeatureMessage} onto a shard of the
+\texttt{strix:features:\{0..N\}} stream. The shard is chosen by a
+SHA-1 of the agent ID modulo \texttt{INFERENCE\_NUM\_SHARDS}, which
+gives us deterministic affinity per host (every alert from the same
+agent lands on the same inference worker) while still allowing the
+inference workers to scale horizontally. The shard count is
+typically set to the number of CPU cores allocated to inference, so
+that each worker is pinned to one core; below that, workers
+under-utilise the host, and above it, the temporal locality the GNN
+relies on starts to degrade.
+
+\paragraph{Stage 3: Inference.} Each \texttt{inference} worker
+listens on one shard. It loads all five model artefacts from
+\texttt{apps/models/} on startup, and refuses to start at all if the
+SHA-256 of any artefact does not match the registry. It batches up
+to thirty-two events, runs them through the autoencoder, the
+$\beta$-VAE, the Transformer and the GraphSAGE GNN, then feeds a
+thirteen-dimensional state vector to the DQN. That state vector
+concatenates four anomaly scores (autoencoder reconstruction error,
+$\beta$-VAE malicious probability, Transformer next-stage confidence,
+GraphSAGE node-risk score), seven one-hot indicators for the seven
+non-zero CKC stages predicted by the Transformer, the current chain
+length for the source host, and a normalised time-since-last-alert
+counter. The five verdicts plus the chosen action are emitted as a
+\texttt{VerdictMessage} onto the \texttt{strix:verdicts} stream.
+
+\paragraph{Stage 4: Persist.} The \texttt{verdicts\_writer} batches
+verdicts in five-second windows and persists them: an UPSERT on the
+\texttt{hosts} table, INSERTs on \texttt{alerts} and the
+\texttt{detections} hypertable, and an open-or-bump on the
+\texttt{attack\_chains} table that groups consecutive alerts from the
+same host into a single chain. The five-second window is the
+shortest period over which the cost of preparing a batched
+PostgreSQL INSERT amortises well across the verdict rate observed in
+the lab (a few hundred per second under attack load), and it also
+aligns with the refresh cadence of the dashboard's live tables, so
+that the analyst sees a coherent batch rather than partial state.
+Any DQN action that survives the gate is recorded in
+\texttt{dqn\_actions} for the action-history view in the web
+console.
+
+\paragraph{Stage 5: Fan out.} The writer also publishes the verdict
+on an SSE channel that the web console subscribes to. The mobile
+client receives a push notification through Expo Push if, and only
+if, the verdict's CKC stage is at or below S2 (Reconnaissance or
+Weaponisation) and the gated DQN action is not \texttt{MONITOR}. The
+S1--S2 cutoff is the result of an explicit cost--benefit choice: a
+push notification only earns its place on the analyst's phone if it
+arrives early enough to enable a response that prevents the next
+stage of the kill chain. Alerts at S3 or later may still warrant
+attention, but by then the chain forensic view on the web console is
+the appropriate surface, not a mobile push.
+
+The DQN gate is load-bearing. The ablation study in
+chapter~\ref{chap:conception} shows that a pure-RL policy (one that
+lets the DQN's chosen action propagate directly to the verdict)
+produces a 100\,\% false-positive intervention rate on the lab's
+benign traffic. The agent itself converged correctly on the synthetic
+environment; the fix was to wrap its action rather than retrain it.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.62\textwidth]{figures/ch4/tikz/dqn_gating_logic}
+  \caption{The gating logic that wraps every DQN action.}
+  \label{fig:ch4:dqngating}
+  \par\medskip
+  In figure~\ref{fig:ch4:dqngating}, an intervention (\texttt{ESCALATE}, \texttt{ISOLATE\_HOST}, \texttt{BLOCK\_USER\_IP}) is only authorised when all four deterministic checks (AE score, $\beta$-VAE probability, Transformer confidence and GNN node risk) exceed their thresholds. Any single failure down-grades the action to \texttt{LOW\_ALERT}.
+\end{figure}
+
+\subsection{Threat Intelligence Module}
+
+The platform consumes two open-source CTI feeds: URLhaus
+\cite{urlhaus2024} and the Feodo Tracker \cite{feodotracker2024},
+both maintained by abuse.ch. The \texttt{intel\_feeds\_worker} polls
+each feed every thirty seconds, deduplicates indicators by
+\texttt{(indicator, type, source)}, and upserts the result into the
+\texttt{intel\_indicators} table. The thirty-second interval is a
+deliberate over-sample relative to abuse.ch's roughly minute-scale
+publication cadence: under-sampling would risk missing the first
+few seconds of an emerging indicator, while a tighter interval
+yields no fresher data and only consumes connection capacity. The
+poll cadence is exposed through the
+\texttt{INTEL\_POLL\_INTERVAL\_SEC} environment variable so it can
+be tuned if a future feed publishes more aggressively.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.9\textwidth]{figures/ch4/tikz/threat_intel_schema}
+  \caption{Threat-intelligence ingestion and the observable-hit surface.}
+  \label{fig:ch4:intelschema}
+  \par\medskip
+  Figure~\ref{fig:ch4:intelschema} captures the following. URLhaus and Feodo Tracker indicators land in \texttt{intel\_indicators}; an internal alert is flagged as an "observable hit" the moment its IP, URL, domain or file hash matches any row in that table.
+\end{figure}
+
+Both feeds are wrapped in \texttt{pybreaker} circuit breakers. A
+malformed response or a request that exceeds the ten-second
+timeout opens the breaker for one minute, during which the worker
+keeps serving stale indicators from the database and the operator
+sees a small "degraded" badge on the Threat Intel tab. Both
+durations are deliberate: the ten-second timeout is the
+ninety-fifth-percentile response time we observed from abuse.ch
+during steady-state operation, generous enough to ride out a slow
+response without confusing transient latency with a feed outage;
+the one-minute cool-down is the shortest interval after which the
+feed is consistently observed to recover from the failure modes we
+have seen (rate limiting, transient DNS errors), so retrying sooner
+typically only re-trips the breaker. The worker is written to be
+feed-agnostic, and adding a new source is a single function that
+returns a list of indicator dictionaries.
+
+\subsection{APT Early-Detection Dashboard}
+
+The web console is the analyst's primary surface. Every page is
+type-checked against the backend OpenAPI specification; every
+expensive page is paginated. The four screenshots in this section
+were captured during the writing of this chapter, against the same
+running platform that produced the per-tactic report 
+\paragraph{Model Monitoring (AI Engine).}
+The page directly under the "Model Monitoring" navigation entry
+displays the five live models and the inference stream. The composite
+F1 score is computed as the harmonic mean of the five test-set F1s
+recorded at training time, exposed by the model registry; the
+composite accuracy is the same idea applied to test-set accuracy.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.95\textwidth]{figures/ch4/screenshots/dashboard_ai_engine}
+  \caption{The Model Monitoring page.}
+  \label{fig:ch4:dashAI}
+  \par\medskip
+  As illustrated in figure~\ref{fig:ch4:dashAI}, five model panels run along the top, each one displaying the live anomaly score or class probability as the model emits it. Underneath, the Inference Stream table is a live view of the most recent thirty verdicts.
+\end{figure}
+
+\paragraph{Attack Analysis (Chains).}
+Clicking a chain opens a forensic report that reconstructs the chain's
+stage timeline, the AI predictions per stage, the response playbook
+that matched, and the most likely origin hypothesis (here APT28,
+group identifier G0007 on MITRE ATT\&CK \cite{mitre_attack}).
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.95\textwidth]{figures/ch4/screenshots/dashboard_chains}
+  \caption{The chain forensic report for an active investigation.}
+  \label{fig:ch4:dashChains}
+  \par\medskip
+  As depicted in figure~\ref{fig:ch4:dashChains}, the donut on the right is the per-stage CKC distribution the Transformer predicted for this chain's next event; the Response Playbook on the far right is matched against the chain's current stage and the most recent DQN action.
+\end{figure}
+
+\paragraph{Topology.}
+The Topology tab displays the live simulation graph: the attacker on
+the left, the victims on the right, the tactics fired so far as
+coloured chips above the graph. The right-hand panel is the GNN
+Victim Graph, a separate visualization that overlays the GNN's
+per-node risk score on top of the host inventory.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.95\textwidth]{figures/ch4/screenshots/dashboard_topology}
+  \caption{The Topology tab during a paused run.}
+  \label{fig:ch4:dashTopology}
+  \par\medskip
+  As figure~\ref{fig:ch4:dashTopology} shows, left: the simulation topology, Right: the GNN Victim Graph, currently awaiting fresh frames from the GraphSAGE layer.
+\end{figure}
+
+\paragraph{Mobile companion.}
+The mobile application exposes a subset of the web functionality: the
+vigilance feed (an SSE stream of verdicts), the chain detail page,
+and a one-tap isolation control that re-uses the same gated DQN
+action endpoint as the web console. Push notifications are routed
+through Expo Push and are gated to S1 and S2 verdicts only.
+Sending a phone notification for an S5 alert would be too late to be
+useful, and would train the operator to mute the application.
+
+\section{Conclusion}
+
+This chapter walked through the concrete pieces of the CAVIX
+platform that are required to make the conceptual framework of
+chapter~\ref{chap:conception} executable: the dependencies and the
+hardware budgets, the materialised form of the dataset inside the
+system, the Caldera-driven lab that exercises the platform
+end-to-end, and the ingestion, inference and fan-out path that turns
+a raw Wazuh JSON line into a verdict on an analyst's screen. The
+detailed dataset-selection rationale (section~\ref{sec:preprocessing})
+and the feature-engineering pipeline that produces the 55-dimensional
+vector remain to be documented in the next iteration of this
+chapter.
+
+A few engineering choices shaped the system more than others.
+Hash-pinning every model artefact means we cannot accidentally deploy
+a stale calibrator. Treating the OpenAPI specification as the single
+source of truth means the web and mobile clients cannot drift away
+from the backend without failing CI. The third, and the one whose
+absence would have been hardest to detect, is the deterministic gate
+wrapped around the DQN: without it, a pure-RL false positive could
+reach production. None of these choices were obvious before the
+corresponding incident; all of them are cheap to keep in place now.
+
+Chapter~\ref{chap:evaluation} reuses the same stack to evaluate the platform. It
+re-uses \texttt{lab\_simulate.sh}, the per-tactic report, and the
+chain database introduced here to evaluate the platform under three
+lenses: model-level metrics on the Karim dataset, RL-agent metrics on
+the carved attack sequences, and system-level metrics (detection
+latency, false-positive rate, end-to-end throughput) that only make
+sense at the level of the whole pipeline.

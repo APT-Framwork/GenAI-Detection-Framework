@@ -1,0 +1,54 @@
+typeface:clean
+colorMode:pastel
+styleMode:plain
+direction:right
+
+title CAVIX - Platform components (analyst-facing view)
+
+// External Systems (left side)
+External Systems [color: gray] {
+  Monitored Host [icon: server]
+  Wazuh Manager [icon: shield, label: "Wazuh Manager (SIEM)"]
+  External CTI Feeds [icon: globe, label: "External CTI Feeds: URLhaus, Feodo Tracker"]
+}
+
+// Center-left plumbing
+Raw Alerts Stream [icon: database, color: gray, label: "raw alerts stream (Redis)"]
+Features Stream [icon: database, color: gray, label: "features stream (sharded, per host)"]
+
+// Core Components (teal, prominent) -- the four prose components
+Core Platform [color: teal] {
+  Wazuh Integration [icon: link, label: "Wazuh Integration: tail alert file, feature normaliser, 55-dim vector"]
+  Detection Engine [icon: cpu, label: "Detection Engine: Autoencoder, VAE, Transformer, GNN, RL policy, Deterministic gate"]
+  Threat Intelligence Module [icon: globe, label: "Threat Intelligence Module: feed pollers, indicator deduplication, observable matcher"]
+  Analyst Dashboard [icon: monitor, label: "Analyst Dashboard: Web console (Next.js), Mobile companion (Expo), SSE + push"]
+}
+
+// Side dependency
+Model Registry [icon: lock, color: gray, label: "Model registry (content-hash pinned)"]
+
+// Center-right plumbing
+Verdicts Stream [icon: database, color: gray, label: "verdicts stream (Redis)"]
+Verdict Writer [icon: settings, color: gray, label: "Verdict writer"]
+TimescaleDB [icon: database, color: gray, label: "TimescaleDB + PostgreSQL"]
+Indicator Table [icon: database, color: gray, label: "Indicator table"]
+
+// Right side
+Analyst [icon: user]
+
+// Connections (left to right; corrected directions)
+Monitored Host > Wazuh Manager: audit events
+Wazuh Manager > Wazuh Integration: JSON alert file (file contract)
+Wazuh Integration > Raw Alerts Stream
+Raw Alerts Stream > Features Stream
+Features Stream > Detection Engine: per-shard subscription
+Detection Engine <> Model Registry: load + integrity check
+Detection Engine > Verdicts Stream
+Verdicts Stream > Verdict Writer
+Verdict Writer > TimescaleDB: INSERT detection + chain
+External CTI Feeds > Threat Intelligence Module: poll (every 30s)
+Threat Intelligence Module > Indicator Table
+Verdict Writer --> Threat Intelligence Module: enrichment query
+Verdict Writer > Analyst Dashboard: SSE fan-out + push
+Analyst Dashboard > Analyst
+Analyst Dashboard > Detection Engine: one-tap host isolation (gated)

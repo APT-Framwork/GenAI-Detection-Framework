@@ -20,6 +20,7 @@
 
 \usetikzlibrary{trees, shapes, arrows, positioning, shapes.geometric}
 \usepackage{mathtools}
+\usepackage{subcaption}
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage[bottom]{footmisc}
@@ -42,7 +43,8 @@
 % Configuring the header to only show the chapter number with a line
 \pagestyle{fancy}
 \fancyhf{} 
-\fancyhead[L]{Chapter \thechapter} 
+\renewcommand{\chaptermark}[1]{\markboth{#1}{}}
+\fancyhead[L]{\leftmark}
 \fancyfoot[C]{\thepage}
 \renewcommand{\headrulewidth}{0.4pt}
 
@@ -97,16 +99,66 @@
 % DEDICATION
 % ---------------------------------------------------------------
 \chapter*{Dedication}
-\addcontentsline{toc}{chapter}{Dedication}
-\thispagestyle{empty}
 
-\vspace*{\fill}
+\vspace*{0.8cm}
+
+\begin{flushleft}
+{\Large\textit{``}}
+\end{flushleft}
+
 \begin{center}
-    \textit{To our families, friends, and everyone who supported us\\
-    throughout this journey.}
+\textit{I dedicate this work}
+\vspace{0.2cm}
+
+\textit{To my beloved parents, for their endless love, sacrifices,}\\
+\textit{encouragement, and unconditional support.}
+\vspace{0.2cm}
+
+\textit{To my family, who have always stood by my side}\\
+\textit{with patience, care, and belief in me.}
+\vspace{0.2cm}
+
+\textit{And to my dear friends, whose support, motivation,}\\
+\textit{and companionship have been a constant source of strength.}
 \end{center}
-\vspace*{\fill}
-\newpage
+
+\begin{flushright}
+{\Large\textit{''}}
+\end{flushright}
+
+\begin{flushright}
+- \textbf{Kassoussi Oussamamehdi}
+\end{flushright}
+
+\vspace{1.2cm}
+
+\begin{flushleft}
+{\Large\textit{``}}
+\end{flushleft}
+
+\begin{center}
+\textit{I dedicate this work}
+\vspace{0.2cm}
+
+\textit{To my beloved parents, for their endless love, sacrifices,}\\
+\textit{encouragement, and unconditional support.}
+\vspace{0.2cm}
+
+\textit{To my family, who have always stood by my side}\\
+\textit{with patience, care, and belief in me.}
+\vspace{0.2cm}
+
+\textit{And to my dear friends, whose support, motivation,}\\
+\textit{and companionship have been a constant source of strength.}
+\end{center}
+
+\begin{flushright}
+{\Large\textit{''}}
+\end{flushright}
+
+\begin{flushright}
+- \textbf{Naoui Yacine}
+\end{flushright}
 
 % ---------------------------------------------------------------
 % ACKNOWLEDGEMENTS
@@ -114,16 +166,19 @@
 \chapter*{Acknowledgements}
 \addcontentsline{toc}{chapter}{Acknowledgements}
 
-We would like to express our sincere gratitude to our supervisor,
-\textbf{Professor Abdelouahid Derhab}, for his guidance, support, and
-valuable feedback throughout this project.
+First and foremost, we thank Allah Almighty for His countless blessings, guidance, and mercy throughout this journey. His support gave us the strength, patience, and determination needed to complete this work and overcome the many challenges that accompanied it.
 
-We also thank the faculty and staff of ESI for providing the resources
-and environment necessary to carry out this work.
+We would like to express our deepest and most sincere gratitude to our supervisor, \textbf{Professor Abdelouahid Derhab}, and to \textbf{Mister Ait Ali Yahia} for their exceptional supervision, constant support, valuable advice, and unwavering encouragement throughout this project. Their guidance, expertise, and technical assistance were essential to the realization of this work. Their availability, thoughtful remarks, and confidence in our efforts greatly helped us overcome the difficulties we encountered and continuously improve the quality of our project. Working under their supervision has been both an honor and a valuable learning experience that we will always appreciate.
 
-Finally, we are grateful to our families and colleagues for their
-continuous encouragement.
+We are equally grateful to all our teachers for their dedication, hard work, and the knowledge they have shared with us throughout our academic journey. Their commitment to teaching, their patience, and their efforts in shaping our education have played a fundamental role in allowing us to reach this stage. Each course, lesson, and piece of advice they provided has contributed in one way or another to the person and students we have become today.
 
+We would also like to acknowledge our friends, especially \textbf{Djeghri Lotfi} and \textbf{ARROUCHE Abdellah}, for their technical help, insightful discussions, and valuable support. Their assistance, suggestions, and readiness to help whenever needed were greatly appreciated and had a positive impact on the progress of this work.
+
+We also warmly thank \textbf{MENASSEL Rayane Ibrahim}, \textbf{Tirouche Mahdi}, and \textbf{Megded Imed} for their emotional support, encouragement, and friendship throughout this journey. Their presence, kindness, and motivating words helped us remain confident and perseverant during the most demanding moments of this project.
+
+Lastly, may the members of the jury find here the expression of our sincere thanks for the honor they bestow upon us by taking the time to read and evaluate this work. We also extend our sincere appreciation to the academic and administrative team of ESI for their continuous efforts in providing us with an excellent education, a stimulating environment, and the opportunity to grow both academically and personally.
+
+To all those who supported us, directly or indirectly, and contributed in any way to the completion of this project, we express our heartfelt gratitude and deepest appreciation.
 \newpage
 
 % ---------------------------------------------------------------
@@ -132,24 +187,21 @@ continuous encouragement.
 \chapter*{Abstract}
 \addcontentsline{toc}{chapter}{Abstract}
 
-Advanced Persistent Threats (APTs) represent one of the most sophisticated
-and dangerous classes of cyberattacks, characterized by stealth, persistence,
-and coordinated multi-stage progression. This report presents a
-GenAI-Augmented Framework for Early Detection of Multi-Stage APT Attacks
-using the Cyber Kill Chain. The proposed framework integrates four deep
-learning models --- Autoencoder, Variational Autoencoder, Transformer, and
-Graph Neural Network --- with a Reinforcement Learning agent for multi-model
-fusion. SecBERT embeddings are used to exploit the semantic content of
-security logs, while REaLTabFormer generates synthetic novel APT sequences
-to improve model robustness. The framework is integrated into a Cyber Threat
-Intelligence Platform connected to Wazuh, and validated through end-to-end
-simulation using MITRE Caldera and Docker. Evaluation results demonstrate
-84.1\% accuracy, 0.842 F1-score, 16.9\% FPR, and 81\% pre-detection rate.
+Advanced Persistent Threats (APTs) are among the most challenging cyberattacks to detect because they are stealthy, long-lasting, and executed through a sequence of coordinated stages. Traditional intrusion detection systems and many machine learning approaches remain limited when facing APTs, since they often analyze events in isolation and do not explicitly model the progression of the attack across its lifecycle. This report addresses this limitation by proposing a GenAI-augmented framework for the early detection of multi-stage APT attacks using the Cyber Kill Chain (CKC).
 
-\vspace{1em}
-\noindent\textbf{Keywords:} Advanced Persistent Threat, Cyber Kill Chain,
+The proposed framework combines four complementary detection models: a regularized Autoencoder for anomaly detection, a Beta-Variational Autoencoder for maliciousness estimation, a Transformer for CKC stage prediction, and a Graph Neural Network for lateral movement analysis. Their outputs are fused by a Deep Q-Network agent that learns to select appropriate defensive actions while prioritizing early-stage intervention. To improve robustness and generalization, the framework integrates SecBERT embeddings to capture the semantic content of security logs and REaLTabFormer to generate synthetic APT sequences. The complete system is deployed within a cyber threat intelligence platform connected to Wazuh SIEM and validated through end-to-end simulation using Docker and MITRE Caldera.
+
+Experimental results show that the proposed framework achieves strong operational performance on real held-out data, with approximately 84\% accuracy, an F1-score of about 0.84, a false positive rate around 17\%, and a pre-detection rate close to 81\%. These results demonstrate that the framework is able not only to detect malicious activity, but also to identify APT campaigns early enough to support timely response before the attack reaches its later stages.
+
+\vspace{0.8em}
+\noindent\rule{\linewidth}{0.4pt}
+
+\textbf{Keywords:} Advanced Persistent Threat, Cyber Kill Chain,
 MITRE ATT\&CK, Deep Learning, Generative AI, Graph Neural Network,
 Reinforcement Learning, Intrusion Detection.
+
+\noindent\rule{\linewidth}{0.4pt}
+\vspace{0.8em}
 
 \newpage
 
@@ -159,27 +211,20 @@ Reinforcement Learning, Intrusion Detection.
 \chapter*{Résumé}
 \addcontentsline{toc}{chapter}{Résumé}
 
-Les menaces persistantes avancées (APT) représentent l'une des classes
-d'attaques informatiques les plus sophistiquées, caractérisées par leur
-furtivité, leur persistance et leur progression en plusieurs étapes
-coordonnées. Ce rapport présente un cadre augmenté par l'IA générative
-pour la détection précoce des attaques APT multi-étapes à l'aide de la
-Cyber Kill Chain. Le cadre proposé intègre quatre modèles d'apprentissage
-profond --- Autoencoder, Autoencoder variationnel, Transformer et Réseau
-de neurones graphique --- avec un agent d'apprentissage par renforcement
-pour la fusion des modèles. Les embeddings SecBERT sont utilisés pour
-exploiter le contenu sémantique des journaux de sécurité, tandis que
-REaLTabFormer génère des séquences APT synthétiques pour améliorer la
-robustesse du modèle. Le cadre est intégré dans une plateforme de
-cybermenace connectée à Wazuh et validé par simulation avec MITRE
-Caldera et Docker. Les résultats montrent une précision de 84,1\%,
-un F1-score de 0,842, un taux de faux positifs de 16,9\% et un taux
-de pré-détection de 81\%.
+Les menaces persistantes avancées (APT) figurent parmi les cyberattaques les plus difficiles à détecter en raison de leur furtivité, de leur durée d’exécution prolongée et de leur progression en plusieurs étapes coordonnées. Les systèmes de détection d’intrusion traditionnels, ainsi que de nombreuses approches d’apprentissage automatique, restent limités face à ce type d’attaque, car ils analysent souvent les événements de manière isolée sans modéliser explicitement l’évolution de l’attaque à travers son cycle de vie. Ce mémoire répond à cette limite en proposant un cadre augmenté par l’IA générative pour la détection précoce des attaques APT multi-étapes à l’aide de la Cyber Kill Chain (CKC).
 
-\vspace{1em}
-\noindent\textbf{Mots-clés :} Menace persistante avancée, Cyber Kill Chain,
-MITRE ATT\&CK, Apprentissage profond, IA générative, Réseau de neurones
-graphique, Apprentissage par renforcement, Détection d'intrusion.
+Le cadre proposé combine quatre modèles de détection complémentaires : un Autoencoder régularisé pour la détection d’anomalies, un Beta-Variational Autoencoder pour l’estimation de la probabilité malveillante, un Transformer pour la prédiction des étapes de la CKC, et un réseau de neurones sur graphes pour l’analyse du mouvement latéral. Leurs sorties sont fusionnées par un agent Deep Q-Network qui apprend à sélectionner les actions défensives appropriées tout en privilégiant les interventions précoces. Afin d’améliorer la robustesse et la capacité de généralisation, le cadre intègre des embeddings SecBERT pour exploiter le contenu sémantique des journaux de sécurité ainsi que REaLTabFormer pour générer des séquences APT synthétiques. L’ensemble du système est déployé dans une plateforme de cyber threat intelligence connectée à Wazuh SIEM et validé par une simulation de bout en bout utilisant Docker et MITRE Caldera.
+
+Les résultats expérimentaux montrent que le cadre proposé atteint de bonnes performances opérationnelles sur des données réelles de test, avec une exactitude d’environ 84\%, un F1-score proche de 0{,}84, un taux de faux positifs autour de 17\% et un taux de pré-détection proche de 81\%. Ces résultats montrent que le système permet non seulement de détecter une activité malveillante, mais aussi d’identifier les campagnes APT suffisamment tôt pour permettre une réponse avant que l’attaque n’atteigne ses phases les plus avancées.
+
+\vspace{0.8em}
+\noindent\rule{\linewidth}{0.4pt}
+
+\textbf{Mots-clés :} Menace persistante avancée, Cyber Kill Chain, MITRE ATT\&CK, détection précoce, apprentissage profond, IA générative, réseau de neurones sur graphes, apprentissage par renforcement, SIEM.
+
+
+\noindent\rule{\linewidth}{0.4pt}
+\vspace{0.8em}
 
 \newpage
 
@@ -189,19 +234,27 @@ graphique, Apprentissage par renforcement, Détection d'intrusion.
 \chapter*{\begin{flushright}\RL{ملخص}\end{flushright}}
 \addcontentsline{toc}{chapter}{\texorpdfstring{\RL{ملخص}}{Arabic Abstract}}
 \begin{RLtext}
-تُعدّ التهديدات المستمرة المتقدمة (\L{APT}) من أخطر فئات الهجمات الإلكترونية،
-إذ تتميز بالتخفّي والاستمرارية والتقدم عبر مراحل متعددة ومنسّقة.
-يقدّم هذا التقرير إطاراً معززاً بالذكاء الاصطناعي التوليدي للكشف المبكر
-عن هجمات (\L{APT}) متعددة المراحل باستخدام سلسلة القتل الإلكترونية.
-يدمج الإطار المقترح أربعة نماذج تعلم عميق مع عميل تعلم معزز،
-ويستخدم تضمينات \L{SecBERT} لاستغلال المحتوى الدلالي لسجلات الأمان،
-فيما يولّد \L{REaLTabFormer} تسلسلات \L{APT} اصطناعية لتحسين متانة النماذج.
-تم دمج الإطار في منصة استخبارات التهديدات الإلكترونية المتصلة بـ \L{Wazuh}،
-والتحقق منه عبر محاكاة شاملة. أظهرت نتائج التقييم دقةً بلغت 84.1\%،
-ومعامل F1 بلغ 0.842.
+تُعدّ التهديدات المستمرة المتقدمة (\L{APT}) من أكثر الهجمات السيبرانية تعقيدًا وصعوبةً في الاكتشاف، نظرًا لاعتمادها على التخفي، والاستمرارية، والتنفيذ عبر مراحل مترابطة ومتتابعة. وتظل أنظمة كشف التسلل التقليدية محدودة الفعالية أمام هذا النوع من الهجمات، لأنها غالبًا ما تتعامل مع الأحداث الأمنية بشكل منفصل. يعالج هذا المشروع هذه الفجوة من خلال اقتراح إطار مُعزَّز بالذكاء الاصطناعي التوليدي للكشف المبكر عن هجمات (\L{APT}) متعددة المراحل بالاعتماد على نموذج سلسلة القتل السيبرانية (\L{Cyber Kill Chain}).
+
+يجمع الإطار المقترح بين أربعة نماذج كشف متكاملة، يتم دمج مخرجاتها بواسطة وكيل تعلّم معزز من نوع \L{Deep Q-Network} يختار الاستجابة الدفاعية المناسبة مع إعطاء أولوية للتدخل المبكر. ويعتمد الإطار على تمثيلات \L{SecBERT} لاستخراج المعنى الدلالي من سجلات الأمن، ويستخدم \L{REaLTabFormer} لتوليد سلاسل \L{APT} اصطناعية لتعزيز المتانة. وقد تم دمج النظام في منصة استخبارات تهديدات سيبرانية متصلة بـ \L{Wazuh} \L{SIEM}، والتحقق منه عبر محاكاة شاملة باستخدام \L{Docker} و\L{MITRE Caldera}.
+
+أظهرت النتائج التجريبية أداءً عمليًا جيدًا، بدقة تقارب 84\%، ودرجة \L{F1} تقارب 0.84، ومعدل كشف مبكر يقترب من 81\%، مما يُمكّن من اتخاذ إجراءات دفاعية قبل وصول الهجوم إلى نهايته.
 \end{RLtext}
 
+\vspace{0.8em}
+\noindent\rule{\linewidth}{0.4pt}
+
+\textbf{\begin{flushright}\RL{الكلمات المفتاحية:}\end{flushright}}
+\RL{التهديدات المستمرة المتقدمة، سلسلة القتل السيبرانية، إطار} , MITRE ATT\&CK ,\RL{، التعلم العميق، الذكاء الاصطناعي التوليدي،} , Wazuh ,\RL{، نظام إدارة معلومات وأحداث الأمن،}, Docker, \RL{،} MITRE Caldera\RL{.}
+
+\noindent\rule{\linewidth}{0.4pt}
+\vspace{0.8em}
+
 \tableofcontents
+\newpage
+\listoffigures
+\newpage
+\listoftables
 \newpage
 \pagenumbering{arabic} 
 
@@ -300,8 +353,7 @@ The remainder of this report is structured as follows.
 
 \textbf{Chapter~\ref{chap:background}} establishes the theoretical foundations.
 It covers cybersecurity principles, the APT lifecycle, the Cyber Kill Chain and MITRE
-ATT\&CK frameworks, machine learning paradigms, Generative AI, and the five model
-architectures used in this work.
+ATT\&CK frameworks, machine learning paradigms, Generative AI.
 
 \textbf{Chapter~\ref{chap:related}} surveys APT detection solutions in the literature.
 It reviews available datasets and identifies the gaps addressed by this report.
@@ -323,12 +375,12 @@ It also discusses the limitations of the work and outlines future research direc
 
 \newpage
 
-\input{ch2_background}
-\input{ch3_related_work}
-\input{ch4_conception}
-\input{ch5_implementation}
-\input{ch6_evaluation}
-\input{ch7_conclusion}
+\input{ch1_background}
+\input{ch2_related_work}
+\input{ch3_conception}
+\input{ch4_implementation}
+\input{ch5_evaluation}
+\input{ch6_conclusion}
 
 \bibliographystyle{apacite}
 \bibliography{references}

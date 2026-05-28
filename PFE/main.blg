@@ -13,6 +13,7 @@ Reallocating 'singl_function' (item size: 4) to 100 items.
 Reallocating 'singl_function' (item size: 4) to 100 items.
 Reallocating 'wiz_functions' (item size: 4) to 9000 items.
 Reallocating 'singl_function' (item size: 4) to 100 items.
+Reallocating 'field_info' (item size: 4) to 10184 items.
 Database file #1: references.bib
 apacite.bst [2013/07/21 v6.03 APA bibliography style]
 Warning--`others' not consistent with 6th ed. of the APA Manual
@@ -33,45 +34,45 @@ Warning--`others' not consistent with 6th ed. of the APA Manual
 Warning--`others' not consistent with 6th ed. of the APA Manual
 Warning--`others' not consistent with 6th ed. of the APA Manual
 Warning--No address in zhu2005semisupervised
-You've used 76 entries,
+You've used 108 entries,
             6951 wiz_defined-function locations,
-            1628 strings with 21867 characters,
-and the built_in function-call counts, 140079 in all, are:
-= -- 17823
-> -- 1224
-< -- 6243
-+ -- 6074
-- -- 226
-* -- 8295
-:= -- 24091
-add.period$ -- 329
-call.type$ -- 76
-change.case$ -- 1357
+            1759 strings with 27759 characters,
+and the built_in function-call counts, 200403 in all, are:
+= -- 25414
+> -- 1710
+< -- 9150
++ -- 8814
+- -- 331
+* -- 11976
+:= -- 34772
+add.period$ -- 467
+call.type$ -- 108
+change.case$ -- 1988
 chr.to.int$ -- 0
-cite$ -- 153
-duplicate$ -- 3704
-empty$ -- 5707
-format.name$ -- 2051
-if$ -- 27555
+cite$ -- 217
+duplicate$ -- 5263
+empty$ -- 8152
+format.name$ -- 2846
+if$ -- 39316
 int.to.chr$ -- 0
-int.to.str$ -- 244
+int.to.str$ -- 360
 missing$ -- 0
-newline$ -- 1867
-num.names$ -- 608
-pop$ -- 3593
+newline$ -- 2643
+num.names$ -- 864
+pop$ -- 5642
 preamble$ -- 1
-purify$ -- 303
+purify$ -- 431
 quote$ -- 0
-skip$ -- 9233
+skip$ -- 12549
 stack$ -- 0
-substring$ -- 6634
-swap$ -- 1981
-text.length$ -- 220
+substring$ -- 9609
+swap$ -- 2754
+text.length$ -- 322
 text.prefix$ -- 0
 top$ -- 1
-type$ -- 7488
+type$ -- 10496
 warning$ -- 18
-while$ -- 675
+while$ -- 959
 width$ -- 0
-write$ -- 2305
+write$ -- 3230
 (There were 18 warnings)
