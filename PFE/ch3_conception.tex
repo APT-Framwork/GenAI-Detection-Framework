@@ -708,14 +708,14 @@ The platform is organised as five logical layers, drawn in
 figure~\ref{fig:ch3:archcomp}. Each layer has one responsibility and
 communicates with the next only through a documented contract.
 
-\begin{figure}[H]
+\begin{sidewaysfigure}
   \centering
-  \includegraphics[width=0.95\textwidth]{figures/ch3/eraser/system-arch-diagram}
+  \includegraphics[width=0.95\textheight]{figures/ch3/eraser/system-arch-diagram}
   \caption{Logical architecture of the CAVIX platform.}
   \label{fig:ch3:archcomp}
   \par\medskip
   As figure~\ref{fig:ch3:archcomp} shows, the five layers (sensing, transport, intelligence, persistence, and presentation) are stacked vertically; arrows indicate the direction in which data flows. The dashed envelope around the intelligence layer marks the boundary inside which the conceptual framework of sections~\ref{sec:detection-models}--\ref{sec:rl-agent} operates.
-\end{figure}
+\end{sidewaysfigure}
 
 The \textbf{sensing layer} converts host activity into structured
 events. It combines the Linux audit subsystem
@@ -771,14 +771,14 @@ Figure~\ref{fig:ch3:components} situates the four components and
 their inputs and outputs inside the layered architecture of
 figure~\ref{fig:ch3:archcomp}.
 
-\begin{figure}[H]
+\begin{sidewaysfigure}
   \centering
-  \includegraphics[width=0.95\textwidth]{figures/ch3/eraser/platform_components_v2}
+  \includegraphics[width=0.95\textheight]{figures/ch3/eraser/platform_components_v2}
   \caption{Platform components view of CAVIX.}
   \label{fig:ch3:components}
   \par\medskip
   As shown in figure~\ref{fig:ch3:components}, the four analyst-facing components (Wazuh Integration, Detection Engine, Threat Intelligence Module, and Analyst Dashboard) are grouped in the teal Core Platform cluster, with their inbound and outbound contracts shown explicitly; the transport streams, persistence stores, and model registry appear in light gray as the plumbing the components read from and write to. External systems (Wazuh manager, CTI feeds, monitored host) sit on the left; the analyst is on the right.
-\end{figure}
+\end{sidewaysfigure}
 
 \subsubsection{Detection Engine}
 
@@ -948,14 +948,14 @@ Figure~\ref{fig:ch3:workflow} traces a single alert through the
 platform, from the moment Wazuh writes the JSON line until the verdict
 appears on the analyst's screen.
 
-\begin{figure}[H]
+\begin{sidewaysfigure}
   \centering
-  \includegraphics[width=0.95\textwidth]{figures/ch3/eraser/workflow-diagram}
+  \includegraphics[width=0.95\textheight]{figures/ch3/eraser/workflow-diagram}
   \caption{End-to-end analyst-response workflow.}
   \label{fig:ch3:workflow}
   \par\medskip
   As illustrated in figure~\ref{fig:ch3:workflow}, swim-lanes group activities by actor (backend pipeline, analyst, Wazuh active response); diamonds are decision points. Everything inside the backend lane is replayable from the feature vector, which is why the evaluation chapter can rerun historical alerts without touching the SIEM.
-\end{figure}
+\end{sidewaysfigure}
 
 The workflow is decomposed into seven activities. \emph{Ingestion}
 turns the alert file into messages on the raw stream. \emph{Feature
@@ -1043,14 +1043,14 @@ the actors involved in a single early-stage APT detection event,
 specifically the moment when a Reconnaissance burst against an
 exposed SSH service produces the first verdict of an attack chain.
 
-\begin{figure}[H]
+\begin{sidewaysfigure}
   \centering
-  \includegraphics[width=0.95\textwidth]{figures/ch3/eraser/sequence-diagram}
+  \includegraphics[width=0.95\textheight]{figures/ch3/eraser/sequence-diagram}
   \caption{Sequence diagram for a single early-stage detection event.}
   \label{fig:ch3:sequence}
   \par\medskip
   As depicted in figure~\ref{fig:ch3:sequence}, vertical bars are participants; horizontal arrows are messages. Time flows downward. The self-loops on the inference worker are the synchronous calls into each detection model, the RL policy, and the deterministic gate that is evaluated before any verdict is emitted.
-\end{figure}
+\end{sidewaysfigure}
 
 The scenario unfolds as follows. The attacker host issues a burst of
 \texttt{sshd} authentication probes against a victim. The victim's
@@ -1090,14 +1090,14 @@ platform gracefully rather than stalling the detection pipeline.
 Figure~\ref{fig:ch3:deploy} shows the deployment topology used in the
 defence lab and in the evaluation of chapter~\ref{chap:evaluation}.
 
-\begin{figure}[H]
+\begin{sidewaysfigure}
   \centering
-  \includegraphics[width=0.95\textwidth]{figures/ch3/eraser/deployment-diagram}
+  \includegraphics[width=0.95\textheight]{figures/ch3/eraser/deployment-diagram}
   \caption{Deployment topology.}
   \label{fig:ch3:deploy}
   \par\medskip
   As figure~\ref{fig:ch3:deploy} shows, every component runs in a container \protect\cite{docker2024} on a shared bridge network. The attacker, victims, SIEM, and platform services are grouped into four logical zones; inter-zone traffic is restricted by the bridge's firewall rules, while intra-zone traffic is unrestricted so that the attacker can reach the victims directly.
-\end{figure}
+\end{sidewaysfigure}
 
 Four logical zones structure the topology. The \emph{attacker zone}
 hosts a Kali container running the MITRE Caldera command-and-control
