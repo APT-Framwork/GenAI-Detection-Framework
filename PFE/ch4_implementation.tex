@@ -981,14 +981,14 @@ adapters, workers, model artefacts, and observability that section
 Figure~\ref{fig:ch4:dataflowmaster} then traces the runtime flow
 through it.
 
-\begin{sidewaysfigure}
+\begin{figure}[H]
   \centering
-  \includegraphics[width=0.95\textheight]{figures/ch4/eraser/platform_components_internal}
+  \makebox[\textwidth][c]{\includegraphics[width=1.25\textwidth]{figures/ch4/eraser/platform_components_internal}}
   \caption{Backend engineering decomposition of CAVIX.}
   \label{fig:ch4:components}
   \par\medskip
   As figure~\ref{fig:ch4:components} shows, the diagram inventories the FastAPI route buckets (auth, live-ops, investigation, response, intelligence), the 24 stateless service classes grouped by domain, the repository layer that wraps the 19 ORM tables, the adapter layer that isolates external dependencies (model loaders, preprocessing, external APIs, Redis, AI clients), the seven worker processes managed through \texttt{Procfile.host}, the five SHA-pinned model artefacts under \texttt{apps/models/}, and the observability stack (structlog, Prometheus, OpenTelemetry). The four prose components of section~\ref{sec:platform-components} map across this picture: the Detection Engine corresponds to the inference worker plus model loaders plus the five model artefacts; the Wazuh Integration corresponds to \texttt{wazuh\_bridge} plus the Wazuh adapter; the Threat Intelligence Module corresponds to \texttt{intel\_feeds\_worker} plus the intel-domain services and routes; the Analyst Dashboard corresponds to the web and mobile clients plus the live-ops routes and services.
-\end{sidewaysfigure}
+\end{figure}
 
 \begin{figure}[H]
   \centering
