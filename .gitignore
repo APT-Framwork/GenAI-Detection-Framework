@@ -243,3 +243,6 @@ RL_agent
 *.png
 docs/conversations/
 infra/simulation/runs/
+
+# Report / thesis working tree (LaTeX sources, build artifacts, PDFs) — kept local
+report/

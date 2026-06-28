@@ -15,7 +15,6 @@ import { colors, typography, spacing, radius, shadows } from "../../lib/theme";
 import { useColors } from "../../lib/theme-hook";
 import { KPICard } from "../../components/KPICard";
 import { MiniChart } from "../../components/MiniChart";
-import { SkeletonBlock } from "../../components/Skeleton";
 import { KillChainStrip } from "../../components/KillChainStrip";
 import { MitreStrip } from "../../components/MitreStrip";
 import { CavixLogo } from "../../components/CavixLogo";
@@ -23,8 +22,6 @@ import {
   useAttackVector,
   useGlobalRisk,
   useMitreCoverage,
-  useRefreshSentinelInsight,
-  useSentinelInsight,
 } from "../../lib/api/hooks";
 import { useLiveFeed, type LiveFeedEvent } from "../../lib/api/sse";
 import { useUserStore } from "../../stores/user-store";
@@ -37,8 +34,6 @@ export default function DashboardScreen() {
 
   const attackVector = useAttackVector("1h");
   const globalRisk = useGlobalRisk("1h");
-  const insight = useSentinelInsight();
-  const refreshInsight = useRefreshSentinelInsight();
   const mitre = useMitreCoverage("24h");
 
   // Live feed SSE. Each event invalidates dashboard aggregates + the
@@ -61,12 +56,11 @@ export default function DashboardScreen() {
       await Promise.all([
         attackVector.refetch(),
         globalRisk.refetch(),
-        insight.refetch(),
       ]);
     } finally {
       setRefreshing(false);
     }
-  }, [attackVector, globalRisk, insight]);
+  }, [attackVector, globalRisk]);
 
   // Threat level gauge — percentage from global risk (0..1 → 0..100).
   const threatPct = Math.round((globalRisk.data?.globalRisk ?? 0) * 100);
@@ -304,44 +298,6 @@ export default function DashboardScreen() {
           )}
         </View>
 
-        {/* Sentinel Insight */}
-        <View style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <Text style={[styles.sectionTitle, { color: c.textPrimary }]}>
-              Sentinel Insight
-            </Text>
-            <Pressable
-              onPress={() => refreshInsight.mutate()}
-              disabled={refreshInsight.isPending || insight.isFetching}
-              hitSlop={10}
-            >
-              <Text style={[styles.viewAll, { color: c.primary }]}>
-                {refreshInsight.isPending || insight.isFetching
-                  ? "REFRESHING…"
-                  : "REFRESH"}
-              </Text>
-            </Pressable>
-          </View>
-          <View style={[styles.insightCard, { backgroundColor: c.bgCard }]}>
-            {insight.isLoading ? (
-              <SkeletonBlock lines={3} lineHeight={12} />
-            ) : (
-              <>
-                <Text style={[styles.insightBody, { color: c.textBody }]}>
-                  {insight.data?.insight ??
-                    "Insight unavailable — check backend connection."}
-                </Text>
-                {insight.data?.modelVersion ? (
-                  <Text style={[styles.insightMeta, { color: c.textMuted }]}>
-                    {insight.data.stale ? "STALE · " : ""}
-                    {insight.data.modelVersion}
-                  </Text>
-                ) : null}
-              </>
-            )}
-          </View>
-        </View>
-
         {/* Live feed pulse — quick preview, deeper view on the Feed tab */}
         <Pressable
           style={[styles.feedCta, { backgroundColor: c.bgCard }]}
@@ -541,28 +497,6 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     lineHeight: 13.75,
     marginTop: spacing.xs,
-  },
-  insightCard: {
-    backgroundColor: colors.bgCard,
-    borderRadius: radius.xl,
-    padding: spacing.lg,
-    gap: spacing.sm,
-    borderWidth: 1,
-    borderColor: colors.border,
-    ...shadows.card,
-  },
-  insightBody: {
-    fontFamily: typography.family.body,
-    fontSize: typography.size.md,
-    color: colors.textBody,
-    lineHeight: 20,
-  },
-  insightMeta: {
-    fontFamily: typography.family.heading,
-    fontSize: typography.size.xs,
-    color: colors.textMuted,
-    letterSpacing: 0.8,
-    textTransform: "uppercase",
   },
   sseDot: {
     width: 8,

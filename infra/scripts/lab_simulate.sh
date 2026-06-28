@@ -176,7 +176,7 @@ fi
 # this guarantees per-event visibility within the auditd->filebeat tail latency.
 export PYTHONUNBUFFERED=1
 
-stdbuf -oL -eL "$PY" -u "$SCRIPT" "${PASS_ARGS[@]:-}"
+stdbuf -oL -eL "$PY" -u "$SCRIPT" "${PASS_ARGS[@]}"
 rc=$?
 
 # Drain benign generators (they will self-exit when --duration elapses).
