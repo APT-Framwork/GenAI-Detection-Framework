@@ -241,6 +241,8 @@ RL_agent
 .playwright-mcp/
 .vscode/mcp.json
 *.png
+# …but README screenshots must ship with the repo:
+!docs/screenshots/*.png
 docs/conversations/
 infra/simulation/runs/
 
