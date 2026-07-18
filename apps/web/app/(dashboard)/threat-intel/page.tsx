@@ -167,7 +167,7 @@ export default function ThreatIntelPage() {
       </div>
 
       {/* Tabs — IOC registry vs. ATT&CK Coverage Matrix. Default = IOC. */}
-      <div className="flex items-center gap-1 border-b border-[var(--strix-border)]">
+      <div data-tour="ti-tabs" className="flex items-center gap-1 border-b border-[var(--strix-border)]">
         {(["ioc", "mitre"] as const).map((t) => {
           const active = tab === t
           const label = t === "ioc" ? "IOC Registry" : "ATT&CK Coverage"

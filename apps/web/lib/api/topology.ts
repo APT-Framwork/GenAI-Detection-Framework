@@ -40,5 +40,9 @@ export function useTopology(window: WindowLiteral = "24h") {
     queryFn: () =>
       apiFetch<TopologyResponse>(`/topology?window=${window}`),
     staleTime: 30_000,
+    // Poll like the other live views so host/compromise changes show up in
+    // near-real-time instead of only on window focus.
+    refetchInterval: 30_000,
+    refetchIntervalInBackground: false,
   });
 }

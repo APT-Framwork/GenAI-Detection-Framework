@@ -44,7 +44,7 @@ export default function IntelPage() {
   return (
     <div className="min-w-[1280px] space-y-4">
       {/* Header */}
-      <div className="flex items-center justify-between bg-white dark:bg-[var(--strix-bg-card)] border border-[rgba(128,182,195,0.15)] dark:border-[var(--strix-border)] rounded-2xl px-5 py-3">
+      <div data-tour="intel-header" className="flex items-center justify-between bg-white dark:bg-[var(--strix-bg-card)] border border-[rgba(128,182,195,0.15)] dark:border-[var(--strix-border)] rounded-2xl px-5 py-3">
         <div>
           <p className="text-[10px] text-[#00666d] dark:text-strix-cyan uppercase tracking-[1.2px] font-bold mb-1">
             CYBER THREAT INTELLIGENCE

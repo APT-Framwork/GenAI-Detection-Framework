@@ -14,7 +14,9 @@ import {
   MessageCircle,
   ChevronDown,
   Send,
+  Sparkles,
 } from "lucide-react"
+import { useTourStore } from "@/stores/tour-store"
 
 export default function SupportPage() {
   const [incidentLevel, setIncidentLevel] = useState("")
@@ -57,6 +59,13 @@ export default function SupportPage() {
           >
             v2.0.44-STABLE
           </span>
+          <button
+            onClick={() => useTourStore.getState().start(0)}
+            className="mt-4 ml-auto flex items-center gap-2 rounded-xl bg-[#00666d] dark:bg-strix-cyan px-5 py-2.5 text-[12px] font-bold text-white dark:text-[#00343d] hover:opacity-90 transition-opacity"
+          >
+            <Sparkles className="h-4 w-4" />
+            Launch interactive tutorial
+          </button>
         </div>
       </section>
 

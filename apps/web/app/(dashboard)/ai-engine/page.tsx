@@ -14,6 +14,7 @@ import {
 } from "@/components/model-monitor/panels"
 import { InferenceStream } from "@/components/model-monitor/inference-stream"
 import { cn } from "@/lib/utils"
+import { fakeLiveFeedActions } from "@/lib/demo-fake"
 import { MODEL_REGISTRY, compositeMetrics, type ModelMetrics } from "@/lib/model-registry"
 import {
   Brain,
@@ -53,8 +54,11 @@ export default function AiEnginePage() {
 
   // The live-feed hook hands back { id, data } envelopes; the model
   // panels want the flat LiveFeedEvent array, freshest-first.
+  // Demo-only: rewrite the displayed STRIX action (Exploitation → ESCALATE on
+  // the latest event per host, Installation → ISOLATE_HOST). Cosmetic only;
+  // feeds both the DQN panel and the inference stream. See lib/demo-fake.ts.
   const liveFeedEvents = useMemo(
-    () => liveFeed.events.map((e) => e.data),
+    () => fakeLiveFeedActions(liveFeed.events.map((e) => e.data)),
     [liveFeed.events],
   )
   // "Pulse" the panel accent dots when a new event arrived within the
@@ -117,7 +121,7 @@ export default function AiEnginePage() {
       {/* Top KPI Row — composite test-set metrics + live throughput. The
           Avg Drift KL tile was removed (the engine-health badge in the
           header depended on the same signal). */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div data-tour="ai-kpis" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <Kpi
           icon={Gauge}
           label="Composite Accuracy"
@@ -142,7 +146,7 @@ export default function AiEnginePage() {
           same SSE event buffer and renders its model's outputs in its
           own colour-coded card. The accent dot pulses briefly when a
           fresh event arrives. */}
-      <div>
+      <div data-tour="ai-live">
         <div className="flex items-center gap-2 mb-3">
           <Cpu className="h-4 w-4 text-strix-primary dark:text-strix-cyan" />
           <h2 className="text-sm font-bold text-[var(--strix-text)] font-[family-name:var(--font-space-grotesk)]">

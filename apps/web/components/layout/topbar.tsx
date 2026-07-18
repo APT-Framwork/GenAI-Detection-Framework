@@ -12,7 +12,9 @@ import {
   Sun,
   User,
   ChevronRight,
+  HelpCircle,
 } from "lucide-react"
+import { useTourStore } from "@/stores/tour-store"
 import { useEffect, useState } from "react"
 import Link from "next/link"
 import { ConnectionStatusBar } from "@/components/layout/connection-status-bar"
@@ -49,8 +51,7 @@ function getBreadcrumb(pathname: string): { parent?: string; current: string } {
 // case-insensitively as substrings against the user's query.
 const SEARCH_TARGETS: { label: string; href: string; keywords: string[] }[] = [
   { label: "Dashboard", href: "/", keywords: ["dashboard", "live", "home", "overview"] },
-  { label: "Attack Analysis", href: "/attack-analysis/latest", keywords: ["attack", "analysis", "chain", "forensic", "kill chain"] },
-  { label: "Vigilance Feed", href: "/vigilance-feed", keywords: ["vigilance", "feed", "alerts", "live"] },
+  // Attack Analysis and Vigilance Feed hidden from the platform for the demo.
   { label: "Topology", href: "/topology", keywords: ["topology", "network", "graph", "map"] },
   { label: "Threat Intel", href: "/threat-intel", keywords: ["threat", "intel", "ioc", "reputation", "compromised"] },
   { label: "AI Engine", href: "/ai-engine", keywords: ["ai", "model", "engine", "monitoring", "drift", "performance"] },
@@ -111,7 +112,7 @@ export function TopBar() {
         </div>
 
         {/* Connection + system status */}
-        <div className="hidden md:flex items-center gap-3 ml-4">
+        <div data-tour="topbar-status" className="hidden md:flex items-center gap-3 ml-4">
           <ConnectionStatusBar />
           <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-medium bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
             Threat Level: High
@@ -122,7 +123,7 @@ export function TopBar() {
       {/* Right: Search + Actions */}
       <div className="flex items-center gap-3">
         {/* Search */}
-        <div className="relative">
+        <div data-tour="topbar-search" className="relative">
           <div
             className={cn(
               "flex items-center gap-2 rounded-lg border px-3 py-1.5 transition-all duration-200",
@@ -176,8 +177,19 @@ export function TopBar() {
           )}
         </div>
 
+        {/* Tutorial launcher */}
+        <button
+          onClick={() => useTourStore.getState().start(0)}
+          className="flex h-8 w-8 items-center justify-center rounded-lg text-[var(--strix-text-muted)] hover:text-[var(--strix-text)] hover:bg-[var(--strix-bg-surface)] transition-colors"
+          aria-label="Start platform tutorial"
+          title="Platform tutorial"
+        >
+          <HelpCircle className="h-4 w-4" />
+        </button>
+
         {/* Theme Toggle */}
         <button
+          data-tour="topbar-theme"
           onClick={() => setTheme((resolvedTheme ?? theme) === "dark" ? "light" : "dark")}
           className="flex h-8 w-8 items-center justify-center rounded-lg text-[var(--strix-text-muted)] hover:text-[var(--strix-text)] hover:bg-[var(--strix-bg-surface)] transition-colors"
           suppressHydrationWarning
@@ -197,6 +209,7 @@ export function TopBar() {
         {/* Notifications */}
         <Link
           href="/notifications"
+          data-tour="topbar-bell"
           className="relative flex h-8 w-8 items-center justify-center rounded-lg text-[var(--strix-text-muted)] hover:text-[var(--strix-text)] hover:bg-[var(--strix-bg-surface)] transition-colors"
         >
           <Bell className="h-4 w-4" />

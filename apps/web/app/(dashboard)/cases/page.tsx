@@ -22,6 +22,7 @@ import {
 import { useLiveFeed } from "@/lib/api/live-feed";
 import { CaseRow } from "@/components/cases/case-row";
 import { FiltersBar } from "@/components/cases/filters-bar";
+import { fakeCaseAction } from "@/lib/demo-fake";
 import { toast } from "@/lib/toast";
 import { Loader2 } from "lucide-react";
 
@@ -39,13 +40,20 @@ export default function CasesPage() {
 
   const items = useMemo(() => {
     const all = cases.data?.items ?? [];
-    if (!hostQuery.trim()) return all;
-    const q = hostQuery.toLowerCase();
-    return all.filter(
-      (c) =>
-        (c.hostName ?? "").toLowerCase().includes(q) ||
-        (c.hostIp ?? "").toLowerCase().includes(q),
-    );
+    const q = hostQuery.trim().toLowerCase();
+    const filtered = !q
+      ? all
+      : all.filter(
+          (c) =>
+            (c.hostName ?? "").toLowerCase().includes(q) ||
+            (c.hostIp ?? "").toLowerCase().includes(q),
+        );
+    // Demo-only: surface the agent's decisive action per chain (Exploitation
+    // → ESCALATE, Installation → ISOLATE_HOST). See lib/demo-fake.ts.
+    return filtered.map((c) => ({
+      ...c,
+      lastDqnAction: fakeCaseAction(c.maxCkcStage, c.lastDqnAction),
+    }));
   }, [cases.data, hostQuery]);
 
   // Realtime row flash — when a live-feed event mentions a chainId
@@ -167,7 +175,7 @@ export default function CasesPage() {
       </div>
 
       {/* Body */}
-      <div className="flex-1 overflow-y-auto">
+      <div data-tour="cases-table" className="flex-1 overflow-y-auto">
         {cases.isLoading && items.length === 0 ? (
           <EmptyState>Loading triage queue…</EmptyState>
         ) : items.length === 0 ? (

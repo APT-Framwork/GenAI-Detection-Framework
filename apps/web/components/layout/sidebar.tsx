@@ -7,7 +7,6 @@ import { useSidebarStore } from "@/stores/sidebar-store"
 import { CavixLogo, CavixMark } from "@/components/layout/cavix-logo"
 import {
   LayoutDashboard,
-  Search,
   Shield,
   Brain,
   Activity,
@@ -15,10 +14,8 @@ import {
   HelpCircle,
   ChevronLeft,
   ChevronRight,
-  Radar,
   Inbox,
   Crosshair,
-  ListChecks,
   Target,
 } from "lucide-react"
 
@@ -26,8 +23,7 @@ const navItems = [
   { label: "DASHBOARD", href: "/", icon: LayoutDashboard, id: "dashboard" },
   { label: "CASES", href: "/cases", icon: Inbox, id: "cases" },
   { label: "HUNT", href: "/hunt", icon: Crosshair, id: "hunt" },
-  { label: "ANALYSIS", href: "/attack-analysis/latest", icon: Search, id: "analysis" },
-  { label: "ACTIONS", href: "/actions", icon: ListChecks, id: "actions" },
+  // ANALYSIS and ACTIONS hidden from the platform for the demo.
   { label: "CTI", href: "/intel", icon: Target, id: "intel" },
   { label: "THREAT INTEL", href: "/threat-intel", icon: Shield, id: "threat-intel" },
   { label: "MODEL MONITORING", href: "/ai-engine", icon: Brain, id: "ai-engine" },
@@ -73,7 +69,7 @@ export function Sidebar() {
       </div>
 
       {/* Main Navigation */}
-      <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto scrollbar-thin">
+      <nav data-tour="sidebar-nav" className="flex-1 px-3 py-4 space-y-1 overflow-y-auto scrollbar-thin">
         {navItems.map((item) => {
           const active = isActive(item.href)
           return (
@@ -99,20 +95,7 @@ export function Sidebar() {
         })}
       </nav>
 
-      {/* Deploy Probe Button — jumps to the live alert feed. */}
-      <div className="px-3 py-3">
-        <Link
-          href="/vigilance-feed"
-          className={cn(
-            "w-full flex items-center justify-center gap-2 rounded-lg py-2.5 text-xs font-semibold tracking-wide transition-all",
-            "bg-strix-cyan/10 text-strix-cyan border border-strix-cyan/30 hover:bg-strix-cyan/20",
-            isCollapsed && "px-2"
-          )}
-        >
-          <Radar className="h-4 w-4" />
-          {!isCollapsed && <span>ACTIVE VIGILANCE</span>}
-        </Link>
-      </div>
+      {/* ACTIVE VIGILANCE button hidden from the platform for the demo. */}
 
       {/* Bottom Navigation */}
       <div className="px-3 py-2 border-t border-[#1E293B] space-y-1">

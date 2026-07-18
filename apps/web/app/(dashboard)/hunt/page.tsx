@@ -118,6 +118,7 @@ export default function HuntPage() {
       <div className="grid grid-cols-12 gap-5">
         {/* Main column */}
         <div className="col-span-12 lg:col-span-9 space-y-4">
+          <div data-tour="hunt-query">
           <QueryBar
             value={draft}
             onChange={setDraft}
@@ -126,6 +127,7 @@ export default function HuntPage() {
             loading={runQuery.isPending}
             serverErrors={serverErrors}
           />
+          </div>
 
           <ResultsTable
             rows={rows}
@@ -137,7 +139,7 @@ export default function HuntPage() {
         </div>
 
         {/* Right rail */}
-        <div className="col-span-12 lg:col-span-3">
+        <div data-tour="hunt-saved" className="col-span-12 lg:col-span-3">
           <SavedQueries onRun={onRunSaved} />
         </div>
       </div>

@@ -36,7 +36,7 @@ export function FiltersBar({
   const isAll = active.length === 0;
 
   return (
-    <div className="sticky top-0 z-10 bg-white dark:bg-[var(--strix-bg)] border-b border-[rgba(128,182,195,0.15)] dark:border-[var(--strix-border)] px-4 py-3 flex items-center gap-3 flex-wrap">
+    <div data-tour="cases-filters" className="sticky top-0 z-10 bg-white dark:bg-[var(--strix-bg)] border-b border-[rgba(128,182,195,0.15)] dark:border-[var(--strix-border)] px-4 py-3 flex items-center gap-3 flex-wrap">
       {/* Status segmented control with counters */}
       <div className="inline-flex items-center rounded-lg border border-[rgba(128,182,195,0.2)] dark:border-[var(--strix-border)] overflow-hidden">
         <button

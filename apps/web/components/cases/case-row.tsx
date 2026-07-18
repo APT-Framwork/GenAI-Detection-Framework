@@ -5,6 +5,19 @@ import type { CaseItem } from "@/lib/api/cases";
 import { statusRail } from "./status-pill";
 import { severityFromCkcStage, severityColors } from "@/lib/design-tokens";
 
+// STRIX action → pill colours. Graduated severity so the column reads at a
+// glance: MONITOR / LOW_ALERT (cyan · informational) → ESCALATE (amber ·
+// acting) → ISOLATE_HOST / BLOCK_USER_IP (rose · containment). Mirrors the
+// chain-stage-timeline palette so actions look identical platform-wide.
+const ACTION_STYLES: Record<string, string> = {
+  NO_OP: "text-[#497f8b] dark:text-[var(--strix-text-muted)] bg-[#497f8b]/10 border-[#497f8b]/20",
+  MONITOR: "text-cyan-600 dark:text-cyan-400 bg-cyan-500/10 border-cyan-500/20",
+  LOW_ALERT: "text-cyan-600 dark:text-cyan-400 bg-cyan-500/10 border-cyan-500/20",
+  ESCALATE: "text-amber-600 dark:text-amber-400 bg-amber-500/10 border-amber-500/20",
+  ISOLATE_HOST: "text-rose-600 dark:text-rose-400 bg-rose-500/10 border-rose-500/20",
+  BLOCK_USER_IP: "text-rose-700 dark:text-rose-300 bg-rose-500/15 border-rose-500/30",
+};
+
 function timeAgo(iso: string): string {
   const t = Date.parse(iso);
   if (!Number.isFinite(t)) return "—";
@@ -100,8 +113,21 @@ export function CaseRow({ item, selected, onSelect, flash }: CaseRowProps) {
         </div>
 
         {/* Last DQN action */}
-        <span className="text-[10px] font-mono text-[#497f8b] dark:text-[var(--strix-text-muted)] w-[100px] truncate hidden lg:block">
-          {item.lastDqnAction ?? "—"}
+        <span className="w-[100px] hidden lg:block">
+          {item.lastDqnAction ? (
+            <span
+              className={`inline-flex items-center px-1.5 py-0.5 rounded font-mono text-[9px] font-semibold uppercase tracking-wide border ${
+                ACTION_STYLES[item.lastDqnAction] ??
+                "text-[#497f8b] dark:text-[var(--strix-text-muted)] bg-[#497f8b]/10 border-[#497f8b]/20"
+              }`}
+            >
+              {item.lastDqnAction}
+            </span>
+          ) : (
+            <span className="text-[10px] font-mono text-[#497f8b] dark:text-[var(--strix-text-muted)]">
+              —
+            </span>
+          )}
         </span>
 
         {/* Age */}
