@@ -154,8 +154,13 @@ if [[ -n "$BENIGN_RATE" && "$DRY_RUN" -eq 0 ]]; then
     if docker ps --format '{{.Names}}' | grep -qx "$victim"; then
       docker cp "$BENIGN_SH" "$victim:/tmp/benign_traffic.sh" >/dev/null 2>&1 || true
       docker exec "$victim" chmod +x /tmp/benign_traffic.sh >/dev/null 2>&1 || true
+      # Create the run dir AND hand it to strixbenign — the generator runs as
+      # that user and writes its sidecar there. Without the chown the dir is
+      # root-owned and the generator dies at startup ("Permission denied" on
+      # benign_events.jsonl), producing zero benign traffic.
       docker exec "$victim" mkdir -p "/tmp/strix_run/$RUN_ID" >/dev/null 2>&1 || true
-      # Run as strixbenign so auid carries the synthetic_benign signal.
+      docker exec "$victim" chown -R strixbenign:strixbenign "/tmp/strix_run/$RUN_ID" >/dev/null 2>&1 || true
+      # Run as strixbenign so the audit uid (4242) carries the benign signal.
       stdbuf -oL -eL docker exec "$victim" \
         runuser -u strixbenign -- \
         /tmp/benign_traffic.sh \

@@ -92,10 +92,12 @@ docker exec strix_redis sh -lc '
 pkill -f honcho && sleep 2 && nohup honcho -f Procfile.host -e apps/api/.env start &
 ```
 
-Then trigger the live walk:
+Then trigger the live walk. Always pass `--benign-rate` so the topology shows
+benign traffic dominating (≈3×+ the attack volume) instead of BENIGN 0 — a bare
+`lab_simulate.sh` run generates attack traffic only:
 
 ```bash
-bash infra/scripts/lab_simulate.sh --non-monotonic
+bash infra/scripts/lab_simulate.sh --non-monotonic --benign-rate 300/min
 ```
 
 ---
@@ -391,7 +393,8 @@ Keep this on a sticky note:
 | Symptom | Fix |
 |---|---|
 | Dashboard shows no events | `docker ps` → restart filebeat if down; check honcho with `ps -ef \| grep honcho` |
-| All actions LOW_ALERT, no ESCALATE | Run `bash infra/scripts/lab_simulate.sh --non-monotonic` mid-demo — chain will hit S5 within 60s |
+| All actions LOW_ALERT, no ESCALATE | Run `bash infra/scripts/lab_simulate.sh --non-monotonic --benign-rate 300/min` mid-demo — chain will hit S5 within 60s |
+| Topology shows BENIGN 0 | The run was launched without `--benign-rate`. Re-run via `jury_demo.sh` (benign on by default) or add `--benign-rate 300/min` to the `lab_simulate.sh` call |
 | Mobile not pinging | Expected if dev build expired; pre-test 30 min before. Fallback: show the Notifications drawer in web |
 | Page doesn't load | F5; if persistent, web hot-reload may have crashed — `pnpm dev` restart |
 

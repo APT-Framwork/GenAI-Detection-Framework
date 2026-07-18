@@ -9,6 +9,12 @@ Status rules per node:
     compromised — any open chain at CKC ≥ 4 (EXPLOITATION+) within window
     warning     — any open chain at CKC 1..3 within window
     healthy     — otherwise
+
+Host inclusion: only hosts whose `last_seen_at` falls inside the window are
+returned, so stale/decommissioned agents from past runs don't inflate the
+denominator (e.g. System Integrity counting 10 enrolled hosts when only 2 are
+live). Any host with chain activity in the window necessarily has a
+`last_seen_at` in the window too, so this never drops a compromised host.
 """
 
 from __future__ import annotations
@@ -60,6 +66,7 @@ class TopologyService:
              LEFT JOIN attack_chains c
                     ON c.host_id = h.host_id
                    AND c.opened_at >= NOW() - (:interval)::INTERVAL
+                 WHERE h.last_seen_at >= NOW() - (:interval)::INTERVAL
               GROUP BY h.host_id, h.agent_name, h.ip_address, h.is_manager
               ORDER BY max_ckc DESC, open_chains DESC, h.agent_name
                 """

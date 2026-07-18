@@ -46,7 +46,12 @@ API_URL="http://localhost:8000"
 # ---- args ------------------------------------------------------------------
 APT="APT29"
 DURATION="180s"
-BENIGN_RATE="100/min"
+# Benign background noise PER VICTIM. Cranked high on purpose: the jury demo
+# should look like a realistic, noisy SOC where benign traffic dominates and
+# the agent still isolates the one real chain. Each victim runs its own
+# generator, so total benign ≈ 2× this rate — at 300/min that's ~600/min,
+# comfortably ≫ 3× the attack volume. Override with --benign-rate.
+BENIGN_RATE="300/min"
 # Non-monotonic mode: the curated forward/backward kill-chain demo built to
 # trip the DQN's ESCALATE threshold so the RL Intervention Timeline lights up
 # during the jury demo. See run_full_simulation.py:DEFAULT_NONMONO_STAGES.
@@ -113,7 +118,9 @@ OPTIONS
                           Default: 180s.
 
     --benign-rate RATE    Background benign-traffic rate per victim, e.g.
-                          50/min, 200/min. Default: 100/min.
+                          50/min, 300/min, 600/min. Default: 300/min
+                          (≈600/min across 2 victims — benign ≫ attack
+                          volume so the demo shows a realistic noisy SOC).
 
     --keep-state          Skip the clean-state step. PG (attack_chains,
                           detections, alerts, dqn_actions) and Redis

@@ -56,10 +56,16 @@ if [[ -z "$RUN_DIR" ]]; then
   echo "--run-dir required" >&2
   exit 2
 fi
-mkdir -p "$RUN_DIR"
+mkdir -p "$RUN_DIR" 2>/dev/null || true
 SIDECAR="$RUN_DIR/benign_events.jsonl"
 : > "$SIDECAR".lock 2>/dev/null || true
-touch "$SIDECAR"
+# The sidecar is for OFFLINE labelling only — it must never gate the live
+# traffic. If the run dir isn't writable (e.g. owned by another user), fall
+# back to /dev/null and keep generating, instead of dying under `set -e`.
+if ! touch "$SIDECAR" 2>/dev/null; then
+  echo "warn: sidecar $SIDECAR not writable — continuing without it" >&2
+  SIDECAR="/dev/null"
+fi
 
 IFS=',' read -r -a TGT_ARR <<< "$TARGETS"
 HOST="$(hostname)"
@@ -74,7 +80,7 @@ emit() {
   ts="$(date -u +%Y-%m-%dT%H:%M:%S.%3NZ)"
   printf '{"ts":"%s","host":"%s","pid":%d,"cmd":%s}\n' \
     "$ts" "$HOST" "$$" "$(printf '%s' "$cmd" | python3 -c 'import json,sys;print(json.dumps(sys.stdin.read()))' 2>/dev/null || printf '"%s"' "$cmd")" \
-    >> "$SIDECAR"
+    >> "$SIDECAR" 2>/dev/null || true
 }
 
 # ----- benign action implementations (line-buffered, no failures fatal) -----
@@ -111,14 +117,38 @@ action_file_read() {
   emit "$cmd"
 }
 
-action_apt_list() {
-  local cmd="apt list --installed"
+# NOTE: `apt list --installed` and `dpkg -l` were REMOVED here. They each read
+# the entire package DB → ~20x audit-event amplification + heavy CPU/IO on the
+# victim, which starved the Caldera sandcat agent and stalled the *malicious*
+# detections. The replacements below are single-execve, near-zero-cost commands
+# that still fire the benign baseline rule (100090) without loading the host.
+
+action_ls() {
+  local dirs=(/home /tmp /etc /var/log /usr/bin)
+  local d="${dirs[RANDOM % ${#dirs[@]}]}"
+  local cmd="ls -la ${d}"
   ( $cmd >/dev/null 2>&1 || true ) &
   emit "$cmd"
 }
 
-action_dpkg_l() {
-  local cmd="dpkg -l"
+action_head() {
+  local files=(/etc/passwd /etc/group /etc/services /etc/fstab)
+  local f="${files[RANDOM % ${#files[@]}]}"
+  local cmd="head -n 5 ${f}"
+  ( $cmd >/dev/null 2>&1 || true ) &
+  emit "$cmd"
+}
+
+action_stat() {
+  local files=(/etc/hostname /bin/ls /etc/passwd /tmp)
+  local f="${files[RANDOM % ${#files[@]}]}"
+  local cmd="stat ${f}"
+  ( $cmd >/dev/null 2>&1 || true ) &
+  emit "$cmd"
+}
+
+action_date() {
+  local cmd="date -u +%s"
   ( $cmd >/dev/null 2>&1 || true ) &
   emit "$cmd"
 }
@@ -132,7 +162,12 @@ action_cron_touch() {
   emit "$cmd"
 }
 
-ACTIONS=(action_curl action_dig action_ssh_attempt action_file_read action_apt_list action_dpkg_l action_cron_touch)
+# NOTE: action_curl is intentionally NOT in this rotation. Under the STRIX
+# Wazuh ruleset, `curl`/`wget` match rule 100600 (T1105 — Command & Control),
+# so benign curl would be misclassified as a malicious C2 event. The remaining
+# commands (dig/ssh/cat/apt/dpkg/cron) only hit the muted audit parents and are
+# surfaced as benign by local_rules.xml rule 100090 (audit.uid 4242, no MITRE).
+ACTIONS=(action_dig action_ssh_attempt action_file_read action_ls action_head action_stat action_date action_cron_touch)
 
 START="$(date +%s)"
 END=$(( START + DUR_S ))

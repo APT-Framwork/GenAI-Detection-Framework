@@ -44,9 +44,11 @@ That's the one command for the full proof. `--non-monotonic` ignores
 # Longer run (more stages visible on the timeline)
 bash jury_demo.sh --non-monotonic --duration 240s
 
-# Quieter / busier background benign traffic per victim
-bash jury_demo.sh --non-monotonic --benign-rate 50/min
-bash jury_demo.sh --non-monotonic --benign-rate 200/min
+# Background benign traffic per victim. Default is 300/min (≈600/min across
+# the 2 victims) so benign dominates the topology ≈3×+ over the attack volume.
+# Turn it down for a calmer screen, or up to flood the feed harder.
+bash jury_demo.sh --non-monotonic --benign-rate 100/min   # calmer
+bash jury_demo.sh --non-monotonic --benign-rate 600/min   # heavier noise
 ```
 
 ---
@@ -109,8 +111,9 @@ curl http://$LAN_IP:8000/health      # → {"status":"ok"}
 # Bring the stack UP but DON'T run the sim (drive it manually after)
 bash jury_demo.sh --non-monotonic --skip-sim
 
-# …then trigger the kill-chain by hand whenever you're ready:
-bash infra/scripts/lab_simulate.sh --non-monotonic --benign-rate 100/min --duration 180s
+# …then trigger the kill-chain by hand whenever you're ready (keep
+# --benign-rate or the topology shows BENIGN 0):
+bash infra/scripts/lab_simulate.sh --non-monotonic --benign-rate 300/min --duration 180s
 
 # Classic APT chain instead of non-monotonic (e.g. if asked)
 bash jury_demo.sh --apt APT29
